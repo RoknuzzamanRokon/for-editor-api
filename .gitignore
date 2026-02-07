@@ -1,2 +1,6 @@
 .kiro
 .env
+
+*.pdf
+*.xlsx
+*.docs

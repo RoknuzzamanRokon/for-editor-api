@@ -19,7 +19,7 @@ class FileManagerService:
         b'%PDF-',  # Standard PDF signature
     ]
     
-    def __init__(self, storage_dir: str = "backend/static/pdfToExcel"):
+    def __init__(self, storage_dir: str = "static/pdfToExcel"):
         """
         Initialize FileManagerService
         
