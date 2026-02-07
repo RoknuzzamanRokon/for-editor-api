@@ -1,0 +1,463 @@
+{
+  "info": {
+    "name": "PDF Converter API",
+    "description": "API collection for PDF to Excel and PDF to Word conversion",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "PDF to Excel",
+      "item": [
+        {
+          "name": "Upload PDF for Excel Conversion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "PDF file to convert (max 50MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/upload",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "conversions", "pdf-to-excel"]
+            },
+            "description": "Upload a PDF file and convert it to Excel format. Returns conversion status and download URL."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/upload",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-excel"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"PDF converted successfully\",\n  \"filename\": \"invoice_20260208_123456_abc123.xlsx\",\n  \"download_url\": \"/download/invoice_20260208_123456_abc123.xlsx\"\n}"
+            },
+            {
+              "name": "Error - Invalid File Type",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/upload",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-excel"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"Only PDF files are accepted\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Excel Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/files",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "conversions", "pdf-to-excel", "files"]
+            },
+            "description": "Retrieve a list of all converted Excel files with metadata."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/files",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-excel", "files"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"files\": [\n    {\n      \"filename\": \"invoice_20260208_123456_abc123.xlsx\",\n      \"original_name\": \"invoice\",\n      \"conversion_date\": \"2026-02-08T12:34:56.789Z\",\n      \"file_size\": 15360,\n      \"status\": \"success\"\n    }\n  ],\n  \"total_count\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Download Excel File",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/download/:filename",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "conversions", "pdf-to-excel", "files", ":filename"],
+              "variable": [
+                {
+                  "key": "filename",
+                  "value": "invoice_20260208_123456_abc123.xlsx",
+                  "description": "Name of the file to download"
+                }
+              ]
+            },
+            "description": "Download a converted Excel file by filename."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/download/invoice_20260208_123456_abc123.xlsx",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-excel", "files", "invoice_20260208_123456_abc123.xlsx"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                },
+                {
+                  "key": "Content-Disposition",
+                  "value": "attachment; filename=\"invoice.xlsx\""
+                }
+              ],
+              "body": "[Binary Excel file content]"
+            },
+            {
+              "name": "Error - File Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/download/nonexistent.xlsx",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-excel", "files", "nonexistent.xlsx"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"File not found\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PDF to Word",
+      "item": [
+        {
+          "name": "Upload PDF for Word Conversion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "PDF file to convert (max 50MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/upload-docs",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "conversions", "pdf-to-word"]
+            },
+            "description": "Upload a PDF file and convert it to Word (DOCX) format. Returns conversion status and download URL."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/upload-docs",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-word"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"PDF converted successfully\",\n  \"filename\": \"report_20260208_123456_xyz789.docx\",\n  \"download_url\": \"/download-docs/report_20260208_123456_xyz789.docx\"\n}"
+            },
+            {
+              "name": "Error - File Too Large",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/upload-docs",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-word"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"File size exceeds 50MB limit\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Word Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs-files",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "conversions", "pdf-to-word", "files"]
+            },
+            "description": "Retrieve a list of all converted Word documents with metadata."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/docs-files",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-word", "files"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"files\": [\n    {\n      \"filename\": \"report_20260208_123456_xyz789.docx\",\n      \"original_name\": \"report\",\n      \"conversion_date\": \"2026-02-08T12:34:56.789Z\",\n      \"file_size\": 25600,\n      \"status\": \"success\"\n    }\n  ],\n  \"total_count\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Download Word File",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/download-docs/:filename",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "conversions", "pdf-to-word", "files", ":filename"],
+              "variable": [
+                {
+                  "key": "filename",
+                  "value": "report_20260208_123456_xyz789.docx",
+                  "description": "Name of the file to download"
+                }
+              ]
+            },
+            "description": "Download a converted Word document by filename."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/download-docs/report_20260208_123456_xyz789.docx",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-word", "files", "report_20260208_123456_xyz789.docx"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                },
+                {
+                  "key": "Content-Disposition",
+                  "value": "attachment; filename=\"report.docx\""
+                }
+              ],
+              "body": "[Binary Word file content]"
+            },
+            {
+              "name": "Error - File Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/download-docs/nonexistent.docx",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "conversions", "pdf-to-word", "files", "nonexistent.docx"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": \"File not found\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Web Interface",
+      "item": [
+        {
+          "name": "Get Web UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Access the web interface for PDF conversion."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/",
+                  "host": ["{{base_url}}"],
+                  "path": [""]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "html",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/html; charset=utf-8"
+                }
+              ],
+              "body": "<!DOCTYPE html>\n<html>...</html>"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

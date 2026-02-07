@@ -39,7 +39,7 @@ class TestUploadDocsEndpoint:
         
         with open(pdf_path, "rb") as f:
             response = client.post(
-                "/upload-docs",
+                "/v1/conversions/pdf-to-word",
                 files={"file": ("simple_text.pdf", f, "application/pdf")}
             )
         
@@ -51,7 +51,7 @@ class TestUploadDocsEndpoint:
         assert data["filename"] is not None
         assert data["filename"].endswith(".docx")
         assert data["download_url"] is not None
-        assert data["download_url"].startswith("/download-docs/")
+        assert data["download_url"].startswith("/v1/conversions/pdf-to-word/files/")
         
         # Verify file was created
         storage_dir = Path("static/pdfToDocs")
@@ -68,7 +68,7 @@ class TestUploadDocsEndpoint:
         
         with open(pdf_path, "rb") as f:
             response = client.post(
-                "/upload-docs",
+                "/v1/conversions/pdf-to-word",
                 files={"file": ("with_images.pdf", f, "application/pdf")}
             )
         
@@ -92,7 +92,7 @@ class TestUploadDocsEndpoint:
         
         with open(pdf_path, "rb") as f:
             response = client.post(
-                "/upload-docs",
+                "/v1/conversions/pdf-to-word",
                 files={"file": ("multipage_doc.pdf", f, "application/pdf")}
             )
         
@@ -115,7 +115,7 @@ class TestUploadDocsEndpoint:
         
         with open(pdf_path, "rb") as f:
             response = client.post(
-                "/upload-docs",
+                "/v1/conversions/pdf-to-word",
                 files={"file": ("formatted_doc.pdf", f, "application/pdf")}
             )
         
@@ -138,7 +138,7 @@ class TestUploadDocsEndpoint:
         
         with open(pdf_path, "rb") as f:
             response = client.post(
-                "/upload-docs",
+                "/v1/conversions/pdf-to-word",
                 files={"file": ("empty_doc.pdf", f, "application/pdf")}
             )
         
@@ -163,7 +163,7 @@ class TestUploadDocsEndpoint:
         fake_content = b"This is not a PDF file"
         
         response = client.post(
-            "/upload-docs",
+            "/v1/conversions/pdf-to-word",
             files={"file": ("test.txt", fake_content, "text/plain")}
         )
         
@@ -176,7 +176,7 @@ class TestUploadDocsEndpoint:
         fake_content = b"This is not a PDF file"
         
         response = client.post(
-            "/upload-docs",
+            "/v1/conversions/pdf-to-word",
             files={"file": ("fake.pdf", fake_content, "application/pdf")}
         )
         
@@ -187,7 +187,7 @@ class TestUploadDocsEndpoint:
         """Test uploading an empty file"""
         # Requirements: 1.5
         response = client.post(
-            "/upload-docs",
+            "/v1/conversions/pdf-to-word",
             files={"file": ("empty.pdf", b"", "application/pdf")}
         )
         
@@ -201,7 +201,7 @@ class TestUploadDocsEndpoint:
         large_content = b"%PDF-1.4\n" + b"x" * (11 * 1024 * 1024)  # 11MB
         
         response = client.post(
-            "/upload-docs",
+            "/v1/conversions/pdf-to-word",
             files={"file": ("large.pdf", large_content, "application/pdf")}
         )
         
@@ -217,7 +217,7 @@ class TestUploadDocsEndpoint:
         for _ in range(3):
             with open(pdf_path, "rb") as f:
                 response = client.post(
-                    "/upload-docs",
+                    "/v1/conversions/pdf-to-word",
                     files={"file": ("simple_text.pdf", f, "application/pdf")}
                 )
             
@@ -238,7 +238,7 @@ class TestUploadDocsEndpoint:
     def test_upload_without_file(self):
         """Test upload endpoint without providing a file"""
         # Requirements: 1.1
-        response = client.post("/upload-docs")
+        response = client.post("/v1/conversions/pdf-to-word")
         
         assert response.status_code == 422  # Unprocessable Entity
 
@@ -258,7 +258,7 @@ class TestDocsFileListingEndpoint:
                 except:
                     pass
         
-        response = client.get("/docs-files")
+        response = client.get("/v1/conversions/pdf-to-word/files")
         
         assert response.status_code == 200
         data = response.json()
@@ -276,7 +276,7 @@ class TestDocsFileListingEndpoint:
         
         with open(pdf_path, "rb") as f:
             upload_response = client.post(
-                "/upload-docs",
+                "/v1/conversions/pdf-to-word",
                 files={"file": ("simple_text.pdf", f, "application/pdf")}
             )
         
@@ -284,7 +284,7 @@ class TestDocsFileListingEndpoint:
         uploaded_filename = upload_response.json()["filename"]
         
         # Now list files
-        response = client.get("/docs-files")
+        response = client.get("/v1/conversions/pdf-to-word/files")
         
         assert response.status_code == 200
         data = response.json()
@@ -324,7 +324,7 @@ class TestDocsFileListingEndpoint:
         for i in range(3):
             with open(pdf_path, "rb") as f:
                 response = client.post(
-                    "/upload-docs",
+                    "/v1/conversions/pdf-to-word",
                     files={"file": (f"test_{i}.pdf", f, "application/pdf")}
                 )
             
@@ -333,7 +333,7 @@ class TestDocsFileListingEndpoint:
             time.sleep(0.1)  # Small delay to ensure different timestamps
         
         # List files
-        response = client.get("/docs-files")
+        response = client.get("/v1/conversions/pdf-to-word/files")
         assert response.status_code == 200
         data = response.json()
         
@@ -362,7 +362,7 @@ class TestDocsDownloadEndpoint:
         
         with open(pdf_path, "rb") as f:
             upload_response = client.post(
-                "/upload-docs",
+                "/v1/conversions/pdf-to-word",
                 files={"file": ("simple_text.pdf", f, "application/pdf")}
             )
         
@@ -370,7 +370,7 @@ class TestDocsDownloadEndpoint:
         filename = upload_response.json()["filename"]
         
         # Now download the file
-        response = client.get(f"/download-docs/{filename}")
+        response = client.get(f"/v1/conversions/pdf-to-word/files/{filename}")
         
         assert response.status_code == 200
         assert response.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -390,7 +390,7 @@ class TestDocsDownloadEndpoint:
     def test_download_nonexistent_file(self):
         """Test downloading a file that doesn't exist"""
         # Requirements: 3.3
-        response = client.get("/download-docs/nonexistent_file.docx")
+        response = client.get("/v1/conversions/pdf-to-word/files/nonexistent_file.docx")
         
         assert response.status_code == 404
         assert "File not found" in response.json()["detail"]
@@ -399,7 +399,7 @@ class TestDocsDownloadEndpoint:
         """Test that path traversal attempts are blocked"""
         # Requirements: 3.4
         # Try to access a file outside the storage directory
-        response = client.get("/download-docs/../../../etc/passwd")
+        response = client.get("/v1/conversions/pdf-to-word/files/../../../etc/passwd")
         
         assert response.status_code == 404
         # FastAPI returns "Not Found" for 404 errors
@@ -408,7 +408,7 @@ class TestDocsDownloadEndpoint:
     def test_download_with_invalid_filename(self):
         """Test downloading with invalid filename characters"""
         # Requirements: 3.4
-        response = client.get("/download-docs/../../secret.docx")
+        response = client.get("/v1/conversions/pdf-to-word/files/../../secret.docx")
         
         assert response.status_code == 404
         # FastAPI returns "Not Found" for 404 errors
@@ -421,7 +421,7 @@ class TestDocsDownloadEndpoint:
         
         with open(pdf_path, "rb") as f:
             upload_response = client.post(
-                "/upload-docs",
+                "/v1/conversions/pdf-to-word",
                 files={"file": ("my_document.pdf", f, "application/pdf")}
             )
         
@@ -429,7 +429,7 @@ class TestDocsDownloadEndpoint:
         filename = upload_response.json()["filename"]
         
         # Download the file
-        response = client.get(f"/download-docs/{filename}")
+        response = client.get(f"/v1/conversions/pdf-to-word/files/{filename}")
         
         assert response.status_code == 200
         
@@ -451,7 +451,7 @@ class TestDocsDownloadEndpoint:
         
         with open(pdf_path, "rb") as f:
             upload_response = client.post(
-                "/upload-docs",
+                "/v1/conversions/pdf-to-word",
                 files={"file": ("test.pdf", f, "application/pdf")}
             )
         
@@ -481,7 +481,7 @@ class TestDocsDownloadEndpoint:
         for i in range(2):
             with open(pdf_path, "rb") as f:
                 response = client.post(
-                    "/upload-docs",
+                    "/v1/conversions/pdf-to-word",
                     files={"file": (f"doc_{i}.pdf", f, "application/pdf")}
                 )
             
@@ -490,7 +490,7 @@ class TestDocsDownloadEndpoint:
         
         # Download each file
         for filename in filenames:
-            response = client.get(f"/download-docs/{filename}")
+            response = client.get(f"/v1/conversions/pdf-to-word/files/{filename}")
             assert response.status_code == 200
             assert len(response.content) > 0
         

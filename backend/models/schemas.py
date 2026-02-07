@@ -63,6 +63,6 @@ class FileListResponse(BaseModel):
 
 
 # Validation constants for file upload (Requirements 1.4, 1.5)
-MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB
+MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024  # 50MB
 ALLOWED_FILE_TYPES = ['application/pdf']
 ALLOWED_FILE_EXTENSIONS = ['.pdf']

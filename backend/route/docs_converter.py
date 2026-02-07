@@ -12,14 +12,14 @@ from services.file_manager import FileManagerService
 from services.pdf_to_docs_converter import PDFToDocsConverterService
 
 
-router = APIRouter()
+router = APIRouter(prefix="/v1/conversions/pdf-to-word", tags=["PDF to Word"])
 
 # Initialize services with docs-specific storage directory
 docs_file_manager = FileManagerService(storage_dir="static/pdfToDocs")
 pdf_to_docs_converter = PDFToDocsConverterService()
 
 
-@router.post("/upload-docs", response_model=ConversionResponse)
+@router.post("", response_model=ConversionResponse)
 async def upload_pdf_for_docs(file: UploadFile = File(...)):
     """
     Upload and convert PDF file to Word document
@@ -56,7 +56,7 @@ async def upload_pdf_for_docs(file: UploadFile = File(...)):
                 )
             
             # Generate download URL
-            download_url = f"/download-docs/{output_filename}"
+            download_url = f"/v1/conversions/pdf-to-word/files/{output_filename}"
             
             return ConversionResponse(
                 success=True,
@@ -78,7 +78,7 @@ async def upload_pdf_for_docs(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@router.get("/docs-files", response_model=FileListResponse)
+@router.get("/files", response_model=FileListResponse)
 async def list_docs_files():
     """
     List all converted Word documents
@@ -100,7 +100,7 @@ async def list_docs_files():
         raise HTTPException(status_code=500, detail=f"Failed to list files: {str(e)}")
 
 
-@router.get("/download-docs/{filename}")
+@router.get("/files/{filename}")
 async def download_docs_file(filename: str):
     """
     Download a converted Word document

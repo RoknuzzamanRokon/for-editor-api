@@ -1,17 +1,17 @@
 """
-Unit tests for PDFConverterService
+Unit tests for PDFToExcelConverterService
 """
 import os
 import pytest
 import pandas as pd
 from pathlib import Path
-from services.pdf_converter import PDFConverterService
+from services.pdf_to_excel_converter import PDFToExcelConverterService
 
 
 @pytest.fixture
 def pdf_converter():
-    """Fixture to create PDFConverterService instance"""
-    return PDFConverterService()
+    """Fixture to create PDFToExcelConverterService instance"""
+    return PDFToExcelConverterService()
 
 
 @pytest.fixture
@@ -319,7 +319,7 @@ class TestConvertPDFToExcel:
 
 
 class TestErrorHandling:
-    """Tests for error handling in PDFConverterService"""
+    """Tests for error handling in PDFToExcelConverterService"""
     
     def test_extract_from_corrupted_pdf(self, pdf_converter, tmp_path):
         """Test that corrupted PDF raises ValueError"""
@@ -404,16 +404,16 @@ class TestErrorHandling:
     
     def test_timeout_configuration(self):
         """Test that timeout can be configured"""
-        custom_service = PDFConverterService(timeout=30)
+        custom_service = PDFToExcelConverterService(timeout=30)
         assert custom_service.timeout == 30
         
-        default_service = PDFConverterService()
-        assert default_service.timeout == PDFConverterService.DEFAULT_TIMEOUT
+        default_service = PDFToExcelConverterService()
+        assert default_service.timeout == PDFToExcelConverterService.DEFAULT_TIMEOUT
     
     def test_timeout_mechanism_with_short_timeout(self, tmp_path):
         """Test that timeout mechanism works with very short timeout"""
         # Create a service with very short timeout
-        short_timeout_service = PDFConverterService(timeout=0)
+        short_timeout_service = PDFToExcelConverterService(timeout=0)
         
         # Create a simple valid PDF (we'll use test data if available)
         # For this test, we just verify the timeout mechanism is in place
@@ -423,7 +423,7 @@ class TestErrorHandling:
     def test_convert_pdf_to_excel_handles_timeout(self, tmp_path):
         """Test that timeout error is handled gracefully in convert_pdf_to_excel"""
         # Create a service with very short timeout
-        short_timeout_service = PDFConverterService(timeout=0)
+        short_timeout_service = PDFToExcelConverterService(timeout=0)
         
         # Create a fake PDF that would trigger timeout
         fake_pdf = tmp_path / "fake.pdf"

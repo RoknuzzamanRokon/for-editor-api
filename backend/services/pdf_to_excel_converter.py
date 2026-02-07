@@ -49,7 +49,7 @@ class TimeoutContext:
         return False
 
 
-class PDFConverterService:
+class PDFToExcelConverterService:
     """Service for converting PDF files to Excel format"""
     
     # Default timeout for conversion operations (in seconds)
@@ -57,7 +57,7 @@ class PDFConverterService:
     
     def __init__(self, timeout: int = DEFAULT_TIMEOUT):
         """
-        Initialize PDFConverterService
+        Initialize PDFToExcelConverterService
         
         Args:
             timeout: Maximum time in seconds for conversion operations

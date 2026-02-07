@@ -1,5 +1,5 @@
 """
-Converter route endpoints for PDF to Excel conversion
+Excel Converter route endpoints for PDF to Excel conversion
 """
 import os
 import tempfile
@@ -9,17 +9,17 @@ from fastapi.responses import FileResponse
 
 from models.schemas import ConversionResponse, FileListResponse
 from services.file_manager import FileManagerService
-from services.pdf_converter import PDFConverterService
+from services.pdf_to_excel_converter import PDFToExcelConverterService
 
 
-router = APIRouter()
+router = APIRouter(prefix="/v1/conversions/pdf-to-excel", tags=["PDF to Excel"])
 
 # Initialize services
 file_manager = FileManagerService()
-pdf_converter = PDFConverterService()
+pdf_to_excel_converter = PDFToExcelConverterService()
 
 
-@router.post("/upload", response_model=ConversionResponse)
+@router.post("", response_model=ConversionResponse)
 async def upload_pdf(file: UploadFile = File(...)):
     """
     Upload and convert PDF file to Excel
@@ -45,7 +45,7 @@ async def upload_pdf(file: UploadFile = File(...)):
         
         try:
             # Convert PDF to Excel
-            success, error_msg = pdf_converter.convert_pdf_to_excel(temp_pdf_path, output_path)
+            success, error_msg = pdf_to_excel_converter.convert_pdf_to_excel(temp_pdf_path, output_path)
             
             if not success:
                 return ConversionResponse(
@@ -56,7 +56,7 @@ async def upload_pdf(file: UploadFile = File(...)):
                 )
             
             # Generate download URL
-            download_url = f"/download/{output_filename}"
+            download_url = f"/v1/conversions/pdf-to-excel/files/{output_filename}"
             
             return ConversionResponse(
                 success=True,
@@ -99,7 +99,7 @@ async def list_files():
         raise HTTPException(status_code=500, detail=f"Failed to list files: {str(e)}")
 
 
-@router.get("/download/{filename}")
+@router.get("/files/{filename}")
 async def download_file(filename: str):
     """
     Download a converted Excel file

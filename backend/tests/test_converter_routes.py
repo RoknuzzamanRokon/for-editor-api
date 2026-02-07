@@ -39,7 +39,7 @@ class TestUploadEndpoint:
         
         with open(pdf_path, "rb") as f:
             response = client.post(
-                "/upload",
+                "/v1/conversions/pdf-to-excel",
                 files={"file": ("simple_table.pdf", f, "application/pdf")}
             )
         
@@ -51,7 +51,7 @@ class TestUploadEndpoint:
         assert data["filename"] is not None
         assert data["filename"].endswith(".xlsx")
         assert data["download_url"] is not None
-        assert data["download_url"].startswith("/download/")
+        assert data["download_url"].startswith("/v1/conversions/pdf-to-excel/files/")
         
         # Verify file was created
         storage_dir = Path("backend/static/pdfToExcel")
@@ -68,7 +68,7 @@ class TestUploadEndpoint:
         
         with open(pdf_path, "rb") as f:
             response = client.post(
-                "/upload",
+                "/v1/conversions/pdf-to-excel",
                 files={"file": ("multiple_tables.pdf", f, "application/pdf")}
             )
         
@@ -91,7 +91,7 @@ class TestUploadEndpoint:
         
         with open(pdf_path, "rb") as f:
             response = client.post(
-                "/upload",
+                "/v1/conversions/pdf-to-excel",
                 files={"file": ("no_table.pdf", f, "application/pdf")}
             )
         
@@ -110,7 +110,7 @@ class TestUploadEndpoint:
         fake_content = b"This is not a PDF file"
         
         response = client.post(
-            "/upload",
+            "/v1/conversions/pdf-to-excel",
             files={"file": ("test.txt", fake_content, "text/plain")}
         )
         
@@ -123,7 +123,7 @@ class TestUploadEndpoint:
         fake_content = b"This is not a PDF file"
         
         response = client.post(
-            "/upload",
+            "/v1/conversions/pdf-to-excel",
             files={"file": ("fake.pdf", fake_content, "application/pdf")}
         )
         
@@ -134,7 +134,7 @@ class TestUploadEndpoint:
         """Test uploading an empty file"""
         # Requirements: 1.4
         response = client.post(
-            "/upload",
+            "/v1/conversions/pdf-to-excel",
             files={"file": ("empty.pdf", b"", "application/pdf")}
         )
         
@@ -148,7 +148,7 @@ class TestUploadEndpoint:
         large_content = b"%PDF-1.4\n" + b"x" * (11 * 1024 * 1024)  # 11MB
         
         response = client.post(
-            "/upload",
+            "/v1/conversions/pdf-to-excel",
             files={"file": ("large.pdf", large_content, "application/pdf")}
         )
         
@@ -162,7 +162,7 @@ class TestUploadEndpoint:
         
         with open(pdf_path, "rb") as f:
             response = client.post(
-                "/upload",
+                "/v1/conversions/pdf-to-excel",
                 files={"file": ("multipage_table.pdf", f, "application/pdf")}
             )
         
@@ -187,7 +187,7 @@ class TestUploadEndpoint:
         for _ in range(3):
             with open(pdf_path, "rb") as f:
                 response = client.post(
-                    "/upload",
+                    "/v1/conversions/pdf-to-excel",
                     files={"file": ("simple_table.pdf", f, "application/pdf")}
                 )
             
@@ -208,7 +208,7 @@ class TestUploadEndpoint:
     def test_upload_without_file(self):
         """Test upload endpoint without providing a file"""
         # Requirements: 1.1
-        response = client.post("/upload")
+        response = client.post("/v1/conversions/pdf-to-excel")
         
         assert response.status_code == 422  # Unprocessable Entity
 
@@ -229,7 +229,7 @@ class TestFileListingEndpoint:
                 except:
                     pass
         
-        response = client.get("/files")
+        response = client.get("/v1/conversions/pdf-to-excel/files")
         
         assert response.status_code == 200
         data = response.json()
@@ -247,7 +247,7 @@ class TestFileListingEndpoint:
         
         with open(pdf_path, "rb") as f:
             upload_response = client.post(
-                "/upload",
+                "/v1/conversions/pdf-to-excel",
                 files={"file": ("simple_table.pdf", f, "application/pdf")}
             )
         
@@ -255,7 +255,7 @@ class TestFileListingEndpoint:
         uploaded_filename = upload_response.json()["filename"]
         
         # Now list files
-        response = client.get("/files")
+        response = client.get("/v1/conversions/pdf-to-excel/files")
         
         assert response.status_code == 200
         data = response.json()
@@ -295,7 +295,7 @@ class TestFileListingEndpoint:
         for i in range(3):
             with open(pdf_path, "rb") as f:
                 response = client.post(
-                    "/upload",
+                    "/v1/conversions/pdf-to-excel",
                     files={"file": (f"test_{i}.pdf", f, "application/pdf")}
                 )
             
@@ -304,7 +304,7 @@ class TestFileListingEndpoint:
             time.sleep(0.1)  # Small delay to ensure different timestamps
         
         # List files
-        response = client.get("/files")
+        response = client.get("/v1/conversions/pdf-to-excel/files")
         assert response.status_code == 200
         data = response.json()
         
@@ -333,7 +333,7 @@ class TestDownloadEndpoint:
         
         with open(pdf_path, "rb") as f:
             upload_response = client.post(
-                "/upload",
+                "/v1/conversions/pdf-to-excel",
                 files={"file": ("simple_table.pdf", f, "application/pdf")}
             )
         
@@ -341,7 +341,7 @@ class TestDownloadEndpoint:
         filename = upload_response.json()["filename"]
         
         # Now download the file
-        response = client.get(f"/download/{filename}")
+        response = client.get(f"/v1/conversions/pdf-to-excel/files/{filename}")
         
         assert response.status_code == 200
         assert response.headers["content-type"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -361,7 +361,7 @@ class TestDownloadEndpoint:
     def test_download_nonexistent_file(self):
         """Test downloading a file that doesn't exist"""
         # Requirements: 3.4
-        response = client.get("/download/nonexistent_file.xlsx")
+        response = client.get("/v1/conversions/pdf-to-excel/files/nonexistent_file.xlsx")
         
         assert response.status_code == 404
         assert "File not found" in response.json()["detail"]
@@ -370,7 +370,7 @@ class TestDownloadEndpoint:
         """Test that path traversal attempts are blocked"""
         # Requirements: 3.4
         # Try to access a file outside the storage directory
-        response = client.get("/download/../../../etc/passwd")
+        response = client.get("/v1/conversions/pdf-to-excel/files/../../../etc/passwd")
         
         assert response.status_code == 404
         # FastAPI returns "Not Found" for 404 errors
@@ -379,7 +379,7 @@ class TestDownloadEndpoint:
     def test_download_with_invalid_filename(self):
         """Test downloading with invalid filename characters"""
         # Requirements: 3.4
-        response = client.get("/download/../../secret.xlsx")
+        response = client.get("/v1/conversions/pdf-to-excel/files/../../secret.xlsx")
         
         assert response.status_code == 404
         # FastAPI returns "Not Found" for 404 errors
@@ -392,7 +392,7 @@ class TestDownloadEndpoint:
         
         with open(pdf_path, "rb") as f:
             upload_response = client.post(
-                "/upload",
+                "/v1/conversions/pdf-to-excel",
                 files={"file": ("my_invoice.pdf", f, "application/pdf")}
             )
         
@@ -400,7 +400,7 @@ class TestDownloadEndpoint:
         filename = upload_response.json()["filename"]
         
         # Download the file
-        response = client.get(f"/download/{filename}")
+        response = client.get(f"/v1/conversions/pdf-to-excel/files/{filename}")
         
         assert response.status_code == 200
         
@@ -422,7 +422,7 @@ class TestDownloadEndpoint:
         
         with open(pdf_path, "rb") as f:
             upload_response = client.post(
-                "/upload",
+                "/v1/conversions/pdf-to-excel",
                 files={"file": ("test.pdf", f, "application/pdf")}
             )
         
