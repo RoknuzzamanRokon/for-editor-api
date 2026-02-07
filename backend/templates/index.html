@@ -1,11 +1,590 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<title>Editor</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>PDF to Excel Converter</title>
+		<style id="app-styles">
+			/* Reset and Base Styles */
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+				line-height: 1.6;
+				color: #333;
+				background-color: #f5f5f5;
+				padding: 20px;
+			}
+			
+			.container {
+				max-width: 1000px;
+				margin: 0 auto;
+				background-color: white;
+				border-radius: 8px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+				padding: 30px;
+			}
+			
+			/* Header Styles */
+			header {
+				text-align: center;
+				margin-bottom: 40px;
+				border-bottom: 2px solid #e0e0e0;
+				padding-bottom: 20px;
+			}
+			
+			h1 {
+				color: #2c3e50;
+				font-size: 2.5em;
+				margin-bottom: 10px;
+			}
+			
+			h2 {
+				color: #34495e;
+				font-size: 1.8em;
+				margin-bottom: 20px;
+			}
+			
+			.instructions {
+				color: #7f8c8d;
+				font-size: 1.1em;
+			}
+			
+			/* Upload Section Styles */
+			.upload-section {
+				margin-bottom: 50px;
+			}
+			
+			.upload-form {
+				display: flex;
+				gap: 15px;
+				align-items: center;
+				margin-bottom: 20px;
+				flex-wrap: wrap;
+			}
+			
+			#pdfFileInput {
+				flex: 1;
+				min-width: 250px;
+				padding: 12px;
+				border: 2px solid #ddd;
+				border-radius: 4px;
+				font-size: 1em;
+				cursor: pointer;
+			}
+			
+			#pdfFileInput:hover {
+				border-color: #3498db;
+			}
+			
+			#uploadButton {
+				padding: 12px 30px;
+				background-color: #3498db;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				font-size: 1em;
+				font-weight: 600;
+				cursor: pointer;
+				transition: background-color 0.3s;
+			}
+			
+			#uploadButton:hover {
+				background-color: #2980b9;
+			}
+			
+			#uploadButton:disabled {
+				background-color: #95a5a6;
+				cursor: not-allowed;
+			}
+			
+			/* Loading Indicator Styles */
+			.loading-indicator {
+				text-align: center;
+				padding: 20px;
+				background-color: #ecf0f1;
+				border-radius: 4px;
+				margin-top: 20px;
+			}
+			
+			.spinner {
+				border: 4px solid #f3f3f3;
+				border-top: 4px solid #3498db;
+				border-radius: 50%;
+				width: 40px;
+				height: 40px;
+				animation: spin 1s linear infinite;
+				margin: 0 auto 10px;
+			}
+			
+			@keyframes spin {
+				0% { transform: rotate(0deg); }
+				100% { transform: rotate(360deg); }
+			}
+			
+			/* Message Styles */
+			.message {
+				padding: 15px 20px;
+				border-radius: 4px;
+				margin-top: 20px;
+			}
+			
+			.success-message {
+				background-color: #d4edda;
+				border: 1px solid #c3e6cb;
+				color: #155724;
+			}
+			
+			.error-message {
+				background-color: #f8d7da;
+				border: 1px solid #f5c6cb;
+				color: #721c24;
+			}
+			
+			.message-text {
+				margin: 0;
+				font-weight: 500;
+			}
+			
+			/* Download Section Styles */
+			.download-section {
+				margin-top: 40px;
+			}
+			
+			.empty-state {
+				text-align: center;
+				padding: 40px;
+				color: #7f8c8d;
+				font-size: 1.1em;
+				background-color: #f8f9fa;
+				border-radius: 4px;
+			}
+			
+			.file-list-container {
+				overflow-x: auto;
+			}
+			
+			.file-table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 20px;
+			}
+			
+			.file-table thead {
+				background-color: #34495e;
+				color: white;
+			}
+			
+			.file-table th {
+				padding: 15px;
+				text-align: left;
+				font-weight: 600;
+			}
+			
+			.file-table td {
+				padding: 15px;
+				border-bottom: 1px solid #e0e0e0;
+			}
+			
+			.file-table tbody tr:hover {
+				background-color: #f8f9fa;
+			}
+			
+			.filename {
+				font-weight: 500;
+				color: #2c3e50;
+			}
+			
+			.download-btn {
+				padding: 8px 20px;
+				background-color: #27ae60;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				font-size: 0.9em;
+				font-weight: 600;
+				cursor: pointer;
+				transition: background-color 0.3s;
+			}
+			
+			.download-btn:hover {
+				background-color: #229954;
+			}
+			
+			/* Responsive Design for Mobile */
+			@media (max-width: 768px) {
+				body {
+					padding: 10px;
+				}
+				
+				.container {
+					padding: 20px;
+				}
+				
+				h1 {
+					font-size: 2em;
+				}
+				
+				h2 {
+					font-size: 1.5em;
+				}
+				
+				.upload-form {
+					flex-direction: column;
+					align-items: stretch;
+				}
+				
+				#pdfFileInput,
+				#uploadButton {
+					width: 100%;
+				}
+				
+				.file-table {
+					font-size: 0.9em;
+				}
+				
+				.file-table th,
+				.file-table td {
+					padding: 10px 8px;
+				}
+				
+				/* Stack table on very small screens */
+				@media (max-width: 480px) {
+					.file-table thead {
+						display: none;
+					}
+					
+					.file-table tr {
+						display: block;
+						margin-bottom: 15px;
+						border: 1px solid #e0e0e0;
+						border-radius: 4px;
+					}
+					
+					.file-table td {
+						display: block;
+						text-align: right;
+						padding: 10px;
+						border-bottom: 1px solid #f0f0f0;
+					}
+					
+					.file-table td:last-child {
+						border-bottom: none;
+					}
+					
+					.file-table td::before {
+						content: attr(class);
+						float: left;
+						font-weight: bold;
+						text-transform: capitalize;
+					}
+					
+					.file-table td.action {
+						text-align: center;
+					}
+					
+					.download-btn {
+						width: 100%;
+					}
+				}
+			}
+		</style>
 	</head>
 	<body>
-		<h1>Hello world</h1>
-		<p>This page is served from FastAPI</p>
-	</body>
+		<div class="container">
+			<header>
+				<h1>PDF to Excel Converter</h1>
+				<p class="instructions">Upload a PDF file to convert it to Excel format. Maximum file size: 10MB.</p>
+			</header>
 
+			<!-- Upload Section -->
+			<section class="upload-section">
+				<h2>Upload PDF</h2>
+				<div class="upload-form">
+					<input 
+						type="file" 
+						id="pdfFileInput" 
+						accept=".pdf,application/pdf"
+						aria-label="Select PDF file"
+					/>
+					<button id="uploadButton" type="button">Convert to Excel</button>
+				</div>
+				
+				<!-- Loading Indicator -->
+				<div id="loadingIndicator" class="loading-indicator" style="display: none;">
+					<div class="spinner"></div>
+					<p>Converting PDF to Excel...</p>
+				</div>
+				
+				<!-- Success Message -->
+				<div id="successMessage" class="message success-message" style="display: none;">
+					<p class="message-text"></p>
+				</div>
+				
+				<!-- Error Message -->
+				<div id="errorMessage" class="message error-message" style="display: none;">
+					<p class="message-text"></p>
+				</div>
+			</section>
+
+			<!-- Download Section - will be implemented in task 7.2 -->
+			<section class="download-section">
+				<h2>Converted Files</h2>
+				
+				<!-- Empty State Message -->
+				<div id="emptyState" class="empty-state">
+					<p>No converted files available yet. Upload a PDF to get started.</p>
+				</div>
+				
+				<!-- File List Container -->
+				<div id="fileListContainer" class="file-list-container" style="display: none;">
+					<table class="file-table">
+						<thead>
+							<tr>
+								<th>Filename</th>
+								<th>Date</th>
+								<th>Size</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody id="fileListBody">
+							<!-- File rows will be dynamically inserted here -->
+						</tbody>
+					</table>
+				</div>
+			</section>
+		</div>
+
+		<script>
+			// Upload Functionality (Task 7.3)
+			
+			// Get DOM elements
+			const fileInput = document.getElementById('pdfFileInput');
+			const uploadButton = document.getElementById('uploadButton');
+			const loadingIndicator = document.getElementById('loadingIndicator');
+			const successMessage = document.getElementById('successMessage');
+			const errorMessage = document.getElementById('errorMessage');
+			
+			// Handle file selection and validation
+			function validateFile(file) {
+				if (!file) {
+					return { valid: false, message: 'Please select a file' };
+				}
+				
+				// Check file type
+				if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+					return { valid: false, message: 'Only PDF files are accepted' };
+				}
+				
+				// Check file size (10MB = 10 * 1024 * 1024 bytes)
+				const maxSize = 10 * 1024 * 1024;
+				if (file.size > maxSize) {
+					return { valid: false, message: 'File size exceeds 10MB limit' };
+				}
+				
+				if (file.size === 0) {
+					return { valid: false, message: 'File is empty' };
+				}
+				
+				return { valid: true };
+			}
+			
+			// Display loading indicator
+			function showLoading() {
+				loadingIndicator.style.display = 'block';
+				successMessage.style.display = 'none';
+				errorMessage.style.display = 'none';
+				uploadButton.disabled = true;
+			}
+			
+			// Hide loading indicator
+			function hideLoading() {
+				loadingIndicator.style.display = 'none';
+				uploadButton.disabled = false;
+			}
+			
+			// Display success message
+			function showSuccess(message) {
+				hideLoading();
+				successMessage.querySelector('.message-text').textContent = message;
+				successMessage.style.display = 'block';
+				errorMessage.style.display = 'none';
+				
+				// Auto-hide after 5 seconds
+				setTimeout(() => {
+					successMessage.style.display = 'none';
+				}, 5000);
+			}
+			
+			// Display error message
+			function showError(message) {
+				hideLoading();
+				errorMessage.querySelector('.message-text').textContent = message;
+				errorMessage.style.display = 'block';
+				successMessage.style.display = 'none';
+			}
+			
+			// Send upload request to /upload endpoint
+			async function uploadFile(file) {
+				const formData = new FormData();
+				formData.append('file', file);
+				
+				try {
+					const response = await fetch('/upload', {
+						method: 'POST',
+						body: formData
+					});
+					
+					const data = await response.json();
+					
+					if (response.ok && data.success) {
+						showSuccess(data.message || 'File converted successfully!');
+						// Update file list after successful upload
+						await loadFileList();
+						// Clear file input
+						fileInput.value = '';
+					} else {
+						showError(data.message || 'Conversion failed');
+					}
+				} catch (error) {
+					showError('Network error: ' + error.message);
+				}
+			}
+			
+			// Handle upload button click
+			uploadButton.addEventListener('click', async () => {
+				const file = fileInput.files[0];
+				const validation = validateFile(file);
+				
+				if (!validation.valid) {
+					showError(validation.message);
+					return;
+				}
+				
+				showLoading();
+				await uploadFile(file);
+			});
+			
+			// Allow Enter key to trigger upload
+			fileInput.addEventListener('keypress', (e) => {
+				if (e.key === 'Enter') {
+					uploadButton.click();
+				}
+			});
+			
+			// Download Functionality (Task 7.4) - will be added next
+			
+			// Get download section elements
+			const emptyState = document.getElementById('emptyState');
+			const fileListContainer = document.getElementById('fileListContainer');
+			const fileListBody = document.getElementById('fileListBody');
+			
+			// Fetch file list from /files endpoint
+			async function loadFileList() {
+				try {
+					const response = await fetch('/files');
+					const data = await response.json();
+					
+					if (response.ok && data.files) {
+						renderFileList(data.files);
+					} else {
+						console.error('Failed to load file list');
+						renderFileList([]);
+					}
+				} catch (error) {
+					console.error('Error loading file list:', error);
+					renderFileList([]);
+				}
+			}
+			
+			// Format file size for display
+			function formatFileSize(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				const k = 1024;
+				const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+				const i = Math.floor(Math.log(bytes) / Math.log(k));
+				return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+			}
+			
+			// Format date for display
+			function formatDate(dateString) {
+				const date = new Date(dateString);
+				return date.toLocaleString();
+			}
+			
+			// Render file list in the UI
+			function renderFileList(files) {
+				// Clear existing rows
+				fileListBody.innerHTML = '';
+				
+				if (files.length === 0) {
+					// Show empty state
+					emptyState.style.display = 'block';
+					fileListContainer.style.display = 'none';
+				} else {
+					// Hide empty state and show file list
+					emptyState.style.display = 'none';
+					fileListContainer.style.display = 'block';
+					
+					// Create rows for each file
+					files.forEach(file => {
+						const row = document.createElement('tr');
+						row.innerHTML = `
+							<td class="filename">${escapeHtml(file.filename)}</td>
+							<td class="date">${formatDate(file.conversion_date)}</td>
+							<td class="size">${formatFileSize(file.file_size)}</td>
+							<td class="action">
+								<button class="download-btn" data-filename="${escapeHtml(file.filename)}">
+									Download
+								</button>
+							</td>
+						`;
+						fileListBody.appendChild(row);
+					});
+					
+					// Attach event listeners to download buttons
+					attachDownloadHandlers();
+				}
+			}
+			
+			// Escape HTML to prevent XSS
+			function escapeHtml(text) {
+				const div = document.createElement('div');
+				div.textContent = text;
+				return div.innerHTML;
+			}
+			
+			// Handle download button clicks
+			function attachDownloadHandlers() {
+				const downloadButtons = document.querySelectorAll('.download-btn');
+				downloadButtons.forEach(button => {
+					button.addEventListener('click', () => {
+						const filename = button.getAttribute('data-filename');
+						downloadFile(filename);
+					});
+				});
+			}
+			
+			// Trigger file download from /download endpoint
+			function downloadFile(filename) {
+				// Create a temporary link and trigger download
+				const downloadUrl = `/download/${encodeURIComponent(filename)}`;
+				const link = document.createElement('a');
+				link.href = downloadUrl;
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			}
+			
+			// Load file list on page load
+			document.addEventListener('DOMContentLoaded', () => {
+				loadFileList();
+			});
+		</script>
+	</body>
 </html>

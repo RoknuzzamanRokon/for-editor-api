@@ -15,6 +15,7 @@ python-multipart = "*"
 [dev-packages]
 pytest = "*"
 reportlab = "*"
+httpx = "*"
 
 [requires]
 python_version = "3.12"
