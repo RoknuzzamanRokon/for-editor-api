@@ -98,17 +98,18 @@ class FileManagerService:
         
         return True, None
     
-    def generate_unique_filename(self, original_filename: str) -> str:
+    def generate_unique_filename(self, original_filename: str, output_extension: str = ".xlsx") -> str:
         """
         Generate a unique filename with timestamp and UUID
         
         Args:
             original_filename: Original name of the uploaded file
+            output_extension: Extension for output file (e.g., '.xlsx', '.docx')
             
         Returns:
-            Unique filename in format: {name}_{timestamp}_{uuid}.xlsx
+            Unique filename in format: {name}_{timestamp}_{uuid}{extension}
             
-        Requirements: 2.5
+        Requirements: 2.5, 2.7
         """
         # Extract base name without extension
         base_name = Path(original_filename).stem
@@ -122,7 +123,7 @@ class FileManagerService:
         sanitized_name = sanitized_name.replace(' ', '_')
         
         # If name is empty after sanitization or is just the extension, use default
-        if not sanitized_name or sanitized_name.lower() in ['pdf', 'xlsx']:
+        if not sanitized_name or sanitized_name.lower() in ['pdf', 'xlsx', 'docx']:
             sanitized_name = "converted"
         
         # Generate timestamp
@@ -131,8 +132,12 @@ class FileManagerService:
         # Generate short UUID
         unique_id = str(uuid.uuid4())[:8]
         
+        # Ensure extension starts with a dot
+        if not output_extension.startswith('.'):
+            output_extension = '.' + output_extension
+        
         # Combine into unique filename
-        unique_filename = f"{sanitized_name}_{timestamp}_{unique_id}.xlsx"
+        unique_filename = f"{sanitized_name}_{timestamp}_{unique_id}{output_extension}"
         
         return unique_filename
     
@@ -183,25 +188,32 @@ class FileManagerService:
         
         return None
     
-    def list_converted_files(self) -> List[FileMetadata]:
+    def list_converted_files(self, file_extension: str = ".xlsx") -> List[FileMetadata]:
         """
-        List all converted Excel files in storage directory
+        List all converted files in storage directory with specified extension
         
         Args:
-            None
+            file_extension: File extension to filter by (e.g., '.xlsx', '.docx')
             
         Returns:
             List of FileMetadata objects for each file
             
-        Requirements: 4.1, 4.2, 4.4
+        Requirements: 4.1, 4.2, 4.4, 5.3
         """
         files = []
         
-        # Scan directory for .xlsx files
+        # Scan directory for files with specified extension
         if not self.storage_dir.exists():
             return files
         
-        for file_path in self.storage_dir.glob("*.xlsx"):
+        # Ensure extension starts with a dot
+        if not file_extension.startswith('.'):
+            file_extension = '.' + file_extension
+        
+        # Create glob pattern (e.g., "*.xlsx")
+        pattern = f"*{file_extension}"
+        
+        for file_path in self.storage_dir.glob(pattern):
             if file_path.is_file():
                 try:
                     # Get file stats
@@ -231,12 +243,14 @@ class FileManagerService:
         Extract original name from generated filename
         
         Args:
-            filename: Generated filename (e.g., invoice_20260207_194943_abc12345.xlsx)
+            filename: Generated filename (e.g., invoice_20260207_194943_abc12345.xlsx or .docx)
             
         Returns:
             Original name portion
+            
+        Requirements: 2.7, 5.2
         """
-        # Remove .xlsx extension
+        # Remove extension (.xlsx, .docx, etc.)
         name_without_ext = filename.rsplit('.', 1)[0]
         
         # Split by underscore

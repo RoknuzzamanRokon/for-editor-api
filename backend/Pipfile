@@ -11,6 +11,8 @@ pdfplumber = "*"
 openpyxl = "*"
 pandas = "*"
 python-multipart = "*"
+python-docx = "*"
+pdf2docx = "*"
 
 [dev-packages]
 pytest = "*"
