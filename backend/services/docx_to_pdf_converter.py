@@ -79,7 +79,8 @@ class DOCXToPDFConverterService:
                     return False, "Failed to generate PDF output"
 
                 final_path = output_dir / f"{target_stem}.pdf"
-                generated_pdf.replace(final_path)
+                # Cross-device safe move (e.g., /tmp -> project storage on another mount)
+                shutil.move(str(generated_pdf), str(final_path))
 
             if not os.path.exists(output_path):
                 return False, "Failed to move generated PDF file"
