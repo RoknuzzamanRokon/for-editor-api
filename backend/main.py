@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from route.home import router as home_router
 from route.excel_converter import router as excel_converter_router
 from route.docs_converter import router as docs_converter_router
+from route.docx_to_pdf_converter import router as docx_to_pdf_converter_router
 
 app = FastAPI()
 
@@ -18,3 +19,4 @@ app.add_middleware(
 app.include_router(home_router)
 app.include_router(excel_converter_router)
 app.include_router(docs_converter_router)
+app.include_router(docx_to_pdf_converter_router)

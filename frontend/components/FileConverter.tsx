@@ -11,9 +11,18 @@ interface FileInfo {
 interface FileConverterProps {
   apiEndpoint: string
   filesEndpoint: string
+  acceptedFileTypes?: string
+  convertButtonLabel?: string
+  processingLabel?: string
 }
 
-export default function FileConverter({ apiEndpoint, filesEndpoint }: FileConverterProps) {
+export default function FileConverter({
+  apiEndpoint,
+  filesEndpoint,
+  acceptedFileTypes = '.pdf',
+  convertButtonLabel = 'Convert',
+  processingLabel = 'Processing your file...',
+}: FileConverterProps) {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -92,7 +101,7 @@ export default function FileConverter({ apiEndpoint, filesEndpoint }: FileConver
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="file"
-              accept=".pdf"
+              accept={acceptedFileTypes}
               onChange={(e) => setFile(e.target.files?.[0] || null)}
               className="flex-1 text-sm p-3 bg-background border border-border rounded-lg text-foreground cursor-pointer file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:bg-primary file:text-white file:cursor-pointer hover:file:bg-primary/90 transition-colors"
             />
@@ -101,14 +110,14 @@ export default function FileConverter({ apiEndpoint, filesEndpoint }: FileConver
               disabled={loading || !file}
               className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
             >
-              {loading ? 'Converting...' : 'Convert'}
+              {loading ? 'Converting...' : convertButtonLabel}
             </button>
           </div>
 
           {loading && (
             <div className="rounded-lg border border-border p-6 text-center bg-card">
               <div className="inline-block w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin mb-3" />
-              <p className="text-sm text-foreground/70">Processing your file...</p>
+              <p className="text-sm text-foreground/70">{processingLabel}</p>
             </div>
           )}
 

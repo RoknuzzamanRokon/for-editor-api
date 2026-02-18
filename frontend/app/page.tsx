@@ -44,10 +44,10 @@ export default function Home() {
         <section className="mx-auto mt-14 max-w-5xl">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-foreground md:text-3xl">Choose Conversion Type</h2>
-            <p className="mt-1 text-sm text-foreground/70">Select one option to start uploading your PDF.</p>
+            <p className="mt-1 text-sm text-foreground/70">Select one option to start uploading your file.</p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             <ConverterCard
               title="PDF to DOCX"
               description="Turn PDFs into editable Word documents for reports, letters, and drafts."
@@ -66,6 +66,18 @@ export default function Home() {
               icon={
                 <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              }
+            />
+
+            <ConverterCard
+              title="DOCX to PDF"
+              description="Convert Word documents into professional PDF files for sharing."
+              href="/docx-to-pdf"
+              icon={
+                <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 3h6l4 4v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 3v5h5M8 13h8M8 17h6" />
                 </svg>
               }
             />
