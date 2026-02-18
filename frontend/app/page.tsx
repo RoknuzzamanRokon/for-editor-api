@@ -14,23 +14,9 @@ export default function Home() {
             Clean, fast PDF conversion for everyday work
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-foreground/70 md:text-lg">
-            Convert PDF files to Word or Excel in a few clicks with reliable formatting and a simple workflow.
+            Convert PDFs and images in a few clicks with reliable formatting and a simple workflow.
           </p>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/pdf-to-docx"
-              className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
-            >
-              Convert to DOCX
-            </Link>
-            <Link
-              href="/pdf-to-excel"
-              className="rounded-lg border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
-            >
-              Convert to Excel
-            </Link>
-          </div>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {['Fast processing', 'Accurate output', 'Secure handling'].map((item) => (
@@ -47,7 +33,7 @@ export default function Home() {
             <p className="mt-1 text-sm text-foreground/70">Select one option to start uploading your file.</p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <ConverterCard
               title="PDF to DOCX"
               description="Turn PDFs into editable Word documents for reports, letters, and drafts."
@@ -78,6 +64,18 @@ export default function Home() {
                 <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 3h6l4 4v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 3v5h5M8 13h8M8 17h6" />
+                </svg>
+              }
+            />
+
+            <ConverterCard
+              title="Image to PDF"
+              description="Convert PNG, JPG, JPEG, or WEBP images into shareable PDF files."
+              href="/image-to-pdf"
+              icon={
+                <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 14l2.5-2.5a1 1 0 011.4 0L16 15m-8-6h.01" />
                 </svg>
               }
             />

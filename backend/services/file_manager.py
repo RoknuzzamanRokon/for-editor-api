@@ -19,6 +19,8 @@ class FileManagerService:
         b'%PDF-',  # Standard PDF signature
     ]
     DOCX_MAGIC_NUMBER = b'PK\x03\x04'
+    PNG_MAGIC_NUMBER = b'\x89PNG\r\n\x1a\n'
+    JPEG_MAGIC_NUMBER = b'\xff\xd8\xff'
     
     def __init__(self, storage_dir: str = "static/pdfToExcel"):
         """
@@ -126,6 +128,35 @@ class FileManagerService:
             return False, "File size exceeds 50MB limit"
 
         return True, None
+
+    async def validate_image_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate uploaded image file (type and size)
+
+        Supported types: .png, .jpg, .jpeg, .webp
+        """
+        allowed_extensions = ('.png', '.jpg', '.jpeg', '.webp')
+        if not file.filename or not file.filename.lower().endswith(allowed_extensions):
+            return False, "Only PNG, JPG, JPEG, and WEBP files are accepted"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        # Validate known signatures.
+        is_png = content.startswith(self.PNG_MAGIC_NUMBER)
+        is_jpeg = content.startswith(self.JPEG_MAGIC_NUMBER)
+        is_webp = len(content) > 12 and content[:4] == b'RIFF' and content[8:12] == b'WEBP'
+
+        if not (is_png or is_jpeg or is_webp):
+            return False, "Only PNG, JPG, JPEG, and WEBP files are accepted"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        return True, None
     
     def generate_unique_filename(self, original_filename: str, output_extension: str = ".xlsx") -> str:
         """
@@ -152,7 +183,7 @@ class FileManagerService:
         sanitized_name = sanitized_name.replace(' ', '_')
         
         # If name is empty after sanitization or is just the extension, use default
-        if not sanitized_name or sanitized_name.lower() in ['pdf', 'xlsx', 'docx']:
+        if not sanitized_name or sanitized_name.lower() in ['pdf', 'xlsx', 'docx', 'png', 'jpg', 'jpeg', 'webp']:
             sanitized_name = "converted"
         
         # Generate timestamp

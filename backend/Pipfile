@@ -13,6 +13,7 @@ pandas = "*"
 python-multipart = "*"
 python-docx = "*"
 pdf2docx = "*"
+pillow = "*"
 
 [dev-packages]
 pytest = "*"
