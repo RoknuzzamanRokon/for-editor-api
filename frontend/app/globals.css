@@ -58,6 +58,16 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.sunset body {
+  background-image:
+    radial-gradient(circle at 12% 22%, rgba(251, 146, 60, 0.35) 0%, transparent 38%),
+    radial-gradient(circle at 86% 14%, rgba(244, 63, 94, 0.28) 0%, transparent 34%),
+    radial-gradient(circle at 78% 86%, rgba(249, 115, 22, 0.26) 0%, transparent 36%),
+    linear-gradient(120deg, #2f1202 0%, #451a03 42%, #7c2d12 72%, #5b200d 100%);
+  background-size: 180% 180%;
+  animation: sunsetShift 14s ease-in-out infinite;
+}
+
 .hero-glow {
   background:
     radial-gradient(circle at 18% 24%, rgba(59, 130, 246, 0.16) 0%, transparent 42%),
@@ -66,4 +76,47 @@ body {
 
 .card-accent {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 55%);
+}
+
+.sunset .hero-glow {
+  background:
+    radial-gradient(circle at 18% 26%, rgba(251, 146, 60, 0.28) 0%, transparent 42%),
+    radial-gradient(circle at 84% 16%, rgba(244, 63, 94, 0.2) 0%, transparent 36%);
+  background-size: 170% 170%;
+  animation: sunsetGlow 12s ease-in-out infinite;
+}
+
+.sunset .card-accent {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.2) 0%, transparent 58%);
+}
+
+@keyframes sunsetShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes sunsetGlow {
+  0% {
+    background-position: 10% 20%;
+  }
+  50% {
+    background-position: 90% 80%;
+  }
+  100% {
+    background-position: 10% 20%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sunset body,
+  .sunset .hero-glow {
+    animation: none;
+  }
 }
