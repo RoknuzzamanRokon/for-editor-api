@@ -1,0 +1,41 @@
+# Systemd service file for PDF Converter API
+# Place this file in /etc/systemd/system/pdf-converter.service
+
+[Unit]
+Description=PDF Converter API Service
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/your/editor/backend
+Environment="PATH=/path/to/your/.local/share/virtualenvs/backend-XXXXX/bin"
+
+# Run with Gunicorn for production
+ExecStart=/path/to/your/.local/share/virtualenvs/backend-XXXXX/bin/gunicorn main:app \
+    --workers 4 \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --bind 127.0.0.1:8000 \
+    --timeout 300 \
+    --access-logfile /var/log/pdf-converter/access.log \
+    --error-logfile /var/log/pdf-converter/error.log \
+    --log-level info
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/path/to/your/editor/backend/static
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
