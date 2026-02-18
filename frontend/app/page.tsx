@@ -42,78 +42,87 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-5">
-      <div className="max-w-7xl mx-auto bg-[rgba(20,20,22,0.9)] rounded-2xl shadow-2xl p-10 backdrop-blur-sm border border-white/5">
+    <div className="min-h-screen bg-white p-6">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <header className="text-center mb-10 pb-8 border-b border-white/10 relative">
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-500 to-green-500 rounded" />
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-500 to-green-500 bg-clip-text text-transparent">
-            📄 PDF Converter Pro
+        <header className="mb-8 pb-6 border-b border-black">
+          <h1 className="text-2xl font-bold tracking-tight mb-2 text-black">
+            PDF Converter
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Convert your PDF files to Excel spreadsheets or Word documents with
-            high accuracy. Supports tables, text, and formatting extraction.
-            Maximum file size: 50MB.
+          <p className="text-sm text-black">
+            Convert PDF files to Excel or Word format
           </p>
         </header>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
-          <div className="bg-gradient-to-br from-[rgba(30,30,35,0.8)] to-[rgba(40,40,45,0.8)] p-6 rounded-xl text-center border border-white/5 hover:transform hover:-translate-y-1 transition-all">
-            <div className="text-4xl font-bold text-blue-500 mb-2">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="border border-black p-4 hover:bg-gray-100 transition-colors">
+            <div className="text-2xl font-bold tabular-nums mb-1 text-black">
               {stats.total}
             </div>
-            <div className="text-gray-400">Total Conversions</div>
+            <div className="text-xs text-black uppercase tracking-wider">
+              Total
+            </div>
           </div>
-          <div className="bg-gradient-to-br from-[rgba(30,30,35,0.8)] to-[rgba(40,40,45,0.8)] p-6 rounded-xl text-center border border-white/5 hover:transform hover:-translate-y-1 transition-all">
-            <div className="text-4xl font-bold text-blue-500 mb-2">
+
+          <div className="border border-black p-4 hover:bg-gray-100 transition-colors">
+            <div className="text-2xl font-bold tabular-nums mb-1 text-black">
               {stats.excel}
             </div>
-            <div className="text-gray-400">Excel Conversions</div>
+            <div className="text-xs text-black uppercase tracking-wider">
+              Excel
+            </div>
           </div>
-          <div className="bg-gradient-to-br from-[rgba(30,30,35,0.8)] to-[rgba(40,40,45,0.8)] p-6 rounded-xl text-center border border-white/5 hover:transform hover:-translate-y-1 transition-all">
-            <div className="text-4xl font-bold text-blue-500 mb-2">
+
+          <div className="border border-black p-4 hover:bg-gray-100 transition-colors">
+            <div className="text-2xl font-bold tabular-nums mb-1 text-black">
               {stats.word}
             </div>
-            <div className="text-gray-400">Word Conversions</div>
+            <div className="text-xs text-black uppercase tracking-wider">
+              Word
+            </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <nav className="flex gap-2 mb-10 bg-[rgba(30,30,35,0.8)] p-2 rounded-xl border border-white/5">
+        <nav className="flex gap-0 mb-8 border border-black">
           <button
             onClick={() => setActiveTab("excel")}
-            className={`flex-1 py-4 px-8 rounded-lg font-semibold text-lg transition-all ${
+            className={`flex-1 py-3 px-6 text-sm font-medium uppercase tracking-wider transition-all ${
               activeTab === "excel"
-                ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                ? "bg-black text-white"
+                : "bg-white text-black hover:bg-gray-100"
             }`}
           >
-            📊 PDF to Excel
+            Excel
           </button>
+          <div className="w-px bg-black" />
           <button
             onClick={() => setActiveTab("docs")}
-            className={`flex-1 py-4 px-8 rounded-lg font-semibold text-lg transition-all ${
+            className={`flex-1 py-3 px-6 text-sm font-medium uppercase tracking-wider transition-all ${
               activeTab === "docs"
-                ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                ? "bg-black text-white"
+                : "bg-white text-black hover:bg-gray-100"
             }`}
           >
-            📝 PDF to Word
+            Word
           </button>
         </nav>
 
         {/* Tab Content */}
-        {activeTab === "excel" ? (
-          <ExcelConverter onSuccess={() => updateStats("excel")} />
-        ) : (
-          <DocsConverter onSuccess={() => updateStats("word")} />
-        )}
+        <div className="border border-black p-6 bg-white">
+          {activeTab === "excel" ? (
+            <ExcelConverter onSuccess={() => updateStats("excel")} />
+          ) : (
+            <DocsConverter onSuccess={() => updateStats("word")} />
+          )}
+        </div>
 
         {/* Footer */}
-        <footer className="mt-10 pt-6 text-center text-gray-500 text-sm border-t border-white/5">
-          © 2026 PDF Converter Pro | Secure & Fast Conversion | All files are
-          processed securely and deleted after 24 hours
+        <footer className="mt-8 pt-6 text-center border-t border-black">
+          <p className="text-xs text-black">
+            © 2026 PDF Converter · Secure Processing · 24H Auto-Delete
+          </p>
         </footer>
       </div>
     </div>

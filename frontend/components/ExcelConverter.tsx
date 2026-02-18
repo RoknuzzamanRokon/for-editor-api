@@ -93,78 +93,77 @@ export default function ExcelConverter({
   };
 
   return (
-    <div>
+    <div className="space-y-8">
       {/* Upload Section */}
-      <section className="mb-12 bg-[rgba(30,30,35,0.6)] p-8 rounded-2xl border border-white/5">
-        <h2 className="text-2xl font-semibold mb-6 text-white border-l-4 border-blue-500 pl-4">
-          📤 Upload PDF
+      <section>
+        <h2 className="text-sm font-medium uppercase tracking-wider text-black mb-4">
+          Upload File
         </h2>
-        <div className="flex gap-4 items-center flex-wrap">
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="flex-1 min-w-[250px] p-4 bg-[rgba(20,20,25,0.8)] border-2 border-white/10 rounded-xl text-gray-300 cursor-pointer hover:border-blue-500 transition-all"
-          />
-          <button
-            onClick={handleUpload}
-            disabled={loading || !file}
-            className="px-10 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/30 hover:transform hover:-translate-y-0.5"
-          >
-            {loading ? "🔄 Converting..." : "🔄 Convert to Excel"}
-          </button>
+
+        <div className="space-y-4">
+          <div className="flex gap-3 items-center">
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="flex-1 text-sm p-3 bg-white border border-black text-black cursor-pointer file:mr-3 file:py-1.5 file:px-3 file:border file:border-black file:bg-white file:text-black file:text-xs file:uppercase file:tracking-wider hover:bg-gray-50 transition-colors"
+            />
+            <button
+              onClick={handleUpload}
+              disabled={loading || !file}
+              className="px-6 py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 border border-black disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? "Converting..." : "Convert"}
+            </button>
+          </div>
+
+          {loading && (
+            <div className="border border-black p-6 text-center bg-white">
+              <div className="inline-block w-8 h-8 border-2 border-gray-300 border-t-black animate-spin mb-3" />
+              <p className="text-xs text-black uppercase tracking-wider">
+                Processing...
+              </p>
+            </div>
+          )}
+
+          {message && (
+            <div className="border border-black p-4 bg-white">
+              <p className="text-xs text-black">
+                {message.type === "success" ? "✓ " : "✕ "}
+                {message.text}
+              </p>
+            </div>
+          )}
         </div>
-
-        {loading && (
-          <div className="mt-6 text-center p-8 bg-[rgba(30,30,35,0.8)] rounded-xl border border-white/5">
-            <div className="w-12 h-12 border-4 border-white/10 border-t-blue-500 rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-400">
-              Processing your PDF file and extracting data...
-            </p>
-          </div>
-        )}
-
-        {message && (
-          <div
-            className={`mt-6 p-5 rounded-xl border-l-4 ${
-              message.type === "success"
-                ? "bg-green-500/10 border-green-500 text-green-400"
-                : "bg-red-500/10 border-red-500 text-red-400"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
       </section>
 
       {/* Files Section */}
-      <section className="bg-[rgba(30,30,35,0.6)] p-8 rounded-2xl border border-white/5">
-        <h2 className="text-2xl font-semibold mb-6 text-white border-l-4 border-green-500 pl-4">
-          📥 Converted Files
+      <section>
+        <h2 className="text-sm font-medium uppercase tracking-wider text-black mb-4">
+          Converted Files
         </h2>
 
         {files.length === 0 ? (
-          <div className="text-center p-16 bg-[rgba(20,20,25,0.6)] rounded-xl border-2 border-dashed border-white/10">
-            <div className="text-6xl mb-4 opacity-50">📂</div>
-            <p className="text-gray-500 text-lg">
-              No converted files available yet. Upload a PDF to get started.
+          <div className="border border-dashed border-black p-12 text-center bg-white">
+            <p className="text-xs text-black uppercase tracking-wider">
+              No files available
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-white/5">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-[#1a1a1f] to-[#25252b]">
-                <tr>
-                  <th className="p-5 text-left font-semibold text-white border-b-2 border-white/10">
+          <div className="border border-black overflow-hidden bg-white">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-black text-white">
+                  <th className="p-3 text-left font-medium text-xs uppercase tracking-wider">
                     Filename
                   </th>
-                  <th className="p-5 text-left font-semibold text-white border-b-2 border-white/10">
+                  <th className="p-3 text-left font-medium text-xs uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="p-5 text-left font-semibold text-white border-b-2 border-white/10">
+                  <th className="p-3 text-left font-medium text-xs uppercase tracking-wider">
                     Size
                   </th>
-                  <th className="p-5 text-left font-semibold text-white border-b-2 border-white/10">
+                  <th className="p-3 text-left font-medium text-xs uppercase tracking-wider">
                     Action
                   </th>
                 </tr>
@@ -173,24 +172,24 @@ export default function ExcelConverter({
                 {files.map((f, idx) => (
                   <tr
                     key={idx}
-                    className="bg-[rgba(25,25,30,0.7)] hover:bg-[rgba(40,40,45,0.9)] transition-all even:bg-[rgba(30,30,35,0.7)]"
+                    className="border-t border-black hover:bg-gray-100 transition-colors"
                   >
-                    <td className="p-5 border-b border-white/5 text-white font-medium">
-                      📊 {f.filename}
+                    <td className="p-3 text-xs font-mono text-black">
+                      {f.filename}
                     </td>
-                    <td className="p-5 border-b border-white/5 text-gray-400">
+                    <td className="p-3 text-xs text-black">
                       {formatDate(f.conversion_date)}
                     </td>
-                    <td className="p-5 border-b border-white/5 text-gray-400">
+                    <td className="p-3 text-xs text-black">
                       {formatSize(f.file_size)}
                     </td>
-                    <td className="p-5 border-b border-white/5">
+                    <td className="p-3">
                       <a
                         href={`/api/v1/conversions/pdf-to-excel/files/${f.filename}`}
                         download
-                        className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg shadow-green-500/30"
+                        className="inline-block px-4 py-1.5 bg-white text-black border border-black text-xs font-medium uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
                       >
-                        ⬇️ Download
+                        Download
                       </a>
                     </td>
                   </tr>
