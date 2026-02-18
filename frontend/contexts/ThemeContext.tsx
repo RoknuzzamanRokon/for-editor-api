@@ -2,11 +2,11 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
-type Theme = 'light' | 'dark'
+type Theme = 'light' | 'dark' | 'ocean' | 'sunset' | 'forest'
 
 interface ThemeContextType {
   theme: Theme
-  toggleTheme: () => void
+  setTheme: (theme: Theme) => void
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
@@ -18,25 +18,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMounted(true)
     const stored = localStorage.getItem('theme') as Theme | null
-    if (stored === 'light' || stored === 'dark') {
+    if (stored === 'light' || stored === 'dark' || stored === 'ocean' || stored === 'sunset' || stored === 'forest') {
       setTheme(stored)
     }
   }, [])
 
   useEffect(() => {
     if (mounted) {
-      document.documentElement.classList.remove('light', 'dark')
+      document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest')
       document.documentElement.classList.add(theme)
       localStorage.setItem('theme', theme)
     }
   }, [theme, mounted])
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light')
-  }
-
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   )

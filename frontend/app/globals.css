@@ -20,6 +20,33 @@
   --card-hover: #334155;
 }
 
+.ocean {
+  --primary: #06b6d4;
+  --background: #0c4a6e;
+  --foreground: #e0f2fe;
+  --border: #0e7490;
+  --card: #075985;
+  --card-hover: #0369a1;
+}
+
+.sunset {
+  --primary: #f97316;
+  --background: #451a03;
+  --foreground: #fed7aa;
+  --border: #9a3412;
+  --card: #7c2d12;
+  --card-hover: #9a3412;
+}
+
+.forest {
+  --primary: #22c55e;
+  --background: #052e16;
+  --foreground: #dcfce7;
+  --border: #166534;
+  --card: #14532d;
+  --card-hover: #166534;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

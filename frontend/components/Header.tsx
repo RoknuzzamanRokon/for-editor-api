@@ -1,30 +1,58 @@
 'use client'
 
 import { useTheme } from '@/contexts/ThemeContext'
+import { useState } from 'react'
 
 export default function Header() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const themes = [
+    { name: 'Light', value: 'light' as const },
+    { name: 'Dark', value: 'dark' as const },
+    { name: 'Ocean', value: 'ocean' as const },
+    { name: 'Sunset', value: 'sunset' as const },
+    { name: 'Forest', value: 'forest' as const },
+  ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <h1 className="text-2xl font-bold text-primary">Converter</h1>
         
-        <button
-          onClick={toggleTheme}
-          className="rounded-lg p-2 hover:bg-card-hover transition-colors"
-          aria-label="Toggle theme"
-        >
-          {theme === 'light' ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        <div className="relative">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-card-hover border border-border transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
             </svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            <span className="text-sm font-medium capitalize">{theme}</span>
+            <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
+          </button>
+
+          {isOpen && (
+            <div className="absolute right-0 mt-2 w-40 rounded-lg border border-border bg-card shadow-lg overflow-hidden">
+              {themes.map((t) => (
+                <button
+                  key={t.value}
+                  onClick={() => {
+                    setTheme(t.value)
+                    setIsOpen(false)
+                  }}
+                  className={`w-full px-4 py-2 text-left text-sm hover:bg-card-hover transition-colors ${
+                    theme === t.value ? 'bg-primary text-white font-medium' : 'text-foreground'
+                  }`}
+                >
+                  {t.name}
+                </button>
+              ))}
+            </div>
           )}
-        </button>
+        </div>
       </div>
     </header>
   )
