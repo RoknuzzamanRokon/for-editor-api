@@ -14,6 +14,7 @@ interface FileConverterProps {
   acceptedFileTypes?: string
   convertButtonLabel?: string
   processingLabel?: string
+  previewMode?: 'none' | 'image'
 }
 
 export default function FileConverter({
@@ -22,15 +23,27 @@ export default function FileConverter({
   acceptedFileTypes = '.pdf',
   convertButtonLabel = 'Convert',
   processingLabel = 'Processing your file...',
+  previewMode = 'none',
 }: FileConverterProps) {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [files, setFiles] = useState<FileInfo[]>([])
+  const [inputPreviewUrl, setInputPreviewUrl] = useState<string | null>(null)
+  const [outputPreviewUrl, setOutputPreviewUrl] = useState<string | null>(null)
+  const [outputFilename, setOutputFilename] = useState<string | null>(null)
 
   useEffect(() => {
     loadFiles()
   }, [])
+
+  useEffect(() => {
+    return () => {
+      if (inputPreviewUrl) {
+        URL.revokeObjectURL(inputPreviewUrl)
+      }
+    }
+  }, [inputPreviewUrl])
 
   const loadFiles = async () => {
     try {
@@ -57,6 +70,8 @@ export default function FileConverter({
 
     setLoading(true)
     setMessage(null)
+    setOutputPreviewUrl(null)
+    setOutputFilename(null)
 
     const formData = new FormData()
     formData.append('file', file)
@@ -72,6 +87,13 @@ export default function FileConverter({
       if (res.ok && data.success) {
         setMessage({ type: 'success', text: data.message })
         setFile(null)
+        if (previewMode === 'image' && data.download_url) {
+          const downloadUrl = data.download_url.startsWith('/v1/')
+            ? `/api${data.download_url}`
+            : data.download_url
+          setOutputPreviewUrl(downloadUrl)
+          setOutputFilename(data.filename || null)
+        }
         await loadFiles()
       } else {
         setMessage({
@@ -102,7 +124,22 @@ export default function FileConverter({
             <input
               type="file"
               accept={acceptedFileTypes}
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              onChange={(e) => {
+                const selected = e.target.files?.[0] || null
+                setFile(selected)
+                setMessage(null)
+                if (previewMode === 'image' && selected) {
+                  if (inputPreviewUrl) {
+                    URL.revokeObjectURL(inputPreviewUrl)
+                  }
+                  setInputPreviewUrl(URL.createObjectURL(selected))
+                } else {
+                  if (inputPreviewUrl) {
+                    URL.revokeObjectURL(inputPreviewUrl)
+                  }
+                  setInputPreviewUrl(null)
+                }
+              }}
               className="flex-1 text-sm p-3 bg-background border border-border rounded-lg text-foreground cursor-pointer file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:bg-primary file:text-white file:cursor-pointer hover:file:bg-primary/90 transition-colors"
             />
             <button
@@ -121,16 +158,56 @@ export default function FileConverter({
             </div>
           )}
 
+          {previewMode === 'image' && inputPreviewUrl && (
+            <div className="rounded-lg border border-border bg-background p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60 mb-3">Selected Image</p>
+              <div className="relative overflow-hidden rounded-lg border border-border bg-card">
+                <img
+                  src={inputPreviewUrl}
+                  alt="Selected preview"
+                  className="h-64 w-full object-contain bg-white"
+                />
+              </div>
+            </div>
+          )}
+
           {message && (
             <div className={`rounded-lg border p-4 ${
               message.type === 'success' 
                 ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800' 
                 : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800'
             }`}>
-              <p className="text-sm text-foreground">
+              <p className="text-sm text-black">
                 {message.type === 'success' ? '✓ ' : '✕ '}
                 {message.text}
               </p>
+            </div>
+          )}
+
+          {previewMode === 'image' && outputPreviewUrl && (
+            <div className="rounded-lg border border-border bg-background p-4 space-y-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60 mb-3">Result Preview</p>
+                <div className="relative overflow-hidden rounded-lg border border-border bg-card">
+                  <img
+                    src={outputPreviewUrl}
+                    alt="Output preview"
+                    className="h-64 w-full object-contain bg-white"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href={outputPreviewUrl}
+                  download
+                  className="inline-flex items-center justify-center px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                >
+                  Download PNG
+                </a>
+                {outputFilename && (
+                  <span className="text-xs text-foreground/70 font-mono">{outputFilename}</span>
+                )}
+              </div>
             </div>
           )}
         </div>

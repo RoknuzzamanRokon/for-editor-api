@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
-type Theme = 'light' | 'dark' | 'ocean' | 'sunset' | 'forest'
+type Theme = 'light' | 'dark' | 'ocean' | 'sunset' | 'forest' | 'midnight'
 
 interface ThemeContextType {
   theme: Theme
@@ -18,14 +18,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMounted(true)
     const stored = localStorage.getItem('theme') as Theme | null
-    if (stored === 'light' || stored === 'dark' || stored === 'ocean' || stored === 'sunset' || stored === 'forest') {
+    if (
+      stored === 'light' ||
+      stored === 'dark' ||
+      stored === 'ocean' ||
+      stored === 'sunset' ||
+      stored === 'forest' ||
+      stored === 'midnight'
+    ) {
       setTheme(stored)
     }
   }, [])
 
   useEffect(() => {
     if (mounted) {
-      document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest')
+      document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'midnight')
       document.documentElement.classList.add(theme)
       localStorage.setItem('theme', theme)
     }

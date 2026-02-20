@@ -103,6 +103,19 @@ export default function Home() {
                 </svg>
               }
             />
+
+            <ConverterCard
+              title="Remove Background"
+              description="Erase backgrounds from images and download a transparent PNG."
+              href="/remove-background"
+              icon={
+                <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 7a2 2 0 012-2h10l6 6v6a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 5v6h6" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 15l2-2 2 2 3-3 3 3" />
+                </svg>
+              }
+            />
           </div>
         </section>
       </div>

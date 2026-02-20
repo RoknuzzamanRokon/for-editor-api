@@ -13,6 +13,7 @@ export default function Header() {
     { name: 'Ocean', value: 'ocean' as const },
     { name: 'Sunset', value: 'sunset' as const },
     { name: 'Forest', value: 'forest' as const },
+    { name: 'Midnight', value: 'midnight' as const },
   ]
 
   return (

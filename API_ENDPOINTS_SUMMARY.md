@@ -101,6 +101,51 @@
 
 ---
 
+## Remove Background APIs
+
+### 3.1 Remove Background from Image
+- **Endpoint:** `POST https://app.graphicscycle.com/v1/conversions/remove-background`
+- **Description:** Upload an image and return a PNG with a transparent background
+- **Request:**
+  - Content-Type: `multipart/form-data`
+  - Body: `file` (PNG, JPG, JPEG, or WEBP, max 50MB)
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Background removed successfully",
+    "filename": "portrait_20260208_123456_abc123.png",
+    "download_url": "/v1/conversions/remove-background/files/portrait_20260208_123456_abc123.png"
+  }
+  ```
+
+### 3.2 List Processed PNG Files
+- **Endpoint:** `GET https://app.graphicscycle.com/v1/conversions/remove-background/files`
+- **Description:** Get list of all PNG files with removed backgrounds
+- **Response:**
+  ```json
+  {
+    "files": [
+      {
+        "filename": "portrait_20260208_123456_abc123.png",
+        "original_name": "portrait",
+        "conversion_date": "2026-02-08T12:34:56.789Z",
+        "file_size": 204800,
+        "status": "success"
+      }
+    ],
+    "total_count": 1
+  }
+  ```
+
+### 3.3 Download Processed PNG File
+- **Endpoint:** `GET https://app.graphicscycle.com/v1/conversions/remove-background/files/{filename}`
+- **Description:** Download a PNG with transparent background
+- **Parameters:** `filename` - Name of the file to download
+- **Returns:** PNG image (binary)
+
+---
+
 ## Summary Table
 
 | # | Method | Endpoint | Purpose |
@@ -112,8 +157,11 @@
 | 5 | POST | `https://app.graphicscycle.com/v1/conversions/pdf-to-word` | Convert PDF → Word |
 | 6 | GET | `https://app.graphicscycle.com/v1/conversions/pdf-to-word/files` | List Word files |
 | 7 | GET | `https://app.graphicscycle.com/v1/conversions/pdf-to-word/files/{filename}` | Download Word |
+| 8 | POST | `https://app.graphicscycle.com/v1/conversions/remove-background` | Remove image background |
+| 9 | GET | `https://app.graphicscycle.com/v1/conversions/remove-background/files` | List processed PNG files |
+| 10 | GET | `https://app.graphicscycle.com/v1/conversions/remove-background/files/{filename}` | Download processed PNG |
 
-**Total: 7 Endpoints**
+**Total: 10 Endpoints**
 
 ---
 

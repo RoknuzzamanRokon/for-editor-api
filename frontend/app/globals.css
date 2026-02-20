@@ -13,11 +13,11 @@
 
 .dark {
   --primary: #60a5fa;
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --border: #334155;
-  --card: #1e293b;
-  --card-hover: #334155;
+  --background: #020617;
+  --foreground: #e2e8f0;
+  --border: #0f172a;
+  --card: #0b1120;
+  --card-hover: #111827;
 }
 
 .ocean {
@@ -47,6 +47,15 @@
   --card-hover: #166534;
 }
 
+.midnight {
+  --primary: #38bdf8;
+  --background: #0b1120;
+  --foreground: #e2e8f0;
+  --border: #1e293b;
+  --card: #111827;
+  --card-hover: #1f2937;
+}
+
 body {
   color: var(--foreground);
   background-color: var(--background);
@@ -66,6 +75,16 @@ body {
     linear-gradient(120deg, #2f1202 0%, #451a03 42%, #7c2d12 72%, #5b200d 100%);
   background-size: 180% 180%;
   animation: sunsetShift 14s ease-in-out infinite;
+}
+
+.midnight body {
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.18) 0%, transparent 38%),
+    radial-gradient(circle at 86% 16%, rgba(59, 130, 246, 0.2) 0%, transparent 36%),
+    radial-gradient(circle at 72% 82%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+    linear-gradient(130deg, #0b1120 0%, #111827 48%, #0f172a 100%);
+  background-size: 180% 180%;
+  animation: midnightShift 16s ease-in-out infinite;
 }
 
 .hero-glow {
@@ -114,9 +133,22 @@ body {
   }
 }
 
+@keyframes midnightShift {
+  0% {
+    background-position: 0% 40%;
+  }
+  50% {
+    background-position: 100% 60%;
+  }
+  100% {
+    background-position: 0% 40%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sunset body,
-  .sunset .hero-glow {
+  .sunset .hero-glow,
+  .midnight body {
     animation: none;
   }
 }

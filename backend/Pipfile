@@ -15,6 +15,7 @@ python-docx = "*"
 pdf2docx = "*"
 pillow = "*"
 pypdf = "*"
+rembg = {extras = ["cpu"], version = "*"}
 
 [dev-packages]
 pytest = "*"
