@@ -77,7 +77,7 @@ export default function PdfPageRemover() {
 
         for (let i = 1; i <= total; i++) {
           const page = await pdf.getPage(i)
-          const viewport = page.getViewport({ scale: 0.3 })
+          const viewport = page.getViewport({ scale: 1.5 })
           const canvas = document.createElement('canvas')
           const context = canvas.getContext('2d')
           if (!context) {
@@ -86,7 +86,7 @@ export default function PdfPageRemover() {
           canvas.width = viewport.width
           canvas.height = viewport.height
           await page.render({ canvasContext: context, viewport }).promise
-          const dataUrl = canvas.toDataURL('image/png')
+          const dataUrl = canvas.toDataURL('image/png', 1.0)
           previews.push({ pageNumber: i, dataUrl })
         }
 
@@ -273,11 +273,12 @@ export default function PdfPageRemover() {
               </div>
 
               {pagePreviews.find((p) => p.pageNumber === currentPage) && (
-                <div className="relative rounded-lg border overflow-hidden bg-card">
+                <div className="relative rounded-lg border overflow-hidden bg-card flex justify-center">
                   <img
                     src={pagePreviews.find((p) => p.pageNumber === currentPage)!.dataUrl}
                     alt={`Page ${currentPage}`}
-                    className="w-full"
+                    className="max-w-full h-auto"
+                    style={{ imageRendering: 'crisp-edges' }}
                   />
                   <div className="absolute top-3 left-3 rounded-full bg-black/70 text-white text-xs px-2 py-1">
                     Page {currentPage}
@@ -286,8 +287,10 @@ export default function PdfPageRemover() {
                     type="button"
                     onClick={() => togglePage(currentPage)}
                     aria-label={selectedPages.includes(currentPage) ? 'Undo remove page' : 'Remove page'}
-                    className={`absolute top-3 right-3 h-9 w-9 rounded-full flex items-center justify-center text-lg font-semibold transition-colors ${
-                      selectedPages.includes(currentPage) ? 'bg-red-600 text-white' : 'bg-white text-foreground'
+                    className={`absolute top-3 right-3 h-10 w-10 rounded-full flex items-center justify-center text-xl font-bold transition-all shadow-lg hover:scale-110 ${
+                      selectedPages.includes(currentPage) 
+                        ? 'bg-red-600 hover:bg-red-700 text-white border-2 border-white' 
+                        : 'bg-white hover:bg-gray-100 text-gray-800 border-2 border-gray-300'
                     }`}
                   >
                     {selectedPages.includes(currentPage) ? '↺' : '×'}
