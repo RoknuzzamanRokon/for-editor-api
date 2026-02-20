@@ -69,6 +69,30 @@ export default function Home() {
             />
 
             <ConverterCard
+              title="Excel to PDF"
+              description="Turn Excel spreadsheets into clean PDFs for sharing or printing."
+              href="/excel-to-pdf"
+              icon={
+                <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 4h10l4 4v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 11l2 2 4-4m-6 6h8" />
+                </svg>
+              }
+            />
+
+            <ConverterCard
+              title="Remove Pages"
+              description="Delete specific or blank pages from a PDF."
+              href="/remove-pages-from-pdf"
+              icon={
+                <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M6 4h9l3 3v13a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 12h8M8 16h5" />
+                </svg>
+              }
+            />
+
+            <ConverterCard
               title="Image to PDF"
               description="Convert PNG, JPG, JPEG, or WEBP images into shareable PDF files."
               href="/image-to-pdf"

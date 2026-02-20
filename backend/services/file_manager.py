@@ -19,6 +19,8 @@ class FileManagerService:
         b'%PDF-',  # Standard PDF signature
     ]
     DOCX_MAGIC_NUMBER = b'PK\x03\x04'
+    XLSX_MAGIC_NUMBER = b'PK\x03\x04'
+    XLS_MAGIC_NUMBER = b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1'
     PNG_MAGIC_NUMBER = b'\x89PNG\r\n\x1a\n'
     JPEG_MAGIC_NUMBER = b'\xff\xd8\xff'
     
@@ -123,6 +125,33 @@ class FileManagerService:
         # DOCX files are zip-based and should start with PK zip signature
         if not content.startswith(self.DOCX_MAGIC_NUMBER):
             return False, "Only DOCX files are accepted"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        return True, None
+
+    async def validate_excel_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate uploaded Excel file (type and size)
+
+        Supported types: .xlsx, .xls
+        """
+        if not file.filename or not file.filename.lower().endswith(('.xlsx', '.xls')):
+            return False, "Only XLSX and XLS files are accepted"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        if file.filename.lower().endswith('.xlsx'):
+            if not content.startswith(self.XLSX_MAGIC_NUMBER):
+                return False, "Only XLSX and XLS files are accepted"
+        else:
+            if not content.startswith(self.XLS_MAGIC_NUMBER):
+                return False, "Only XLSX and XLS files are accepted"
 
         if not self.validate_file_size(len(content)):
             return False, "File size exceeds 50MB limit"

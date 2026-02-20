@@ -38,9 +38,13 @@ pipenv install
 echo -e "${GREEN}Step 4: Creating directories...${NC}"
 mkdir -p "$BACKEND_DIR/static/pdfToExcel"
 mkdir -p "$BACKEND_DIR/static/pdfToDocs"
+mkdir -p "$BACKEND_DIR/static/excelToPdf"
+mkdir -p "$BACKEND_DIR/static/pdfPageRemove"
 chmod 755 "$BACKEND_DIR/static"
 chmod 755 "$BACKEND_DIR/static/pdfToExcel"
 chmod 755 "$BACKEND_DIR/static/pdfToDocs"
+chmod 755 "$BACKEND_DIR/static/excelToPdf"
+chmod 755 "$BACKEND_DIR/static/pdfPageRemove"
 
 echo -e "${GREEN}Step 5: Creating .env file...${NC}"
 if [ ! -f "$BACKEND_DIR/.env" ]; then
