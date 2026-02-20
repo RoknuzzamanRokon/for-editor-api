@@ -12,7 +12,7 @@ from services.docx_to_pdf_converter import DOCXToPDFConverterService
 from services.file_manager import FileManagerService
 
 
-router = APIRouter(prefix="/v1/conversions/docx-to-pdf", tags=["DOCX to PDF"])
+router = APIRouter(prefix="/conversions/docx-to-pdf", tags=["DOCX to PDF"])
 
 # Initialize services with docs-to-pdf-specific storage directory
 file_manager = FileManagerService(storage_dir="static/docxToPdf")
@@ -47,7 +47,7 @@ async def upload_docx_for_pdf(file: UploadFile = File(...)):
                     download_url=None,
                 )
 
-            download_url = f"/v1/conversions/docx-to-pdf/files/{output_filename}"
+            download_url = f"/api/v1/conversions/docx-to-pdf/files/{output_filename}"
 
             return ConversionResponse(
                 success=True,

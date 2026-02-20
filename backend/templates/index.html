@@ -863,13 +863,13 @@
 			}, 5000);
 		}
 
-		// Upload request to /v1/conversions/pdf-to-excel endpoint
+		// Upload request to /api/v1/conversions/pdf-to-excel endpoint
 		async function uploadFile(file) {
 			const formData = new FormData();
 			formData.append('file', file);
 
 			try {
-				const response = await fetch('/v1/conversions/pdf-to-excel', {
+				const response = await fetch('/api/v1/conversions/pdf-to-excel', {
 					method: 'POST',
 					body: formData
 				});
@@ -1016,8 +1016,8 @@
 		// Trigger file download from API
 		function downloadFile(filename, type) {
 			const endpoint = type === 'excel' ?
-				`/v1/conversions/pdf-to-excel/files/${encodeURIComponent(filename)}` :
-				`/v1/conversions/pdf-to-word/files/${encodeURIComponent(filename)}`;
+				`/api/v1/conversions/pdf-to-excel/files/${encodeURIComponent(filename)}` :
+				`/api/v1/conversions/pdf-to-word/files/${encodeURIComponent(filename)}`;
 
 			// Create a temporary link and trigger download
 			const link = document.createElement('a');
@@ -1031,7 +1031,7 @@
 		// Load Excel files from API
 		async function loadFileList() {
 			try {
-				const response = await fetch('/v1/conversions/pdf-to-excel/files');
+				const response = await fetch('/api/v1/conversions/pdf-to-excel/files');
 				const data = await response.json();
 
 				if (response.ok && data.files) {
@@ -1109,13 +1109,13 @@
 			}, 5000);
 		}
 
-		// Upload request for Docs to /v1/conversions/pdf-to-word endpoint
+		// Upload request for Docs to /api/v1/conversions/pdf-to-word endpoint
 		async function uploadFileDocs(file) {
 			const formData = new FormData();
 			formData.append('file', file);
 
 			try {
-				const response = await fetch('/v1/conversions/pdf-to-word', {
+				const response = await fetch('/api/v1/conversions/pdf-to-word', {
 					method: 'POST',
 					body: formData
 				});
@@ -1174,7 +1174,7 @@
 		// Load Word files from API
 		async function loadFileListDocs() {
 			try {
-				const response = await fetch('/v1/conversions/pdf-to-word/files');
+				const response = await fetch('/api/v1/conversions/pdf-to-word/files');
 				const data = await response.json();
 
 				if (response.ok && data.files) {

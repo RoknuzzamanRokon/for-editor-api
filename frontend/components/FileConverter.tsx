@@ -90,7 +90,9 @@ export default function FileConverter({
         if (previewMode === 'image' && data.download_url) {
           const downloadUrl = data.download_url.startsWith('/v1/')
             ? `/api${data.download_url}`
-            : data.download_url
+            : data.download_url.startsWith('/api/')
+              ? data.download_url
+              : data.download_url
           setOutputPreviewUrl(downloadUrl)
           setOutputFilename(data.filename || null)
         }

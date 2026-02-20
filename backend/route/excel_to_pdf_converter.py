@@ -12,7 +12,7 @@ from services.excel_to_pdf_converter import ExcelToPDFConverterService
 from services.file_manager import FileManagerService
 
 
-router = APIRouter(prefix="/v1/conversions/excel-to-pdf", tags=["Excel to PDF"])
+router = APIRouter(prefix="/conversions/excel-to-pdf", tags=["Excel to PDF"])
 
 file_manager = FileManagerService(storage_dir="static/excelToPdf")
 excel_to_pdf_converter = ExcelToPDFConverterService()
@@ -46,7 +46,7 @@ async def upload_excel_for_pdf(file: UploadFile = File(...)):
                     download_url=None,
                 )
 
-            download_url = f"/v1/conversions/excel-to-pdf/files/{output_filename}"
+            download_url = f"/api/v1/conversions/excel-to-pdf/files/{output_filename}"
             return ConversionResponse(
                 success=True,
                 message="Excel converted successfully",

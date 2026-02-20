@@ -12,7 +12,7 @@ from services.file_manager import FileManagerService
 from services.image_to_pdf_converter import ImageToPDFConverterService
 
 
-router = APIRouter(prefix="/v1/conversions/image-to-pdf", tags=["Image to PDF"])
+router = APIRouter(prefix="/conversions/image-to-pdf", tags=["Image to PDF"])
 
 file_manager = FileManagerService(storage_dir="static/imageToPdf")
 image_to_pdf_converter = ImageToPDFConverterService()
@@ -46,7 +46,7 @@ async def upload_image_for_pdf(file: UploadFile = File(...)):
                     download_url=None,
                 )
 
-            download_url = f"/v1/conversions/image-to-pdf/files/{output_filename}"
+            download_url = f"/api/v1/conversions/image-to-pdf/files/{output_filename}"
             return ConversionResponse(
                 success=True,
                 message="Image converted successfully",

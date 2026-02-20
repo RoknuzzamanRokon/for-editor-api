@@ -12,7 +12,7 @@ from services.file_manager import FileManagerService
 from services.pdf_to_excel_converter import PDFToExcelConverterService
 
 
-router = APIRouter(prefix="/v1/conversions/pdf-to-excel", tags=["PDF to Excel"])
+router = APIRouter(prefix="/conversions/pdf-to-excel", tags=["PDF to Excel"])
 
 # Initialize services
 file_manager = FileManagerService()
@@ -56,7 +56,7 @@ async def upload_pdf(file: UploadFile = File(...)):
                 )
             
             # Generate download URL
-            download_url = f"/v1/conversions/pdf-to-excel/files/{output_filename}"
+            download_url = f"/api/v1/conversions/pdf-to-excel/files/{output_filename}"
             
             return ConversionResponse(
                 success=True,

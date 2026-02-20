@@ -12,7 +12,7 @@ from services.file_manager import FileManagerService
 from services.pdf_page_remover import PDFPageRemoverService
 
 
-router = APIRouter(prefix="/v1/conversions/remove-pages-from-pdf", tags=["Remove Pages from PDF"])
+router = APIRouter(prefix="/conversions/remove-pages-from-pdf", tags=["Remove Pages from PDF"])
 
 file_manager = FileManagerService(storage_dir="static/pdfPageRemove")
 pdf_page_remover = PDFPageRemoverService()
@@ -54,7 +54,7 @@ async def remove_pages_from_pdf(
                     download_url=None,
                 )
 
-            download_url = f"/v1/conversions/remove-pages-from-pdf/files/{output_filename}"
+            download_url = f"/api/v1/conversions/remove-pages-from-pdf/files/{output_filename}"
             return ConversionResponse(
                 success=True,
                 message="PDF updated successfully",

@@ -12,7 +12,7 @@ from services.background_remover import BackgroundRemoverService
 from services.file_manager import FileManagerService
 
 
-router = APIRouter(prefix="/v1/conversions/remove-background", tags=["Remove Background"])
+router = APIRouter(prefix="/conversions/remove-background", tags=["Remove Background"])
 
 file_manager = FileManagerService(storage_dir="static/removeBackground")
 background_remover = BackgroundRemoverService()
@@ -46,7 +46,7 @@ async def remove_background_from_image(file: UploadFile = File(...)):
                     download_url=None,
                 )
 
-            download_url = f"/v1/conversions/remove-background/files/{output_filename}"
+            download_url = f"/api/v1/conversions/remove-background/files/{output_filename}"
             return ConversionResponse(
                 success=True,
                 message="Background removed successfully",

@@ -12,7 +12,7 @@ from services.file_manager import FileManagerService
 from services.pdf_to_docs_converter import PDFToDocsConverterService
 
 
-router = APIRouter(prefix="/v1/conversions/pdf-to-word", tags=["PDF to Word"])
+router = APIRouter(prefix="/conversions/pdf-to-word", tags=["PDF to Word"])
 
 # Initialize services with docs-specific storage directory
 docs_file_manager = FileManagerService(storage_dir="static/pdfToDocs")
@@ -56,7 +56,7 @@ async def upload_pdf_for_docs(file: UploadFile = File(...)):
                 )
             
             # Generate download URL
-            download_url = f"/v1/conversions/pdf-to-word/files/{output_filename}"
+            download_url = f"/api/v1/conversions/pdf-to-word/files/{output_filename}"
             
             return ConversionResponse(
                 success=True,
