@@ -46,7 +46,7 @@ async def remove_background_from_image(file: UploadFile = File(...)):
                     download_url=None,
                 )
 
-            download_url = f"/api/v1/conversions/remove-background/files/{output_filename}"
+            download_url = f"/api/v2/conversions/remove-background/files/{output_filename}"
             return ConversionResponse(
                 success=True,
                 message="Background removed successfully",

@@ -54,7 +54,7 @@ async def remove_pages_from_pdf(
                     download_url=None,
                 )
 
-            download_url = f"/api/v1/conversions/remove-pages-from-pdf/files/{output_filename}"
+            download_url = f"/api/v2/conversions/remove-pages-from-pdf/files/{output_filename}"
             return ConversionResponse(
                 success=True,
                 message="PDF updated successfully",

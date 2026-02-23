@@ -56,7 +56,7 @@ async def upload_pdf(file: UploadFile = File(...)):
                 )
             
             # Generate download URL
-            download_url = f"/api/v1/conversions/pdf-to-excel/files/{output_filename}"
+            download_url = f"/api/v2/conversions/pdf-to-excel/files/{output_filename}"
             
             return ConversionResponse(
                 success=True,

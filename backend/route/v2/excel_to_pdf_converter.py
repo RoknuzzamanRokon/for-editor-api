@@ -46,7 +46,7 @@ async def upload_excel_for_pdf(file: UploadFile = File(...)):
                     download_url=None,
                 )
 
-            download_url = f"/api/v1/conversions/excel-to-pdf/files/{output_filename}"
+            download_url = f"/api/v2/conversions/excel-to-pdf/files/{output_filename}"
             return ConversionResponse(
                 success=True,
                 message="Excel converted successfully",

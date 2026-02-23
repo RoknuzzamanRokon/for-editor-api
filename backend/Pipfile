@@ -16,6 +16,11 @@ pdf2docx = "*"
 pillow = "*"
 pypdf = "*"
 rembg = {extras = ["cpu"], version = "*"}
+sqlalchemy = "*"
+pymysql = "*"
+python-jose = "*"
+bcrypt = ">=4.0.0"
+pydantic = {extras = ["email"], version = "*"}
 
 [dev-packages]
 pytest = "*"

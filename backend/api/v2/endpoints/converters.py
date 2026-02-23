@@ -1,5 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from core.deps import block_demo_write, require_role
+from db.models import RoleEnum
 from route.v2.docs_converter import router as docs_converter_router
 from route.v2.docx_to_pdf_converter import router as docx_to_pdf_converter_router
 from route.v2.excel_converter import router as excel_converter_router
@@ -8,7 +10,17 @@ from route.v2.image_to_pdf_converter import router as image_to_pdf_converter_rou
 from route.v2.pdf_page_remover import router as pdf_page_remover_router
 from route.v2.remove_background import router as remove_background_router
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[
+        Depends(require_role(
+            RoleEnum.super_user,
+            RoleEnum.admin_user,
+            RoleEnum.general_user,
+            RoleEnum.demo_user,
+        )),
+        Depends(block_demo_write),
+    ]
+)
 
 router.include_router(excel_converter_router)
 router.include_router(docs_converter_router)

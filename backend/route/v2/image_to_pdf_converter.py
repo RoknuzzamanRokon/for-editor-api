@@ -46,7 +46,7 @@ async def upload_image_for_pdf(file: UploadFile = File(...)):
                     download_url=None,
                 )
 
-            download_url = f"/api/v1/conversions/image-to-pdf/files/{output_filename}"
+            download_url = f"/api/v2/conversions/image-to-pdf/files/{output_filename}"
             return ConversionResponse(
                 success=True,
                 message="Image converted successfully",
