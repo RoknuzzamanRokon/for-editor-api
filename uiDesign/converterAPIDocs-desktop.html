@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>ConvertPro API Documentation</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#2463eb",
+            "background-light": "#f6f6f8",
+            "background-dark": "#111621",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .code-block {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body class="bg-background-light text-slate-900 font-display">
+  <header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
+    <div class="flex h-16 items-center justify-between px-6 lg:px-12">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 text-primary">
+          <span class="material-symbols-outlined text-3xl font-bold">layers</span>
+          <span class="text-xl font-bold tracking-tight text-slate-900">ConvertPro <span
+              class="text-primary">API</span></span>
+        </div>
+        <div class="hidden md:flex ml-8 items-center gap-6">
+          <a class="text-sm font-medium text-slate-600 hover:text-primary" href="#">Guides</a>
+          <a class="text-sm font-medium text-slate-900 border-b-2 border-primary py-5" href="#">Reference</a>
+          <a class="text-sm font-medium text-slate-600 hover:text-primary" href="#">Changelog</a>
+          <a class="text-sm font-medium text-slate-600 hover:text-primary" href="#">Status</a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="relative hidden sm:block">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+          <input
+            class="h-9 w-64 rounded-lg border-slate-200 bg-slate-50 pl-10 text-sm focus:border-primary focus:ring-primary"
+            placeholder="Search documentation..." type="text" />
+          <kbd
+            class="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-slate-300 px-1.5 py-0.5 text-[10px] font-medium text-slate-400">⌘K</kbd>
+        </div>
+        <button class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">Sign
+          Up</button>
+      </div>
+    </div>
+  </header>
+  <div class="flex min-h-[calc(100vh-64px)]">
+    <aside
+      class="sticky top-16 hidden h-[calc(100vh-64px)] w-64 flex-col overflow-y-auto border-r border-slate-200 bg-white px-6 py-8 lg:flex">
+      <div class="space-y-8">
+        <div>
+          <h5 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Getting Started</h5>
+          <ul class="space-y-2">
+            <li><a class="flex items-center gap-2 text-sm font-medium text-primary" href="#introduction"><span
+                  class="material-symbols-outlined text-lg">info</span> Introduction</a></li>
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#authentication"><span class="material-symbols-outlined text-lg">lock</span> Authentication</a>
+            </li>
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#base-url"><span class="material-symbols-outlined text-lg">link</span> Base URL</a></li>
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#versioning"><span class="material-symbols-outlined text-lg">history</span> Versioning</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">API Reference</h5>
+          <ul class="space-y-2">
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#auth-endpoints"><span class="material-symbols-outlined text-lg">fingerprint</span> Auth
+                Endpoints</a></li>
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#converter"><span class="material-symbols-outlined text-lg">transform</span> Converter</a></li>
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#users"><span class="material-symbols-outlined text-lg">group</span> Users</a></li>
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#errors"><span class="material-symbols-outlined text-lg">error</span> Error Codes</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Resources</h5>
+          <ul class="space-y-2">
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#roles"><span class="material-symbols-outlined text-lg">badge</span> Roles</a></li>
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#rate-limits"><span class="material-symbols-outlined text-lg">speed</span> Rate Limits</a></li>
+            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary"
+                href="#sdks"><span class="material-symbols-outlined text-lg">package</span> SDKs</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-auto pt-8">
+        <div class="rounded-xl bg-slate-50 p-4 border border-slate-100">
+          <p class="text-xs font-semibold text-slate-900">Need help?</p>
+          <p class="mt-1 text-xs text-slate-500 leading-relaxed">Our support team is available 24/7 for Enterprise
+            users.</p>
+          <button class="mt-3 text-xs font-bold text-primary flex items-center gap-1">Contact Support <span
+              class="material-symbols-outlined text-sm">arrow_forward</span></button>
+        </div>
+      </div>
+    </aside>
+    <main class="flex-1 overflow-y-auto bg-white">
+      <div class="mx-auto max-w-4xl px-8 py-12 lg:px-16">
+        <section class="mb-16" id="introduction">
+          <div class="flex items-center gap-2 mb-2">
+            <span
+              class="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">v2.0
+              Stable</span>
+          </div>
+          <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">ConvertPro API Documentation
+          </h1>
+          <p class="mt-6 text-lg text-slate-600 leading-relaxed">
+            Welcome to the ConvertPro API. Our API allows you to programmatically convert documents between hundreds of
+            formats, manage user accounts, and track conversion usage in real-time.
+          </p>
+          <div class="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Production Base URL</h4>
+                <code class="mt-2 block text-primary font-mono text-sm">https://api.convertpro.io/v2</code>
+              </div>
+              <button
+                class="flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50">
+                <span class="material-symbols-outlined text-sm">content_copy</span> Copy
+              </button>
+            </div>
+          </div>
+        </section>
+        <hr class="border-slate-100 my-16" />
+        <section class="mb-16" id="authentication">
+          <h2 class="text-3xl font-bold tracking-tight text-slate-900">Authentication</h2>
+          <p class="mt-4 text-slate-600">
+            The ConvertPro API uses JWT (JSON Web Tokens) for authentication. To access protected endpoints, you must
+            include a valid bearer token in your request headers.
+          </p>
+          <div class="mt-8 space-y-4">
+            <div class="rounded-xl bg-[#1e293b] p-6 shadow-xl">
+              <div class="mb-4 flex items-center justify-between border-b border-slate-700 pb-4">
+                <span class="text-xs font-bold uppercase tracking-widest text-slate-400">POST /api/v2/auth/login</span>
+                <div class="flex gap-2">
+                  <span class="size-2.5 rounded-full bg-red-500"></span>
+                  <span class="size-2.5 rounded-full bg-yellow-500"></span>
+                  <span class="size-2.5 rounded-full bg-green-500"></span>
+                </div>
+              </div>
+              <pre class="code-block text-sm leading-relaxed text-slate-300"><code><span class="text-primary">curl</span> -X POST https://api.convertpro.io/v2/auth/login \
+  -H <span class="text-green-400">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="text-yellow-400">"api_key"</span>: <span class="text-green-400">"your_api_key_here"</span>,
+    <span class="text-yellow-400">"secret"</span>: <span class="text-green-400">"your_secret_hash"</span>
+  }'</code></pre>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white p-6">
+              <h4 class="text-sm font-bold text-slate-900">Success Response</h4>
+              <pre class="code-block mt-4 text-xs text-slate-600"><code>{
+  "status": "success",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires_at": "2024-12-31T23:59:59Z",
+    "user_id": "usr_9420"
+  }
+}</code></pre>
+            </div>
+          </div>
+        </section>
+        <section class="mb-16" id="roles">
+          <h3 class="text-2xl font-bold text-slate-900">User Roles</h3>
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="rounded-xl border border-slate-200 p-5 hover:border-primary/30 transition-colors">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg">shield_person</span>
+                <h4 class="font-bold text-slate-900">Super User</h4>
+              </div>
+              <p class="mt-2 text-sm text-slate-500 italic">Full access to system configuration and billing.</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-5 hover:border-primary/30 transition-colors">
+              <div class="flex items-center gap-3">
+                <span
+                  class="material-symbols-outlined text-slate-600 bg-slate-100 p-2 rounded-lg">manage_accounts</span>
+                <h4 class="font-bold text-slate-900">Admin</h4>
+              </div>
+              <p class="mt-2 text-sm text-slate-500">Manage organization users and view conversion logs.</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-5 hover:border-primary/30 transition-colors">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-slate-600 bg-slate-100 p-2 rounded-lg">person</span>
+                <h4 class="font-bold text-slate-900">General</h4>
+              </div>
+              <p class="mt-2 text-sm text-slate-500">Default role. Can perform conversions and view own history.</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-5 hover:border-primary/30 transition-colors">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-slate-600 bg-slate-100 p-2 rounded-lg">visibility</span>
+                <h4 class="font-bold text-slate-900">Demo</h4>
+              </div>
+              <p class="mt-2 text-sm text-slate-500">Read-only access with restricted conversion limits.</p>
+            </div>
+          </div>
+        </section>
+        <section class="mb-16" id="converter">
+          <h3 class="text-2xl font-bold text-slate-900 mb-8">Conversion Endpoints</h3>
+          <div class="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6">
+            <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+              <span
+                class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
+              <code class="text-sm font-bold text-slate-700">/api/v2/pdf-to-docs</code>
+              <span class="ml-auto text-xs text-slate-400">Convert PDF to Editable Document</span>
+            </div>
+            <div class="p-6">
+              <h5 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Body Parameters</h5>
+              <div class="space-y-4">
+                <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono text-sm text-slate-900 font-bold">file_url</span>
+                      <span class="text-[10px] text-red-500 font-bold">REQUIRED</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Publicly accessible URL of the PDF file.</p>
+                  </div>
+                  <span class="text-xs text-slate-400">string</span>
+                </div>
+                <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono text-sm text-slate-900 font-bold">ocr_enabled</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Enable Optical Character Recognition for scanned PDFs.</p>
+                  </div>
+                  <span class="text-xs text-slate-400">boolean</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+            <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+              <span
+                class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
+              <code class="text-sm font-bold text-slate-700">/api/v2/auth/me</code>
+              <span class="ml-auto text-xs text-slate-400">Get Current User Profile</span>
+            </div>
+            <div class="p-6">
+              <p class="text-sm text-slate-600">Retrieves details for the authenticated user based on the provided
+                Bearer token.</p>
+            </div>
+          </div>
+        </section>
+        <section class="mb-16" id="errors">
+          <h3 class="text-2xl font-bold text-slate-900 mb-6">Error Handling</h3>
+          <div class="space-y-4">
+            <div class="flex gap-4 rounded-xl border-l-4 border-orange-500 bg-orange-50 p-4">
+              <span class="material-symbols-outlined text-orange-600">warning</span>
+              <div>
+                <h5 class="text-sm font-bold text-orange-900">401 Unauthorized</h5>
+                <p class="text-sm text-orange-700">Invalid or missing authentication credentials.</p>
+              </div>
+            </div>
+            <div class="flex gap-4 rounded-xl border-l-4 border-red-500 bg-red-50 p-4">
+              <span class="material-symbols-outlined text-red-600">block</span>
+              <div>
+                <h5 class="text-sm font-bold text-red-900">403 Forbidden</h5>
+                <p class="text-sm text-red-700">User does not have required permissions for this action.</p>
+              </div>
+            </div>
+            <div class="flex gap-4 rounded-xl border-l-4 border-purple-500 bg-purple-50 p-4">
+              <span class="material-symbols-outlined text-purple-600">hourglass_top</span>
+              <div>
+                <h5 class="text-sm font-bold text-purple-900">429 Too Many Requests</h5>
+                <p class="text-sm text-purple-700">You have exceeded your rate limits. See the Rate Limits section
+                  below.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="mb-16" id="rate-limits">
+          <h3 class="text-2xl font-bold text-slate-900 mb-6">Rate Limits</h3>
+          <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-500">
+                <tr>
+                  <th class="px-6 py-4">Plan</th>
+                  <th class="px-6 py-4">Request Limit</th>
+                  <th class="px-6 py-4">Burst</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="px-6 py-4 font-medium text-slate-900">Free Tier</td>
+                  <td class="px-6 py-4 text-slate-600">100 / hour</td>
+                  <td class="px-6 py-4 text-slate-600">5 / minute</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 font-medium text-slate-900">Pro</td>
+                  <td class="px-6 py-4 text-slate-600">5,000 / hour</td>
+                  <td class="px-6 py-4 text-slate-600">100 / minute</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 font-medium text-slate-900">Enterprise</td>
+                  <td class="px-6 py-4 text-slate-600">Unlimited</td>
+                  <td class="px-6 py-4 text-slate-600">Custom</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+    <aside
+      class="sticky top-16 hidden h-[calc(100vh-64px)] w-[400px] flex-col border-l border-slate-200 bg-slate-50 xl:flex">
+      <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+        <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Try It Now</h4>
+        <div class="flex gap-1">
+          <button class="rounded-lg p-1 hover:bg-slate-200 text-slate-400"><span
+              class="material-symbols-outlined text-lg">settings</span></button>
+          <button class="rounded-lg p-1 hover:bg-slate-200 text-slate-400"><span
+              class="material-symbols-outlined text-lg">close</span></button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="mb-6">
+          <label class="mb-2 block text-xs font-bold text-slate-400 uppercase tracking-wider">Endpoint</label>
+          <div class="relative">
+            <select
+              class="w-full rounded-lg border-slate-200 bg-white text-sm focus:border-primary focus:ring-primary appearance-none">
+              <option>POST /pdf-to-docs</option>
+              <option>GET /auth/me</option>
+              <option>POST /auth/login</option>
+            </select>
+            <span
+              class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+          </div>
+        </div>
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Headers</label>
+            <button class="text-[10px] font-bold text-primary">+ ADD HEADER</button>
+          </div>
+          <div class="space-y-2">
+            <div class="flex gap-2">
+              <input class="w-1/3 rounded-lg border-slate-200 bg-white text-xs" disabled="" type="text"
+                value="Authorization" />
+              <input class="flex-1 rounded-lg border-slate-200 bg-white text-xs" type="text" value="Bearer {{token}}" />
+            </div>
+            <div class="flex gap-2">
+              <input class="w-1/3 rounded-lg border-slate-200 bg-white text-xs" disabled="" type="text"
+                value="Content-Type" />
+              <input class="flex-1 rounded-lg border-slate-200 bg-white text-xs" type="text" value="application/json" />
+            </div>
+          </div>
+        </div>
+        <div class="mb-6">
+          <label class="mb-2 block text-xs font-bold text-slate-400 uppercase tracking-wider">Request Body</label>
+          <div class="rounded-lg border border-slate-200 bg-[#0f172a] p-4">
+            <pre class="text-xs font-mono text-blue-300"><code>{
+  "file_url": "https://example.com/cv.pdf",
+  "ocr_enabled": true
+}</code></pre>
+          </div>
+        </div>
+        <button
+          class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-bold text-white shadow-lg shadow-primary/30 hover:bg-primary/90">
+          <span class="material-symbols-outlined text-lg">play_arrow</span> SEND REQUEST
+        </button>
+        <div class="mt-8">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Response</label>
+            <span class="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded">200 OK</span>
+          </div>
+          <div class="rounded-lg border border-slate-200 bg-white p-4 h-48 overflow-y-auto">
+            <pre class="text-xs font-mono text-slate-600"><code>{
+  "status": "success",
+  "request_id": "req_55921",
+  "data": {
+    "conversion_id": "conv_881",
+    "result_url": "https://s3.cp.io/f/doc_1.docx",
+    "pages_processed": 12,
+    "duration_ms": 1420
+  }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-slate-200 bg-white p-4">
+        <div class="flex items-center gap-3">
+          <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary text-sm">terminal</span>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase leading-none">Environment</p>
+            <p class="text-xs font-bold text-slate-900 leading-tight">Production API</p>
+          </div>
+          <span class="material-symbols-outlined ml-auto text-slate-400">expand_more</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <footer class="border-t border-slate-200 bg-white py-8">
+    <div class="mx-auto max-w-7xl px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-4 text-slate-400 text-sm">
+        <span>© 2024 ConvertPro Inc.</span>
+        <span class="size-1 rounded-full bg-slate-300"></span>
+        <a class="hover:text-primary" href="#">Privacy</a>
+        <span class="size-1 rounded-full bg-slate-300"></span>
+        <a class="hover:text-primary" href="#">Terms</a>
+      </div>
+      <div class="flex gap-4">
+        <a class="size-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-primary/10"
+          href="#">
+          <svg class="size-4" fill="currentColor" viewbox="0 0 24 24">
+            <path
+              d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z">
+            </path>
+          </svg>
+        </a>
+        <a class="size-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-primary/10"
+          href="#">
+          <svg class="size-4" fill="currentColor" viewbox="0 0 24 24">
+            <path
+              d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z">
+            </path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+{
+  "workspace": {
+    "id": "21ce4f62-5617-4a99-934e-45b620de5c7b",
+    "name": "PDF Converter API"
+  },
+  "collection": {
+    "id": "9ee2db49-39d3-4e90-9c07-31c9900e472d",
+    "uid": "38769584-9ee2db49-39d3-4e90-9c07-31c9900e472d",
+    "name": "PDF Converter API"
+  },
+  "environment": {
+    "local": {
+      "id": "da8dc403-7a0f-4e7a-906f-e7a54e214994",
+      "uid": "38769584-da8dc403-7a0f-4e7a-906f-e7a54e214994",
+      "name": "Local Development"
+    }
+  }
+}

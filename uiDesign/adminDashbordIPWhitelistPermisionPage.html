@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1d283a",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16181c",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+    <div class="flex h-screen overflow-hidden">
+        <!-- SideNavBar -->
+        <aside class="w-64 border-r border-primary/10 bg-white dark:bg-primary flex flex-col shrink-0">
+            <div class="p-6 flex items-center gap-3">
+                <div class="bg-primary text-white rounded-lg p-2">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold text-primary dark:text-white">Point Control</h1>
+                    <p class="text-[10px] text-primary/60 dark:text-white/60">Admin Panel</p>
+                </div>
+            </div>
+            <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto"><a
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    <span class="text-sm font-medium">Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">history</span>
+                    <span class="text-sm font-medium">History</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">vpn_key</span>
+                    <span class="text-sm font-medium">API Permissions</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary text-white shadow-sm transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px] fill-current">security</span>
+                    <span class="text-sm font-medium">IP Whitelisting</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">group</span>
+                    <span class="text-sm font-medium">Users</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">settings</span>
+                    <span class="text-sm font-medium">Settings</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-primary/10">
+                <div class="flex items-center gap-3 p-2">
+                    <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                        <span class="material-symbols-outlined text-primary/40">person</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold truncate">Alex Smith</p>
+                        <p class="text-[10px] text-primary/60 dark:text-white/40 uppercase tracking-tight truncate">
+                            SYSTEM ADMIN</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header
+                class="h-16 border-b border-primary/10 bg-white dark:bg-primary/95 flex items-center justify-between px-8 shrink-0">
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="relative w-full max-w-xl">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 text-lg">search</span>
+                        <input
+                            class="w-full h-10 pl-10 pr-4 rounded-lg bg-primary/5 border-none text-sm focus:ring-1 focus:ring-primary/20 transition-all"
+                            placeholder="Search transactions, users or API keys..." type="text" />
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="relative p-2 rounded-lg hover:bg-primary/5 transition-colors text-primary/60">
+                        <span class="material-symbols-outlined text-2xl">notifications</span>
+                        <span
+                            class="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full border-2 border-white"></span>
+                    </button>
+                    <div class="h-6 w-[1px] bg-primary/10 mx-2"></div>
+                    <div class="h-9 w-9 rounded-lg overflow-hidden border border-primary/10 bg-primary/5">
+                        <div class="w-full h-full bg-cover" data-alt="Header user avatar"
+                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBq3UstSxUc1m7gfNkasX1QNrHK96J0vj968mikpsT2dacpcdiCROy68JboVGu_mtMrwM8tVUMM0fvRzwf5SB4wbNHhzmKTXnNO19n5TkhxRoWVRIJYFHViD8M7d5HctQ5Z18LpaN3jETFE3ERP0z6eAmcNX09BK-MPPPYwVt9RZBYvw74ujAYoZr_PqJ56RbmluRhe99fC-2GNu_ZuO8-TKYgfhSVtnAVRCIh8MDnAZjezMLoyPyYiHNFs3ajrZ32xB97np1DYOADL')">
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-8">
+                <div class="max-w-6xl mx-auto space-y-8">
+                    <!-- Top Actions & Subheader -->
+                    <div class="flex justify-between items-start">
+                        <div class="max-w-xl">
+                            <h3 class="text-2xl font-bold tracking-tight mb-2">Security Rules</h3>
+                            <p class="text-primary/60 dark:text-slate-400">Manage and restrict API access to trusted IP
+                                addresses or CIDR ranges. Only requests from these addresses will be permitted.</p>
+                        </div>
+                        <button
+                            class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-semibold text-sm hover:opacity-90 shadow-sm transition-opacity">
+                            <span class="material-symbols-outlined text-[20px]">add</span>
+                            Add New IP
+                        </button>
+                    </div>
+                    <!-- Statistics Bar (Extra component for clean UI) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white dark:bg-primary/80 p-6 rounded-xl border border-primary/10 shadow-sm">
+                            <p
+                                class="text-xs font-bold text-primary/50 dark:text-white/40 uppercase tracking-widest mb-1">
+                                Total IPs</p>
+                            <p class="text-2xl font-bold">12</p>
+                        </div>
+                        <div class="bg-white dark:bg-primary/80 p-6 rounded-xl border border-primary/10 shadow-sm">
+                            <p
+                                class="text-xs font-bold text-primary/50 dark:text-white/40 uppercase tracking-widest mb-1">
+                                Active Rules</p>
+                            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">11</p>
+                        </div>
+                        <div class="bg-white dark:bg-primary/80 p-6 rounded-xl border border-primary/10 shadow-sm">
+                            <p
+                                class="text-xs font-bold text-primary/50 dark:text-white/40 uppercase tracking-widest mb-1">
+                                Last Update</p>
+                            <p class="text-2xl font-bold">2h ago</p>
+                        </div>
+                    </div>
+                    <!-- IP Table -->
+                    <div
+                        class="bg-white dark:bg-primary/80 border border-primary/10 rounded-xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-primary/5 dark:bg-white/5 border-b border-primary/10">
+                                        <th
+                                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-primary/70 dark:text-white/70">
+                                            IP Address/Range</th>
+                                        <th
+                                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-primary/70 dark:text-white/70">
+                                            Label/Description</th>
+                                        <th
+                                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-primary/70 dark:text-white/70">
+                                            Status</th>
+                                        <th
+                                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-primary/70 dark:text-white/70">
+                                            Added On</th>
+                                        <th
+                                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-primary/70 dark:text-white/70 text-right">
+                                            Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-primary/5 dark:divide-white/5">
+                                    <tr class="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span
+                                                class="font-mono text-sm text-primary dark:text-white">192.168.1.1</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/70 dark:text-white/70">Office Main
+                                            Headquarters</td>
+                                        <td class="px-6 py-4">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                                Active
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/60 dark:text-white/40">2023-10-01</td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <button
+                                                    class="p-1.5 hover:bg-primary/10 dark:hover:bg-white/10 rounded text-primary/60 hover:text-primary dark:text-white/40 dark:hover:text-white transition-colors">
+                                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                                </button>
+                                                <button
+                                                    class="p-1.5 hover:bg-red-500/10 rounded text-primary/60 hover:text-red-500 dark:text-white/40 dark:hover:text-red-400 transition-colors">
+                                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span
+                                                class="font-mono text-sm text-primary dark:text-white">10.0.0.5/24</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/70 dark:text-white/70">Staging
+                                            Environment VPN</td>
+                                        <td class="px-6 py-4">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                                Active
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/60 dark:text-white/40">2023-10-05</td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <button
+                                                    class="p-1.5 hover:bg-primary/10 dark:hover:bg-white/10 rounded text-primary/60 hover:text-primary dark:text-white/40 dark:hover:text-white transition-colors">
+                                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                                </button>
+                                                <button
+                                                    class="p-1.5 hover:bg-red-500/10 rounded text-primary/60 hover:text-red-500 dark:text-white/40 dark:hover:text-red-400 transition-colors">
+                                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-primary/5 dark:hover:bg-white/5 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span
+                                                class="font-mono text-sm text-primary dark:text-white">172.16.0.1</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/70 dark:text-white/70">Backup Remote
+                                            Server</td>
+                                        <td class="px-6 py-4">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-500/20 dark:text-slate-400">
+                                                Inactive
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-primary/60 dark:text-white/40">2023-10-12</td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <button
+                                                    class="p-1.5 hover:bg-primary/10 dark:hover:bg-white/10 rounded text-primary/60 hover:text-primary dark:text-white/40 dark:hover:text-white transition-colors">
+                                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                                </button>
+                                                <button
+                                                    class="p-1.5 hover:bg-red-500/10 rounded text-primary/60 hover:text-red-500 dark:text-white/40 dark:hover:text-red-400 transition-colors">
+                                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Placeholder Empty State (Commented out but structured for use) -->
+                    <!-- 
+                    <div class="flex flex-col items-center justify-center p-20 border-2 border-dashed border-primary/20 rounded-xl bg-white/50 dark:bg-primary/20">
+                        <div class="h-20 w-20 rounded-full bg-primary/5 flex items-center justify-center mb-6">
+                            <span class="material-symbols-outlined text-4xl text-primary/20">lock_open</span>
+                        </div>
+                        <h4 class="text-xl font-bold mb-2">No Whitelisted IPs</h4>
+                        <p class="text-primary/60 dark:text-white/40 text-center max-w-sm mb-8">Secure your system by adding your first trusted IP address or CIDR range to restrict access.</p>
+                        <button class="px-6 py-3 bg-primary text-white rounded-lg font-bold hover:opacity-90 shadow transition-all">
+                            Add Your First IP
+                        </button>
+                    </div>
+                    -->
+                    <!-- Quick Note -->
+                    <div class="p-4 bg-primary/5 dark:bg-white/5 border border-primary/10 rounded-lg flex gap-3">
+                        <span class="material-symbols-outlined text-primary/40 dark:text-white/40">info</span>
+                        <p class="text-xs text-primary/70 dark:text-white/60 leading-relaxed">
+                            Pro-tip: Use CIDR notation (e.g., /24) to whitelist entire subnets. Changes to IP rules
+                            usually take effect within 60 seconds across all edge nodes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2463eb",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+    <!-- Navigation Header -->
+    <nav
+        class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="bg-primary rounded-lg p-1.5">
+                    <span class="material-symbols-outlined text-white text-xl">transform</span>
+                </div>
+                <span
+                    class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">ConvertPro</span>
+            </div>
+            <button class="p-2 text-slate-600 dark:text-slate-300">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </div>
+    </nav>
+    <main class="flex flex-col gap-12 pb-20">
+        <!-- Hero Section -->
+        <section class="px-4 pt-12 text-center flex flex-col items-center gap-6">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
+                <span class="material-symbols-outlined text-sm">bolt</span>
+                v2.0 Now Available
+            </div>
+            <h1 class="text-4xl font-black leading-tight tracking-tight text-slate-900 dark:text-white">
+                Supercharge Your <span class="text-primary">Data Conversion</span>
+            </h1>
+            <p class="text-base text-slate-600 dark:text-slate-400 max-w-sm">
+                The most powerful API for seamless document and file transformations at scale. Built for developers by
+                developers.
+            </p>
+            <div class="flex flex-col w-full gap-3 mt-4">
+                <button
+                    class="w-full bg-primary text-white font-bold h-12 rounded-xl flex items-center justify-center gap-2">
+                    Start Converting <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </button>
+                <button
+                    class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-bold h-12 rounded-xl">
+                    View API Docs
+                </button>
+            </div>
+            <div class="mt-4 w-full aspect-video rounded-xl bg-slate-900 shadow-2xl overflow-hidden relative group border border-slate-800"
+                data-alt="High tech server room with blue glowing lights"
+                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDnDHGIv7bPkM6WVyS1JM0AbgNYCHseyjRfgKZvWwc7XGjdXX746zARM6B3-VaCew0WbMTadLm653NKwaHnqSZSxp-YIWW5lwOb0m21yfxk2Ws6RDNczAofXYb8to21JRn_QUg07U6dfpFY4UZTpRdqX_yvka686RjeNAdhnJYT3UXm8RSfGJ_7AHssNpoqYCy4ygrzMYo5UjB-gkKQUtTsazH5ga8uABq6m6aCRQ5CwgOV3JJjxgLKc-fHEolf-7LYnMXngrPd-gzg");'>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent flex items-end p-6">
+                    <div class="text-left">
+                        <p class="text-white text-sm font-bold">Global Infrastructure</p>
+                        <p class="text-slate-400 text-xs">99.99% Uptime across 12 regions</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Features Section -->
+        <section class="px-4">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold dark:text-white">Core Features</h2>
+                <a class="text-primary text-sm font-semibold" href="#">See all</a>
+            </div>
+            <div class="flex flex-col gap-4">
+                <div
+                    class="p-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined">speed</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2 dark:text-white">Lightning Fast</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Average conversion time under
+                        200ms for standard office documents and media files.</p>
+                </div>
+                <div
+                    class="p-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined">encrypted</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2 dark:text-white">Military-Grade Encryption</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">End-to-end AES-256 encryption.
+                        Files are automatically purged from our servers after processing.</p>
+                </div>
+                <div
+                    class="p-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined">api</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2 dark:text-white">Universal SDKs</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Official libraries for Python,
+                        Node.js, Go, Ruby, and PHP ready for production use.</p>
+                </div>
+            </div>
+        </section>
+        <!-- API Preview Section -->
+        <section class="px-4">
+            <div class="bg-slate-950 rounded-xl p-6 overflow-hidden border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex gap-1.5">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                    </div>
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest">convert.js</span>
+                </div>
+                <pre
+                    class="text-xs font-mono leading-6 text-slate-300 overflow-x-auto"><span class="text-purple-400">const</span> convert = <span class="text-purple-400">require</span>(<span class="text-emerald-400">'@convertpro/sdk'</span>);
+
+<span class="text-slate-500">// Initialize client</span>
+<span class="text-purple-400">const</span> client = <span class="text-purple-400">new</span> convert.Client(<span class="text-emerald-400">'API_KEY'</span>);
+
+<span class="text-slate-500">// Single line conversion</span>
+<span class="text-purple-400">const</span> result = <span class="text-purple-400">await</span> client.transform({
+  input: <span class="text-emerald-400">'invoice.docx'</span>,
+  format: <span class="text-emerald-400">'pdf'</span>,
+  ocr: <span class="text-blue-400">true</span>
+});
+
+<span class="text-blue-400">console</span>.log(<span class="text-emerald-400">`Link: </span><span class="text-purple-400">${</span>result.url<span class="text-purple-400">}</span><span class="text-emerald-400">`</span>);</pre>
+            </div>
+        </section>
+        <!-- Role-Based Access Section -->
+        <section class="px-4">
+            <h2 class="text-xl font-bold mb-6 dark:text-white">Role-Based Access</h2>
+            <div class="flex flex-col gap-3">
+                <div
+                    class="flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <div
+                        class="shrink-0 w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                        <span
+                            class="material-symbols-outlined text-slate-600 dark:text-slate-300">admin_panel_settings</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm dark:text-white">Admin Console</h4>
+                        <p class="text-xs text-slate-500">Full control over API keys and billing.</p>
+                    </div>
+                    <div class="ml-auto">
+                        <span class="material-symbols-outlined text-primary">check_circle</span>
+                    </div>
+                </div>
+                <div
+                    class="flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 opacity-80">
+                    <div
+                        class="shrink-0 w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">engineering</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm dark:text-white">Developer Access</h4>
+                        <p class="text-xs text-slate-500">Read/write access to logs and webhooks.</p>
+                    </div>
+                    <div class="ml-auto">
+                        <span class="material-symbols-outlined text-slate-300">circle</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Security Badge Section -->
+        <section class="mx-4 p-6 bg-primary rounded-2xl text-white flex flex-col items-center text-center gap-4">
+            <span class="material-symbols-outlined text-4xl">verified_user</span>
+            <h2 class="text-xl font-bold">Enterprise Security</h2>
+            <p class="text-sm text-primary-100/80 leading-relaxed">
+                We comply with SOC2 Type II, HIPAA, and GDPR standards to ensure your sensitive data stays private.
+            </p>
+            <div class="flex gap-4 mt-2">
+                <div class="bg-white/10 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest">SOC2</div>
+                <div class="bg-white/10 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest">HIPAA</div>
+                <div class="bg-white/10 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest">GDPR</div>
+            </div>
+        </section>
+    </main>
+    <!-- Simplified Footer -->
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-12 pb-24 px-4">
+        <div class="flex flex-col gap-8">
+            <div class="flex items-center gap-2">
+                <div class="bg-primary rounded-lg p-1">
+                    <span class="material-symbols-outlined text-white text-lg">transform</span>
+                </div>
+                <span
+                    class="text-lg font-extrabold text-slate-900 dark:text-white uppercase tracking-tight">ConvertPro</span>
+            </div>
+            <div class="grid grid-cols-2 gap-8">
+                <div class="flex flex-col gap-3">
+                    <h5 class="text-sm font-bold text-slate-900 dark:text-white">Product</h5>
+                    <a class="text-sm text-slate-600 dark:text-slate-400" href="#">Pricing</a>
+                    <a class="text-sm text-slate-600 dark:text-slate-400" href="#">Features</a>
+                    <a class="text-sm text-slate-600 dark:text-slate-400" href="#">Roadmap</a>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <h5 class="text-sm font-bold text-slate-900 dark:text-white">Company</h5>
+                    <a class="text-sm text-slate-600 dark:text-slate-400" href="#">About</a>
+                    <a class="text-sm text-slate-600 dark:text-slate-400" href="#">Support</a>
+                    <a class="text-sm text-slate-600 dark:text-slate-400" href="#">Privacy</a>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center gap-4">
+                <div class="flex gap-6 text-slate-400">
+                    <span class="material-symbols-outlined text-xl">brand_family</span>
+                    <span class="material-symbols-outlined text-xl">share</span>
+                    <span class="material-symbols-outlined text-xl">public</span>
+                </div>
+                <p class="text-xs text-slate-500">© 2024 ConvertPro API. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- Bottom Mobile Nav -->
+    <div
+        class="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-background-dark/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-4 py-2 flex items-center justify-between z-50">
+        <a class="flex flex-col items-center gap-1 text-primary" href="#">
+            <span class="material-symbols-outlined">home</span>
+            <span class="text-[10px] font-bold">Home</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+            <span class="material-symbols-outlined">analytics</span>
+            <span class="text-[10px] font-bold">Usage</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+            <span class="material-symbols-outlined">book_2</span>
+            <span class="text-[10px] font-bold">Docs</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+            <span class="material-symbols-outlined">account_circle</span>
+            <span class="text-[10px] font-bold">Profile</span>
+        </a>
+    </div>
+</body>
+
+</html>

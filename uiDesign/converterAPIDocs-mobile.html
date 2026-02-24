@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2463eb",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+    <!-- Header / Navigation -->
+    <header
+        class="sticky top-0 z-50 flex items-center justify-between bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-2">
+            <div class="bg-primary p-1.5 rounded-lg">
+                <span class="material-symbols-outlined text-white text-xl">sync_alt</span>
+            </div>
+            <span class="text-lg font-bold tracking-tight">ConvertPro <span class="text-primary">API</span></span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="p-2 text-slate-600 dark:text-slate-400">
+                <span class="material-symbols-outlined">search</span>
+            </button>
+            <button class="p-2 text-slate-900 dark:text-slate-100">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </div>
+    </header>
+    <main class="flex flex-col gap-8 pb-24">
+        <!-- Hero Section -->
+        <section class="px-4 pt-8">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4">
+                <span class="relative flex h-2 w-2">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                v2.4.0 Live
+            </div>
+            <h1 class="text-3xl font-bold leading-tight mb-4">API Documentation</h1>
+            <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                Welcome to the ConvertPro API. Our RESTful API allows you to programmatically manage file conversions,
+                user permissions, and analytics reports.
+            </p>
+        </section>
+        <!-- Base URL Section -->
+        <section class="px-4">
+            <h2 class="text-xl font-bold mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">link</span>
+                Base URL
+            </h2>
+            <div
+                class="bg-slate-900 rounded-lg p-4 font-mono text-sm overflow-x-auto hide-scrollbar border border-slate-800">
+                <code class="text-emerald-400">https://api.convertpro.io/v2</code>
+            </div>
+        </section>
+        <!-- Authentication Section -->
+        <section class="px-4">
+            <h2 class="text-xl font-bold mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">lock</span>
+                Authentication
+            </h2>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                Authenticate your requests by including your API key in the <code
+                    class="bg-slate-200 dark:bg-slate-800 px-1 rounded">Authorization</code> header.
+            </p>
+            <div class="bg-slate-900 rounded-lg overflow-hidden border border-slate-800">
+                <div class="flex items-center justify-between px-4 py-2 bg-slate-800/50 border-b border-slate-800">
+                    <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Example Header</span>
+                    <span class="material-symbols-outlined text-slate-400 text-sm">content_copy</span>
+                </div>
+                <div class="p-4 font-mono text-xs overflow-x-auto hide-scrollbar whitespace-pre text-slate-300">curl -X
+                    GET "https://api.convertpro.io/v2/user" \
+                    -H "Authorization: Bearer YOUR_API_KEY" \
+                    -H "Content-Type: application/json"</div>
+            </div>
+        </section>
+        <!-- Role Based Access (Stacked Cards) -->
+        <section class="px-4">
+            <h2 class="text-xl font-bold mb-4">Access Roles</h2>
+            <div class="flex flex-col gap-4">
+                <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div
+                            class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">admin_panel_settings</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Admin</h3>
+                            <p class="text-xs text-slate-500">Full Access</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Manage API keys, billing, and team members
+                        across the organization.</p>
+                </div>
+                <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div
+                            class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+                            <span class="material-symbols-outlined">developer_mode</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Developer</h3>
+                            <p class="text-xs text-slate-500">Write Access</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Execute conversions and manage webhooks. No
+                        billing access.</p>
+                </div>
+                <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div
+                            class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600">
+                            <span class="material-symbols-outlined">visibility</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Viewer</h3>
+                            <p class="text-xs text-slate-500">Read Only</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">View job status and download converted
+                        reports. Cannot initiate new jobs.</p>
+                </div>
+            </div>
+        </section>
+        <!-- Endpoints Section -->
+        <section class="px-4">
+            <h2 class="text-xl font-bold mb-4">Endpoints</h2>
+            <!-- Endpoint Block 1 -->
+            <div
+                class="mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span
+                            class="px-2 py-1 bg-emerald-500 text-white text-[10px] font-black rounded uppercase">Post</span>
+                        <code class="text-sm font-bold">/convert</code>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Initiate a new file conversion job.</p>
+                </div>
+                <div class="p-4 bg-slate-50 dark:bg-slate-900/50">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Parameters</span>
+                        <span class="material-symbols-outlined text-slate-400 text-sm">expand_more</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div
+                            class="flex justify-between items-start text-xs border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <div>
+                                <span class="font-mono font-bold">input_file</span>
+                                <p class="text-slate-500">URL of source file</p>
+                            </div>
+                            <span class="text-primary italic">string</span>
+                        </div>
+                        <div class="flex justify-between items-start text-xs">
+                            <div>
+                                <span class="font-mono font-bold">target_format</span>
+                                <p class="text-slate-500">e.g. "pdf", "docx"</p>
+                            </div>
+                            <span class="text-primary italic">string</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Endpoint Block 2 -->
+            <div
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span
+                            class="px-2 py-1 bg-blue-500 text-white text-[10px] font-black rounded uppercase">Get</span>
+                        <code class="text-sm font-bold">/jobs/{id}</code>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Retrieve details and status of a specific job.
+                    </p>
+                </div>
+                <div class="p-4">
+                    <button
+                        class="w-full py-2 px-4 rounded-lg bg-primary text-white text-sm font-bold flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-sm">terminal</span>
+                        View JSON Response
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Bottom Navigation Bar -->
+    <nav
+        class="fixed bottom-0 left-0 right-0 bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-4 pb-6 pt-2 z-50">
+        <div class="flex justify-around items-center">
+            <a class="flex flex-col items-center gap-1 text-primary" href="#">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">menu_book</span>
+                <span class="text-[10px] font-medium">Docs</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400" href="#">
+                <span class="material-symbols-outlined">data_object</span>
+                <span class="text-[10px] font-medium">API Reference</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400" href="#">
+                <span class="material-symbols-outlined">troubleshoot</span>
+                <span class="text-[10px] font-medium">Monitoring</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400" href="#">
+                <span class="material-symbols-outlined">help</span>
+                <span class="text-[10px] font-medium">Support</span>
+            </a>
+        </div>
+    </nav>
+</body>
+
+</html>
