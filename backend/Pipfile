@@ -20,7 +20,9 @@ sqlalchemy = "*"
 pymysql = "*"
 python-jose = "*"
 bcrypt = ">=4.0.0"
+passlib = {extras = ["bcrypt"], version = "*"}
 pydantic = {extras = ["email"], version = "*"}
+alembic = "*"
 
 [dev-packages]
 pytest = "*"

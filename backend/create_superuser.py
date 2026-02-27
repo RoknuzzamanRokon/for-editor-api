@@ -5,7 +5,7 @@ Usage: python create_superuser.py
 """
 
 from core.security import get_password_hash
-from db.models import RoleEnum, User
+from db.models import RoleEnum, User, UserPoints
 from db.session import SessionLocal, init_db
 
 
@@ -54,6 +54,8 @@ def create_superuser(
         )
         
         db.add(new_user)
+        db.flush()
+        db.add(UserPoints(user_id=new_user.id, balance=0))
         db.commit()
         db.refresh(new_user)
         

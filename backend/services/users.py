@@ -3,7 +3,8 @@ from fastapi import HTTPException, status
 
 from core.config import settings
 from core.security import get_password_hash
-from db.models import RoleEnum, User
+from db.models import RoleEnum, User, UserPoints
+from core.points import DEFAULT_ROLE_POINTS
 from models.auth import UserCreate
 
 
@@ -41,6 +42,10 @@ def create_user(db: Session, user_in: UserCreate, created_by_role: RoleEnum | No
         is_active=True,
     )
     db.add(user)
+    db.flush()
+
+    starting_balance = DEFAULT_ROLE_POINTS.get(role, 0)
+    db.add(UserPoints(user_id=user.id, balance=starting_balance))
     db.commit()
     db.refresh(user)
     return user
@@ -80,6 +85,8 @@ def ensure_default_super_user(db: Session) -> None:
         is_active=True,
     )
     db.add(user)
+    db.flush()
+    db.add(UserPoints(user_id=user.id, balance=0))
     db.commit()
 
     print(

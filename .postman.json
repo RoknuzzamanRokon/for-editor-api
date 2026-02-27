@@ -14,5 +14,32 @@
       "uid": "38769584-da8dc403-7a0f-4e7a-906f-e7a54e214994",
       "name": "Local Development"
     }
-  }
+  },
+  "endpoints": {
+    "v1": {
+      "pdf_to_excel": "{{base_url}}/v1/conversions/pdf-to-excel",
+      "pdf_to_word": "{{base_url}}/v1/conversions/pdf-to-word"
+    },
+    "v2": {
+      "register": "{{base_url}}/api/v2/auth/register",
+      "login": "{{base_url}}/api/v2/auth/login",
+      "me": "{{base_url}}/api/v2/auth/me"
+    },
+    "v3": {
+      "balance": "{{base_url}}/api/v3/points/balance",
+      "ledger": "{{base_url}}/api/v3/points/ledger",
+      "rules": "{{base_url}}/api/v3/points/rules",
+      "topup": "{{base_url}}/api/v3/points/topup",
+      "actions": "{{base_url}}/api/v3/permissions/actions",
+      "conversions": {
+        "pdf_to_word": "{{base_url}}/api/v3/conversions/pdf-to-word",
+        "pdf_to_excel": "{{base_url}}/api/v3/conversions/pdf-to-excel",
+        "docx_to_pdf": "{{base_url}}/api/v3/conversions/docx-to-pdf",
+        "excel_to_pdf": "{{base_url}}/api/v3/conversions/excel-to-pdf",
+        "image_to_pdf": "{{base_url}}/api/v3/conversions/image-to-pdf"
+      }
+    }
+  },
+  "last_updated": "2026-02-26T15:30:00Z",
+  "total_requests": 15
 }
