@@ -46,3 +46,10 @@ def require_role(*roles: RoleEnum):
 def block_demo_write(request: Request, user: User = Depends(get_current_user)) -> None:
     if user.role == RoleEnum.demo_user and request.method in {"POST", "PUT", "PATCH", "DELETE"}:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo user is read-only")
+
+
+def require_owner(resource_owner_id: int, current_user: User) -> None:
+    if current_user.role == RoleEnum.super_user:
+        return
+    if resource_owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found")

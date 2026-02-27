@@ -1,6 +1,17 @@
 import enum
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, func, JSON, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import relationship
 
 from db.session import Base
@@ -33,6 +44,7 @@ class User(Base):
         foreign_keys="UserConversionPermission.user_id",
         cascade="all, delete-orphan",
     )
+    conversions = relationship("Conversion", back_populates="owner", cascade="all, delete-orphan")
 
 
 class RefreshToken(Base):
@@ -105,3 +117,24 @@ class PointsTopup(Base):
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     user = relationship("User", foreign_keys=[user_id])
+
+
+class Conversion(Base):
+    __tablename__ = "conversions"
+    __table_args__ = (
+        UniqueConstraint("owner_user_id", "request_id", name="uq_conversions_owner_request"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    owner_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    action = Column(String(64), nullable=False, index=True)
+    input_filename = Column(String(255), nullable=False)
+    output_filename = Column(String(1024), nullable=True)
+    status = Column(String(32), nullable=False, index=True)
+    error_message = Column(String(1024), nullable=True)
+    points_charged = Column(Integer, nullable=False, default=0)
+    request_id = Column(String(128), nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.now(), index=True)
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+    owner = relationship("User", back_populates="conversions", foreign_keys=[owner_user_id])

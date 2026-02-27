@@ -91,31 +91,31 @@ def charge_points(
         )
 
     try:
-        with db.begin():
-            points = (
-                db.query(UserPoints)
-                .filter(UserPoints.user_id == user.id)
-                .with_for_update()
-                .first()
-            )
-            if not points:
-                points = UserPoints(user_id=user.id, balance=0)
-                db.add(points)
-                db.flush()
+        points = (
+            db.query(UserPoints)
+            .filter(UserPoints.user_id == user.id)
+            .with_for_update()
+            .first()
+        )
+        if not points:
+            points = UserPoints(user_id=user.id, balance=0)
+            db.add(points)
+            db.flush()
 
-            if points.balance < POINTS_COST_PER_REQUEST:
-                raise InsufficientPointsError(points.balance, POINTS_COST_PER_REQUEST)
+        if points.balance < POINTS_COST_PER_REQUEST:
+            raise InsufficientPointsError(points.balance, POINTS_COST_PER_REQUEST)
 
-            points.balance -= POINTS_COST_PER_REQUEST
-            ledger = PointsLedger(
-                user_id=user.id,
-                action=action,
-                amount=-POINTS_COST_PER_REQUEST,
-                status="spent",
-                request_id=request_id,
-                meta_json=meta or {},
-            )
-            db.add(ledger)
+        points.balance -= POINTS_COST_PER_REQUEST
+        ledger = PointsLedger(
+            user_id=user.id,
+            action=action,
+            amount=-POINTS_COST_PER_REQUEST,
+            status="spent",
+            request_id=request_id,
+            meta_json=meta or {},
+        )
+        db.add(ledger)
+        db.commit()
     except IntegrityError:
         db.rollback()
         existing = (
@@ -184,41 +184,42 @@ def refund_points(
     if not request_id:
         return False
 
-    with db.begin():
-        existing_refund = (
-            db.query(PointsLedger)
-            .filter(
-                PointsLedger.user_id == user_id,
-                PointsLedger.action == action,
-                PointsLedger.request_id == request_id,
-                PointsLedger.status == "refunded",
-            )
-            .first()
+    existing_refund = (
+        db.query(PointsLedger)
+        .filter(
+            PointsLedger.user_id == user_id,
+            PointsLedger.action == action,
+            PointsLedger.request_id == request_id,
+            PointsLedger.status == "refunded",
         )
-        if existing_refund:
-            return False
+        .first()
+    )
+    if existing_refund:
+        return False
 
-        points = (
-            db.query(UserPoints)
-            .filter(UserPoints.user_id == user_id)
-            .with_for_update()
-            .first()
-        )
-        if not points:
-            points = UserPoints(user_id=user_id, balance=0)
-            db.add(points)
-            db.flush()
+    points = (
+        db.query(UserPoints)
+        .filter(UserPoints.user_id == user_id)
+        .with_for_update()
+        .first()
+    )
+    if not points:
+        points = UserPoints(user_id=user_id, balance=0)
+        db.add(points)
+        db.flush()
 
-        points.balance += amount
-        ledger = PointsLedger(
-            user_id=user_id,
-            action=action,
-            amount=amount,
-            status="refunded",
-            request_id=request_id,
-            meta_json=meta or {},
-        )
-        db.add(ledger)
+    points.balance += amount
+    ledger = PointsLedger(
+        user_id=user_id,
+        action=action,
+        amount=amount,
+        status="refunded",
+        request_id=request_id,
+        meta_json=meta or {},
+    )
+    db.add(ledger)
+    db.commit()
+    
     return True
 
 
@@ -233,34 +234,36 @@ def topup_points(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Amount must be positive")
 
     request_id = f"topup-{uuid4()}"
-    with db.begin():
-        points = (
-            db.query(UserPoints)
-            .filter(UserPoints.user_id == user_id)
-            .with_for_update()
-            .first()
-        )
-        if not points:
-            points = UserPoints(user_id=user_id, balance=0)
-            db.add(points)
-            db.flush()
+    
+    points = (
+        db.query(UserPoints)
+        .filter(UserPoints.user_id == user_id)
+        .with_for_update()
+        .first()
+    )
+    if not points:
+        points = UserPoints(user_id=user_id, balance=0)
+        db.add(points)
+        db.flush()
 
-        points.balance += amount
-        ledger = PointsLedger(
+    points.balance += amount
+    ledger = PointsLedger(
+        user_id=user_id,
+        action="topup",
+        amount=amount,
+        status="topup",
+        request_id=request_id,
+        meta_json={"note": note} if note else {},
+    )
+    db.add(ledger)
+    db.add(
+        PointsTopup(
             user_id=user_id,
-            action="topup",
             amount=amount,
-            status="topup",
-            request_id=request_id,
-            meta_json={"note": note} if note else {},
+            created_by_user_id=created_by_user_id,
+            note=note,
         )
-        db.add(ledger)
-        db.add(
-            PointsTopup(
-                user_id=user_id,
-                amount=amount,
-                created_by_user_id=created_by_user_id,
-                note=note,
-            )
-        )
+    )
+    db.commit()
+    
     return points.balance
