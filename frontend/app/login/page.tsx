@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import SplashCursor from "@/components/ui/SplashCursor";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
@@ -77,7 +78,7 @@ function EyeOffIcon({ className = "" }: { className?: string }) {
   );
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "";
@@ -133,9 +134,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-light px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-black px-4 overflow-hidden">
+      <SplashCursor
+        SIM_RESOLUTION={128}
+        DYE_RESOLUTION={1440}
+        DENSITY_DISSIPATION={3.5}
+        VELOCITY_DISSIPATION={2}
+        PRESSURE={0.1}
+        CURL={3}
+        SPLAT_RADIUS={0.2}
+        SPLAT_FORCE={6000}
+        COLOR_UPDATE_SPEED={10}
+      />
       {/* Card with internal background enhancements */}
-      <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-200/50">
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-md">
         {/* Subtle internal background pattern / glow */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/50" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.08),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.08),_transparent_36%)] opacity-70" />
@@ -286,5 +298,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

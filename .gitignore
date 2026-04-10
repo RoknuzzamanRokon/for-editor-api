@@ -6,3 +6,8 @@
 *.docs
 *.docx
 test*.py
+
+
+
+
+backend/static/*

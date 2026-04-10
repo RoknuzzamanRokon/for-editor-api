@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { cn } from "@/lib/utils";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={cn(inter.variable, jetbrains.variable, "font-sans")}>
       <body className="min-h-screen bg-background text-foreground">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
