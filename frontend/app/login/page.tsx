@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import SplashCursor from "@/components/ui/SplashCursor";
+import SplashCursor from "@/components/SplashCursor";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
@@ -135,17 +135,7 @@ function LoginForm() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-black px-4 overflow-hidden">
-      <SplashCursor
-        SIM_RESOLUTION={128}
-        DYE_RESOLUTION={1440}
-        DENSITY_DISSIPATION={3.5}
-        VELOCITY_DISSIPATION={2}
-        PRESSURE={0.1}
-        CURL={3}
-        SPLAT_RADIUS={0.2}
-        SPLAT_FORCE={6000}
-        COLOR_UPDATE_SPEED={10}
-      />
+      <SplashCursor />
       {/* Card with internal background enhancements */}
       <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-md">
         {/* Subtle internal background pattern / glow */}
