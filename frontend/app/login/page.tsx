@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SplashCursor from "@/components/SplashCursor";
+import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
@@ -153,6 +154,7 @@ function LoginForm() {
         <a href="/pricing" className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-colors">
           Get Started
         </a>
+        <ThemeSwitcher />
       </nav>
 
       {/* Card with internal background enhancements */}

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
-type Theme = 'light' | 'dark' | 'ocean' | 'sunset' | 'forest' | 'midnight'
+type Theme = 'light' | 'dark' | 'ocean' | 'sunset' | 'forest' | 'midnight' | 'livedark'
 
 interface ThemeContextType {
   theme: Theme
@@ -24,7 +24,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       stored === 'ocean' ||
       stored === 'sunset' ||
       stored === 'forest' ||
-      stored === 'midnight'
+      stored === 'midnight' ||
+      stored === 'livedark'
     ) {
       setTheme(stored)
     }
@@ -32,8 +33,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (mounted) {
-      document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'midnight')
+      document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark')
       document.documentElement.classList.add(theme)
+      if (theme !== 'light') {
+        document.documentElement.classList.add('dark')
+      }
       localStorage.setItem('theme', theme)
     }
   }, [theme, mounted])
