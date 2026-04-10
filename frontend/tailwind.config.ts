@@ -16,6 +16,12 @@ const config: Config = {
         border: 'var(--border)',
         card: 'var(--card)',
         'card-hover': 'var(--card-hover)',
+        'background-light': '#f6f6f8',
+        'background-dark': '#111621',
+      },
+      fontFamily: {
+        display: ['var(--font-sans)'],
+        mono: ['var(--font-code)'],
       },
     },
   },

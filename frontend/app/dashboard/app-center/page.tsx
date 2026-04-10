@@ -1,0 +1,584 @@
+export default function Page() {
+  const markup = `
+<div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="fixed left-0 top-0 h-screen w-64 border-r border-slate-200 bg-white dark:bg-slate-900 p-4 z-50">
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <div class="bg-primary rounded-lg size-10 flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined">sync_alt</span>
+                </div>
+                <div>
+                    <h1 class="text-slate-900 font-bold text-base leading-tight">ConvertPro API</h1>
+                    <p class="text-slate-500 text-xs font-normal">SaaS Conversion Suite</p>
+                </div>
+            </div>
+            <nav class="flex flex-col gap-1">
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    href="/dashboard">
+                    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    <span class="text-sm font-medium">Overview</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 bg-slate-900 text-white rounded-lg transition-colors"
+                    href="/dashboard/app-center">
+                    <span class="material-symbols-outlined text-[20px]">apps</span>
+                    <span class="text-sm font-medium">App Center</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    href="/dashboard/api-keys">
+                    <span class="material-symbols-outlined text-[20px]">key</span>
+                    <span class="text-sm font-medium">API Keys</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    href="/dashboard/usage">
+                    <span class="material-symbols-outlined text-[20px]">bar_chart</span>
+                    <span class="text-sm font-medium">Usage</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    href="/dashboard/request-history">
+                    <span class="material-symbols-outlined text-[20px]">history</span>
+                    <span class="text-sm font-medium">History</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    href="/dashboard/billing">
+                    <span class="material-symbols-outlined text-[20px]">credit_card</span>
+                    <span class="text-sm font-medium">Billing</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    href="/dashboard/team">
+                    <span class="material-symbols-outlined text-[20px]">group</span>
+                    <span class="text-sm font-medium">Team</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors mt-12"
+                    href="/dashboard/settings">
+                    <span class="material-symbols-outlined text-[20px]">settings</span>
+                    <span class="text-sm font-medium">Settings</span>
+                </a>
+            </nav>
+        </aside>
+        <!-- Main Content Area -->
+        <main class="ml-64 flex-1 flex flex-col">
+            <!-- Top Bar -->
+            <header
+                class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-6 flex-1">
+                    <h2 class="text-slate-900 text-lg font-bold">App Center</h2>
+                    <div class="relative w-full max-w-md">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+                        <input
+                            class="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20"
+                            placeholder="Search conversion endpoints..." type="text" />
+                    </div>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-4">
+                        <div class="flex flex-col items-end">
+                            <span
+                                class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
+                            <span class="text-sm font-medium text-slate-600">Points: 42</span>
+                        </div>
+                        <button class="size-10 flex items-center justify-center bg-slate-100 rounded-xl relative">
+                            <span class="material-symbols-outlined text-slate-600">notifications</span>
+                            <span
+                                class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white"></span>
+                        </button>
+                        <div class="size-10 rounded-full bg-slate-200 overflow-hidden ring-2 ring-slate-100">
+                            <img class="w-full h-full object-cover" data-alt="User profile avatar portrait"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXxbm9_FlDK8QS3K7MQO9Fk5Me2_ggdiQIZeqynNL8pYYJLmtNjRlsSbIyCOLmziDc3TpRsUWoEbjjlXR0v8eleYcnDWodG8D0hXjss5GgdpMZRqfLNd6ypWJSIumZ7QY5kNTuCrmWMdNLr7abLZfrVqrtafjsyG159U8BC9wmi5bCMIUAZdMCe-az1TDaZ2jRyMxvd7pCHSaiIzilfMQuvPWKLAnaBZ-IzrOBi8htsk8_risZ5JZoUiM0jRjDC0aZdIW11bhO4g13" />
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="p-8 space-y-8">
+                <!-- Hero Header -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h1 class="text-4xl font-black text-slate-900 tracking-tight">App Center</h1>
+                        <p class="text-slate-500 mt-1">Explore and test all available conversion endpoints for your
+                            workflow.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button
+                            class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium hover:bg-slate-50">
+                            <span class="material-symbols-outlined text-[20px]">file_download</span>
+                            Export Docs
+                        </button>
+                        <button
+                            class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-blue-600">
+                            <span class="material-symbols-outlined text-[20px]">add</span>
+                            New Custom Hook
+                        </button>
+                    </div>
+                </div>
+                <!-- Usage Hint Banner -->
+                <div class="bg-primary/5 border border-primary/10 rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-primary/20 text-primary p-2 rounded-lg">
+                            <span class="material-symbols-outlined">info</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900 leading-tight">Usage Hint</p>
+                            <p class="text-sm text-slate-600">Each conversion costs <span class="font-bold">3
+                                    points</span>. Top up points in Billing to increase your limit.</p>
+                        </div>
+                    </div>
+                    <button
+                        class="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg uppercase tracking-wider">Top
+                        Up</button>
+                </div>
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <button
+                        class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-medium flex items-center gap-2 border border-transparent hover:border-slate-200">
+                        Category <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                    </button>
+                    <button
+                        class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-medium flex items-center gap-2 border border-transparent hover:border-slate-200">
+                        Status <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                    </button>
+                    <button
+                        class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-medium flex items-center gap-2 border border-transparent hover:border-slate-200">
+                        Method <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                    </button>
+                    <div class="h-6 w-px bg-slate-300 mx-2"></div>
+                    <button
+                        class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-medium flex items-center gap-2 border border-transparent hover:border-slate-200">
+                        Sort <span class="material-symbols-outlined text-[18px]">sort</span>
+                    </button>
+                </div>
+                <!-- Endpoints Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- PDF to DOCX (Active/Selected Example) -->
+                    <div
+                        class="bg-white border-2 border-primary rounded-xl p-5 shadow-sm relative overflow-hidden ring-4 ring-primary/5">
+                        <div
+                            class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">
+                            SELECTED</div>
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="bg-red-100 text-red-600 p-3 rounded-xl">
+                                <span class="material-symbols-outlined">picture_as_pdf</span>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100">POST</span>
+                                <div class="text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-tighter">
+                                    /v1/convert/pdf-docx</div>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">PDF to DOCX</h3>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">3
+                                points</span>
+                            <span class="text-[11px] text-green-600 font-medium flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">check_circle</span> Allowed
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-6 text-[11px]">
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Last used</p>
+                                <p class="text-slate-700 font-semibold">2 hours ago</p>
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Success rate</p>
+                                <p class="text-slate-700 font-semibold">99.8%</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="flex-1 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800">Try
+                                It</button>
+                            <button class="p-2 border border-slate-200 text-slate-400 rounded-lg hover:text-slate-600">
+                                <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                            </button>
+                            <button class="p-2 border border-slate-200 text-slate-400 rounded-lg hover:text-slate-600">
+                                <span class="material-symbols-outlined text-[20px]">info</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- PDF to Excel -->
+                    <div
+                        class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="bg-green-100 text-green-600 p-3 rounded-xl">
+                                <span class="material-symbols-outlined">table_view</span>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100">POST</span>
+                                <div class="text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-tighter">
+                                    /v1/convert/pdf-xlsx</div>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">PDF to Excel</h3>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">3
+                                points</span>
+                            <span class="text-[11px] text-green-600 font-medium flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">check_circle</span> Allowed
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-6 text-[11px]">
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Last used</p>
+                                <p class="text-slate-700 font-semibold">Yesterday</p>
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Success rate</p>
+                                <p class="text-slate-700 font-semibold">98.2%</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="flex-1 py-2 bg-white border border-slate-200 text-slate-900 rounded-lg text-xs font-bold hover:bg-slate-50">Try
+                                It</button>
+                            <button class="p-2 border border-slate-200 text-slate-400 rounded-lg hover:text-slate-600">
+                                <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                            </button>
+                            <button class="p-2 border border-slate-200 text-slate-400 rounded-lg hover:text-slate-600">
+                                <span class="material-symbols-outlined text-[20px]">info</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- DOCX to PDF -->
+                    <div
+                        class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-xl">
+                                <span class="material-symbols-outlined">description</span>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100">POST</span>
+                                <div class="text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-tighter">
+                                    /v1/convert/docx-pdf</div>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">DOCX to PDF</h3>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">3
+                                points</span>
+                            <span class="text-[11px] text-green-600 font-medium flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">check_circle</span> Allowed
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-6 text-[11px]">
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Last used</p>
+                                <p class="text-slate-700 font-semibold">Never</p>
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Success rate</p>
+                                <p class="text-slate-700 font-semibold">--</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="flex-1 py-2 bg-white border border-slate-200 text-slate-900 rounded-lg text-xs font-bold hover:bg-slate-50">Try
+                                It</button>
+                            <button class="p-2 border border-slate-200 text-slate-400 rounded-lg hover:text-slate-600">
+                                <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                            </button>
+                            <button class="p-2 border border-slate-200 text-slate-400 rounded-lg hover:text-slate-600">
+                                <span class="material-symbols-outlined text-[20px]">info</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Excel to PDF -->
+                    <div
+                        class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow opacity-60">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="bg-slate-100 text-slate-600 p-3 rounded-xl">
+                                <span class="material-symbols-outlined">analytics</span>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100">POST</span>
+                                <div class="text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-tighter">
+                                    /v1/convert/xlsx-pdf</div>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Excel to PDF</h3>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">3
+                                points</span>
+                            <span class="text-[11px] text-red-500 font-medium flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">cancel</span> Not Allowed
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-6 text-[11px]">
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Last used</p>
+                                <p class="text-slate-700 font-semibold">--</p>
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Success rate</p>
+                                <p class="text-slate-700 font-semibold">--</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="flex-1 py-2 bg-slate-200 text-slate-500 cursor-not-allowed rounded-lg text-xs font-bold"
+                                disabled="">Request Access</button>
+                            <button class="p-2 border border-slate-200 text-slate-400 rounded-lg">
+                                <span class="material-symbols-outlined text-[20px]">info</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Image to PDF -->
+                    <div
+                        class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="bg-purple-100 text-purple-600 p-3 rounded-xl">
+                                <span class="material-symbols-outlined">image</span>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100">POST</span>
+                                <div class="text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-tighter">
+                                    /v1/convert/img-pdf</div>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Image to PDF</h3>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">3
+                                points</span>
+                            <span class="text-[11px] text-green-600 font-medium flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">check_circle</span> Allowed
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-6 text-[11px]">
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Last used</p>
+                                <p class="text-slate-700 font-semibold">3 days ago</p>
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Success rate</p>
+                                <p class="text-slate-700 font-semibold">100%</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="flex-1 py-2 bg-white border border-slate-200 text-slate-900 rounded-lg text-xs font-bold hover:bg-slate-50">Try
+                                It</button>
+                            <button class="p-2 border border-slate-200 text-slate-400 rounded-lg hover:text-slate-600">
+                                <span class="material-symbols-outlined text-[20px]">info</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- PDF Page Remove -->
+                    <div
+                        class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="bg-orange-100 text-orange-600 p-3 rounded-xl">
+                                <span class="material-symbols-outlined">auto_stories</span>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100">POST</span>
+                                <div class="text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-tighter">
+                                    /v1/modify/pdf-cut</div>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">PDF Page Remove</h3>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">3
+                                points</span>
+                            <span class="text-[11px] text-green-600 font-medium flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">check_circle</span> Allowed
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-6 text-[11px]">
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Last used</p>
+                                <p class="text-slate-700 font-semibold">1 week ago</p>
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded-lg">
+                                <p class="text-slate-400">Success rate</p>
+                                <p class="text-slate-700 font-semibold">97.5%</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="flex-1 py-2 bg-white border border-slate-200 text-slate-900 rounded-lg text-xs font-bold hover:bg-slate-50">Try
+                                It</button>
+                            <button class="p-2 border border-slate-200 text-slate-400 rounded-lg hover:text-slate-600">
+                                <span class="material-symbols-outlined text-[20px]">info</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Admin-only Section: Team Access Control -->
+                <section class="bg-white border border-slate-200 rounded-xl overflow-hidden mt-12">
+                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900">Team Access Control</h3>
+                            <p class="text-xs text-slate-500">Manage endpoint permissions for your developers</p>
+                        </div>
+                        <span
+                            class="text-[10px] font-black bg-slate-200 text-slate-600 px-2 py-0.5 rounded uppercase">Admin
+                            Only</span>
+                    </div>
+                    <div class="divide-y divide-slate-100">
+                        <div class="px-6 py-4 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <img class="size-8 rounded-full" data-alt="Team member avatar portrait"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW0YrzVyM6CPYvw3D_KSDzFFKFRAfSW4OAzg17IAEmIQYHsQa6sv6yTjlnoujqXnmNnkCJoMjro59H-fRj0OesVvZ-xcaurYpDdChJLwqjSvaMYWM7ojsWUXr4XerKSJqfuO_Mpys_M45UZnDWs8pOZ_1VF1GsCAtzCTeQRDPA1-aX-a2KyaaDyx5I5gbsLtzKFIN_zZek4gbrCX4--0qSeeiU_c-N_pBpfuiUVNgQySDcyETwbifPz43A6five2EV2nAqq8Gtm8vD" />
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-900">Alex Rivers</p>
+                                    <p class="text-xs text-slate-500">Senior Frontend Dev</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-400">PDF to DOCX</span>
+                                    <div class="w-8 h-4 bg-primary rounded-full relative cursor-pointer">
+                                        <div class="absolute right-1 top-1 size-2 bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-400">PDF to Excel</span>
+                                    <div class="w-8 h-4 bg-slate-200 rounded-full relative cursor-pointer">
+                                        <div class="absolute left-1 top-1 size-2 bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+                                <button class="text-primary text-xs font-bold">Edit All</button>
+                            </div>
+                        </div>
+                        <div class="px-6 py-4 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <img class="size-8 rounded-full" data-alt="Team member avatar portrait"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPO4A-Tz6KH_wogqjQHw8P6IUcFYytbYf-MxsS0whVCJHkOvf6m2jUAb3kr6W2_34sXSS_hRnVz_fxP-9zPF_1O2LKd5hfHYESA7JOn5rmp_MoqJ1xlPVWtnDGyByKY4iu-4J6YYbjLfptAmNms6PoNA48qU-x1-pJic47RhWk1iRi1MtOlyqV93EZMCu0VeRl6vxFOGOeqlOVxQH044_M-9fyRYJZrkqEm3Xhefc0v69BCxic-DycPBGy-t7rEUB_ProZhe_97JeH" />
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-900">Sarah Chen</p>
+                                    <p class="text-xs text-slate-500">Backend Architect</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-400">PDF to DOCX</span>
+                                    <div class="w-8 h-4 bg-primary rounded-full relative cursor-pointer">
+                                        <div class="absolute right-1 top-1 size-2 bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-400">PDF to Excel</span>
+                                    <div class="w-8 h-4 bg-primary rounded-full relative cursor-pointer">
+                                        <div class="absolute right-1 top-1 size-2 bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+                                <button class="text-primary text-xs font-bold">Edit All</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+        <!-- Right Slide-over / Details & Try It Panel -->
+        <aside
+            class="fixed right-0 top-0 h-screen w-[480px] bg-white border-l border-slate-200 z-50 shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="bg-red-100 text-red-600 p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 leading-tight">PDF to DOCX</h2>
+                        <p class="text-xs font-mono text-slate-500">POST /v1/convert/pdf-docx</p>
+                    </div>
+                </div>
+                <button class="p-2 hover:bg-slate-200 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 space-y-8">
+                <!-- Info Section -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-primary/5 rounded-xl border border-primary/10">
+                        <span class="text-sm font-medium text-slate-700">Cost per conversion</span>
+                        <span class="text-primary font-bold">3 Points</span>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-slate-900">Description</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            High-fidelity conversion from PDF to Microsoft Word (DOCX) format. Supports OCR for scanned
+                            documents and preserves layout, images, and font styles.
+                        </p>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-slate-900">Headers</h3>
+                        <div class="bg-slate-900 rounded-xl p-3">
+                            <pre class="code-font text-xs text-slate-300"><code>Authorization: Bearer YOUR_API_KEY
+Content-Type: multipart/form-data
+X-Callback-URL: https://your-webhook.com</code></pre>
+                        </div>
+                    </div>
+                </div>
+                <!-- Code Snippets -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-900">Code Snippet</h3>
+                        <div class="flex bg-slate-100 p-1 rounded-lg">
+                            <button
+                                class="px-3 py-1 text-[11px] font-bold bg-white text-slate-900 rounded-md shadow-sm">Node.js</button>
+                            <button class="px-3 py-1 text-[11px] font-bold text-slate-500">Python</button>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 rounded-xl p-4 overflow-hidden">
+                        <pre class="code-font text-xs text-blue-300"><code>const axios = require('axios');
+const fs = require('fs');
+
+const form = new FormData();
+form.append('file', fs.createReadStream('doc.pdf'));
+
+axios.post('https://api.convertpro.com/v1/convert/pdf-docx', 
+  form, {
+  headers: { 'Authorization': 'Bearer KEY' }
+}).then(res =&gt; console.log(res.data));</code></pre>
+                    </div>
+                </div>
+                <!-- Try It Playground -->
+                <div class="space-y-4 pt-6 border-t border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px] text-primary">play_circle</span>
+                        Try it Playground
+                    </h3>
+                    <div
+                        class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors cursor-pointer group">
+                        <span
+                            class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-primary">upload_file</span>
+                        <p class="text-sm font-medium text-slate-600">Drag PDF here or <span
+                                class="text-primary">browse</span></p>
+                        <p class="text-[10px] text-slate-400">Max size: 25MB</p>
+                    </div>
+                    <button
+                        class="w-full py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-blue-600 transition-all flex items-center justify-center gap-2">
+                        Send Request
+                        <span class="material-symbols-outlined text-[18px]">send</span>
+                    </button>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Response</span>
+                            <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">200
+                                OK</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <pre class="code-font text-xs text-slate-600"><code>{
+  "status": "success",
+  "job_id": "conv_982137",
+  "download_url": "https://cdn.cp.com/res.docx",
+  "points_used": 3,
+  "remaining_points": 39
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+`;
+  return (
+    <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
+      <div dangerouslySetInnerHTML={{ __html: markup }} />
+    </div>
+  );
+}
