@@ -7,59 +7,63 @@ const API_BASE =
 
 export default function Page() {
   useEffect(() => {
-    const menuButton = document.getElementById('user-menu-button');
-    const menuDropdown = document.getElementById('user-menu-dropdown');
-    const logoutButton = document.getElementById('logout-button');
-    
+    const menuButton = document.getElementById("user-menu-button");
+    const menuDropdown = document.getElementById("user-menu-dropdown");
+    const logoutButton = document.getElementById("logout-button");
+
+    if (!(menuButton instanceof HTMLButtonElement) || !(menuDropdown instanceof HTMLDivElement)) {
+      return;
+    }
+
     const toggleMenu = (e: Event) => {
       e.stopPropagation();
-      menuDropdown?.classList.toggle('hidden');
+      menuDropdown.classList.toggle("hidden");
     };
-    
+
     const closeMenu = () => {
-      menuDropdown?.classList.add('hidden');
+      menuDropdown.classList.add("hidden");
     };
-    
+
     const stopPropagation = (e: Event) => {
       e.stopPropagation();
     };
-    
+
     const handleLogout = () => {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user_role');
-      window.location.href = '/';
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user_role");
+      window.location.href = "/";
     };
-    
-    menuButton?.addEventListener('click', toggleMenu);
-    document.addEventListener('click', closeMenu);
-    menuDropdown?.addEventListener('click', stopPropagation);
-    logoutButton?.addEventListener('click', handleLogout);
-    
+
+    menuButton.addEventListener("click", toggleMenu);
+    menuDropdown.addEventListener("click", stopPropagation);
+    document.addEventListener("click", closeMenu);
+    logoutButton?.addEventListener("click", handleLogout);
+
     // Fetch user data
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem("access_token");
     if (token) {
       fetch(`${API_BASE}/api/v2/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
-      .then(res => res.json())
-      .then(data => {
-        const userName = document.getElementById('user-name');
-        const userEmail = document.getElementById('user-email');
-        const userRole = document.getElementById('user-role');
-        
-        if (userName) userName.textContent = data.full_name || data.email || 'User';
-        if (userEmail) userEmail.textContent = data.email || '';
-        if (userRole) userRole.textContent = data.role || 'Admin';
-      })
-      .catch(err => console.error('Failed to fetch user:', err));
+        .then((res) => res.json())
+        .then((data) => {
+          const userName = document.getElementById("user-name");
+          const userEmail = document.getElementById("user-email");
+          const userRole = document.getElementById("user-role");
+
+          if (userName) userName.textContent = data.full_name || data.email || "User";
+          if (userEmail) userEmail.textContent = data.email || "";
+          if (userRole) userRole.textContent = data.role || "Admin";
+        })
+        .catch((err) => console.error("Failed to fetch user:", err));
     }
-    
+
     return () => {
-      menuButton?.removeEventListener('click', toggleMenu);
-      document.removeEventListener('click', closeMenu);
-      menuDropdown?.removeEventListener('click', stopPropagation);
-      logoutButton?.removeEventListener('click', handleLogout);
+      menuButton.removeEventListener("click", toggleMenu);
+      menuDropdown.removeEventListener("click", stopPropagation);
+      document.removeEventListener("click", closeMenu);
+      logoutButton?.removeEventListener("click", handleLogout);
     };
   }, []);
 
@@ -81,11 +85,7 @@ export default function Page() {
                     <span class="material-symbols-outlined">dashboard</span>
                     <span class="text-sm font-medium">Dashboard</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
-                    href="/admin/history/transactions">
-                    <span class="material-symbols-outlined">history</span>
-                    <span class="text-sm font-medium">History</span>
-                </a>
+
                 <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
                     href="/admin/api-permissions">
                     <span class="material-symbols-outlined">key</span>
@@ -143,7 +143,7 @@ export default function Page() {
                     </div>
                     <div class="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
                     <div class="relative">
-                        <button id="user-menu-button" class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/10 hover:bg-primary/30 transition-colors">
+                        <button id="user-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/10 hover:bg-primary/30 transition-colors cursor-pointer">
                             <span class="material-symbols-outlined">person</span>
                         </button>
                         <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl z-[9999]">

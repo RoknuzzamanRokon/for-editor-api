@@ -1,4 +1,71 @@
+"use client";
+
+import { useEffect } from "react";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+
 export default function Page() {
+  useEffect(() => {
+    const menuButton = document.getElementById("user-menu-button");
+    const menuDropdown = document.getElementById("user-menu-dropdown");
+    const logoutButton = document.getElementById("logout-button");
+
+    if (!(menuButton instanceof HTMLButtonElement) || !(menuDropdown instanceof HTMLDivElement)) {
+      return;
+    }
+
+    const toggleMenu = (e: Event) => {
+      e.stopPropagation();
+      menuDropdown.classList.toggle("hidden");
+    };
+
+    const closeMenu = () => {
+      menuDropdown.classList.add("hidden");
+    };
+
+    const stopPropagation = (e: Event) => {
+      e.stopPropagation();
+    };
+
+    const handleLogout = () => {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user_role");
+      window.location.href = "/";
+    };
+
+    menuButton.addEventListener("click", toggleMenu);
+    menuDropdown.addEventListener("click", stopPropagation);
+    document.addEventListener("click", closeMenu);
+    logoutButton?.addEventListener("click", handleLogout);
+
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      fetch(`${API_BASE}/api/v2/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const userName = document.getElementById("user-name");
+          const userEmail = document.getElementById("user-email");
+          const userRole = document.getElementById("user-role");
+
+          if (userName) userName.textContent = data.full_name || data.email || "User";
+          if (userEmail) userEmail.textContent = data.email || "";
+          if (userRole) userRole.textContent = data.role || "Admin";
+        })
+        .catch((err) => console.error("Failed to fetch user:", err));
+    }
+
+    return () => {
+      menuButton.removeEventListener("click", toggleMenu);
+      menuDropdown.removeEventListener("click", stopPropagation);
+      document.removeEventListener("click", closeMenu);
+      logoutButton?.removeEventListener("click", handleLogout);
+    };
+  }, []);
+
   const markup = `
 <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
@@ -19,11 +86,6 @@ export default function Page() {
                         href="/admin">
                         <span class="material-symbols-outlined text-[20px]">dashboard</span>
                         <span class="text-sm font-medium">Dashboard</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-slate-400 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
-                        href="/admin/history/transactions">
-                        <span class="material-symbols-outlined text-[20px]">history</span>
-                        <span class="text-sm font-medium">History</span>
                     </a>
                     <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-slate-400 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
                         href="/admin/api-permissions">
@@ -76,9 +138,23 @@ export default function Page() {
                                 class="absolute top-1 right-1 size-2 bg-red-500 rounded-full border-2 border-white"></span>
                         </button>
                         <div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
-                        <div class="size-10 rounded-lg overflow-hidden border border-slate-200">
-                            <img alt="User Avatar" class="size-full object-cover"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCIjI4ZqThvb2l796iq7NG_xBxByLRYprvlL2Y_nbrJMXiLhAFfYhEwlD5r492uEMAi4g9qD4vx8ztz2yTymGj9a6fGXX3yvAN0WzLhEuZ8PYxeIzvKKGsYDL4lIP9YXBr2oJEAnh9Ry5zKSWXQAa_hIeoUk8a9Xot4iKQEeJ2Geadc9qjlhBHQUe1bME5qpOUFFyL-mAxADVeILlipbeEu3Hxp4a3d9pPaRaqaUesPh1pUW3CrgJDpn3wayTwQRevIiq-gfkOyi9W" />
+                        <div class="relative">
+                            <button id="user-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/10 hover:bg-primary/30 transition-colors cursor-pointer">
+                                <span class="material-symbols-outlined">person</span>
+                            </button>
+                            <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl z-[9999]">
+                                <div class="p-4 border-b border-slate-200 dark:border-slate-800">
+                                    <p id="user-name" class="text-sm font-bold truncate">Loading...</p>
+                                    <p id="user-email" class="text-xs text-slate-500 truncate"></p>
+                                    <p id="user-role" class="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-1"></p>
+                                </div>
+                                <div class="p-2">
+                                    <button id="logout-button" type="button" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-medium">
+                                        <span class="material-symbols-outlined text-lg">logout</span>
+                                        <span>Logout</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

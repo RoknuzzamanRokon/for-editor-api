@@ -1,58 +1,118 @@
+ "use client";
+
+import { useEffect } from "react";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+
 export default function Page() {
+  useEffect(() => {
+    const menuButton = document.getElementById("user-menu-button");
+    const menuDropdown = document.getElementById("user-menu-dropdown");
+    const logoutButton = document.getElementById("logout-button");
+
+    if (!(menuButton instanceof HTMLButtonElement) || !(menuDropdown instanceof HTMLDivElement)) {
+      return;
+    }
+
+    const toggleMenu = (e: Event) => {
+      e.stopPropagation();
+      menuDropdown.classList.toggle("hidden");
+    };
+
+    const closeMenu = () => {
+      menuDropdown.classList.add("hidden");
+    };
+
+    const stopPropagation = (e: Event) => {
+      e.stopPropagation();
+    };
+
+    const handleLogout = () => {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user_role");
+      window.location.href = "/";
+    };
+
+    menuButton.addEventListener("click", toggleMenu);
+    menuDropdown.addEventListener("click", stopPropagation);
+    document.addEventListener("click", closeMenu);
+    logoutButton?.addEventListener("click", handleLogout);
+
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      fetch(`${API_BASE}/api/v2/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const userName = document.getElementById("user-name");
+          const userEmail = document.getElementById("user-email");
+          const userRole = document.getElementById("user-role");
+
+          if (userName) userName.textContent = data.full_name || data.email || "User";
+          if (userEmail) userEmail.textContent = data.email || "";
+          if (userRole) userRole.textContent = data.role || "Admin";
+        })
+        .catch((err) => console.error("Failed to fetch user:", err));
+    }
+
+    return () => {
+      menuButton.removeEventListener("click", toggleMenu);
+      menuDropdown.removeEventListener("click", stopPropagation);
+      document.removeEventListener("click", closeMenu);
+      logoutButton?.removeEventListener("click", handleLogout);
+    };
+  }, []);
+
   const markup = `
 <div class="flex h-screen overflow-hidden">
-        <!-- SideNavBar -->
-        <aside class="w-64 border-r border-primary/10 bg-white dark:bg-primary flex flex-col shrink-0">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col">
             <div class="p-6 flex items-center gap-3">
-                <div class="bg-primary text-white rounded-lg p-2">
-                    <span class="material-symbols-outlined">inventory_2</span>
+                <div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-xl">token</span>
                 </div>
                 <div>
-                    <h1 class="text-sm font-bold text-primary dark:text-white">Point Control</h1>
-                    <p class="text-[10px] text-primary/60 dark:text-white/60">Admin Panel</p>
+                    <h1 class="text-lg font-bold leading-none">Point Control</h1>
+                    <p class="text-xs text-slate-500 font-medium">Admin Panel</p>
                 </div>
             </div>
-            <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto"><a
-                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
-                    href="/admin">
-                    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+            <nav class="flex-1 px-4 space-y-1 mt-4">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors" href="/admin">
+                    <span class="material-symbols-outlined">dashboard</span>
                     <span class="text-sm font-medium">Dashboard</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
-                    href="/admin/history/transactions">
-                    <span class="material-symbols-outlined text-[20px]">history</span>
-                    <span class="text-sm font-medium">History</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
                     href="/admin/api-permissions">
-                    <span class="material-symbols-outlined text-[20px]">vpn_key</span>
+                    <span class="material-symbols-outlined">key</span>
                     <span class="text-sm font-medium">API Permissions</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary text-white shadow-sm transition-colors"
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white"
                     href="/admin/ip-whitelist">
-                    <span class="material-symbols-outlined text-[20px] fill-current">security</span>
+                    <span class="material-symbols-outlined">shield_person</span>
                     <span class="text-sm font-medium">IP Whitelisting</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
                     href="/admin/users">
-                    <span class="material-symbols-outlined text-[20px]">group</span>
+                    <span class="material-symbols-outlined">group</span>
                     <span class="text-sm font-medium">Users</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-white/70 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors mt-auto"
                     href="/admin/settings">
-                    <span class="material-symbols-outlined text-[20px]">settings</span>
+                    <span class="material-symbols-outlined">settings</span>
                     <span class="text-sm font-medium">Settings</span>
                 </a>
             </nav>
             <div class="p-4 border-t border-primary/10">
-                <div class="flex items-center gap-3 p-2">
-                    <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                        <span class="material-symbols-outlined text-primary/40">person</span>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/5 cursor-pointer">
+                    <div class="size-9 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined">person</span>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-xs font-semibold truncate">Alex Smith</p>
-                        <p class="text-[10px] text-primary/60 dark:text-white/40 uppercase tracking-tight truncate">
-                            SYSTEM ADMIN</p>
+                    <div class="flex-1 truncate">
+                        <p class="text-xs font-bold truncate">Alex Smith</p>
+                        <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">System Admin</p>
                     </div>
                 </div>
             </div>
@@ -61,26 +121,41 @@ export default function Page() {
         <main class="flex-1 flex flex-col overflow-hidden">
             <!-- Header -->
             <header
-                class="h-16 border-b border-primary/10 bg-white dark:bg-primary/95 flex items-center justify-between px-8 shrink-0">
-                <div class="flex items-center gap-4 flex-1">
-                    <div class="relative w-full max-w-xl">
+                class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-8 shrink-0">
+                <div class="flex-1 max-w-2xl">
+                    <div class="relative">
                         <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 text-lg">search</span>
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
                         <input
-                            class="w-full h-10 pl-10 pr-4 rounded-lg bg-primary/5 border-none text-sm focus:ring-1 focus:ring-primary/20 transition-all"
+                            class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-2.5 pl-10 pr-4 text-sm placeholder:text-slate-400"
                             placeholder="Search transactions, users or API keys..." type="text" />
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
-                    <button class="relative p-2 rounded-lg hover:bg-primary/5 transition-colors text-primary/60">
-                        <span class="material-symbols-outlined text-2xl">notifications</span>
+                <div class="flex items-center gap-6">
+                    <div class="relative">
+                        <button class="text-slate-400 hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">notifications</span>
+                        </button>
                         <span
-                            class="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full border-2 border-white"></span>
-                    </button>
-                    <div class="h-6 w-[1px] bg-primary/10 mx-2"></div>
-                    <div class="h-9 w-9 rounded-lg overflow-hidden border border-primary/10 bg-primary/5">
-                        <div class="w-full h-full bg-cover" data-alt="Header user avatar"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBq3UstSxUc1m7gfNkasX1QNrHK96J0vj968mikpsT2dacpcdiCROy68JboVGu_mtMrwM8tVUMM0fvRzwf5SB4wbNHhzmKTXnNO19n5TkhxRoWVRIJYFHViD8M7d5HctQ5Z18LpaN3jETFE3ERP0z6eAmcNX09BK-MPPPYwVt9RZBYvw74ujAYoZr_PqJ56RbmluRhe99fC-2GNu_ZuO8-TKYgfhSVtnAVRCIh8MDnAZjezMLoyPyYiHNFs3ajrZ32xB97np1DYOADL')">
+                            class="absolute top-0 right-0 size-2 bg-primary rounded-full border-2 border-white dark:border-slate-900"></span>
+                    </div>
+                    <div class="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
+                    <div class="relative">
+                        <button id="user-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/10 hover:bg-primary/30 transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl z-[9999]">
+                            <div class="p-4 border-b border-slate-200 dark:border-slate-800">
+                                <p id="user-name" class="text-sm font-bold truncate">Loading...</p>
+                                <p id="user-email" class="text-xs text-slate-500 truncate"></p>
+                                <p id="user-role" class="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-1"></p>
+                            </div>
+                            <div class="p-2">
+                                <button id="logout-button" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-medium">
+                                    <span class="material-symbols-outlined text-lg">logout</span>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

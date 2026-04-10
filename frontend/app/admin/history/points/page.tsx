@@ -23,10 +23,6 @@ export default function Page() {
                     <span class="material-symbols-outlined text-[24px]">dashboard</span>
                     <span class="text-sm font-medium">Dashboard</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors bg-black text-white" href="/admin/history/transactions">
-                    <span class="material-symbols-outlined text-[24px]">history</span>
-                    <span class="text-sm font-medium">History</span>
-                </a>
                 <a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                     href="/admin/api-permissions">
                     <span class="material-symbols-outlined text-[24px]">group</span>
