@@ -136,6 +136,25 @@ function LoginForm() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-black px-4 overflow-hidden">
       <SplashCursor />
+
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-20 flex h-16 items-center justify-between border-b border-white/10 bg-black/30 px-6 backdrop-blur-md">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-blue-400 text-2xl">sync_alt</span>
+          <span className="text-lg font-extrabold tracking-tight text-white">
+            ConvertPro <span className="text-blue-400">API</span>
+          </span>
+        </div>
+        <div className="hidden md:flex items-center gap-6">
+          <a href="/#features" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Features</a>
+          <a href="/pricing" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Pricing</a>
+          <a href="/docs" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Docs</a>
+        </div>
+        <a href="/pricing" className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-colors">
+          Get Started
+        </a>
+      </nav>
+
       {/* Card with internal background enhancements */}
       <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-md">
         {/* Subtle internal background pattern / glow */}
