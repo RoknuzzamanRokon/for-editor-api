@@ -2,48 +2,54 @@ export default function Page() {
   const markup = `
 <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col">
-            <div class="p-6">
-                <div class="flex items-center gap-3">
-                    <div
-                        class="size-10 rounded-full bg-primary flex items-center justify-center text-white overflow-hidden">
-                        <img class="w-full h-full object-cover" data-alt="Admin Panel Brand Logo"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhm2V1h0FMTHSkfIXHvBvRD9EiEGgkt3nCz7lLIimyWAHm9Fry92471mIu_rNh7Vwm4deANk83z1VGoOqbwCNqZD0usRfNVy3KxNCdhgTmXSNIcZ5P04WUu_O6ZsFKziC7LV_pFFlr0XzKEvTlkgHi4VLcKpySdDRyMC8JfsIi_Rg7Xh69U03YLjl8OC5r6wBeUNB5vbbNpNlHY7tS0cBf-7d-VLdsGSVUK2ToK3y4efD_mm2HHcQ2rhIPNVByvnqF9vUUccGeF5gX" />
-                    </div>
-                    <div class="flex flex-col">
-                        <h1 class="text-slate-900 dark:text-white text-base font-semibold leading-tight">Admin Panel
-                        </h1>
-                        <p class="text-slate-500 dark:text-slate-400 text-xs font-normal">Management Console</p>
-                    </div>
+        <aside class="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col">
+            <div class="p-6 flex items-center gap-3">
+                <div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-xl">token</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold leading-none">Point Control</h1>
+                    <p class="text-xs text-slate-500 font-medium">Admin Panel</p>
                 </div>
             </div>
-            <nav class="flex-1 px-4 space-y-1">
-                <a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            <nav class="flex-1 px-4 space-y-1 mt-4">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
                     href="/admin">
-                    <span class="material-symbols-outlined text-[24px]">dashboard</span>
+                    <span class="material-symbols-outlined">dashboard</span>
                     <span class="text-sm font-medium">Dashboard</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
                     href="/admin/api-permissions">
-                    <span class="material-symbols-outlined text-[24px]">group</span>
-                    <span class="text-sm font-medium">Users</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    href="/admin/ip-whitelist">
-                    <span class="material-symbols-outlined text-[24px]">vpn_key</span>
+                    <span class="material-symbols-outlined">key</span>
                     <span class="text-sm font-medium">API Permissions</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    href="/admin/settings">
-                    <span class="material-symbols-outlined text-[24px]">shield_person</span>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+                    href="/admin/ip-whitelist">
+                    <span class="material-symbols-outlined">shield_person</span>
                     <span class="text-sm font-medium">IP Whitelisting</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    href="#">
-                    <span class="material-symbols-outlined text-[24px]">settings</span>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+                    href="/admin/users">
+                    <span class="material-symbols-outlined">group</span>
+                    <span class="text-sm font-medium">Users</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors mt-auto"
+                    href="/admin/settings">
+                    <span class="material-symbols-outlined">settings</span>
                     <span class="text-sm font-medium">Settings</span>
                 </a>
             </nav>
+            <div class="p-4 border-t border-primary/10">
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/5 cursor-pointer">
+                    <div class="size-9 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                    <div class="flex-1 truncate">
+                        <p class="text-xs font-bold truncate">Alex Smith</p>
+                        <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">System Admin</p>
+                    </div>
+                </div>
+            </div>
         </aside>
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col overflow-hidden">

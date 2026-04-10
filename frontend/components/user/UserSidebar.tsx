@@ -5,13 +5,8 @@ import { usePathname } from 'next/navigation'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+  { label: 'Profile', href: '/dashboard/profile', icon: 'person' },
   { label: 'App Center', href: '/dashboard/app-center', icon: 'apps' },
-  { label: 'API Keys', href: '/dashboard/api-keys', icon: 'key' },
-  { label: 'Usage', href: '/dashboard/usage', icon: 'bar_chart' },
-  { label: 'History', href: '/dashboard/request-history', icon: 'history' },
-  { label: 'Billing', href: '/dashboard/billing', icon: 'credit_card' },
-  { label: 'Team', href: '/dashboard/team', icon: 'group' },
-  { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
 ]
 
 export default function UserSidebar() {
@@ -52,6 +47,17 @@ export default function UserSidebar() {
         })}
       </nav>
       <div className="mt-auto border-t border-slate-200 p-4 dark:border-slate-800">
+        <Link
+          className={`mb-4 flex items-center gap-3 rounded-lg px-3 py-2.5 font-medium transition-colors ${
+            pathname.startsWith('/dashboard/settings')
+              ? 'bg-primary/10 text-primary'
+              : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+          }`}
+          href="/dashboard/settings"
+        >
+          <span className="material-symbols-outlined">settings</span>
+          Settings
+        </Link>
         <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
           <div className="mb-2 flex justify-between text-xs font-bold">
             <span>PLAN LIMIT</span>

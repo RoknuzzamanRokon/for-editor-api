@@ -85,7 +85,11 @@ export default function Page() {
                     <span class="material-symbols-outlined">dashboard</span>
                     <span class="text-sm font-medium">Dashboard</span>
                 </a>
-
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+                    href="/admin/history/transactions">
+                    <span class="material-symbols-outlined">history</span>
+                    <span class="text-sm font-medium">History</span>
+                </a>
                 <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
                     href="/admin/api-permissions">
                     <span class="material-symbols-outlined">key</span>
@@ -101,22 +105,26 @@ export default function Page() {
                     <span class="material-symbols-outlined">group</span>
                     <span class="text-sm font-medium">Users</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors mt-auto"
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
                     href="/admin/settings">
                     <span class="material-symbols-outlined">settings</span>
                     <span class="text-sm font-medium">Settings</span>
                 </a>
             </nav>
-            <div class="p-4 border-t border-primary/10">
-                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/5 cursor-pointer">
+            <div class="p-4 border-t border-primary/10 space-y-1">
+                <a href="/admin/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors">
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                    <span class="text-sm font-medium">Profile</span>
+                </a>
+                <a href="/admin/profile" class="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/5 cursor-pointer">
                     <div class="size-9 rounded-full bg-primary/20 flex items-center justify-center text-primary">
                         <span class="material-symbols-outlined">person</span>
                     </div>
                     <div class="flex-1 truncate">
-                        <p class="text-xs font-bold truncate">Alex Smith</p>
+                        <p id="sidebar-name" class="text-xs font-bold truncate">Alex Smith</p>
                         <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">System Admin</p>
                     </div>
-                </div>
+                </a>
             </div>
         </aside>
         <!-- Main Content -->

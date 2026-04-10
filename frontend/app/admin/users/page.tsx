@@ -69,53 +69,49 @@ export default function Page() {
   const markup = `
 <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside class="w-64 border-r border-primary/10 bg-white dark:bg-primary flex flex-col">
-            <div class="p-6 flex flex-col gap-6">
-                <div class="flex items-center gap-3">
-                    <div class="bg-primary rounded-lg p-2 text-white">
-                        <span class="material-symbols-outlined">grid_view</span>
-                    </div>
-                    <div>
-                        <h1 class="text-sm font-bold text-primary dark:text-white">Point Control</h1>
-                        <p class="text-[10px] text-primary/60 dark:text-slate-400 font-medium uppercase tracking-tight">
-                            Admin Panel</p>
-                    </div>
+        <aside class="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col">
+            <div class="p-6 flex items-center gap-3">
+                <div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-xl">token</span>
                 </div>
-                <nav class="flex flex-col gap-1"><a
-                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-slate-400 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
-                        href="/admin">
-                        <span class="material-symbols-outlined text-[20px]">dashboard</span>
-                        <span class="text-sm font-medium">Dashboard</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-slate-400 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
-                        href="/admin/api-permissions">
-                        <span class="material-symbols-outlined text-[20px]">key</span>
-                        <span class="text-sm font-medium">API Permissions</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-slate-400 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
-                        href="/admin/ip-whitelist">
-                        <span class="material-symbols-outlined text-[20px]">security</span>
-                        <span class="text-sm font-medium">IP Whitelisting</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary text-white shadow-sm" href="/admin/users">
-                        <span class="material-symbols-outlined text-[20px]">group</span>
-                        <span class="text-sm font-medium">Users</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary/70 dark:text-slate-400 hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
-                        href="/admin/settings">
-                        <span class="material-symbols-outlined text-[20px]">settings</span>
-                        <span class="text-sm font-medium">Settings</span>
-                    </a>
-                </nav>
+                <div>
+                    <h1 class="text-lg font-bold leading-none">Point Control</h1>
+                    <p class="text-xs text-slate-500 font-medium">Admin Panel</p>
+                </div>
             </div>
-            <div class="mt-auto p-4 border-t border-primary/10 dark:border-white/10">
-                <div class="flex items-center gap-3 px-2">
-                    <div class="size-8 rounded-full bg-primary/20 dark:bg-white/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-sm">person</span>
+            <nav class="flex-1 px-4 space-y-1 mt-4">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors" href="/admin">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="text-sm font-medium">Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+                    href="/admin/api-permissions">
+                    <span class="material-symbols-outlined">key</span>
+                    <span class="text-sm font-medium">API Permissions</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+                    href="/admin/ip-whitelist">
+                    <span class="material-symbols-outlined">shield_person</span>
+                    <span class="text-sm font-medium">IP Whitelisting</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white" href="/admin/users">
+                    <span class="material-symbols-outlined">group</span>
+                    <span class="text-sm font-medium">Users</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors mt-auto"
+                    href="/admin/settings">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span class="text-sm font-medium">Settings</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-primary/10">
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/5 cursor-pointer">
+                    <div class="size-9 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined">person</span>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold truncate">Alex Smith</p>
-                        <p class="text-[10px] text-primary/60 dark:text-slate-400 truncate">SYSTEM ADMIN</p>
+                    <div class="flex-1 truncate">
+                        <p class="text-xs font-bold truncate">Alex Smith</p>
+                        <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">System Admin</p>
                     </div>
                 </div>
             </div>

@@ -66,53 +66,51 @@ export default function Page() {
   const markup = `
 <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside
-            class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0">
-            <div class="flex flex-col gap-6 p-4">
-                <div class="flex items-center gap-3 px-2 mb-2">
-                    <div class="bg-primary rounded-lg size-10 flex items-center justify-center text-white">
-                        <span class="material-symbols-outlined">inventory_2</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <h1 class="text-slate-900 dark:text-slate-100 text-base font-bold leading-none">Point Control
-                        </h1>
-                        <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Admin Panel</p>
-                    </div>
+        <aside class="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col">
+            <div class="p-6 flex items-center gap-3">
+                <div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-xl">token</span>
                 </div>
-                <nav class="flex flex-col gap-1"><a
-                        class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        href="/admin">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span class="text-sm font-medium">Dashboard</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 bg-primary text-white rounded-lg" href="/admin/api-permissions">
-                        <span class="material-symbols-outlined">vpn_key</span>
-                        <span class="text-sm font-bold">API Permissions</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        href="/admin/ip-whitelist">
-                        <span class="material-symbols-outlined">verified_user</span>
-                        <span class="text-sm font-medium">IP Whitelisting</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        href="/admin/users">
-                        <span class="material-symbols-outlined">group</span>
-                        <span class="text-sm font-medium">Users</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        href="/admin/settings">
-                        <span class="material-symbols-outlined">settings</span>
-                        <span class="text-sm font-medium">Settings</span>
-                    </a>
-                </nav>
+                <div>
+                    <h1 class="text-lg font-bold leading-none">Point Control</h1>
+                    <p class="text-xs text-slate-500 font-medium">Admin Panel</p>
+                </div>
             </div>
-            <div class="flex items-center gap-3 px-2 py-4 border-t border-slate-100 dark:border-slate-800">
-                <div class="size-10 rounded-full bg-slate-200 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-slate-500">person</span>
-                </div>
-                <div class="flex flex-col">
-                    <p class="text-sm font-bold text-slate-900 dark:text-white leading-none">Alex Smith</p>
-                    <p class="text-[10px] text-slate-500 font-medium mt-1 uppercase tracking-wider">System Admin</p>
+            <nav class="flex-1 px-4 space-y-1 mt-4">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+                    href="/admin">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="text-sm font-medium">Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white" href="/admin/api-permissions">
+                    <span class="material-symbols-outlined">key</span>
+                    <span class="text-sm font-medium">API Permissions</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+                    href="/admin/ip-whitelist">
+                    <span class="material-symbols-outlined">shield_person</span>
+                    <span class="text-sm font-medium">IP Whitelisting</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+                    href="/admin/users">
+                    <span class="material-symbols-outlined">group</span>
+                    <span class="text-sm font-medium">Users</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors mt-auto"
+                    href="/admin/settings">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span class="text-sm font-medium">Settings</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-primary/10">
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/5 cursor-pointer">
+                    <div class="size-9 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                    <div class="flex-1 truncate">
+                        <p class="text-xs font-bold truncate">Alex Smith</p>
+                        <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">System Admin</p>
+                    </div>
                 </div>
             </div>
         </aside>
