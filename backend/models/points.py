@@ -35,3 +35,15 @@ class PointsTopupRequest(BaseModel):
 class PointsTopupResponse(BaseModel):
     user_id: int
     balance: int
+
+
+class MyPointResponse(BaseModel):
+    user_id: int
+    available_points: int
+    point_status: str
+    expires_at: Optional[datetime] = None
+    expiry_status: str
+    history: list[PointsLedgerEntry]
+    total: int
+    limit: int
+    offset: int

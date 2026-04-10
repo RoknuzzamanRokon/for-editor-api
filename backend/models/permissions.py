@@ -31,3 +31,13 @@ class PermissionEntry(BaseModel):
 class PermissionListResponse(BaseModel):
     user_id: int
     permissions: List[PermissionEntry]
+
+
+class MyApiEntry(BaseModel):
+    action: str
+    label: str
+
+
+class MyApiListResponse(BaseModel):
+    user_id: int
+    apis: List[MyApiEntry]

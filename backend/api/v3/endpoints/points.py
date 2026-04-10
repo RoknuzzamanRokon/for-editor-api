@@ -6,6 +6,7 @@ from core.points import POINTS_COST_PER_REQUEST, get_user_balance, topup_points
 from db.models import PointsLedger, RoleEnum, User
 from db.session import get_db
 from models.points import (
+    MyPointResponse,
     PointsBalanceResponse,
     PointsLedgerList,
     PointsLedgerEntry,
@@ -70,3 +71,37 @@ def topup(
 @router.get("/rules")
 def get_rules(current_user: User = Depends(get_current_user)) -> dict:
     return {"flat_cost_per_request": POINTS_COST_PER_REQUEST}
+
+
+@router.get("/my-point", response_model=MyPointResponse)
+def get_my_point(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+) -> MyPointResponse:
+    total = db.query(PointsLedger).filter(PointsLedger.user_id == current_user.id).count()
+    entries = (
+        db.query(PointsLedger)
+        .filter(PointsLedger.user_id == current_user.id)
+        .order_by(PointsLedger.created_at.desc(), PointsLedger.id.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+
+    balance = get_user_balance(db, current_user.id)
+    point_status = "available" if balance > 0 else "empty"
+
+    # Current schema has no points-expiry table/rule, so we return explicit non-expiring status.
+    return MyPointResponse(
+        user_id=current_user.id,
+        available_points=balance,
+        point_status=point_status,
+        expires_at=None,
+        expiry_status="no_expiry_configured",
+        history=[PointsLedgerEntry.model_validate(entry) for entry in entries],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
