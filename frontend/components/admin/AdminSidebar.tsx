@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -21,6 +22,50 @@ export default function AdminSidebar({
   onToggleSidebar: () => void;
 }) {
   const pathname = usePathname();
+  const [totalGivenPoints, setTotalGivenPoints] = useState<number>(0);
+
+  const displayGivenPoints = useMemo(() => {
+    return totalGivenPoints.toLocaleString();
+  }, [totalGivenPoints]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    const API_BASE =
+      process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
+      "http://127.0.0.1:8000";
+
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const load = async () => {
+      try {
+        const meRes = await fetch(`${API_BASE}/api/v2/auth/me`, { headers });
+        if (!meRes.ok) return;
+        const me = (await meRes.json()) as { id?: number };
+        if (!me?.id) return;
+
+        const historyRes = await fetch(
+          `${API_BASE}/api/v3/admin/points/giving-history?created_by_user_id=${me.id}&limit=200&offset=0`,
+          { headers },
+        );
+        if (!historyRes.ok) return;
+
+        const data = (await historyRes.json()) as {
+          items?: Array<{ amount?: number }>;
+        };
+        const sum = (data.items || []).reduce(
+          (acc, item) => acc + Number(item.amount || 0),
+          0,
+        );
+        setTotalGivenPoints(sum);
+      } catch {
+        setTotalGivenPoints(0);
+      }
+    };
+
+    void load();
+  }, []);
 
   return (
     <aside
@@ -76,17 +121,17 @@ export default function AdminSidebar({
           }`}
         >
           {collapsed ? (
-            <span>68%</span>
+            <span>{displayGivenPoints}</span>
           ) : (
             <>
               <div className="mb-2 flex justify-between text-xs font-bold">
-                <span>ADMIN LOAD</span>
-                <span>68%</span>
+                <span>ADMIN GIVEN</span>
+                <span>{displayGivenPoints}</span>
               </div>
               <div className="mb-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
-                <div className="h-1.5 w-[68%] rounded-full bg-primary" />
+                <div className="h-1.5 w-full rounded-full bg-primary" />
               </div>
-              <p className="text-[10px] uppercase text-slate-500">Realtime API Monitoring</p>
+              <p className="text-[10px] uppercase text-slate-500">Total points given by admin</p>
             </>
           )}
         </div>
