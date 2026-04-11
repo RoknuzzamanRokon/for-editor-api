@@ -1,477 +1,369 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import AdminShell from "@/components/admin/AdminShell";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
 
-export default function Page() {
-  useEffect(() => {
-    const menuButton = document.getElementById('user-menu-button');
-    const menuDropdown = document.getElementById('user-menu-dropdown');
-    const logoutButton = document.getElementById('logout-button');
-    
-    const toggleMenu = (e: Event) => {
-      e.stopPropagation();
-      menuDropdown?.classList.toggle('hidden');
-    };
-    
-    const closeMenu = () => {
-      menuDropdown?.classList.add('hidden');
-    };
-    
-    const stopPropagation = (e: Event) => {
-      e.stopPropagation();
-    };
-    
-    const handleLogout = () => {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user_role');
-      window.location.href = '/';
-    };
-    
-    menuButton?.addEventListener('click', toggleMenu);
-    document.addEventListener('click', closeMenu);
-    menuDropdown?.addEventListener('click', stopPropagation);
-    logoutButton?.addEventListener('click', handleLogout);
-    
-    // Fetch user data
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      fetch(`${API_BASE}/api/v2/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => res.json())
-      .then(data => {
-        const userName = document.getElementById('user-name');
-        const userEmail = document.getElementById('user-email');
-        const userRole = document.getElementById('user-role');
-        
-        if (userName) userName.textContent = data.full_name || data.email || 'User';
-        if (userEmail) userEmail.textContent = data.email || '';
-        if (userRole) userRole.textContent = data.role || 'Admin';
-      })
-      .catch(err => console.error('Failed to fetch user:', err));
+type ActionItem = {
+  action: string;
+  label: string;
+};
+
+type ApiPermissionItem = {
+  action: string;
+  label: string;
+  route: string;
+  method: string;
+  allowed: boolean;
+  points: number;
+  last_used_at: string | null;
+  success_rate: number;
+  description: string;
+};
+
+type UserDetails = {
+  id: number;
+  email: string;
+  username: string | null;
+  role: string;
+  position: string;
+  is_active: boolean;
+  created_at: string;
+  last_login: string | null;
+  last_active_at: string | null;
+  points: {
+    balance: number;
+    total_topup: number;
+    total_spent: number;
+    total_refunded: number;
+    last_points_activity_at: string | null;
+  };
+  conversions: {
+    total: number;
+    success: number;
+    failed: number;
+    processing: number;
+    last_conversion_at: string | null;
+  };
+  active_apis: ApiPermissionItem[];
+  api_permissions: ApiPermissionItem[];
+};
+
+type PermissionListResponse = {
+  user_id: number;
+  permissions: Array<{
+    action: string;
+    is_allowed: boolean;
+  }>;
+};
+
+export default function AdminApiPermissionsPage() {
+  const [userIdInput, setUserIdInput] = useState("");
+  const [actions, setActions] = useState<ActionItem[]>([]);
+  const [details, setDetails] = useState<UserDetails | null>(null);
+  const [loadingActions, setLoadingActions] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [savingAction, setSavingAction] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const getToken = () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      throw new Error("No access token found.");
     }
-    
-    return () => {
-      menuButton?.removeEventListener('click', toggleMenu);
-      document.removeEventListener('click', closeMenu);
-      menuDropdown?.removeEventListener('click', stopPropagation);
-      logoutButton?.removeEventListener('click', handleLogout);
-    };
+    return token;
+  };
+
+  const loadActions = async () => {
+    setLoadingActions(true);
+    setError("");
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_BASE}/api/v3/permissions/actions`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const body = await res.text();
+      if (!res.ok) {
+        throw new Error(body || "Failed to load action list");
+      }
+      const parsed = JSON.parse(body) as ActionItem[];
+      setActions(Array.isArray(parsed) ? parsed : []);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load action list");
+    } finally {
+      setLoadingActions(false);
+    }
+  };
+
+  const loadUserDetails = async (userId: string) => {
+    setLoadingDetails(true);
+    setError("");
+    setSuccess("");
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_BASE}/api/v3/admin/check-users/${userId}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const body = await res.text();
+      if (!res.ok) {
+        throw new Error(body || "Failed to load user details");
+      }
+      setDetails(JSON.parse(body) as UserDetails);
+    } catch (err: unknown) {
+      setDetails(null);
+      setError(err instanceof Error ? err.message : "Failed to load user details");
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadActions();
   }, []);
 
-  const markup = `
-<div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        <aside class="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col">
-            <div class="p-6 flex items-center gap-3">
-                <div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
-                    <span class="material-symbols-outlined text-xl">token</span>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold leading-none">Point Control</h1>
-                    <p class="text-xs text-slate-500 font-medium">Admin Panel</p>
-                </div>
-            </div>
-            <nav class="flex-1 px-4 space-y-1 mt-4">
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
-                    href="/admin">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span class="text-sm font-medium">Dashboard</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white" href="/admin/api-permissions">
-                    <span class="material-symbols-outlined">key</span>
-                    <span class="text-sm font-medium">API Permissions</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
-                    href="/admin/ip-whitelist">
-                    <span class="material-symbols-outlined">shield_person</span>
-                    <span class="text-sm font-medium">IP Whitelisting</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
-                    href="/admin/users">
-                    <span class="material-symbols-outlined">group</span>
-                    <span class="text-sm font-medium">Users</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors mt-auto"
-                    href="/admin/settings">
-                    <span class="material-symbols-outlined">settings</span>
-                    <span class="text-sm font-medium">Settings</span>
-                </a>
-            </nav>
-            <div class="p-4 border-t border-primary/10">
-                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/5 cursor-pointer">
-                    <div class="size-9 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                        <span class="material-symbols-outlined">person</span>
-                    </div>
-                    <div class="flex-1 truncate">
-                        <p class="text-xs font-bold truncate">Alex Smith</p>
-                        <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">System Admin</p>
-                    </div>
-                </div>
-            </div>
-        </aside>
-        <!-- Main Content Wrapper -->
-        <div class="flex flex-col flex-1 overflow-hidden">
-            <!-- Header -->
-            <header
-                class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-8 shrink-0">
-                <div class="flex-1 max-w-2xl">
-                    <div class="relative">
-                        <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                        <input
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-2.5 pl-10 pr-4 text-sm placeholder:text-slate-400"
-                            placeholder="Search transactions, users or API keys..." type="text" />
-                    </div>
-                </div>
-                <div class="flex items-center gap-6">
-                    <div class="relative">
-                        <button class="text-slate-400 hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">notifications</span>
-                        </button>
-                        <span
-                            class="absolute top-0 right-0 size-2 bg-primary rounded-full border-2 border-white dark:border-slate-900"></span>
-                    </div>
-                    <div class="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
-                    <div class="relative">
-                        <button id="user-menu-button" class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/10 hover:bg-primary/30 transition-colors">
-                            <span class="material-symbols-outlined">person</span>
-                        </button>
-                        <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl z-[9999]">
-                            <div class="p-4 border-b border-slate-200 dark:border-slate-800">
-                                <p id="user-name" class="text-sm font-bold truncate">Loading...</p>
-                                <p id="user-email" class="text-xs text-slate-500 truncate"></p>
-                                <p id="user-role" class="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-1"></p>
-                            </div>
-                            <div class="p-2">
-                                <button id="logout-button" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-medium">
-                                    <span class="material-symbols-outlined text-lg">logout</span>
-                                    <span>Logout</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            <!-- Scrollable Content -->
-            <main class="flex-1 overflow-y-auto p-8">
-                <div class="max-w-7xl mx-auto space-y-6">
-                    <!-- Title Section -->
-                    <div class="flex flex-wrap items-end justify-between gap-4">
-                        <div class="space-y-1">
-                            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">API Keys &amp;
-                                Permissions</h1>
-                            <p class="text-slate-500 dark:text-slate-400">Manage and monitor user API access levels
-                                across all modules.</p>
-                        </div>
-                        <button
-                            class="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:shadow-lg transition-all active:scale-95">
-                            <span class="material-symbols-outlined text-sm">add_circle</span>
-                            Generate New Key
-                        </button>
-                    </div>
-                    <!-- Tabs -->
-                    <div class="border-b border-slate-200 dark:border-slate-800 flex gap-8">
-                        <button
-                            class="px-2 py-4 border-b-2 border-primary text-primary dark:text-white text-sm font-bold">All
-                            Keys</button>
-                        <button
-                            class="px-2 py-4 border-b-2 border-transparent text-slate-500 dark:text-slate-400 text-sm font-bold hover:text-slate-700">Active</button>
-                        <button
-                            class="px-2 py-4 border-b-2 border-transparent text-slate-500 dark:text-slate-400 text-sm font-bold hover:text-slate-700">Revoked</button>
-                    </div>
-                    <!-- Filter Bar -->
-                    <div
-                        class="flex items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-                        <div class="flex gap-2">
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">filter_list</span>
-                                <select
-                                    class="bg-slate-50 dark:bg-slate-800 border-none rounded-lg pl-9 pr-8 py-2 text-sm focus:ring-2 focus:ring-primary/20 appearance-none text-slate-600 dark:text-slate-400 font-medium">
-                                    <option>Filter by Role</option>
-                                    <option>Developer</option>
-                                    <option>Internal</option>
-                                    <option>Third Party</option>
-                                </select>
-                            </div>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">history</span>
-                                <select
-                                    class="bg-slate-50 dark:bg-slate-800 border-none rounded-lg pl-9 pr-8 py-2 text-sm focus:ring-2 focus:ring-primary/20 appearance-none text-slate-600 dark:text-slate-400 font-medium">
-                                    <option>Last 30 Days</option>
-                                    <option>Last 7 Days</option>
-                                    <option>Last 24 Hours</option>
-                                </select>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-500 font-medium">Showing 4 of 12 keys</p>
-                    </div>
-                    <!-- Table Container -->
-                    <div
-                        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 dark:bg-slate-800/50">
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                        User</th>
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                        API Key</th>
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                        Scopes</th>
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
-                                        Status</th>
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-right">
-                                        Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                <!-- Row 1 -->
-                                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-3">
-                                            <img alt="Alex Avatar" class="size-10 rounded-full bg-blue-100"
-                                                data-alt="Cartoon avatar of a user named Alex"
-                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGw-ZxGW5GxiMzhjF0ArqoTy1ty30S3EFh6ArWGRX9iv-wMnD0g5ehSAaJOBAiTwwvdcggX-SvfbaUt5awYdF3b5OHh5t16eLtMGTDgLTPjTKIAeREC7d8LmMCFDG3k_gFkqxE9YxWKM9Px7oTY6nan5Rel9CTwe8t0VUQTXEcUTWriDra94u0TEfOXBmWxyttsooRmNrIDZQRYZaN6ZE6C0ugAsXvsohP3IoJ6jBblISRh0PcySXE6WZNLWKuYKDu8ogwzrZ_95vh" />
-                                            <div>
-                                                <p class="text-sm font-bold leading-none">Alex Rivera</p>
-                                                <p class="text-xs text-slate-500 mt-1">alex.r@company.io</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-2 group">
-                                            <code
-                                                class="text-xs font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">sk-••••4291</code>
-                                            <button
-                                                class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-primary">
-                                                <span class="material-symbols-outlined text-base">content_copy</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex flex-wrap gap-1">
-                                            <span
-                                                class="px-2 py-1 bg-primary/5 text-primary dark:text-slate-300 text-[10px] font-bold rounded uppercase tracking-wide">Read
-                                                Points</span>
-                                            <span
-                                                class="px-2 py-1 bg-primary/5 text-primary dark:text-slate-300 text-[10px] font-bold rounded uppercase tracking-wide">Issue
-                                                Points</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex justify-center">
-                                            <span
-                                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
-                                                <span class="size-1.5 rounded-full bg-emerald-500"></span>
-                                                Active
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5 text-right">
-                                        <button
-                                            class="text-primary dark:text-slate-300 text-sm font-bold hover:underline">Manage</button>
-                                    </td>
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-3">
-                                            <img alt="Jordan Avatar" class="size-10 rounded-full bg-purple-100"
-                                                data-alt="Cartoon avatar of a user named Jordan"
-                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuoBtehNCBz5bTfLZ5vv8AkOLSyUrWfjQ39O8pxkRd70Ey5eczgCUsMYKVL_pg72Ue-Q9WzkChSKwOSETv81y9wLJ5gq5W11mS7TPxKRV2ARK2oGssvvJahZ_r-I5JQzePOcVRUEDIzzQvmM5QMQpWuDL8X5vrGrb81XuOLucj4WF9VRPVXPyTHCc5UZ-EQOP6X1Y6bpJM53L9D4M2Vrgn1LX204zrgmNnLH5ByPkaP02ePpqYDzXQmWRLBKNfKbpf8abcwLEeUzYr" />
-                                            <div>
-                                                <p class="text-sm font-bold leading-none">Jordan Smith</p>
-                                                <p class="text-xs text-slate-500 mt-1">jordan.s@dev.org</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-2 group">
-                                            <code
-                                                class="text-xs font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">sk-••••8823</code>
-                                            <button
-                                                class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-primary">
-                                                <span class="material-symbols-outlined text-base">content_copy</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex flex-wrap gap-1">
-                                            <span
-                                                class="px-2 py-1 bg-primary/5 text-primary dark:text-slate-300 text-[10px] font-bold rounded uppercase tracking-wide">Read
-                                                Points</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex justify-center">
-                                            <span
-                                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
-                                                <span class="size-1.5 rounded-full bg-emerald-500"></span>
-                                                Active
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5 text-right">
-                                        <button
-                                            class="text-primary dark:text-slate-300 text-sm font-bold hover:underline">Manage</button>
-                                    </td>
-                                </tr>
-                                <!-- Row 3 -->
-                                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-3">
-                                            <img alt="Casey Avatar" class="size-10 rounded-full bg-orange-100"
-                                                data-alt="Cartoon avatar of a user named Casey"
-                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBntHFwDRmAKLM-zLZevSwKBIT6bzZv3NPP7YJGQoah5e6fswq5NWlceWKXxKIxOxH07I4e8Jk-Bftn4759wUH08X-TRDiNL0GEC2S6I3n-9uZtTMms8z-KZ3hKnDN__n_uNp03An_zOuEv4K6bo2doKXvL5hGdguIIktlLPiP7Jbj9HJCYEjrqPY8jKnOGI4OobxobULZVQ_np8Ofry_LAHJuWjS_33X9p7IZ-5wVo65KKn3ei2HRgjVSbSShoWHSttrL2kTkURixP" />
-                                            <div>
-                                                <p class="text-sm font-bold leading-none">Casey Jones</p>
-                                                <p class="text-xs text-slate-500 mt-1">casey.j@agency.com</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-2 group">
-                                            <code
-                                                class="text-xs font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">sk-••••1102</code>
-                                            <button
-                                                class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-primary">
-                                                <span class="material-symbols-outlined text-base">content_copy</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex flex-wrap gap-1">
-                                            <span
-                                                class="px-2 py-1 bg-primary/5 text-primary dark:text-slate-300 text-[10px] font-bold rounded uppercase tracking-wide">Issue
-                                                Points</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex justify-center">
-                                            <span
-                                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-bold">
-                                                <span class="size-1.5 rounded-full bg-slate-400"></span>
-                                                Revoked
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5 text-right">
-                                        <button
-                                            class="text-primary dark:text-slate-300 text-sm font-bold hover:underline">Manage</button>
-                                    </td>
-                                </tr>
-                                <!-- Row 4 -->
-                                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-3">
-                                            <img alt="Sam Avatar" class="size-10 rounded-full bg-teal-100"
-                                                data-alt="Cartoon avatar of a user named Sam"
-                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-F4NLuzzWBwPEerrElb7IvUbkupGnTlV_9LFfBo4x5tVNDrzvdvjd_ughWwNeoWmHt8EV3Kc-KPlnNmJ8VvBo0_g2QIfZMOOCL1ikVK6KrNOyMob83mYDZWLj0OiDGXWAxuSvPHHkvrBZkn4mCIUn7Av4tYqG5Nj4sVxrHpl9TTGmbjKZW98t6NwfpnRCmjCHzFwqTtIjGpqE-0EoKPMNw6ytYI50aKUfBDh7zTxXZGfdx70rJsYVQNxfEK06By0o30F9PSTD0tNL" />
-                                            <div>
-                                                <p class="text-sm font-bold leading-none">Sam Taylor</p>
-                                                <p class="text-xs text-slate-500 mt-1">s.taylor@enterprise.net</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-2 group">
-                                            <code
-                                                class="text-xs font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">sk-••••5590</code>
-                                            <button
-                                                class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-primary">
-                                                <span class="material-symbols-outlined text-base">content_copy</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex flex-wrap gap-1">
-                                            <span
-                                                class="px-2 py-1 bg-primary/10 text-primary dark:text-slate-100 text-[10px] font-black rounded uppercase tracking-widest border border-primary/20">Admin
-                                                Access</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex justify-center">
-                                            <span
-                                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
-                                                <span class="size-1.5 rounded-full bg-emerald-500"></span>
-                                                Active
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5 text-right">
-                                        <button
-                                            class="text-primary dark:text-slate-300 text-sm font-bold hover:underline">Manage</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <!-- Pagination -->
-                        <div
-                            class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
-                            <span class="text-xs font-medium text-slate-500">Page 1 of 3</span>
-                            <div class="flex gap-2">
-                                <button
-                                    class="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-400 cursor-not-allowed">
-                                    <span class="material-symbols-outlined text-base">chevron_left</span>
-                                </button>
-                                <button
-                                    class="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700">
-                                    <span class="material-symbols-outlined text-base">chevron_right</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Usage Stats Section (Supplementary) -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-                        <div
-                            class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total API Calls
-                            </p>
-                            <div class="flex items-end justify-between">
-                                <h3 class="text-2xl font-black">2.4M</h3>
-                                <span class="text-emerald-500 text-xs font-bold flex items-center">+12% <span
-                                        class="material-symbols-outlined text-xs">trending_up</span></span>
-                            </div>
-                        </div>
-                        <div
-                            class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Avg Response Time
-                            </p>
-                            <div class="flex items-end justify-between">
-                                <h3 class="text-2xl font-black">142ms</h3>
-                                <span class="text-emerald-500 text-xs font-bold flex items-center">-8% <span
-                                        class="material-symbols-outlined text-xs">trending_down</span></span>
-                            </div>
-                        </div>
-                        <div
-                            class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active Keys</p>
-                            <div class="flex items-end justify-between">
-                                <h3 class="text-2xl font-black">104</h3>
-                                <span class="text-slate-400 text-xs font-bold">Stable</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-`;
+  const handleLoadUser = async () => {
+    if (!userIdInput.trim()) {
+      setError("Enter a user ID first.");
+      return;
+    }
+    await loadUserDetails(userIdInput.trim());
+  };
+
+  const handleTogglePermission = async (item: ApiPermissionItem) => {
+    if (!details) return;
+    setError("");
+    setSuccess("");
+    setSavingAction(item.action);
+    const nextAllowed = !item.allowed;
+
+    try {
+      const token = getToken();
+      const res = await fetch(
+        `${API_BASE}/api/v3/permissions/users/${details.id}/permissions/${item.action}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ is_allowed: nextAllowed }),
+        },
+      );
+      const body = await res.text();
+      if (!res.ok) {
+        throw new Error(body || "Failed to update permission");
+      }
+
+      const parsed = JSON.parse(body) as PermissionListResponse;
+      const latestMap = new Map(parsed.permissions.map((p) => [p.action, p.is_allowed]));
+
+      setDetails((prev) => {
+        if (!prev) return prev;
+        const nextPermissions = prev.api_permissions.map((p) => ({
+          ...p,
+          allowed: latestMap.has(p.action) ? Boolean(latestMap.get(p.action)) : p.allowed,
+        }));
+        return {
+          ...prev,
+          api_permissions: nextPermissions,
+          active_apis: nextPermissions.filter((p) => p.allowed),
+        };
+      });
+
+      setSuccess(`Permission updated for "${item.action}"`);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to update permission");
+    } finally {
+      setSavingAction(null);
+    }
+  };
+
+  const actionLookup = useMemo(() => {
+    return new Map(actions.map((a) => [a.action, a.label]));
+  }, [actions]);
+
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
-      <div dangerouslySetInnerHTML={{ __html: markup }} />
-    </div>
+    <AdminShell>
+      <section className="px-8 py-6">
+        <div className="mx-auto max-w-7xl space-y-5">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight">API Permissions</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Check user details and update API permissions using v3 admin/permissions APIs.
+            </p>
+          </div>
+
+          {error ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+              {error}
+            </div>
+          ) : null}
+          {success ? (
+            <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700">
+              {success}
+            </div>
+          ) : null}
+
+          <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="min-w-[220px] flex-1">
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                  User ID
+                </label>
+                <input
+                  value={userIdInput}
+                  onChange={(e) => setUserIdInput(e.target.value)}
+                  placeholder="e.g. 3"
+                  className="w-full rounded-lg border border-primary/10 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-900"
+                  type="number"
+                />
+              </div>
+              <button
+                onClick={handleLoadUser}
+                disabled={loadingDetails}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                type="button"
+              >
+                {loadingDetails ? "Loading..." : "Check User"}
+              </button>
+              <button
+                onClick={() => void loadActions()}
+                disabled={loadingActions}
+                className="rounded-lg border border-primary/20 bg-white px-4 py-2 text-sm font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-900 dark:text-slate-100"
+                type="button"
+              >
+                {loadingActions ? "Refreshing..." : "Refresh Actions"}
+              </button>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
+            <h2 className="mb-2 text-sm font-bold uppercase tracking-wider">Action List</h2>
+            {loadingActions ? (
+              <p className="text-sm text-slate-500">Loading actions...</p>
+            ) : actions.length === 0 ? (
+              <p className="text-sm text-slate-500">No actions found.</p>
+            ) : (
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+                {actions.map((item) => (
+                  <div key={item.action} className="rounded border border-primary/10 bg-white px-3 py-2 text-sm dark:bg-slate-900">
+                    <p className="font-semibold">{item.label}</p>
+                    <p className="text-xs text-slate-500">{item.action}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {details ? (
+            <>
+              <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
+                <h2 className="mb-3 text-sm font-bold uppercase tracking-wider">User Details</h2>
+                <div className="grid grid-cols-1 gap-2 text-sm md:grid-cols-2 lg:grid-cols-3">
+                  <p><span className="font-semibold">ID:</span> {details.id}</p>
+                  <p><span className="font-semibold">Email:</span> {details.email}</p>
+                  <p><span className="font-semibold">Username:</span> {details.username || "-"}</p>
+                  <p><span className="font-semibold">Role:</span> {details.role}</p>
+                  <p><span className="font-semibold">Position:</span> {details.position}</p>
+                  <p><span className="font-semibold">Status:</span> {details.is_active ? "Active" : "Inactive"}</p>
+                  <p><span className="font-semibold">Created:</span> {new Date(details.created_at).toLocaleString()}</p>
+                  <p><span className="font-semibold">Last Login:</span> {details.last_login ? new Date(details.last_login).toLocaleString() : "N/A"}</p>
+                  <p><span className="font-semibold">Last Active:</span> {details.last_active_at ? new Date(details.last_active_at).toLocaleString() : "N/A"}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
+                  <h3 className="mb-2 text-sm font-bold uppercase tracking-wider">Points</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-semibold">Balance:</span> {details.points.balance}</p>
+                    <p><span className="font-semibold">Topup:</span> {details.points.total_topup}</p>
+                    <p><span className="font-semibold">Spent:</span> {details.points.total_spent}</p>
+                    <p><span className="font-semibold">Refunded:</span> {details.points.total_refunded}</p>
+                    <p><span className="font-semibold">Last Activity:</span> {details.points.last_points_activity_at ? new Date(details.points.last_points_activity_at).toLocaleString() : "N/A"}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
+                  <h3 className="mb-2 text-sm font-bold uppercase tracking-wider">Conversions</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-semibold">Total:</span> {details.conversions.total}</p>
+                    <p><span className="font-semibold">Success:</span> {details.conversions.success}</p>
+                    <p><span className="font-semibold">Failed:</span> {details.conversions.failed}</p>
+                    <p><span className="font-semibold">Processing:</span> {details.conversions.processing}</p>
+                    <p><span className="font-semibold">Last Conversion:</span> {details.conversions.last_conversion_at ? new Date(details.conversions.last_conversion_at).toLocaleString() : "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
+                <h3 className="mb-2 text-sm font-bold uppercase tracking-wider">
+                  API Permissions ({details.api_permissions.length})
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead className="text-xs uppercase tracking-wider text-slate-500">
+                      <tr>
+                        <th className="px-3 py-2">API</th>
+                        <th className="px-3 py-2">Allowed</th>
+                        <th className="px-3 py-2">Points</th>
+                        <th className="px-3 py-2">Success Rate</th>
+                        <th className="px-3 py-2">Last Used</th>
+                        <th className="px-3 py-2 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-primary/10">
+                      {details.api_permissions.map((item) => (
+                        <tr key={item.action}>
+                          <td className="px-3 py-2 text-sm">
+                            <p className="font-semibold">{actionLookup.get(item.action) || item.label}</p>
+                            <p className="text-xs text-slate-500">{item.action}</p>
+                          </td>
+                          <td className="px-3 py-2 text-sm">
+                            <span
+                              className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                item.allowed
+                                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                  : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                              }`}
+                            >
+                              {item.allowed ? "Yes" : "No"}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2 text-sm">{item.points}</td>
+                          <td className="px-3 py-2 text-sm">{item.success_rate.toFixed(1)}%</td>
+                          <td className="px-3 py-2 text-sm">
+                            {item.last_used_at ? new Date(item.last_used_at).toLocaleString() : "Never"}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            <button
+                              onClick={() => void handleTogglePermission(item)}
+                              disabled={savingAction === item.action}
+                              className="rounded-lg border border-primary/20 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-900 dark:text-slate-100"
+                              type="button"
+                            >
+                              {savingAction === item.action
+                                ? "Saving..."
+                                : item.allowed
+                                  ? "Disable"
+                                  : "Enable"}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </section>
+    </AdminShell>
   );
 }
