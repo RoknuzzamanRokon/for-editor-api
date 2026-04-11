@@ -9,16 +9,16 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background-light text-slate-900 dark:bg-background-dark dark:text-slate-100">
-      <UserSidebar collapsed={sidebarCollapsed} />
+      <UserSidebar
+        collapsed={sidebarCollapsed}
+        onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
+      />
       <div
         className={`min-h-screen transition-[margin] duration-300 ${
-          sidebarCollapsed ? "ml-0" : "ml-72"
+          sidebarCollapsed ? "ml-20" : "ml-72"
         }`}
       >
-        <UserHeader
-          sidebarCollapsed={sidebarCollapsed}
-          onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
-        />
+        <UserHeader />
         <main className="min-h-screen pt-16">{children}</main>
       </div>
     </div>

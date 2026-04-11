@@ -9,25 +9,32 @@ const navItems = [
   { label: 'App Center', href: '/dashboard/app-center', icon: 'apps' },
 ]
 
-export default function UserSidebar({ collapsed = false }: { collapsed?: boolean }) {
+export default function UserSidebar({
+  collapsed = false,
+  onToggleSidebar,
+}: {
+  collapsed?: boolean;
+  onToggleSidebar: () => void;
+}) {
   const pathname = usePathname()
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 flex h-screen w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 ${
-        collapsed ? "-translate-x-full" : "translate-x-0"
+      className={`fixed left-0 top-16 z-20 flex h-[calc(100vh-4rem)] flex-col border-r border-slate-200 bg-white transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 ${
+        collapsed ? "w-20" : "w-72"
       }`}
     >
-      <div className="flex items-center gap-3 p-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
-          <span className="material-symbols-outlined">sync_alt</span>
-        </div>
-        <div>
-          <h1 className="text-lg font-bold leading-tight">ConvertPro</h1>
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Premium SaaS Tool</p>
-        </div>
+      <div className={`pt-4 ${collapsed ? "px-2" : "px-4"}`}>
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="mb-2 flex w-full items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+          title="Toggle sidebar"
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
       </div>
-      <nav className="flex flex-col gap-1 px-4">
+      <nav className={`flex flex-col gap-1 ${collapsed ? "px-2" : "px-4"}`}>
         {navItems.map((item) => {
           const isActive =
             item.href === '/dashboard'
@@ -43,9 +50,10 @@ export default function UserSidebar({ collapsed = false }: { collapsed?: boolean
                   : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
               }`}
               href={item.href}
+              title={collapsed ? item.label : undefined}
             >
               <span className="material-symbols-outlined">{item.icon}</span>
-              {item.label}
+              {!collapsed ? item.label : null}
             </Link>
           )
         })}
@@ -58,19 +66,22 @@ export default function UserSidebar({ collapsed = false }: { collapsed?: boolean
               : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
           }`}
           href="/dashboard/settings"
+          title={collapsed ? "Settings" : undefined}
         >
           <span className="material-symbols-outlined">settings</span>
-          Settings
+          {!collapsed ? "Settings" : null}
         </Link>
         <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
           <div className="mb-2 flex justify-between text-xs font-bold">
-            <span>PLAN LIMIT</span>
+            {!collapsed ? <span>PLAN LIMIT</span> : null}
             <span>43%</span>
           </div>
           <div className="mb-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
             <div className="h-1.5 w-[43%] rounded-full bg-primary" />
           </div>
-          <p className="text-[10px] uppercase text-slate-500">4,320 / 10,000 Requests</p>
+          {!collapsed ? (
+            <p className="text-[10px] uppercase text-slate-500">4,320 / 10,000 Requests</p>
+          ) : null}
         </div>
       </div>
     </aside>

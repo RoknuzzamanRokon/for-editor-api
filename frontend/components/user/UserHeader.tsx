@@ -7,13 +7,7 @@ import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
 
-export default function UserHeader({
-  sidebarCollapsed = false,
-  onToggleSidebar,
-}: {
-  sidebarCollapsed?: boolean;
-  onToggleSidebar: () => void;
-}) {
+export default function UserHeader() {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [user, setUser] = useState<{ full_name?: string; email?: string; role?: string } | null>(null);
@@ -50,19 +44,20 @@ export default function UserHeader({
 
   return (
     <header
-      className={`fixed right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-8 backdrop-blur-md transition-[left] duration-300 dark:border-slate-800 dark:bg-slate-900/80 ${
-        sidebarCollapsed ? "left-0" : "left-72"
-      }`}
+      className="fixed left-0 right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-8 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80"
     >
       <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={onToggleSidebar}
-          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-          title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
-        >
-          <span className="material-symbols-outlined">menu</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+            <span className="material-symbols-outlined">sync_alt</span>
+          </div>
+          <div>
+            <h1 className="text-lg font-bold leading-tight">ConvertPro</h1>
+            <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+              Premium SaaS Tool
+            </p>
+          </div>
+        </div>
         <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
           Admin Plan
         </span>
