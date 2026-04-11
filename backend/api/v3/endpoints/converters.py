@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, Response, UploadFile, status
 from fastapi.responses import FileResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only
 
 from core.deps import get_current_user, require_owner
 from core.permissions import ConversionNotPermittedError, ensure_permission
@@ -157,6 +157,43 @@ def _build_history_item(conversion: Conversion) -> ConversionHistoryItem:
     )
 
 
+def _get_action_history(
+    action: str,
+    db: Session,
+    current_user: User,
+    limit: int,
+    user_id: Optional[int],
+) -> ConversionHistoryResponse:
+    query = db.query(Conversion).filter(Conversion.action == action)
+
+    if current_user.role == RoleEnum.super_user:
+        if user_id is not None:
+            query = query.filter(Conversion.owner_user_id == user_id)
+    else:
+        query = query.filter(Conversion.owner_user_id == current_user.id)
+
+    items = (
+        query.options(
+            load_only(
+                Conversion.id,
+                Conversion.owner_user_id,
+                Conversion.action,
+                Conversion.input_filename,
+                Conversion.status,
+                Conversion.points_charged,
+                Conversion.error_message,
+                Conversion.created_at,
+                Conversion.updated_at,
+                Conversion.output_filename,
+            )
+        )
+        .order_by(Conversion.created_at.desc(), Conversion.id.desc())
+        .limit(limit)
+        .all()
+    )
+    return ConversionHistoryResponse(items=[_build_history_item(item) for item in items], limit=limit)
+
+
 @router.get("/history", response_model=ConversionHistoryResponse)
 def get_conversion_history(
     db: Session = Depends(get_db),
@@ -173,11 +210,95 @@ def get_conversion_history(
         query = query.filter(Conversion.owner_user_id == current_user.id)
 
     items = (
-        query.order_by(Conversion.created_at.desc(), Conversion.id.desc())
+        query.options(
+            load_only(
+                Conversion.id,
+                Conversion.owner_user_id,
+                Conversion.action,
+                Conversion.input_filename,
+                Conversion.status,
+                Conversion.points_charged,
+                Conversion.error_message,
+                Conversion.created_at,
+                Conversion.updated_at,
+                Conversion.output_filename,
+            )
+        )
+        .order_by(Conversion.created_at.desc(), Conversion.id.desc())
         .limit(limit)
         .all()
     )
     return ConversionHistoryResponse(items=[_build_history_item(item) for item in items], limit=limit)
+
+
+@router.get("/remove-background/files/history", response_model=ConversionHistoryResponse)
+def get_remove_background_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    user_id: Optional[int] = Query(None),
+) -> ConversionHistoryResponse:
+    return _get_action_history("remove_background", db, current_user, limit, user_id)
+
+
+@router.get("/pdf-to-excel/files/history", response_model=ConversionHistoryResponse)
+def get_pdf_to_excel_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    user_id: Optional[int] = Query(None),
+) -> ConversionHistoryResponse:
+    return _get_action_history("pdf_to_excel", db, current_user, limit, user_id)
+
+
+@router.get("/pdf-to-word/files/history", response_model=ConversionHistoryResponse)
+def get_pdf_to_word_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    user_id: Optional[int] = Query(None),
+) -> ConversionHistoryResponse:
+    return _get_action_history("pdf_to_docs", db, current_user, limit, user_id)
+
+
+@router.get("/docx-to-pdf/files/history", response_model=ConversionHistoryResponse)
+def get_docx_to_pdf_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    user_id: Optional[int] = Query(None),
+) -> ConversionHistoryResponse:
+    return _get_action_history("docx_to_pdf", db, current_user, limit, user_id)
+
+
+@router.get("/excel-to-pdf/files/history", response_model=ConversionHistoryResponse)
+def get_excel_to_pdf_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    user_id: Optional[int] = Query(None),
+) -> ConversionHistoryResponse:
+    return _get_action_history("excel_to_pdf", db, current_user, limit, user_id)
+
+
+@router.get("/image-to-pdf/files/history", response_model=ConversionHistoryResponse)
+def get_image_to_pdf_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    user_id: Optional[int] = Query(None),
+) -> ConversionHistoryResponse:
+    return _get_action_history("image_to_pdf", db, current_user, limit, user_id)
+
+
+@router.get("/remove-pages-from-pdf/files/history", response_model=ConversionHistoryResponse)
+def get_remove_pages_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    user_id: Optional[int] = Query(None),
+) -> ConversionHistoryResponse:
+    return _get_action_history("pdf_page_remove", db, current_user, limit, user_id)
 
 
 @router.get("/{conversion_id}/download")
