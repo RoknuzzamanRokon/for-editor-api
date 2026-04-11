@@ -14,6 +14,7 @@ ALLOWED_ACTIONS: Dict[str, str] = {
     "docx_to_pdf": "DOCX to PDF",
     "excel_to_pdf": "Excel to PDF",
     "image_to_pdf": "Image to PDF",
+    "remove_background": "Remove Background",
     "pdf_page_remove": "Remove Pages from PDF",
 }
 

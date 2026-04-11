@@ -13,6 +13,7 @@ const ACTION_TO_ROUTE: Record<string, string> = {
   docx_to_pdf: "/api/v3/conversions/docx-to-pdf",
   excel_to_pdf: "/api/v3/conversions/excel-to-pdf",
   image_to_pdf: "/api/v3/conversions/image-to-pdf",
+  remove_background: "/api/v3/conversions/remove-background",
   pdf_page_remove: "/api/v3/conversions/remove-pages-from-pdf",
 };
 

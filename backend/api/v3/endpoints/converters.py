@@ -23,6 +23,7 @@ from db.session import get_db
 from models.conversions import ConversionCreateResponse, ConversionHistoryItem, ConversionHistoryResponse
 from services.docx_to_pdf_converter import DOCXToPDFConverterService
 from services.excel_to_pdf_converter import ExcelToPDFConverterService
+from services.background_remover import BackgroundRemoverService
 from services.file_manager import FileManagerService
 from services.image_to_pdf_converter import ImageToPDFConverterService
 from services.pdf_page_remover import PDFPageRemoverService
@@ -45,6 +46,9 @@ excel_to_pdf_converter = ExcelToPDFConverterService()
 
 image_to_pdf_file_manager = FileManagerService(storage_dir="static/imageToPdf")
 image_to_pdf_converter = ImageToPDFConverterService()
+
+remove_background_file_manager = FileManagerService(storage_dir="static/removeBackground")
+background_remover = BackgroundRemoverService()
 
 pdf_page_remove_file_manager = FileManagerService(storage_dir="static/pdfPageRemove")
 pdf_page_remover = PDFPageRemoverService()
@@ -130,6 +134,7 @@ def _media_type_for_suffix(suffix: str) -> str:
         ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ".pdf": "application/pdf",
+        ".png": "image/png",
     }
     return mapping.get(suffix.lower(), "application/octet-stream")
 
@@ -761,3 +766,96 @@ async def remove_pages_from_pdf(
     finally:
         if temp_pdf_path and os.path.exists(temp_pdf_path):
             os.unlink(temp_pdf_path)
+
+
+@router.post("/remove-background", response_model=ConversionCreateResponse)
+async def remove_background(
+    request: Request,
+    response: Response,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    action = "remove_background"
+    charge_result = None
+    conversion: Optional[Conversion] = None
+    temp_image_path: Optional[str] = None
+
+    try:
+        is_valid, error_message = await remove_background_file_manager.validate_image_file(file)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=error_message)
+
+        content = await file.read()
+        await file.seek(0)
+        early_response, charge_result = _enforce_access(
+            db, current_user, action, request, file, response, len(content)
+        )
+        if early_response:
+            return early_response
+
+        _, output_path = _new_private_output(remove_background_file_manager, ".png")
+        conversion = _create_conversion_row(
+            db,
+            current_user,
+            action,
+            file.filename or "upload.png",
+            charge_result.request_id,
+        )
+
+        suffix = os.path.splitext(file.filename or "")[1].lower() or ".png"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_image:
+            temp_image.write(content)
+            temp_image_path = temp_image.name
+
+        success, error_msg = background_remover.remove_background(temp_image_path, output_path)
+        if not success:
+            if current_user.role != RoleEnum.super_user:
+                refund_points(db, current_user.id, action, charge_result.request_id)
+            conversion.status = "failed"
+            conversion.error_message = error_msg or "Background removal failed"
+            conversion.points_charged = 0
+            db.commit()
+
+            result = ConversionCreateResponse(
+                conversion_id=conversion.id,
+                status="failed",
+                download_url=None,
+                points_charged=0,
+                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            )
+            if current_user.role != RoleEnum.super_user:
+                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            return result
+
+        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        conversion.status = "success"
+        conversion.output_filename = output_path
+        conversion.error_message = None
+        conversion.points_charged = points_charged
+        db.commit()
+
+        result = ConversionCreateResponse(
+            conversion_id=conversion.id,
+            status="success",
+            download_url=f"/api/v3/conversions/{conversion.id}/download",
+            points_charged=points_charged,
+            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+        )
+        if current_user.role != RoleEnum.super_user:
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        return result
+    except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
+        raise
+    except Exception as exc:
+        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+            refund_points(db, current_user.id, action, charge_result.request_id)
+        if conversion:
+            conversion.status = "failed"
+            conversion.error_message = str(exc)
+            conversion.points_charged = 0
+            db.commit()
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(exc)}")
+    finally:
+        if temp_image_path and os.path.exists(temp_image_path):
+            os.unlink(temp_image_path)

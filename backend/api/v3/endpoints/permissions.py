@@ -55,6 +55,13 @@ API_META: dict[str, dict[str, str]] = {
         "icon": "image",
         "description": "Convert Image to PDF",
     },
+    "remove_background": {
+        "route": "/api/v3/conversions/remove-background",
+        "method": "POST",
+        "theme": "cyan",
+        "icon": "auto_fix_high",
+        "description": "Remove image background",
+    },
     "pdf_page_remove": {
         "route": "/api/v3/conversions/remove-pages-from-pdf",
         "method": "POST",
