@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: "dashboard" },
   { label: "App Center", href: "/admin/app-center", icon: "apps" },
-  { label: "History", href: "/admin/history/transactions", match: "/admin/history", icon: "history" },
   { label: "API Permissions", href: "/admin/api-permissions", icon: "vpn_key" },
   { label: "Users", href: "/admin/users", icon: "group" },
   { label: "Profile", href: "/admin/profile", icon: "manage_accounts" },
@@ -69,7 +68,7 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`fixed left-0 top-16 z-20 flex h-[calc(100vh-4rem)] flex-col border-r border-slate-200 bg-white transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 ${
+      className={`fixed left-0 top-0 z-20 flex h-screen flex-col border-r border-slate-200 bg-white pt-16 transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 ${
         collapsed ? "w-20" : "w-72"
       }`}
     >

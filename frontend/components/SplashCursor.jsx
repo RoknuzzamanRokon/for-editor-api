@@ -1048,18 +1048,20 @@ function SplashCursor({
         position: 'fixed',
         top: 0,
         left: 0,
+        right: 0,
+        bottom: 0,
         zIndex: 50,
         pointerEvents: 'none',
-        width: '100%',
-        height: '100%'
+        width: '100vw',
+        height: '100vh'
       }}
     >
       <canvas
         ref={canvasRef}
         id="fluid"
         style={{
-          width: '100vw',
-          height: '100vh',
+          width: '100%',
+          height: '100%',
           display: 'block'
         }}
       />

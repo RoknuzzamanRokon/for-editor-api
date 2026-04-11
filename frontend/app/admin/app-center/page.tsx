@@ -61,8 +61,8 @@ export default function AdminAppCenterPage() {
 
   return (
     <AdminShell>
-      <section className="px-8 py-6">
-        <div className="mx-auto max-w-6xl">
+      <section className="h-full min-h-full overflow-y-auto bg-background-light px-8 py-6 dark:bg-background-dark">
+        <div className="mx-auto w-full max-w-6xl">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
               <h2 className="text-2xl font-black tracking-tight">App Center</h2>

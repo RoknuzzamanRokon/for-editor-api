@@ -19,8 +19,13 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
         }`}
       >
         <UserHeader />
-        <main className="min-h-screen pt-16">{children}</main>
+        <div className="flex min-h-screen flex-col pt-16">
+          <main className="flex-1">{children}</main>
+          <footer className="border-t border-slate-200/70 bg-white/60 px-6 py-4 text-center text-xs font-medium text-slate-600 backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/50 dark:text-slate-300">
+            Developed by Md.Rokunuzzaman.
+          </footer>
+        </div>
       </div>
     </div>
-  )
+  );
 }

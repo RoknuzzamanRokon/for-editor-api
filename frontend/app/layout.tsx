@@ -29,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(inter.variable, jetbrains.variable, "font-sans")}>
       <body className="min-h-screen bg-background text-foreground">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <div className="app-scale">{children}</div>
+        </ThemeProvider>
       </body>
     </html>
   );

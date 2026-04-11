@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SplashCursor from "@/components/SplashCursor";
 
@@ -88,6 +88,20 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    document.documentElement.classList.add("login-fullscreen");
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.documentElement.classList.remove("login-fullscreen");
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+    };
+  }, []);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
@@ -141,7 +155,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background-light px-4 text-foreground dark:bg-background-dark">
+    <div className="fixed inset-0 overflow-hidden bg-background-light px-4 text-foreground dark:bg-background-dark">
       <SplashCursor />
 
       {/* Liquid background effects (behind card) */}
@@ -152,27 +166,29 @@ function LoginForm() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_36%),radial-gradient(circle_at_80%_60%,rgba(255,255,255,0.06),transparent_32%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.06),transparent_36%),radial-gradient(circle_at_80%_60%,rgba(255,255,255,0.05),transparent_32%)]" />
       </div>
 
-      {/* Navbar */}
-      <nav className="fixed left-0 right-0 top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-card/70 px-6 backdrop-blur-md">
-        <a href="/" className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-2xl text-primary">sync_alt</span>
-          <span className="text-lg font-extrabold tracking-tight text-foreground">
-            ConvertPro <span className="text-primary">API</span>
-          </span>
-        </a>
-        <div className="hidden md:flex items-center gap-6">
-          <a href="/#features" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Features</a>
-          <a href="/pricing" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Pricing</a>
-          <a href="/docs" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Docs</a>
-        </div>
-        <a href="/pricing" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">
-          Get Started
-        </a>
-      </nav>
+      <div className="login-ui h-full w-full">
+        {/* Navbar */}
+        <nav className="fixed left-0 right-0 top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-card/70 px-6 backdrop-blur-md">
+          <a href="/" className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-2xl text-primary">sync_alt</span>
+            <span className="text-lg font-extrabold tracking-tight text-foreground">
+              ConvertPro <span className="text-primary">API</span>
+            </span>
+          </a>
+          <div className="hidden md:flex items-center gap-6">
+            <a href="/#features" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Features</a>
+            <a href="/pricing" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Pricing</a>
+            <a href="/docs" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Docs</a>
+          </div>
+          <a href="/pricing" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">
+            Get Started
+          </a>
+        </nav>
 
-      {/* Liquid glass card */}
-      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl">
-        <div className="p-8">
+        <div className="absolute inset-x-0 bottom-0 top-16 z-10 flex items-center justify-center overflow-hidden">
+          {/* Liquid glass card */}
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl">
+            <div className="p-8">
           {/* Brand header */}
           <div className="mb-8 flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
@@ -313,6 +329,8 @@ function LoginForm() {
             <p className="mt-4 text-xs text-foreground/50">
               Secure login • All data encrypted
             </p>
+          </div>
+            </div>
           </div>
         </div>
       </div>

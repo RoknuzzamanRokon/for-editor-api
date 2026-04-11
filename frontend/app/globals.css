@@ -9,6 +9,8 @@
   --border: #e5e7eb;
   --card: #ffffff;
   --card-hover: #f9fafb;
+  --app-scale: 0.6;
+  --login-ui-scale: 0.72;
   --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
   --font-code: var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
@@ -254,5 +256,70 @@ body {
   }
   html {
     @apply font-sans;
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Global app scaling through root wrapper */
+  .app-scale {
+    width: 100%;
+    min-height: 100vh;
+    zoom: var(--app-scale);
+  }
+
+  /* Login page should be true fullscreen, not app-scaled */
+  html.login-fullscreen .app-scale {
+    zoom: 1 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+  }
+
+  /* Make viewport-height utility classes scale-aware */
+  .app-scale .min-h-screen {
+    min-height: calc(100vh / var(--app-scale));
+  }
+
+  .app-scale .h-screen {
+    height: calc(100vh / var(--app-scale));
+  }
+
+  html.login-fullscreen .app-scale .min-h-screen {
+    min-height: 100vh !important;
+  }
+
+  html.login-fullscreen .app-scale .h-screen {
+    height: 100vh !important;
+  }
+
+  html.login-fullscreen .login-ui {
+    zoom: var(--login-ui-scale);
+    width: calc(100% / var(--login-ui-scale));
+    min-height: calc(100vh / var(--login-ui-scale));
+  }
+
+  /* Fallback for browsers without zoom support */
+  @supports not (zoom: 1) {
+    .app-scale {
+      transform: scale(var(--app-scale));
+      transform-origin: top left;
+      width: calc(100% / var(--app-scale));
+      min-height: calc(100vh / var(--app-scale));
+    }
+
+    html.login-fullscreen .app-scale {
+      transform: none !important;
+      width: 100% !important;
+      min-height: 100vh !important;
+    }
+
+    html.login-fullscreen .login-ui {
+      transform: scale(var(--login-ui-scale));
+      transform-origin: top left;
+      width: calc(100% / var(--login-ui-scale));
+      min-height: calc(100vh / var(--login-ui-scale));
+    }
   }
 }
