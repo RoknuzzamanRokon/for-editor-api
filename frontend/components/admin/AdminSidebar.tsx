@@ -68,15 +68,27 @@ export default function AdminSidebar({
       </nav>
 
       <div className="mt-auto border-t border-slate-200 p-4 dark:border-slate-800">
-        <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
-          <div className="mb-2 flex justify-between text-xs font-bold">
-            {!collapsed ? <span>ADMIN LOAD</span> : null}
+        <div
+          className={`${
+            collapsed
+              ? "mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-primary/15 text-[11px] font-bold text-primary shadow-sm"
+              : "rounded-xl bg-slate-50 p-4 dark:bg-slate-800"
+          }`}
+        >
+          {collapsed ? (
             <span>68%</span>
-          </div>
-          <div className="mb-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
-            <div className="h-1.5 w-[68%] rounded-full bg-primary" />
-          </div>
-          {!collapsed ? <p className="text-[10px] uppercase text-slate-500">Realtime API Monitoring</p> : null}
+          ) : (
+            <>
+              <div className="mb-2 flex justify-between text-xs font-bold">
+                <span>ADMIN LOAD</span>
+                <span>68%</span>
+              </div>
+              <div className="mb-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+                <div className="h-1.5 w-[68%] rounded-full bg-primary" />
+              </div>
+              <p className="text-[10px] uppercase text-slate-500">Realtime API Monitoring</p>
+            </>
+          )}
         </div>
       </div>
     </aside>

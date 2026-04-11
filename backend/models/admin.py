@@ -46,3 +46,42 @@ class AdminCheckUserResponse(BaseModel):
     conversions: AdminCheckUserConversionSummary
     active_apis: List[AdminCheckUserApiEntry]
     api_permissions: List[AdminCheckUserApiEntry]
+
+
+class AdminActiveUserEntry(BaseModel):
+    id: int
+    email: str
+    username: Optional[str] = None
+    role: str
+    is_active: bool
+    created_at: datetime
+    last_login: Optional[datetime] = None
+    last_active_at: Optional[datetime] = None
+    balance: int
+
+
+class AdminActiveUsersResponse(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    items: List[AdminActiveUserEntry]
+
+
+class AdminPointGivingHistoryEntry(BaseModel):
+    id: int
+    user_id: int
+    user_email: str
+    user_username: Optional[str] = None
+    amount: int
+    note: Optional[str] = None
+    created_at: datetime
+    created_by_user_id: Optional[int] = None
+    created_by_email: Optional[str] = None
+    created_by_username: Optional[str] = None
+
+
+class AdminPointGivingHistoryResponse(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    items: List[AdminPointGivingHistoryEntry]

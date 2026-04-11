@@ -1,19 +1,23 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import case, func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 from core.deps import require_role
 from core.permissions import list_allowed_actions
 from core.points import POINTS_COST_PER_REQUEST, get_user_balance
-from db.models import Conversion, PointsLedger, RoleEnum, User, UserConversionPermission
+from db.models import Conversion, PointsLedger, PointsTopup, RoleEnum, User, UserConversionPermission, UserPoints
 from db.session import get_db
 from models.admin import (
     AdminCheckUserApiEntry,
     AdminCheckUserConversionSummary,
     AdminCheckUserPointsSummary,
     AdminCheckUserResponse,
+    AdminActiveUserEntry,
+    AdminActiveUsersResponse,
+    AdminPointGivingHistoryEntry,
+    AdminPointGivingHistoryResponse,
 )
 from services.users import get_user_by_id
 
@@ -56,6 +60,160 @@ API_META: dict[str, dict[str, str]] = {
         "description": "Remove selected pages from PDF",
     },
 }
+
+
+@router.get("/active-users", response_model=AdminActiveUsersResponse)
+def get_active_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+) -> AdminActiveUsersResponse:
+    _ = current_user
+
+    total = db.query(User).filter(User.is_active.is_(True)).count()
+    users = (
+        db.query(User)
+        .filter(User.is_active.is_(True))
+        .order_by(User.created_at.desc(), User.id.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+
+    if not users:
+        return AdminActiveUsersResponse(total=total, limit=limit, offset=offset, items=[])
+
+    user_ids = [user.id for user in users]
+
+    balance_rows = (
+        db.query(UserPoints.user_id, UserPoints.balance)
+        .filter(UserPoints.user_id.in_(user_ids))
+        .all()
+    )
+    balance_map = {row.user_id: int(row.balance or 0) for row in balance_rows}
+
+    points_rows = (
+        db.query(
+            PointsLedger.user_id.label("user_id"),
+            func.max(PointsLedger.created_at).label("last_points_activity_at"),
+        )
+        .filter(PointsLedger.user_id.in_(user_ids))
+        .group_by(PointsLedger.user_id)
+        .all()
+    )
+    points_map = {row.user_id: row.last_points_activity_at for row in points_rows}
+
+    conversion_rows = (
+        db.query(
+            Conversion.owner_user_id.label("user_id"),
+            func.max(Conversion.updated_at).label("last_conversion_at"),
+        )
+        .filter(Conversion.owner_user_id.in_(user_ids))
+        .group_by(Conversion.owner_user_id)
+        .all()
+    )
+    conversion_map = {row.user_id: row.last_conversion_at for row in conversion_rows}
+
+    items: list[AdminActiveUserEntry] = []
+    for user in users:
+        last_active_candidates = [
+            user.last_login,
+            points_map.get(user.id),
+            conversion_map.get(user.id),
+        ]
+        valid_last_active = [item for item in last_active_candidates if isinstance(item, datetime)]
+        last_active_at = max(valid_last_active) if valid_last_active else None
+
+        items.append(
+            AdminActiveUserEntry(
+                id=user.id,
+                email=user.email,
+                username=user.username,
+                role=user.role.value,
+                is_active=bool(user.is_active),
+                created_at=user.created_at,
+                last_login=user.last_login,
+                last_active_at=last_active_at,
+                balance=balance_map.get(user.id, 0),
+            )
+        )
+
+    return AdminActiveUsersResponse(
+        total=total,
+        limit=limit,
+        offset=offset,
+        items=items,
+    )
+
+
+@router.get("/points/giving-history", response_model=AdminPointGivingHistoryResponse)
+def get_points_giving_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    user_id: int | None = Query(None, ge=1),
+    created_by_user_id: int | None = Query(None, ge=1),
+) -> AdminPointGivingHistoryResponse:
+    _ = current_user
+
+    target_user = aliased(User)
+    creator_user = aliased(User)
+
+    base_query = (
+        db.query(
+            PointsTopup.id,
+            PointsTopup.user_id,
+            PointsTopup.amount,
+            PointsTopup.note,
+            PointsTopup.created_at,
+            PointsTopup.created_by_user_id,
+            target_user.email.label("user_email"),
+            target_user.username.label("user_username"),
+            creator_user.email.label("created_by_email"),
+            creator_user.username.label("created_by_username"),
+        )
+        .join(target_user, target_user.id == PointsTopup.user_id)
+        .outerjoin(creator_user, creator_user.id == PointsTopup.created_by_user_id)
+    )
+
+    if user_id is not None:
+        base_query = base_query.filter(PointsTopup.user_id == user_id)
+    if created_by_user_id is not None:
+        base_query = base_query.filter(PointsTopup.created_by_user_id == created_by_user_id)
+
+    total = base_query.count()
+    rows = (
+        base_query
+        .order_by(PointsTopup.created_at.desc(), PointsTopup.id.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+
+    items = [
+        AdminPointGivingHistoryEntry(
+            id=row.id,
+            user_id=row.user_id,
+            user_email=row.user_email,
+            user_username=row.user_username,
+            amount=row.amount,
+            note=row.note,
+            created_at=row.created_at,
+            created_by_user_id=row.created_by_user_id,
+            created_by_email=row.created_by_email,
+            created_by_username=row.created_by_username,
+        )
+        for row in rows
+    ]
+
+    return AdminPointGivingHistoryResponse(
+        total=total,
+        limit=limit,
+        offset=offset,
+        items=items,
+    )
 
 
 @router.get("/check-users/{user_id}", response_model=AdminCheckUserResponse)
