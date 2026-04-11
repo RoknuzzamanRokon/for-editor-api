@@ -7,6 +7,7 @@ const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
   { label: 'Profile', href: '/dashboard/profile', icon: 'person' },
   { label: 'App Center', href: '/dashboard/app-center', icon: 'apps' },
+  { label: 'Billing', href: '/dashboard/billing', icon: 'credit_card' },
 ]
 
 export default function UserSidebar({

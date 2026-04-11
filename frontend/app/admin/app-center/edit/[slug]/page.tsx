@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import * as mammothBrowser from "mammoth/mammoth.browser";
 import AdminShell from "@/components/admin/AdminShell";
 
 const API_BASE =
@@ -148,6 +147,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
 
     if (isDocxFile(nextPreview.mimeType, nextPreview.filename)) {
       try {
+        const mammothBrowser = await import("mammoth/mammoth.browser");
         const arrayBuffer = await blob.arrayBuffer();
         const html = await mammothBrowser.convertToHtml({ arrayBuffer });
         setDocxHtml(html.value || "");

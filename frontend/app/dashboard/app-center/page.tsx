@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
@@ -21,6 +22,7 @@ type MyApiEntry = {
 };
 
 export default function DashboardAppCenterPage() {
+  const router = useRouter();
   const [apis, setApis] = useState<MyApiEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -96,6 +98,12 @@ export default function DashboardAppCenterPage() {
   };
 
   const toEditSlug = (action: string) => action.replaceAll("_", "-");
+
+  useEffect(() => {
+    orderedEndpoints.slice(0, 20).forEach((item) => {
+      router.prefetch(`/dashboard/app-center/edit/${toEditSlug(item.action)}`);
+    });
+  }, [orderedEndpoints, router]);
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-8">

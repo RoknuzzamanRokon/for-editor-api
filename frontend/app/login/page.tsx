@@ -135,62 +135,65 @@ function LoginForm() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-black px-4 overflow-hidden">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background-light px-4 text-foreground dark:bg-background-dark">
       <SplashCursor />
 
+      {/* Liquid background effects (behind card) */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="absolute -left-24 top-24 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
+        <div className="absolute -right-24 top-1/3 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute bottom-[-100px] left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_36%),radial-gradient(circle_at_80%_60%,rgba(255,255,255,0.06),transparent_32%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.06),transparent_36%),radial-gradient(circle_at_80%_60%,rgba(255,255,255,0.05),transparent_32%)]" />
+      </div>
+
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-20 flex h-16 items-center justify-between border-b border-white/10 bg-black/30 px-6 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-blue-400 text-2xl">sync_alt</span>
-          <span className="text-lg font-extrabold tracking-tight text-white">
-            ConvertPro <span className="text-blue-400">API</span>
+      <nav className="fixed left-0 right-0 top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-card/70 px-6 backdrop-blur-md">
+        <a href="/" className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-2xl text-primary">sync_alt</span>
+          <span className="text-lg font-extrabold tracking-tight text-foreground">
+            ConvertPro <span className="text-primary">API</span>
           </span>
-        </div>
+        </a>
         <div className="hidden md:flex items-center gap-6">
-          <a href="/#features" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Features</a>
-          <a href="/pricing" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Pricing</a>
-          <a href="/docs" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Docs</a>
+          <a href="/#features" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Features</a>
+          <a href="/pricing" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Pricing</a>
+          <a href="/docs" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Docs</a>
         </div>
-        <a href="/pricing" className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-colors">
+        <a href="/pricing" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">
           Get Started
         </a>
         <ThemeSwitcher />
       </nav>
 
-      {/* Card with internal background enhancements */}
-      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-md">
-        {/* Subtle internal background pattern / glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/50" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.08),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.08),_transparent_36%)] opacity-70" />
-
-        {/* Content (positioned above background layers) */}
-        <div className="relative p-8">
+      {/* Liquid glass card */}
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl">
+        <div className="p-8">
           {/* Brand header */}
           <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
               <SparklesIcon className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-slate-900">Converter Tools</h2>
-              <p className="text-xs text-slate-500">Professional Suite</p>
+              <h2 className="text-xl font-bold tracking-tight text-foreground">Converter Tools</h2>
+              <p className="text-xs text-foreground/60">Professional Suite</p>
             </div>
           </div>
 
-          <h1 className="text-2xl font-semibold text-slate-800">Welcome back</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold text-foreground">Welcome back</h1>
+          <p className="mt-1 text-sm text-foreground/70">
             Sign in to access your dashboard
           </p>
 
           <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
             {/* Email field */}
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700">Email address</label>
+              <label className="text-sm font-medium text-foreground">Email address</label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <MailIcon className="h-4 w-4 text-slate-400" />
+                  <MailIcon className="h-4 w-4 text-foreground/60" />
                 </div>
                 <input
-                  className="block w-full rounded-xl border border-slate-200 bg-white/80 py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+                  className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
                   type="email"
                   placeholder="you@example.com"
                   required
@@ -203,20 +206,20 @@ function LoginForm() {
             {/* Password field */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-slate-700">Password</label>
+                <label className="text-sm font-medium text-foreground">Password</label>
                 <button
                   type="button"
-                  className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  className="text-xs font-medium text-primary transition-colors hover:text-primary/80"
                 >
                   Forgot password?
                 </button>
               </div>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <LockIcon className="h-4 w-4 text-slate-400" />
+                  <LockIcon className="h-4 w-4 text-foreground/60" />
                 </div>
                 <input
-                  className="block w-full rounded-xl border border-slate-200 bg-white/80 py-2.5 pl-10 pr-10 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+                  className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   required
@@ -226,7 +229,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground/60 transition-colors hover:text-foreground"
                 >
                   {showPassword ? (
                     <EyeOffIcon className="h-4 w-4" />
@@ -242,9 +245,9 @@ function LoginForm() {
               <input
                 id="remember"
                 type="checkbox"
-                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20"
               />
-              <label htmlFor="remember" className="ml-2 block text-sm text-slate-600">
+              <label htmlFor="remember" className="ml-2 block text-sm text-foreground/70">
                 Remember me
               </label>
             </div>
@@ -263,7 +266,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="relative w-full overflow-hidden rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -293,16 +296,16 @@ function LoginForm() {
 
           {/* Footer */}
           <div className="mt-6 text-center">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-foreground/70">
               Don't have an account?{" "}
               <a
                 href="/register"
-                className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                className="font-medium text-primary transition-colors hover:text-primary/80"
               >
                 Create one
               </a>
             </p>
-            <p className="mt-4 text-xs text-slate-400">
+            <p className="mt-4 text-xs text-foreground/50">
               Secure login • All data encrypted
             </p>
           </div>
