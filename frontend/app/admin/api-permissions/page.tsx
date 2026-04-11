@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
+  "http://127.0.0.1:8000";
 
 type ActionItem = {
   action: string;
@@ -59,6 +60,141 @@ type PermissionListResponse = {
   }>;
 };
 
+function formatDate(value?: string | null) {
+  if (!value) return "N/A";
+  return new Date(value).toLocaleString();
+}
+
+function statusBadgeClass(active: boolean) {
+  return active
+    ? "border border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-300"
+    : "border border-rose-200 bg-rose-100 text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/15 dark:text-rose-300";
+}
+
+function GlassSection({
+  title,
+  description,
+  action,
+  children,
+}: {
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
+      <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
+
+      <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              {title}
+            </h3>
+            {description ? (
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                {description}
+              </p>
+            ) : null}
+          </div>
+          {action ? <div>{action}</div> : null}
+        </div>
+      </div>
+
+      <div className="relative p-6">{children}</div>
+    </section>
+  );
+}
+
+function GlassStatCard({
+  title,
+  value,
+  icon,
+  subtext,
+}: {
+  title: string;
+  value: string | number;
+  icon: string;
+  subtext?: string;
+}) {
+  return (
+    <div className="group relative overflow-hidden rounded-[28px] border border-white/40 bg-white/55 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-white/5">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
+      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/15 blur-3xl" />
+
+      <div className="relative">
+        <div className="mb-4 inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+          <span className="material-symbols-outlined">{icon}</span>
+        </div>
+        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+          {title}
+        </p>
+        <p className="mt-2 text-xl font-black tracking-tight text-slate-900 dark:text-white">
+          {value}
+        </p>
+        {subtext ? (
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            {subtext}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function GlassInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      className={`w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition placeholder:text-slate-400 focus:border-primary/30 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-slate-500 ${
+        props.className ?? ""
+      }`}
+    />
+  );
+}
+
+function GlassSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      {...props}
+      className={`w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/30 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white ${
+        props.className ?? ""
+      }`}
+    />
+  );
+}
+
+function InfoTile({
+  label,
+  value,
+  mono = false,
+}: {
+  label: string;
+  value: string | number;
+  mono?: boolean;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/55 px-4 py-3.5 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent" />
+      <div className="relative">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          {label}
+        </p>
+        <p
+          className={`mt-1 text-sm font-semibold text-slate-900 dark:text-white ${
+            mono ? "break-all font-mono text-[13px]" : ""
+          }`}
+        >
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminApiPermissionsPage() {
   const [userIdInput, setUserIdInput] = useState("");
   const [actions, setActions] = useState<ActionItem[]>([]);
@@ -68,6 +204,11 @@ export default function AdminApiPermissionsPage() {
   const [savingAction, setSavingAction] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [actionSearch, setActionSearch] = useState("");
+  const [permissionSearch, setPermissionSearch] = useState("");
+  const [permissionFilter, setPermissionFilter] = useState<
+    "all" | "allowed" | "blocked"
+  >("all");
 
   const getToken = () => {
     const token = localStorage.getItem("access_token");
@@ -93,7 +234,9 @@ export default function AdminApiPermissionsPage() {
       const parsed = JSON.parse(body) as ActionItem[];
       setActions(Array.isArray(parsed) ? parsed : []);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to load action list");
+      setError(
+        err instanceof Error ? err.message : "Failed to load action list",
+      );
     } finally {
       setLoadingActions(false);
     }
@@ -105,10 +248,13 @@ export default function AdminApiPermissionsPage() {
     setSuccess("");
     try {
       const token = getToken();
-      const res = await fetch(`${API_BASE}/api/v3/admin/check-users/${userId}`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API_BASE}/api/v3/admin/check-users/${userId}`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const body = await res.text();
       if (!res.ok) {
         throw new Error(body || "Failed to load user details");
@@ -116,7 +262,9 @@ export default function AdminApiPermissionsPage() {
       setDetails(JSON.parse(body) as UserDetails);
     } catch (err: unknown) {
       setDetails(null);
-      setError(err instanceof Error ? err.message : "Failed to load user details");
+      setError(
+        err instanceof Error ? err.message : "Failed to load user details",
+      );
     } finally {
       setLoadingDetails(false);
     }
@@ -160,13 +308,17 @@ export default function AdminApiPermissionsPage() {
       }
 
       const parsed = JSON.parse(body) as PermissionListResponse;
-      const latestMap = new Map(parsed.permissions.map((p) => [p.action, p.is_allowed]));
+      const latestMap = new Map(
+        parsed.permissions.map((p) => [p.action, p.is_allowed]),
+      );
 
       setDetails((prev) => {
         if (!prev) return prev;
         const nextPermissions = prev.api_permissions.map((p) => ({
           ...p,
-          allowed: latestMap.has(p.action) ? Boolean(latestMap.get(p.action)) : p.allowed,
+          allowed: latestMap.has(p.action)
+            ? Boolean(latestMap.get(p.action))
+            : p.allowed,
         }));
         return {
           ...prev,
@@ -177,7 +329,9 @@ export default function AdminApiPermissionsPage() {
 
       setSuccess(`Permission updated for "${item.action}"`);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to update permission");
+      setError(
+        err instanceof Error ? err.message : "Failed to update permission",
+      );
     } finally {
       setSavingAction(null);
     }
@@ -187,183 +341,447 @@ export default function AdminApiPermissionsPage() {
     return new Map(actions.map((a) => [a.action, a.label]));
   }, [actions]);
 
+  const filteredActions = useMemo(() => {
+    const q = actionSearch.trim().toLowerCase();
+    if (!q) return actions;
+    return actions.filter(
+      (item) =>
+        item.label.toLowerCase().includes(q) ||
+        item.action.toLowerCase().includes(q),
+    );
+  }, [actions, actionSearch]);
+
+  const filteredPermissions = useMemo(() => {
+    if (!details) return [];
+    const q = permissionSearch.trim().toLowerCase();
+
+    return details.api_permissions.filter((item) => {
+      const matchesSearch =
+        !q ||
+        item.label.toLowerCase().includes(q) ||
+        item.action.toLowerCase().includes(q) ||
+        item.route.toLowerCase().includes(q);
+
+      const matchesFilter =
+        permissionFilter === "all" ||
+        (permissionFilter === "allowed" && item.allowed) ||
+        (permissionFilter === "blocked" && !item.allowed);
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [details, permissionSearch, permissionFilter]);
+
+  const permissionStats = useMemo(() => {
+    if (!details) {
+      return { total: 0, allowed: 0, blocked: 0 };
+    }
+    const total = details.api_permissions.length;
+    const allowed = details.api_permissions.filter((p) => p.allowed).length;
+    return {
+      total,
+      allowed,
+      blocked: total - allowed,
+    };
+  }, [details]);
+
   return (
     <AdminShell>
-      <section className="px-8 py-6">
-        <div className="mx-auto max-w-7xl space-y-5">
-          <div>
-            <h1 className="text-3xl font-black tracking-tight">API Permissions</h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Check user details and update API permissions using v3 admin/permissions APIs.
-            </p>
-          </div>
+      <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+        <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-white/40 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
+          <div className="absolute -left-16 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />
+          <div className="absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
 
-          {error ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/60 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                <span className="material-symbols-outlined text-sm">
+                  vpn_key
+                </span>
+                Permissions Control
+              </div>
+
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">
+                API Permissions
+              </h1>
+
+              <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
+                Check user details, inspect permission coverage, and enable or
+                disable conversion APIs with a clean liquid glass admin
+                workflow.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                  Actions
+                </p>
+                <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                  {actions.length}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                  Allowed
+                </p>
+                <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                  {permissionStats.allowed}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                  Blocked
+                </p>
+                <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                  {permissionStats.blocked}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 gap-6 md:grid-cols-4">
+          <GlassStatCard
+            title="Loaded Actions"
+            value={actions.length}
+            icon="list_alt"
+          />
+          <GlassStatCard
+            title="Total Permissions"
+            value={permissionStats.total}
+            icon="rule_settings"
+          />
+          <GlassStatCard
+            title="Enabled APIs"
+            value={permissionStats.allowed}
+            icon="verified"
+          />
+          <GlassStatCard
+            title="Disabled APIs"
+            value={permissionStats.blocked}
+            icon="block"
+          />
+        </section>
+
+        {error ? (
+          <div className="relative overflow-hidden rounded-[28px] border border-rose-200/70 bg-rose-50/80 p-4 shadow-sm backdrop-blur-xl dark:border-rose-900/40 dark:bg-rose-950/20">
+            <div className="flex items-center gap-3 text-sm text-rose-700 dark:text-rose-300">
+              <span className="material-symbols-outlined">error</span>
               {error}
             </div>
-          ) : null}
-          {success ? (
-            <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700">
+          </div>
+        ) : null}
+
+        {success ? (
+          <div className="relative overflow-hidden rounded-[28px] border border-emerald-200/70 bg-emerald-50/80 p-4 shadow-sm backdrop-blur-xl dark:border-emerald-900/40 dark:bg-emerald-950/20">
+            <div className="flex items-center gap-3 text-sm text-emerald-700 dark:text-emerald-300">
+              <span className="material-symbols-outlined">check_circle</span>
               {success}
             </div>
-          ) : null}
+          </div>
+        ) : null}
 
-          <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="min-w-[220px] flex-1">
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
-                  User ID
-                </label>
-                <input
-                  value={userIdInput}
-                  onChange={(e) => setUserIdInput(e.target.value)}
-                  placeholder="e.g. 3"
-                  className="w-full rounded-lg border border-primary/10 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-900"
-                  type="number"
-                />
-              </div>
+        <GlassSection
+          title="Lookup User"
+          description="Enter a user ID and load their permission profile."
+          action={
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={handleLoadUser}
                 disabled={loadingDetails}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                 type="button"
               >
+                <span className="material-symbols-outlined text-base">
+                  manage_search
+                </span>
                 {loadingDetails ? "Loading..." : "Check User"}
               </button>
+
               <button
                 onClick={() => void loadActions()}
                 disabled={loadingActions}
-                className="rounded-lg border border-primary/20 bg-white px-4 py-2 text-sm font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-900 dark:text-slate-100"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/40 bg-white/60 px-5 py-3 text-sm font-bold text-slate-700 shadow-sm backdrop-blur-md transition hover:bg-white/70 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/10 dark:text-slate-100"
                 type="button"
               >
+                <span className="material-symbols-outlined text-base">
+                  refresh
+                </span>
                 {loadingActions ? "Refreshing..." : "Refresh Actions"}
               </button>
             </div>
+          }
+        >
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(220px,320px)_1fr]">
+            <GlassInput
+              value={userIdInput}
+              onChange={(e) => setUserIdInput(e.target.value)}
+              placeholder="Enter user ID, e.g. 3"
+              type="number"
+            />
+
+            <div className="rounded-2xl border border-white/40 bg-white/55 px-4 py-3 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Tip: after loading a user, you can search permissions, filter by
+                allowed state, and toggle access directly from the table below.
+              </p>
+            </div>
           </div>
+        </GlassSection>
 
-          <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-wider">Action List</h2>
-            {loadingActions ? (
-              <p className="text-sm text-slate-500">Loading actions...</p>
-            ) : actions.length === 0 ? (
-              <p className="text-sm text-slate-500">No actions found.</p>
-            ) : (
-              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
-                {actions.map((item) => (
-                  <div key={item.action} className="rounded border border-primary/10 bg-white px-3 py-2 text-sm dark:bg-slate-900">
-                    <p className="font-semibold">{item.label}</p>
-                    <p className="text-xs text-slate-500">{item.action}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {details ? (
-            <>
-              <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-                <h2 className="mb-3 text-sm font-bold uppercase tracking-wider">User Details</h2>
-                <div className="grid grid-cols-1 gap-2 text-sm md:grid-cols-2 lg:grid-cols-3">
-                  <p><span className="font-semibold">ID:</span> {details.id}</p>
-                  <p><span className="font-semibold">Email:</span> {details.email}</p>
-                  <p><span className="font-semibold">Username:</span> {details.username || "-"}</p>
-                  <p><span className="font-semibold">Role:</span> {details.role}</p>
-                  <p><span className="font-semibold">Position:</span> {details.position}</p>
-                  <p><span className="font-semibold">Status:</span> {details.is_active ? "Active" : "Inactive"}</p>
-                  <p><span className="font-semibold">Created:</span> {new Date(details.created_at).toLocaleString()}</p>
-                  <p><span className="font-semibold">Last Login:</span> {details.last_login ? new Date(details.last_login).toLocaleString() : "N/A"}</p>
-                  <p><span className="font-semibold">Last Active:</span> {details.last_active_at ? new Date(details.last_active_at).toLocaleString() : "N/A"}</p>
+        <GlassSection
+          title="Action List"
+          description="Available permission actions from /api/v3/permissions/actions"
+          action={
+            <div className="w-full md:w-[320px]">
+              <GlassInput
+                value={actionSearch}
+                onChange={(e) => setActionSearch(e.target.value)}
+                placeholder="Search action or label..."
+                type="text"
+              />
+            </div>
+          }
+        >
+          {loadingActions ? (
+            <div className="rounded-2xl border border-white/40 bg-white/50 p-6 text-sm text-slate-500 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
+              Loading actions...
+            </div>
+          ) : filteredActions.length === 0 ? (
+            <div className="rounded-2xl border border-white/40 bg-white/50 p-6 text-sm text-slate-500 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
+              No actions found.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {filteredActions.map((item) => (
+                <div
+                  key={item.action}
+                  className="rounded-2xl border border-white/40 bg-white/55 p-4 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5"
+                >
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">
+                    {item.label}
+                  </p>
+                  <p className="mt-1 break-all text-xs text-slate-500 dark:text-slate-400">
+                    {item.action}
+                  </p>
                 </div>
-              </div>
+              ))}
+            </div>
+          )}
+        </GlassSection>
 
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-                  <h3 className="mb-2 text-sm font-bold uppercase tracking-wider">Points</h3>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-semibold">Balance:</span> {details.points.balance}</p>
-                    <p><span className="font-semibold">Topup:</span> {details.points.total_topup}</p>
-                    <p><span className="font-semibold">Spent:</span> {details.points.total_spent}</p>
-                    <p><span className="font-semibold">Refunded:</span> {details.points.total_refunded}</p>
-                    <p><span className="font-semibold">Last Activity:</span> {details.points.last_points_activity_at ? new Date(details.points.last_points_activity_at).toLocaleString() : "N/A"}</p>
+        {details ? (
+          <>
+            <GlassSection
+              title="User Details"
+              description="Identity and activity data for the selected user."
+            >
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <InfoTile label="ID" value={details.id} />
+                <InfoTile label="Email" value={details.email} mono />
+                <InfoTile label="Username" value={details.username || "-"} />
+                <InfoTile label="Role" value={details.role} />
+                <InfoTile label="Position" value={details.position} />
+                <InfoTile
+                  label="Status"
+                  value={details.is_active ? "Active" : "Inactive"}
+                />
+                <InfoTile
+                  label="Created"
+                  value={formatDate(details.created_at)}
+                />
+                <InfoTile
+                  label="Last Login"
+                  value={formatDate(details.last_login)}
+                />
+                <InfoTile
+                  label="Last Active"
+                  value={formatDate(details.last_active_at)}
+                />
+              </div>
+            </GlassSection>
+
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <GlassSection
+                title="Points Summary"
+                description="Wallet and points activity."
+              >
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <InfoTile label="Balance" value={details.points.balance} />
+                  <InfoTile label="Topup" value={details.points.total_topup} />
+                  <InfoTile label="Spent" value={details.points.total_spent} />
+                  <InfoTile
+                    label="Refunded"
+                    value={details.points.total_refunded}
+                  />
+                  <InfoTile
+                    label="Last Activity"
+                    value={formatDate(details.points.last_points_activity_at)}
+                  />
+                </div>
+              </GlassSection>
+
+              <GlassSection
+                title="Conversion Summary"
+                description="Usage and conversion health."
+              >
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <InfoTile label="Total" value={details.conversions.total} />
+                  <InfoTile
+                    label="Success"
+                    value={details.conversions.success}
+                  />
+                  <InfoTile label="Failed" value={details.conversions.failed} />
+                  <InfoTile
+                    label="Processing"
+                    value={details.conversions.processing}
+                  />
+                  <InfoTile
+                    label="Last Conversion"
+                    value={formatDate(details.conversions.last_conversion_at)}
+                  />
+                </div>
+              </GlassSection>
+            </div>
+
+            <GlassSection
+              title={`API Permissions (${details.api_permissions.length})`}
+              description="Search, filter, and toggle permissions for this user."
+              action={
+                <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row">
+                  <div className="w-full lg:w-[260px]">
+                    <GlassInput
+                      value={permissionSearch}
+                      onChange={(e) => setPermissionSearch(e.target.value)}
+                      placeholder="Search permission..."
+                      type="text"
+                    />
+                  </div>
+                  <div className="w-full lg:w-[180px]">
+                    <GlassSelect
+                      value={permissionFilter}
+                      onChange={(e) =>
+                        setPermissionFilter(
+                          e.target.value as "all" | "allowed" | "blocked",
+                        )
+                      }
+                    >
+                      <option value="all">All</option>
+                      <option value="allowed">Allowed only</option>
+                      <option value="blocked">Blocked only</option>
+                    </GlassSelect>
                   </div>
                 </div>
-
-                <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-                  <h3 className="mb-2 text-sm font-bold uppercase tracking-wider">Conversions</h3>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-semibold">Total:</span> {details.conversions.total}</p>
-                    <p><span className="font-semibold">Success:</span> {details.conversions.success}</p>
-                    <p><span className="font-semibold">Failed:</span> {details.conversions.failed}</p>
-                    <p><span className="font-semibold">Processing:</span> {details.conversions.processing}</p>
-                    <p><span className="font-semibold">Last Conversion:</span> {details.conversions.last_conversion_at ? new Date(details.conversions.last_conversion_at).toLocaleString() : "N/A"}</p>
-                  </div>
-                </div>
+              }
+            >
+              <div className="mb-4 flex flex-wrap gap-2">
+                <span className="rounded-full border border-white/40 bg-white/60 px-3 py-1 text-xs font-semibold text-slate-700 backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-200">
+                  Total: {permissionStats.total}
+                </span>
+                <span className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-300">
+                  Allowed: {permissionStats.allowed}
+                </span>
+                <span className="rounded-full border border-rose-200 bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/15 dark:text-rose-300">
+                  Blocked: {permissionStats.blocked}
+                </span>
               </div>
 
-              <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-                <h3 className="mb-2 text-sm font-bold uppercase tracking-wider">
-                  API Permissions ({details.api_permissions.length})
-                </h3>
+              <div className="overflow-hidden rounded-[24px] border border-white/40 bg-white/45 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
-                    <thead className="text-xs uppercase tracking-wider text-slate-500">
+                    <thead className="bg-white/50 text-xs uppercase tracking-[0.16em] text-slate-500 backdrop-blur-md dark:bg-white/5 dark:text-slate-400">
                       <tr>
-                        <th className="px-3 py-2">API</th>
-                        <th className="px-3 py-2">Allowed</th>
-                        <th className="px-3 py-2">Points</th>
-                        <th className="px-3 py-2">Success Rate</th>
-                        <th className="px-3 py-2">Last Used</th>
-                        <th className="px-3 py-2 text-right">Action</th>
+                        <th className="px-4 py-4">API</th>
+                        <th className="px-4 py-4">Allowed</th>
+                        <th className="px-4 py-4">Points</th>
+                        <th className="px-4 py-4">Success Rate</th>
+                        <th className="px-4 py-4">Last Used</th>
+                        <th className="px-4 py-4 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-primary/10">
-                      {details.api_permissions.map((item) => (
-                        <tr key={item.action}>
-                          <td className="px-3 py-2 text-sm">
-                            <p className="font-semibold">{actionLookup.get(item.action) || item.label}</p>
-                            <p className="text-xs text-slate-500">{item.action}</p>
-                          </td>
-                          <td className="px-3 py-2 text-sm">
-                            <span
-                              className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
-                                item.allowed
-                                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                  : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                              }`}
-                            >
-                              {item.allowed ? "Yes" : "No"}
-                            </span>
-                          </td>
-                          <td className="px-3 py-2 text-sm">{item.points}</td>
-                          <td className="px-3 py-2 text-sm">{item.success_rate.toFixed(1)}%</td>
-                          <td className="px-3 py-2 text-sm">
-                            {item.last_used_at ? new Date(item.last_used_at).toLocaleString() : "Never"}
-                          </td>
-                          <td className="px-3 py-2 text-right">
-                            <button
-                              onClick={() => void handleTogglePermission(item)}
-                              disabled={savingAction === item.action}
-                              className="rounded-lg border border-primary/20 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-900 dark:text-slate-100"
-                              type="button"
-                            >
-                              {savingAction === item.action
-                                ? "Saving..."
-                                : item.allowed
-                                  ? "Disable"
-                                  : "Enable"}
-                            </button>
+
+                    <tbody className="divide-y divide-white/30 dark:divide-white/10">
+                      {filteredPermissions.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={6}
+                            className="px-4 py-8 text-sm text-slate-500 dark:text-slate-400"
+                          >
+                            No permissions match your current filters.
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        filteredPermissions.map((item) => (
+                          <tr
+                            key={item.action}
+                            className="transition hover:bg-white/30 dark:hover:bg-white/5"
+                          >
+                            <td className="px-4 py-4 text-sm">
+                              <p className="font-semibold text-slate-900 dark:text-white">
+                                {actionLookup.get(item.action) || item.label}
+                              </p>
+                              <p className="mt-1 break-all text-xs text-slate-500 dark:text-slate-400">
+                                {item.action}
+                              </p>
+                              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                                {item.method} {item.route}
+                              </p>
+                            </td>
+
+                            <td className="px-4 py-4 text-sm">
+                              <span
+                                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(
+                                  item.allowed,
+                                )}`}
+                              >
+                                {item.allowed ? "Yes" : "No"}
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
+                              {item.points}
+                            </td>
+
+                            <td className="px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
+                              {item.success_rate.toFixed(1)}%
+                            </td>
+
+                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">
+                              {formatDate(item.last_used_at)}
+                            </td>
+
+                            <td className="px-4 py-4 text-right">
+                              <button
+                                onClick={() =>
+                                  void handleTogglePermission(item)
+                                }
+                                disabled={savingAction === item.action}
+                                className="inline-flex items-center gap-2 rounded-2xl border border-white/40 bg-white/60 px-4 py-2 text-xs font-bold text-slate-700 shadow-sm backdrop-blur-md transition hover:bg-white/70 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/10 dark:text-slate-100"
+                                type="button"
+                              >
+                                <span className="material-symbols-outlined text-sm">
+                                  {item.allowed ? "toggle_off" : "toggle_on"}
+                                </span>
+                                {savingAction === item.action
+                                  ? "Saving..."
+                                  : item.allowed
+                                    ? "Disable"
+                                    : "Enable"}
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
               </div>
-            </>
-          ) : null}
-        </div>
-      </section>
+            </GlassSection>
+          </>
+        ) : null}
+      </div>
     </AdminShell>
   );
 }
