@@ -9,11 +9,15 @@ const navItems = [
   { label: 'App Center', href: '/dashboard/app-center', icon: 'apps' },
 ]
 
-export default function UserSidebar() {
+export default function UserSidebar({ collapsed = false }: { collapsed?: boolean }) {
   const pathname = usePathname()
 
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-72 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+    <aside
+      className={`fixed left-0 top-0 z-40 flex h-screen w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 ${
+        collapsed ? "-translate-x-full" : "translate-x-0"
+      }`}
+    >
       <div className="flex items-center gap-3 p-6">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
           <span className="material-symbols-outlined">sync_alt</span>

@@ -13,11 +13,15 @@ const navItems = [
   { label: 'Settings', href: '/admin/settings', icon: 'settings' },
 ]
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ collapsed = false }: { collapsed?: boolean }) {
   const pathname = usePathname()
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r border-primary/10 bg-white dark:bg-slate-900">
+    <aside
+      className={`flex shrink-0 flex-col border-r border-primary/10 bg-white transition-all duration-300 dark:bg-slate-900 ${
+        collapsed ? "w-0 -translate-x-full overflow-hidden border-r-0" : "w-64 translate-x-0"
+      }`}
+    >
       <div className="flex items-center gap-3 p-6">
         <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-white">
           <span className="material-symbols-outlined text-xl">token</span>

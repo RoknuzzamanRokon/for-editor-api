@@ -2,10 +2,24 @@
 
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher'
 
-export default function AdminHeader() {
+export default function AdminHeader({
+  sidebarCollapsed = false,
+  onToggleSidebar,
+}: {
+  sidebarCollapsed?: boolean;
+  onToggleSidebar: () => void;
+}) {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-primary/10 bg-white px-8 dark:bg-slate-900">
       <div className="flex w-full max-w-2xl items-center">
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="mr-3 rounded-lg p-2 text-slate-600 hover:bg-primary/10 dark:text-slate-400"
+          title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
         <div className="relative w-full">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
           <input

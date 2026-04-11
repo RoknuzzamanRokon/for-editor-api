@@ -7,7 +7,13 @@ import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
 
-export default function UserHeader() {
+export default function UserHeader({
+  sidebarCollapsed = false,
+  onToggleSidebar,
+}: {
+  sidebarCollapsed?: boolean;
+  onToggleSidebar: () => void;
+}) {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [user, setUser] = useState<{ full_name?: string; email?: string; role?: string } | null>(null);
@@ -20,9 +26,9 @@ export default function UserHeader() {
     fetch(`${API_BASE}/api/v2/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.json())
-      .then(data => setUser(data))
-      .catch(err => console.error("Failed to fetch user:", err));
+      .then((res) => res.json())
+      .then((data) => setUser(data))
+      .catch((err) => console.error("Failed to fetch user:", err));
   }, []);
 
   useEffect(() => {
@@ -43,8 +49,20 @@ export default function UserHeader() {
   };
 
   return (
-    <header className="fixed left-72 right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-8 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80">
+    <header
+      className={`fixed right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-8 backdrop-blur-md transition-[left] duration-300 dark:border-slate-800 dark:bg-slate-900/80 ${
+        sidebarCollapsed ? "left-0" : "left-72"
+      }`}
+    >
       <div className="flex items-center gap-4">
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+          title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
         <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
           Admin Plan
         </span>
@@ -71,8 +89,8 @@ export default function UserHeader() {
           <div className="relative" ref={menuRef}>
             <button
               type="button"
-              onClick={() => setShowMenu(prev => !prev)}
-              className="h-10 w-10 overflow-hidden rounded-full border-2 border-slate-100 bg-slate-200 dark:border-slate-800 hover:ring-2 hover:ring-primary/30 transition-all"
+              onClick={() => setShowMenu((prev) => !prev)}
+              className="h-10 w-10 overflow-hidden rounded-full border-2 border-slate-100 bg-slate-200 transition-all hover:ring-2 hover:ring-primary/30 dark:border-slate-800"
             >
               <img
                 alt="User Profile"
@@ -82,16 +100,16 @@ export default function UserHeader() {
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900 z-50">
-                <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-                  <p className="text-sm font-bold truncate">{user?.full_name || user?.email || "User"}</p>
-                  <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                  <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-1">{user?.role || "Admin"}</p>
+              <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                <div className="border-b border-slate-200 p-4 dark:border-slate-800">
+                  <p className="truncate text-sm font-bold">{user?.full_name || user?.email || "User"}</p>
+                  <p className="truncate text-xs text-slate-500">{user?.email}</p>
+                  <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-slate-400">{user?.role || "Admin"}</p>
                 </div>
                 <div className="p-2">
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-medium"
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
                   >
                     <span className="material-symbols-outlined text-lg">logout</span>
                     <span>Logout</span>
