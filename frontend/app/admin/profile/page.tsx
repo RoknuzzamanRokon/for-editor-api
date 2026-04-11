@@ -21,7 +21,7 @@ function formatDate(value?: string | null) {
   return new Date(value).toLocaleString();
 }
 
-function StatCard({
+function GlassStatCard({
   title,
   value,
   icon,
@@ -31,12 +31,49 @@ function StatCard({
   icon: string;
 }) {
   return (
-    <div className="rounded-2xl border border-primary/10 bg-primary/5 p-5 shadow-sm">
-      <div className="mb-3 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
-        <span className="material-symbols-outlined">{icon}</span>
+    <div className="group relative overflow-hidden rounded-[28px] border border-white/40 bg-white/55 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-white/5">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
+      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/15 blur-3xl" />
+      <div className="relative">
+        <div className="mb-4 inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+          <span className="material-symbols-outlined">{icon}</span>
+        </div>
+
+        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+          {title}
+        </p>
+        <p className="mt-2 text-xl font-black tracking-tight text-slate-900 dark:text-white">
+          {value}
+        </p>
       </div>
-      <p className="text-xs uppercase tracking-wider text-slate-500">{title}</p>
-      <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">{value}</p>
+    </div>
+  );
+}
+
+function GlassInfoRow({
+  label,
+  value,
+  mono = false,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/55 px-4 py-3.5 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent" />
+      <div className="relative">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          {label}
+        </p>
+        <p
+          className={`mt-1 text-sm font-semibold text-slate-900 dark:text-white ${
+            mono ? "break-all font-mono text-[13px]" : ""
+          }`}
+        >
+          {value}
+        </p>
+      </div>
     </div>
   );
 }
@@ -78,90 +115,142 @@ export default function AdminProfilePage() {
   return (
     <AdminShell>
       <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
-        <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-8 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-950">
-          <div className="absolute right-0 top-0 h-28 w-28 translate-x-6 -translate-y-6 rounded-full bg-primary/10 blur-3xl" />
-          <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-                <span className="material-symbols-outlined text-4xl">person</span>
+        <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-white/40 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
+          <div className="absolute -left-16 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />
+          <div className="absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
+
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-[28px] border border-white/40 bg-white/60 text-primary shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
+                <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-primary/15 via-transparent to-transparent" />
+                <span className="material-symbols-outlined relative text-4xl">
+                  admin_panel_settings
+                </span>
               </div>
+
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/60 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                  <span className="material-symbols-outlined text-sm">
+                    shield
+                  </span>
                   Admin Profile
-                </p>
-                <h1 className="mt-1 text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+                </div>
+
+                <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">
                   {displayName}
                 </h1>
-                <p className="mt-1 text-sm text-slate-500">
-                  Manage your admin account details and status.
+
+                <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
+                  Manage your admin identity, account status, and profile
+                  details with a polished liquid glass interface that follows
+                  your current theme color.
                 </p>
               </div>
             </div>
+
+            {!loading && !error && me ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Role
+                  </p>
+                  <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                    {me.role}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Status
+                  </p>
+                  <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                    {me.is_active ? "Active" : "Inactive"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Joined
+                  </p>
+                  <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                    {new Date(me.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ) : null}
           </div>
         </section>
 
         {loading ? (
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
-            Loading profile...
+          <div className="relative overflow-hidden rounded-[28px] border border-white/40 bg-white/55 p-6 shadow-[0_12px_32px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
+            <div className="relative flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+              <span className="material-symbols-outlined animate-pulse text-primary">
+                progress_activity
+              </span>
+              Loading profile...
+            </div>
           </div>
         ) : null}
 
         {error ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
-            {error}
+          <div className="relative overflow-hidden rounded-[28px] border border-rose-200/70 bg-rose-50/80 p-6 shadow-sm backdrop-blur-xl dark:border-rose-900/40 dark:bg-rose-950/20">
+            <div className="flex items-center gap-3 text-sm text-rose-700 dark:text-rose-300">
+              <span className="material-symbols-outlined">error</span>
+              {error}
+            </div>
           </div>
         ) : null}
 
         {!loading && !error && me ? (
           <>
             <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <StatCard title="Role" value={me.role} icon="badge" />
-              <StatCard
+              <GlassStatCard title="Role" value={me.role} icon="badge" />
+              <GlassStatCard
                 title="Status"
                 value={me.is_active ? "Active" : "Inactive"}
                 icon="verified_user"
               />
-              <StatCard
+              <GlassStatCard
                 title="Member Since"
                 value={new Date(me.created_at).toLocaleDateString()}
                 icon="calendar_month"
               />
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <h2 className="text-lg font-bold">Account Details</h2>
-              <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Full Name / Username
-                  </p>
-                  <div className="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium dark:border-slate-800 dark:bg-slate-800/50">
-                    {me.username || "Not set"}
+            <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
+              <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
+
+              <div className="relative">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                    <span className="material-symbols-outlined">person</span>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                      Account Details
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Administrative identity and account metadata
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Email
-                  </p>
-                  <div className="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium dark:border-slate-800 dark:bg-slate-800/50">
-                    {me.email}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Role
-                  </p>
-                  <div className="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium uppercase dark:border-slate-800 dark:bg-slate-800/50">
-                    {me.role}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Created At
-                  </p>
-                  <div className="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium dark:border-slate-800 dark:bg-slate-800/50">
-                    {formatDate(me.created_at)}
-                  </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <GlassInfoRow
+                    label="Full Name / Username"
+                    value={me.username || "Not set"}
+                  />
+                  <GlassInfoRow label="Email" value={me.email} mono />
+                  <GlassInfoRow label="Role" value={me.role.toUpperCase()} />
+                  <GlassInfoRow
+                    label="Created At"
+                    value={formatDate(me.created_at)}
+                  />
                 </div>
               </div>
             </section>
