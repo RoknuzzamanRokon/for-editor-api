@@ -1,22 +1,34 @@
 from datetime import datetime, timedelta
 
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only
 
 from core.config import settings
 from core.security import (
     TokenError,
     create_access_token,
-    create_refresh_token,
+    create_refresh_token_with_jti,
     safe_decode_token,
     verify_password,
 )
 from db.models import RefreshToken, User
-from services.users import get_user_by_email, get_user_by_id
+from services.users import get_user_by_id
 
 
 def authenticate_user(db: Session, email: str, password: str) -> User:
-    user = get_user_by_email(db, email)
+    user = (
+        db.query(User)
+        .options(
+            load_only(
+                User.id,
+                User.email,
+                User.hashed_password,
+                User.is_active,
+            )
+        )
+        .filter(User.email == email)
+        .first()
+    )
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     if not user.is_active:
@@ -26,22 +38,8 @@ def authenticate_user(db: Session, email: str, password: str) -> User:
 
 def create_token_pair(db: Session, user: User) -> tuple[str, str]:
     access_token = create_access_token(subject=str(user.id))
-    refresh_expires = datetime.utcnow() + timedelta(days=settings.refresh_token_expire_days)
-    refresh_token = create_refresh_token(subject=str(user.id))
-
-    payload = safe_decode_token(refresh_token)
-    token_jti = payload.get("jti")
-    if not token_jti:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Refresh token invalid")
-
-    refresh_row = RefreshToken(
-        user_id=user.id,
-        token_jti=token_jti,
-        revoked=False,
-        expires_at=refresh_expires,
-    )
-    db.add(refresh_row)
-    db.commit()
+    refresh_token, token_jti = create_refresh_token_with_jti(subject=str(user.id))
+    _ = (db, token_jti)  # Keep signature compatibility; refresh token is stateless for faster login.
 
     return access_token, refresh_token
 
@@ -61,10 +59,13 @@ def refresh_access_token(db: Session, refresh_token: str) -> str:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
     token_row = db.query(RefreshToken).filter(RefreshToken.token_jti == token_jti).first()
-    if not token_row or token_row.revoked:
+    # Stateless-first refresh token validation:
+    # - If a DB row exists and revoked, reject.
+    # - If no row exists, rely on JWT signature/exp checks.
+    if token_row and token_row.revoked:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token revoked")
 
-    if token_row.expires_at < datetime.utcnow():
+    if token_row and token_row.expires_at < datetime.utcnow():
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired")
 
     user = get_user_by_id(db, int(subject))

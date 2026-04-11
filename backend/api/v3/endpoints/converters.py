@@ -4,7 +4,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, Response, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, Request, Response, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session, load_only
 
@@ -19,7 +19,7 @@ from core.points import (
     refund_points,
 )
 from db.models import Conversion, RoleEnum, User
-from db.session import get_db
+from db.session import SessionLocal, get_db
 from models.conversions import ConversionCreateResponse, ConversionHistoryItem, ConversionHistoryResponse
 from services.docx_to_pdf_converter import DOCXToPDFConverterService
 from services.excel_to_pdf_converter import ExcelToPDFConverterService
@@ -117,6 +117,88 @@ def _create_conversion_row(db: Session, user: User, action: str, input_filename:
     db.commit()
     db.refresh(conversion)
     return conversion
+
+
+def _process_pdf_to_word_background(
+    conversion_id: int,
+    user_id: int,
+    is_super_user: bool,
+    request_id: str,
+    pdf_bytes: bytes,
+) -> None:
+    db = SessionLocal()
+    temp_pdf_path: Optional[str] = None
+    try:
+        conversion = db.query(Conversion).filter(Conversion.id == conversion_id).first()
+        if not conversion:
+            return
+
+        _, output_path = _new_private_output(pdf_to_docs_file_manager, ".docx")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
+            temp_pdf.write(pdf_bytes)
+            temp_pdf_path = temp_pdf.name
+
+        success, error_msg = pdf_to_docs_converter.convert_pdf_to_docx(temp_pdf_path, output_path)
+        if not success:
+            if not is_super_user:
+                refund_points(db, user_id, "pdf_to_docs", request_id)
+            conversion.status = "failed"
+            conversion.error_message = error_msg or "Conversion failed"
+            conversion.points_charged = 0
+            db.commit()
+
+            if not is_super_user:
+                failure_result = ConversionCreateResponse(
+                    conversion_id=conversion.id,
+                    status="failed",
+                    download_url=None,
+                    points_charged=0,
+                    remaining_balance=get_user_balance(db, user_id),
+                )
+                record_conversion_result(
+                    db,
+                    user_id,
+                    "pdf_to_docs",
+                    request_id,
+                    failure_result.model_dump(),
+                )
+            return
+
+        points_charged = POINTS_COST_PER_REQUEST if not is_super_user else 0
+        conversion.status = "success"
+        conversion.output_filename = output_path
+        conversion.error_message = None
+        conversion.points_charged = points_charged
+        db.commit()
+
+        if not is_super_user:
+            success_result = ConversionCreateResponse(
+                conversion_id=conversion.id,
+                status="success",
+                download_url=f"/api/v3/conversions/{conversion.id}/download",
+                points_charged=points_charged,
+                remaining_balance=get_user_balance(db, user_id),
+            )
+            record_conversion_result(
+                db,
+                user_id,
+                "pdf_to_docs",
+                request_id,
+                success_result.model_dump(),
+            )
+    except Exception as exc:
+        conversion = db.query(Conversion).filter(Conversion.id == conversion_id).first()
+        if conversion:
+            if not is_super_user:
+                refund_points(db, user_id, "pdf_to_docs", request_id)
+            conversion.status = "failed"
+            conversion.error_message = str(exc)
+            conversion.points_charged = 0
+            db.commit()
+    finally:
+        if temp_pdf_path and os.path.exists(temp_pdf_path):
+            os.unlink(temp_pdf_path)
+        db.close()
 
 
 def _query_owned_conversion(db: Session, current_user: User, conversion_id: int) -> Conversion:
@@ -424,6 +506,7 @@ async def upload_pdf(
 async def upload_pdf_for_docs(
     request: Request,
     response: Response,
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -431,7 +514,6 @@ async def upload_pdf_for_docs(
     action = "pdf_to_docs"
     charge_result = None
     conversion: Optional[Conversion] = None
-    temp_pdf_path: Optional[str] = None
 
     try:
         is_valid, error_message = await pdf_to_docs_file_manager.validate_pdf_file(file)
@@ -446,7 +528,6 @@ async def upload_pdf_for_docs(
         if early_response:
             return early_response
 
-        _, output_path = _new_private_output(pdf_to_docs_file_manager, ".docx")
         conversion = _create_conversion_row(
             db,
             current_user,
@@ -455,46 +536,25 @@ async def upload_pdf_for_docs(
             charge_result.request_id,
         )
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
-            temp_pdf.write(content)
-            temp_pdf_path = temp_pdf.name
-
-        success, error_msg = pdf_to_docs_converter.convert_pdf_to_docx(temp_pdf_path, output_path)
-        if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
-            conversion.status = "failed"
-            conversion.error_message = error_msg or "Conversion failed"
-            conversion.points_charged = 0
-            db.commit()
-
-            result = ConversionCreateResponse(
-                conversion_id=conversion.id,
-                status="failed",
-                download_url=None,
-                points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
-            )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
-            return result
-
         points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
-        conversion.status = "success"
-        conversion.output_filename = output_path
-        conversion.error_message = None
-        conversion.points_charged = points_charged
-        db.commit()
-
         result = ConversionCreateResponse(
             conversion_id=conversion.id,
-            status="success",
-            download_url=f"/api/v3/conversions/{conversion.id}/download",
+            status="processing",
+            download_url=None,
             points_charged=points_charged,
             remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
         )
         if current_user.role != RoleEnum.super_user:
             record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+
+        background_tasks.add_task(
+            _process_pdf_to_word_background,
+            conversion.id,
+            current_user.id,
+            current_user.role == RoleEnum.super_user,
+            charge_result.request_id,
+            content,
+        )
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
@@ -507,9 +567,6 @@ async def upload_pdf_for_docs(
             conversion.points_charged = 0
             db.commit()
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(exc)}")
-    finally:
-        if temp_pdf_path and os.path.exists(temp_pdf_path):
-            os.unlink(temp_pdf_path)
 
 
 @router.post("/docx-to-pdf", response_model=ConversionCreateResponse)

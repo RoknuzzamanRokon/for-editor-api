@@ -8,6 +8,22 @@ from jose import JWTError, jwt
 from core.config import settings
 
 
+def _warmup_bcrypt() -> None:
+    """
+    Prime bcrypt internals during startup so first login request is faster.
+    """
+    try:
+        probe = b"warmup"
+        probe_hash = bcrypt.hashpw(probe, bcrypt.gensalt(rounds=4))
+        bcrypt.checkpw(probe, probe_hash)
+    except Exception:
+        # Never block startup on warmup failure.
+        pass
+
+
+_warmup_bcrypt()
+
+
 def get_password_hash(password: str) -> str:
     """Hash a password using bcrypt."""
     password_bytes = password.encode('utf-8')
@@ -45,6 +61,14 @@ def create_refresh_token(subject: str, jti: str | None = None, expires_delta: ti
         "iat": datetime.utcnow(),
     }
     return jwt.encode(to_encode, settings.secret_key, algorithm=settings.jwt_algorithm)
+
+
+def create_refresh_token_with_jti(
+    subject: str, expires_delta: timedelta | None = None
+) -> tuple[str, str]:
+    token_jti = str(uuid4())
+    token = create_refresh_token(subject=subject, jti=token_jti, expires_delta=expires_delta)
+    return token, token_jti
 
 
 def decode_token(token: str) -> Dict[str, Any]:
