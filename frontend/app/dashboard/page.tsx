@@ -1,73 +1,190 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+
+type DashboardOverviewResponse = {
+  user: {
+    id: number;
+    email: string;
+    username: string | null;
+    role: string;
+    is_active: boolean;
+    created_at: string;
+  };
+  summary: {
+    monthly_requests: number;
+    remaining_points: number;
+    success_rate: number;
+    avg_latency_ms: number | null;
+    total_conversions: number;
+    success_conversions: number;
+    failed_conversions: number;
+    processing_conversions: number;
+    active_api_count: number;
+  };
+  performance_30_days: Array<{
+    date: string;
+    total: number;
+    success: number;
+    failed: number;
+    processing: number;
+  }>;
+  active_apis: Array<{
+    action: string;
+    label: string;
+    route: string;
+    method: string;
+    points: number;
+    last_used_at: string | null;
+    success_rate: number;
+    description: string;
+  }>;
+  recent_history: Array<{
+    id: number;
+    action: string;
+    endpoint: string;
+    status: string;
+    input_filename: string;
+    points_charged: number;
+    duration_ms: number | null;
+    created_at: string;
+    updated_at: string;
+    download_url: string | null;
+  }>;
+};
+
+function formatDate(value?: string | null) {
+  if (!value) return "-";
+  return new Date(value).toLocaleString();
+}
+
+function formatDuration(durationMs?: number | null) {
+  if (durationMs == null) return "-";
+  if (durationMs < 1000) return `${durationMs}ms`;
+  return `${(durationMs / 1000).toFixed(1)}s`;
+}
+
+function getStatusBadge(status: string) {
+  const value = status.toLowerCase();
+  if (value === "success") {
+    return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
+  }
+  if (value === "processing") {
+    return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+  }
+  if (value === "failed") {
+    return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+  }
+  return "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
+}
+
 export default function DashboardPage() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [overview, setOverview] = useState<DashboardOverviewResponse | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setError("No access token found");
+      setLoading(false);
+      return;
+    }
+
+    fetch(`${API_BASE}/api/v3/dashboard/overview`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(async (res) => {
+        const bodyText = await res.text();
+        if (!res.ok) {
+          throw new Error(bodyText || "Failed to load dashboard overview");
+        }
+        return JSON.parse(bodyText) as DashboardOverviewResponse;
+      })
+      .then((data) => {
+        setOverview(data);
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : "Failed to load dashboard overview");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const displayName = useMemo(() => {
+    if (!overview) return "User";
+    return overview.user.username || overview.user.email;
+  }, [overview]);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl p-8">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+          Loading dashboard...
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !overview) {
+    return (
+      <div className="mx-auto max-w-7xl p-8">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-300">
+          {error || "Dashboard data not available"}
+        </div>
+      </div>
+    );
+  }
+
+  const maxTotal = Math.max(...overview.performance_30_days.map((item) => item.total), 1);
+
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-8">
       <div>
-        <h2 className="text-3xl font-extrabold tracking-tight">Welcome back, Alex</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight">Welcome back, {displayName}</h2>
         <p className="mt-1 text-slate-500">Here is what's happening with your API integrations today.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-4 flex items-start justify-between">
-            <span className="rounded-lg bg-primary/10 p-2 text-primary">
-              <span className="material-symbols-outlined">api</span>
-            </span>
-            <span className="flex items-center gap-1 text-xs font-bold text-emerald-500">
-              <span className="material-symbols-outlined text-xs">trending_up</span>
-              +12%
-            </span>
-          </div>
           <p className="text-sm font-medium text-slate-500">Monthly Requests</p>
-          <p className="mt-1 text-2xl font-bold">5,680</p>
+          <p className="mt-1 text-2xl font-bold">{overview.summary.monthly_requests.toLocaleString()}</p>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-4 flex items-start justify-between">
-            <span className="rounded-lg bg-orange-100 p-2 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400">
-              <span className="material-symbols-outlined">hourglass_empty</span>
-            </span>
-          </div>
-          <p className="text-sm font-medium text-slate-500">Remaining</p>
-          <p className="mt-1 text-2xl font-bold">4,320</p>
+          <p className="text-sm font-medium text-slate-500">Remaining Points</p>
+          <p className="mt-1 text-2xl font-bold">{overview.summary.remaining_points.toLocaleString()}</p>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-4 flex items-start justify-between">
-            <span className="rounded-lg bg-emerald-100 p-2 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
-              <span className="material-symbols-outlined">check_circle</span>
-            </span>
-          </div>
           <p className="text-sm font-medium text-slate-500">Success Rate</p>
-          <p className="mt-1 text-2xl font-bold">99.2%</p>
+          <p className="mt-1 text-2xl font-bold">{overview.summary.success_rate.toFixed(1)}%</p>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-4 flex items-start justify-between">
-            <span className="rounded-lg bg-purple-100 p-2 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400">
-              <span className="material-symbols-outlined">bolt</span>
-            </span>
-          </div>
           <p className="text-sm font-medium text-slate-500">Avg. Latency</p>
-          <p className="mt-1 text-2xl font-bold">142ms</p>
+          <p className="mt-1 text-2xl font-bold">
+            {overview.summary.avg_latency_ms == null ? "-" : `${Math.round(overview.summary.avg_latency_ms)}ms`}
+          </p>
         </div>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
+        <div className="border-b border-slate-100 p-6 dark:border-slate-800">
           <h3 className="text-lg font-bold">API Performance (30 Days)</h3>
-          <div className="flex gap-2">
-            <button className="rounded-lg bg-primary px-3 py-1 text-xs font-semibold text-white">Daily</button>
-            <button className="rounded-lg px-3 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800">
-              Weekly
-            </button>
-          </div>
         </div>
         <div className="flex h-64 items-end gap-2 p-8">
-          {[40, 55, 30, 45, 70, 85, 60, 45, 35, 50, 90, 75, 40, 25].map((height, index) => (
+          {(overview.performance_30_days.length > 0 ? overview.performance_30_days : [{ date: "-", total: 0, success: 0, failed: 0, processing: 0 }]).map((item) => (
             <div
-              key={index}
+              key={item.date}
               className="flex-1 rounded-t-lg bg-primary/20 transition-all hover:bg-primary"
-              style={{ height: `${height}%` }}
+              style={{ height: `${Math.max((item.total / maxTotal) * 100, 3)}%` }}
+              title={`${item.date}: ${item.total}`}
             />
           ))}
         </div>
@@ -76,36 +193,28 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="font-bold">Primary API Key</h3>
-              <button className="text-sm font-bold text-primary hover:underline">Manage All</button>
-            </div>
-            <div className="space-y-4">
-              <div className="group flex items-center justify-between rounded-lg bg-slate-50 p-4 dark:bg-slate-800">
-                <code className="text-sm text-slate-600 dark:text-slate-300">pk_live_••••••••••••4f2a</code>
-                <div className="flex gap-1">
-                  <button className="p-1.5 text-slate-400 transition-colors hover:text-primary">
-                    <span className="material-symbols-outlined text-sm">content_copy</span>
-                  </button>
-                  <button className="p-1.5 text-slate-400 transition-colors hover:text-red-500">
-                    <span className="material-symbols-outlined text-sm">refresh</span>
-                  </button>
-                </div>
+            <h3 className="mb-4 font-bold">My Active APIs</h3>
+            {overview.active_apis.length === 0 ? (
+              <p className="text-sm text-slate-500">No active APIs found.</p>
+            ) : (
+              <div className="space-y-3">
+                {overview.active_apis.slice(0, 6).map((api) => (
+                  <div key={api.action} className="rounded-lg border border-primary/10 bg-primary/5 p-3">
+                    <p className="text-sm font-semibold">{api.label}</p>
+                    <p className="text-xs text-slate-500">{api.route}</p>
+                  </div>
+                ))}
               </div>
-              <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90">
-                <span className="material-symbols-outlined text-lg">add</span>
-                Create New Key
-              </button>
-            </div>
+            )}
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 text-white shadow-sm">
-            <h4 className="mb-2 font-bold">Quick Implementation</h4>
-            <p className="mb-4 text-xs text-slate-400">Integrate ConvertPro into your workflow in minutes using our SDK.</p>
-            <div className="rounded-lg bg-black/50 p-3 font-mono text-[11px] leading-relaxed text-blue-300">
-              <span className="text-purple-400">curl</span> -X POST https://api.convertpro.com/v1/convert
-              <br />
-              {'  '}-H <span className="text-emerald-400">"Authorization: Bearer YOUR_KEY"</span>
+          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h4 className="mb-3 font-bold">Conversion Summary</h4>
+            <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+              <p>Total: <span className="font-semibold">{overview.summary.total_conversions}</span></p>
+              <p>Success: <span className="font-semibold">{overview.summary.success_conversions}</span></p>
+              <p>Failed: <span className="font-semibold">{overview.summary.failed_conversions}</span></p>
+              <p>Processing: <span className="font-semibold">{overview.summary.processing_conversions}</span></p>
             </div>
           </div>
         </div>
@@ -114,9 +223,7 @@ export default function DashboardPage() {
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
               <h3 className="text-lg font-bold">Recent History</h3>
-              <button className="rounded-lg p-2 text-slate-400 transition-all hover:bg-slate-50 dark:hover:bg-slate-800">
-                <span className="material-symbols-outlined">filter_list</span>
-              </button>
+              <span className="text-xs text-slate-500">Last {overview.recent_history.length} items</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -125,41 +232,38 @@ export default function DashboardPage() {
                     <th className="px-6 py-4">Endpoint</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4">Time</th>
-                    <th className="px-6 py-4">Size</th>
+                    <th className="px-6 py-4">Points</th>
                     <th className="px-6 py-4">Date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {[
-                    ['/pdf-to-docx', 'Success', '1.2s', '4.5 MB', 'Oct 24, 14:22', 'bg-blue-500', 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'],
-                    ['/img-optimize', 'Processing', '0.8s', '12.1 MB', 'Oct 24, 14:15', 'bg-purple-500', 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'],
-                    ['/doc-to-html', 'Failed', '--', '2.1 MB', 'Oct 24, 13:58', 'bg-amber-500', 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'],
-                    ['/pdf-to-docx', 'Success', '1.4s', '3.8 MB', 'Oct 24, 13:45', 'bg-blue-500', 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'],
-                  ].map(([endpoint, status, time, size, date, dotClass, badgeClass]) => (
-                    <tr key={`${endpoint}-${date}`}>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className={`h-2 w-2 rounded-full ${dotClass}`} />
-                          <span className="text-sm font-medium">{endpoint}</span>
-                        </div>
+                  {overview.recent_history.length === 0 ? (
+                    <tr>
+                      <td className="px-6 py-6 text-sm text-slate-500" colSpan={5}>
+                        No history found.
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${badgeClass}`}>{status}</span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-500">{time}</td>
-                      <td className="px-6 py-4 text-sm text-slate-500">{size}</td>
-                      <td className="px-6 py-4 text-sm text-slate-500">{date}</td>
                     </tr>
-                  ))}
+                  ) : (
+                    overview.recent_history.map((item) => (
+                      <tr key={item.id}>
+                        <td className="px-6 py-4 text-sm font-medium">{item.endpoint}</td>
+                        <td className="px-6 py-4">
+                          <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${getStatusBadge(item.status)}`}>
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-500">{formatDuration(item.duration_ms)}</td>
+                        <td className="px-6 py-4 text-sm text-slate-500">{item.points_charged}</td>
+                        <td className="px-6 py-4 text-sm text-slate-500">{formatDate(item.updated_at)}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
-            </div>
-            <div className="bg-slate-50 p-4 text-center dark:bg-slate-800/50">
-              <button className="text-sm font-bold text-primary hover:underline">View Full Logs</button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
