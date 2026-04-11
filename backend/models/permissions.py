@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -36,6 +36,15 @@ class PermissionListResponse(BaseModel):
 class MyApiEntry(BaseModel):
     action: str
     label: str
+    route: str
+    method: str
+    allowed: bool
+    points: int
+    theme: str
+    icon: str
+    last_used_at: Optional[str] = None
+    success_rate: float
+    description: str
 
 
 class MyApiListResponse(BaseModel):
