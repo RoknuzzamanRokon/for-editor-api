@@ -11,6 +11,7 @@ export default function UserHeader() {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [user, setUser] = useState<{ full_name?: string; email?: string; role?: string } | null>(null);
+  const [sessionRole, setSessionRole] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,6 +27,8 @@ export default function UserHeader() {
   }, []);
 
   useEffect(() => {
+    setSessionRole(localStorage.getItem("user_role") || "");
+
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setShowMenu(false);
@@ -41,6 +44,9 @@ export default function UserHeader() {
     localStorage.removeItem("user_role");
     router.push("/");
   };
+
+  const roleValue = (user?.role || sessionRole || "").toLowerCase();
+  const planLabel = roleValue.includes("admin") || roleValue.includes("super") ? "Admin" : "User";
 
   return (
     <header
@@ -59,7 +65,7 @@ export default function UserHeader() {
           </div>
         </div>
         <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
-          Admin Plan
+          {planLabel} Plan
         </span>
         <div className="h-4 w-px bg-slate-300 dark:bg-slate-700" />
         <div className="hidden items-center gap-2 text-sm text-slate-500 md:flex">

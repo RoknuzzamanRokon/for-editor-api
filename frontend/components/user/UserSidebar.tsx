@@ -24,14 +24,16 @@ export default function UserSidebar({
         collapsed ? "w-20" : "w-72"
       }`}
     >
-      <div className={`pt-4 ${collapsed ? "px-2" : "px-4"}`}>
+      <div className={`flex justify-end pt-4 ${collapsed ? "px-2" : "px-4"}`}>
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="mb-2 flex w-full items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="mb-2 flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
           title="Toggle sidebar"
         >
-          <span className="material-symbols-outlined">menu</span>
+          <span className="material-symbols-outlined">
+            {collapsed ? "keyboard_double_arrow_right" : "keyboard_double_arrow_left"}
+          </span>
         </button>
       </div>
       <nav className={`flex flex-col gap-1 ${collapsed ? "px-2" : "px-4"}`}>

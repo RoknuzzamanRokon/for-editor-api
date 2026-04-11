@@ -199,7 +199,7 @@ def get_dashboard_overview(
         db.query(Conversion)
         .filter(Conversion.owner_user_id == current_user.id)
         .order_by(Conversion.created_at.desc(), Conversion.id.desc())
-        .limit(10)
+        .limit(50)
         .all()
     )
     recent_history: list[DashboardRecentHistoryItem] = []

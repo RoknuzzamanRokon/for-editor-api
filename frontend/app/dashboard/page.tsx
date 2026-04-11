@@ -223,9 +223,13 @@ export default function DashboardPage() {
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
               <h3 className="text-lg font-bold">Recent History</h3>
-              <span className="text-xs text-slate-500">Last {overview.recent_history.length} items</span>
+              <span className="text-xs text-slate-500">
+                {overview.recent_history.length > 10
+                  ? "Showing first 10, scroll for more"
+                  : `Last ${overview.recent_history.length} items`}
+              </span>
             </div>
-            <div className="overflow-x-auto">
+            <div className="max-h-[560px] overflow-y-auto overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-400 dark:bg-slate-800/50">

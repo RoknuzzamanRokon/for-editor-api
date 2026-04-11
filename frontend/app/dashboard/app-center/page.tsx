@@ -210,15 +210,9 @@ export default function DashboardAppCenterPage() {
               <div className="flex gap-2">
                 <Link
                   href={editHref}
-                  className="flex-1 rounded-lg border border-slate-200 bg-white py-2 text-xs font-bold text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                  className="flex flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white py-2 text-xs font-bold text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 >
                   Try It
-                </Link>
-                <Link
-                  href={editHref}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                >
-                  Download
                 </Link>
 
                 <button
