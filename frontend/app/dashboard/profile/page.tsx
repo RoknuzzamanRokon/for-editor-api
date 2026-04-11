@@ -41,8 +41,85 @@ type MyApiResponse = {
   apis: Array<{
     action: string;
     label: string;
+    allowed: boolean;
   }>;
 };
+
+function formatDate(value?: string | null) {
+  if (!value) return "Not configured";
+  return new Date(value).toLocaleString();
+}
+
+function getApiIcon(action: string) {
+  if (action.includes("pdf")) return "picture_as_pdf";
+  if (action.includes("doc") || action.includes("docx")) return "description";
+  if (action.includes("excel") || action.includes("xlsx")) return "table_view";
+  return "api";
+}
+
+function getApiColor(action: string) {
+  if (action.includes("pdf") && action.includes("excel")) {
+    return "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300";
+  }
+  if (action.includes("doc") || action.includes("docx")) {
+    return "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300";
+  }
+  if (action.includes("pdf")) {
+    return "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300";
+  }
+  return "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300";
+}
+
+function getStatusBadge(status: string) {
+  const value = status.toLowerCase();
+
+  if (value === "success" || value === "active" || value === "valid") {
+    return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300";
+  }
+
+  if (value === "pending") {
+    return "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300";
+  }
+
+  if (value === "failed" || value === "inactive" || value === "expired") {
+    return "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300";
+  }
+
+  return "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
+}
+
+function StatCard({
+  title,
+  value,
+  subtext,
+  icon,
+}: {
+  title: string;
+  value: string | number;
+  subtext?: string;
+  icon: string;
+}) {
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
+      <div className="absolute right-0 top-0 h-24 w-24 translate-x-6 -translate-y-6 rounded-full bg-primary/10 blur-2xl" />
+      <div className="relative flex items-start justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-500">{title}</p>
+          <p className="mt-2 text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+            {value}
+          </p>
+          {subtext ? (
+            <p className="mt-1 text-xs text-slate-500">{subtext}</p>
+          ) : null}
+        </div>
+
+        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+          <span className="material-symbols-outlined">{icon}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -53,6 +130,7 @@ export default function DashboardProfilePage() {
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
+
     if (!token) {
       setError("No access token found");
       setLoading(false);
@@ -94,10 +172,24 @@ export default function DashboardProfilePage() {
     return me.username || me.email;
   }, [me]);
 
+  const activeApis = useMemo(
+    () => (myApis?.apis ?? []).filter((api) => api.allowed),
+    [myApis],
+  );
+
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl p-8">
-        <p className="text-sm text-slate-500">Loading profile...</p>
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 animate-pulse rounded-2xl bg-primary/20" />
+            <div className="space-y-2">
+              <div className="h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="h-3 w-64 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+            </div>
+          </div>
+          <p className="mt-6 text-sm text-slate-500">Loading profile...</p>
+        </div>
       </div>
     );
   }
@@ -105,101 +197,252 @@ export default function DashboardProfilePage() {
   if (error || !me || !myPoints || !myApis) {
     return (
       <div className="mx-auto max-w-7xl p-8">
-        <p className="text-sm text-red-600">
-          {error || "Profile data not available"}
-        </p>
+        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined">error</span>
+            <p className="font-semibold">
+              {error || "Profile data not available"}
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-8">
-      <div>
-        <h2 className="text-3xl font-extrabold tracking-tight">
-          Welcome back, {displayName}
-        </h2>
-        <p className="mt-1 text-slate-500">
-          Your account and API profile from live backend data.
-        </p>
-      </div>
+    <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-sm font-medium text-slate-500">Role</p>
-          <p className="mt-1 text-2xl font-bold">{me.role}</p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-sm font-medium text-slate-500">Account Status</p>
-          <p className="mt-1 text-2xl font-bold">
-            {me.is_active ? "active" : "inactive"}
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-sm font-medium text-slate-500">Available Points</p>
-          <p className="mt-1 text-2xl font-bold">{myPoints.available_points}</p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-sm font-medium text-slate-500">Active APIs</p>
-          <p className="mt-1 text-2xl font-bold">{myApis.apis.length}</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-1">
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h3 className="text-lg font-bold">Personal Information</h3>
-            <div className="mt-4 space-y-3 text-sm">
-              <p>
-                <span className="font-semibold">User ID:</span> {me.id}
-              </p>
-              <p>
-                <span className="font-semibold">Username:</span>{" "}
-                {me.username || "-"}
-              </p>
-              <p>
-                <span className="font-semibold">Email:</span> {me.email}
-              </p>
-              <p>
-                <span className="font-semibold">Joined:</span>{" "}
-                {new Date(me.created_at).toLocaleString()}
-              </p>
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
+              <span className="material-symbols-outlined text-base">
+                verified_user
+              </span>
+              Live account overview
             </div>
-          </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h4 className="font-bold">Point Status</h4>
-            <p className="mt-2 text-sm text-slate-500">
-              Current: {myPoints.point_status} | Expiry:{" "}
-              {myPoints.expiry_status}
-            </p>
-            <p className="mt-2 text-sm text-slate-500">
-              Expires At:{" "}
-              {myPoints.expires_at
-                ? new Date(myPoints.expires_at).toLocaleString()
-                : "Not configured"}
+            <h1 className="text-3xl font-black tracking-tight md:text-5xl">
+              Welcome back, {displayName}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm text-white/80 md:text-base">
+              Manage your profile, point balance, API access, and recent
+              activity from one clean dashboard.
             </p>
           </div>
-        </div>
 
-        <div className="space-y-6 lg:col-span-2">
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="border-b border-slate-100 p-6 dark:border-slate-800">
-              <h3 className="text-lg font-bold">My Active APIs</h3>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Role
+              </p>
+              <p className="mt-1 text-sm font-bold">{me.role}</p>
             </div>
-            <div className="p-6">
-              {myApis.apis.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Status
+              </p>
+              <p className="mt-1 text-sm font-bold">
+                {me.is_active ? "Active" : "Inactive"}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Points
+              </p>
+              <p className="mt-1 text-sm font-bold">
+                {myPoints.available_points}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                APIs
+              </p>
+              <p className="mt-1 text-sm font-bold">{activeApis.length}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          title="Available Points"
+          value={myPoints.available_points}
+          subtext="Ready for your next conversion"
+          icon="toll"
+        />
+        <StatCard
+          title="Active APIs"
+          value={activeApis.length}
+          subtext="Currently enabled for your account"
+          icon="hub"
+        />
+        <StatCard
+          title="Account Status"
+          value={me.is_active ? "Active" : "Inactive"}
+          subtext="Your current profile state"
+          icon="verified"
+        />
+        <StatCard
+          title="Point Entries"
+          value={myPoints.total}
+          subtext="Tracked usage records"
+          icon="history"
+        />
+      </section>
+
+      <section className="grid grid-cols-1 gap-8 xl:grid-cols-12">
+        <div className="space-y-6 xl:col-span-4">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                <span className="material-symbols-outlined">person</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Personal Information
+                </h3>
                 <p className="text-sm text-slate-500">
-                  No active API permission found.
+                  Your live backend account details
                 </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+                <p className="text-xs uppercase tracking-wider text-slate-500">
+                  User ID
+                </p>
+                <p className="mt-1 text-sm font-semibold">{me.id}</p>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+                <p className="text-xs uppercase tracking-wider text-slate-500">
+                  Username
+                </p>
+                <p className="mt-1 text-sm font-semibold">
+                  {me.username || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+                <p className="text-xs uppercase tracking-wider text-slate-500">
+                  Email
+                </p>
+                <p className="mt-1 break-all text-sm font-semibold">
+                  {me.email}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+                <p className="text-xs uppercase tracking-wider text-slate-500">
+                  Joined
+                </p>
+                <p className="mt-1 text-sm font-semibold">
+                  {formatDate(me.created_at)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-primary/10 bg-primary/5 p-6 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="rounded-2xl bg-primary/15 p-3 text-primary">
+                <span className="material-symbols-outlined">info</span>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                  Point Status
+                </h4>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                  Current status:
+                  <span
+                    className={`ml-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
+                      myPoints.point_status,
+                    )}`}
+                  >
+                    {myPoints.point_status}
+                  </span>
+                </p>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                  Expiry status:
+                  <span
+                    className={`ml-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
+                      myPoints.expiry_status,
+                    )}`}
+                  >
+                    {myPoints.expiry_status}
+                  </span>
+                </p>
+                <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                  Expires at:{" "}
+                  <span className="font-semibold">
+                    {formatDate(myPoints.expires_at)}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6 xl:col-span-8">
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  My Active APIs
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Services currently available for your account
+                </p>
+              </div>
+              <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                {activeApis.length} total
+              </div>
+            </div>
+
+            <div className="p-6">
+              {activeApis.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-slate-700">
+                  No active API permission found.
+                </div>
               ) : (
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  {myApis.apis.map((item) => (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {activeApis.map((item) => (
                     <div
                       key={item.action}
-                      className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-800 dark:bg-slate-800/40"
+                      className="group rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 transition duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:to-slate-800/60"
                     >
-                      <p className="font-semibold">{item.label}</p>
-                      <p className="text-xs text-slate-500">{item.action}</p>
+                      <div className="flex items-start justify-between gap-3">
+                        <div
+                          className={`rounded-2xl p-3 ${getApiColor(item.action)}`}
+                        >
+                          <span className="material-symbols-outlined">
+                            {getApiIcon(item.action)}
+                          </span>
+                        </div>
+
+                        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                          Enabled
+                        </span>
+                      </div>
+
+                      <div className="mt-4">
+                        <p className="text-base font-bold text-slate-900 dark:text-white">
+                          {item.label}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {item.action}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 flex items-center gap-2">
+                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                          Ready to use
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -207,45 +450,84 @@ export default function DashboardProfilePage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="border-b border-slate-100 p-6 dark:border-slate-800">
-              <h3 className="text-lg font-bold">Point History</h3>
-              <p className="mt-1 text-xs text-slate-500">
-                Total entries: {myPoints.total}
-              </p>
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex flex-col gap-3 border-b border-slate-100 p-6 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Point History
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Total entries: {myPoints.total}
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                <span className="material-symbols-outlined text-sm">
+                  schedule
+                </span>
+                Live usage records
+              </div>
             </div>
+
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
-                    <th className="px-6 py-3">Action</th>
-                    <th className="px-6 py-3">Amount</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3">Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {myPoints.history.map((entry) => (
-                    <tr key={entry.id}>
-                      <td className="px-6 py-4">{entry.action}</td>
-                      <td className="px-6 py-4">{entry.amount}</td>
-                      <td className="px-6 py-4">{entry.status}</td>
-                      <td className="px-6 py-4">
-                        {new Date(entry.created_at).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {myPoints.history.length === 0 && (
-                <div className="p-6 text-sm text-slate-500">
+              {myPoints.history.length === 0 ? (
+                <div className="p-8 text-sm text-slate-500">
                   No point history found.
                 </div>
+              ) : (
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
+                      <th className="px-6 py-4">Action</th>
+                      <th className="px-6 py-4">Amount</th>
+                      <th className="px-6 py-4">Status</th>
+                      <th className="px-6 py-4">Date</th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {myPoints.history.map((entry) => (
+                      <tr
+                        key={entry.id}
+                        className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
+                      >
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="font-semibold text-slate-900 dark:text-white">
+                              {entry.action}
+                            </p>
+                            <p className="mt-0.5 text-xs text-slate-500">
+                              Request ID: {entry.request_id}
+                            </p>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 font-semibold">
+                          {entry.amount}
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
+                              entry.status,
+                            )}`}
+                          >
+                            {entry.status}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
+                          {formatDate(entry.created_at)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               )}
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
