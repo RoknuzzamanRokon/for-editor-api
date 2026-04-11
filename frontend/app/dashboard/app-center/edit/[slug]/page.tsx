@@ -17,6 +17,16 @@ const ACTION_TO_ROUTE: Record<string, string> = {
   pdf_page_remove: "/api/v3/conversions/remove-pages-from-pdf",
 };
 
+const ACTION_TO_HISTORY_ROUTE: Record<string, string> = {
+  pdf_to_docs: "/api/v3/conversions/pdf-to-word/files/history",
+  pdf_to_excel: "/api/v3/conversions/pdf-to-excel/files/history",
+  docx_to_pdf: "/api/v3/conversions/docx-to-pdf/files/history",
+  excel_to_pdf: "/api/v3/conversions/excel-to-pdf/files/history",
+  image_to_pdf: "/api/v3/conversions/image-to-pdf/files/history",
+  remove_background: "/api/v3/conversions/remove-background/files/history",
+  pdf_page_remove: "/api/v3/conversions/remove-pages-from-pdf/files/history",
+};
+
 type EditPageProps = {
   params: {
     slug: string;
@@ -83,6 +93,7 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
   const title = formatTitleFromSlug(params.slug);
   const action = params.slug.replaceAll("-", "_");
   const convertRoute = useMemo(() => ACTION_TO_ROUTE[action] || "", [action]);
+  const historyRoute = useMemo(() => ACTION_TO_HISTORY_ROUTE[action] || "/api/v3/conversions/history", [action]);
 
   const getAccessToken = () => {
     const token = localStorage.getItem("access_token");
@@ -204,7 +215,7 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
     try {
       setLoadingHistory(true);
       const token = getAccessToken();
-      const res = await fetch(`${API_BASE}/api/v3/conversions/history`, {
+      const res = await fetch(`${API_BASE}${historyRoute}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
