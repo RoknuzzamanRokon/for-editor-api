@@ -29,11 +29,6 @@ export default function Page() {
                     <span class="text-sm font-medium">API Permissions</span>
                 </a>
                 <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
-                    href="/admin/ip-whitelist">
-                    <span class="material-symbols-outlined">shield_person</span>
-                    <span class="text-sm font-medium">IP Whitelisting</span>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
                     href="/admin/users">
                     <span class="material-symbols-outlined">group</span>
                     <span class="text-sm font-medium">Users</span>

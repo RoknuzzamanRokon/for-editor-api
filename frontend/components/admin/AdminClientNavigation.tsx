@@ -7,7 +7,6 @@ const PREFETCH_ROUTES = [
   "/admin",
   "/admin/app-center",
   "/admin/api-permissions",
-  "/admin/ip-whitelist",
   "/admin/users",
   "/admin/settings",
 ];
