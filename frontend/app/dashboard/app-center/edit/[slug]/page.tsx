@@ -711,6 +711,29 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
                                   Download
                                 </button>
 
+                                <button
+                                  type="button"
+                                  disabled={!item.download_url}
+                                  onClick={async () => {
+                                    if (!item.download_url) return;
+                                    try {
+                                      setError("");
+                                      await fetchPreviewFile(
+                                        item.download_url,
+                                        item.input_filename,
+                                      );
+                                    } catch (err: unknown) {
+                                      setError(
+                                        err instanceof Error
+                                          ? err.message
+                                          : "Preview loading failed",
+                                      );
+                                    }
+                                  }}
+                                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                                >
+                                  Preview
+                                </button>
                               </div>
                             </td>
                           </tr>

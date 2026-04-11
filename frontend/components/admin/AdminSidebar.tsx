@@ -1,71 +1,84 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navItems = [
-  { label: 'Dashboard', href: '/admin', icon: 'dashboard' },
-  { label: 'App Center', href: '/admin/app-center', icon: 'apps' },
-  { label: 'History', href: '/admin/history/transactions', match: '/admin/history', icon: 'history' },
-  { label: 'API Permissions', href: '/admin/api-permissions', icon: 'vpn_key' },
-  { label: 'IP Whitelisting', href: '/admin/ip-whitelist', icon: 'verified_user' },
-  { label: 'Users', href: '/admin/users', icon: 'group' },
-  { label: 'Settings', href: '/admin/settings', icon: 'settings' },
-]
+  { label: "Dashboard", href: "/admin", icon: "dashboard" },
+  { label: "App Center", href: "/admin/app-center", icon: "apps" },
+  { label: "History", href: "/admin/history/transactions", match: "/admin/history", icon: "history" },
+  { label: "API Permissions", href: "/admin/api-permissions", icon: "vpn_key" },
+  { label: "IP Whitelisting", href: "/admin/ip-whitelist", icon: "verified_user" },
+  { label: "Users", href: "/admin/users", icon: "group" },
+  { label: "Settings", href: "/admin/settings", icon: "settings" },
+];
 
-export default function AdminSidebar({ collapsed = false }: { collapsed?: boolean }) {
-  const pathname = usePathname()
+export default function AdminSidebar({
+  collapsed = false,
+  onToggleSidebar,
+}: {
+  collapsed?: boolean;
+  onToggleSidebar: () => void;
+}) {
+  const pathname = usePathname();
 
   return (
     <aside
-      className={`flex shrink-0 flex-col border-r border-primary/10 bg-white transition-all duration-300 dark:bg-slate-900 ${
-        collapsed ? "w-0 -translate-x-full overflow-hidden border-r-0" : "w-64 translate-x-0"
+      className={`fixed left-0 top-16 z-20 flex h-[calc(100vh-4rem)] flex-col border-r border-slate-200 bg-white transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 ${
+        collapsed ? "w-20" : "w-72"
       }`}
     >
-      <div className="flex items-center gap-3 p-6">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-white">
-          <span className="material-symbols-outlined text-xl">token</span>
-        </div>
-        <div>
-          <h1 className="text-lg font-bold leading-none">Point Control</h1>
-          <p className="text-xs font-medium text-slate-500">Admin Panel</p>
-        </div>
+      <div className={`flex justify-end pt-4 ${collapsed ? "px-2" : "px-4"}`}>
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="mb-2 flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+          title="Toggle sidebar"
+        >
+          <span className="material-symbols-outlined">
+            {collapsed ? "keyboard_double_arrow_right" : "keyboard_double_arrow_left"}
+          </span>
+        </button>
       </div>
-      <nav className="flex flex-col gap-1 px-4">
+
+      <nav className={`flex flex-col gap-1 ${collapsed ? "px-2" : "px-4"}`}>
         {navItems.map((item) => {
-          const matchTarget = item.match ?? item.href
+          const matchTarget = item.match ?? item.href;
           const isActive =
-            item.href === '/admin'
-              ? pathname === '/admin'
-              : pathname.startsWith(matchTarget.replace(/\/+$/, ''))
+            item.href === "/admin"
+              ? pathname === "/admin"
+              : pathname.startsWith(matchTarget.replace(/\/+$/, ""));
 
           return (
             <Link
               key={item.href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 font-medium transition-colors ${
                 isActive
-                  ? 'bg-primary text-white'
-                  : 'text-slate-600 hover:bg-primary/10 dark:text-slate-400'
+                  ? "bg-primary/10 text-primary"
+                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
               }`}
               href={item.href}
+              title={collapsed ? item.label : undefined}
             >
               <span className="material-symbols-outlined">{item.icon}</span>
-              {item.label}
+              {!collapsed ? item.label : null}
             </Link>
-          )
+          );
         })}
       </nav>
-      <div className="mt-auto border-t border-primary/10 p-4">
-        <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-primary/5">
-          <div className="flex size-9 items-center justify-center rounded-full bg-primary/20 text-primary">
-            <span className="material-symbols-outlined">person</span>
+
+      <div className="mt-auto border-t border-slate-200 p-4 dark:border-slate-800">
+        <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
+          <div className="mb-2 flex justify-between text-xs font-bold">
+            {!collapsed ? <span>ADMIN LOAD</span> : null}
+            <span>68%</span>
           </div>
-          <div className="flex-1 truncate">
-            <p className="truncate text-xs font-bold">Alex Smith</p>
-            <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">System Admin</p>
+          <div className="mb-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+            <div className="h-1.5 w-[68%] rounded-full bg-primary" />
           </div>
+          {!collapsed ? <p className="text-[10px] uppercase text-slate-500">Realtime API Monitoring</p> : null}
         </div>
       </div>
     </aside>
-  )
+  );
 }

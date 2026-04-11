@@ -3,7 +3,6 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SplashCursor from "@/components/SplashCursor";
-import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
@@ -112,21 +111,28 @@ function LoginForm() {
         localStorage.setItem("refresh_token", loginData.refresh_token);
       }
 
-      const meRes = await fetch(`${API_BASE}/api/v2/auth/me`, {
-        headers: { Authorization: `Bearer ${loginData.access_token}` },
-      });
-      if (!meRes.ok) {
-        throw new Error("Unable to fetch user profile");
-      }
-      const me = await meRes.json();
-      const role = me?.role;
-      localStorage.setItem("user_role", role);
-
+      // Do not block redirect on /me fetch to keep login fast.
+      const cachedRole = localStorage.getItem("user_role");
+      const fallbackTarget = cachedRole === "general_user" ? "/dashboard" : "/admin";
       if (next) {
         router.replace(next);
       } else {
-        router.replace(role === "general_user" ? "/dashboard" : "/admin");
+        router.replace(fallbackTarget);
       }
+
+      // Refresh role in background for future routing decisions.
+      fetch(`${API_BASE}/api/v2/auth/me`, {
+        headers: { Authorization: `Bearer ${loginData.access_token}` },
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((me) => {
+          if (me?.role) {
+            localStorage.setItem("user_role", me.role);
+          }
+        })
+        .catch(() => {
+          // Ignore role refresh failures here; guards will handle auth later.
+        });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -162,7 +168,6 @@ function LoginForm() {
         <a href="/pricing" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">
           Get Started
         </a>
-        <ThemeSwitcher />
       </nav>
 
       {/* Liquid glass card */}

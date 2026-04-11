@@ -1,46 +1,98 @@
-'use client'
+"use client";
 
-import ThemeSwitcher from '@/components/ui/ThemeSwitcher'
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 
-export default function AdminHeader({
-  sidebarCollapsed = false,
-  onToggleSidebar,
-}: {
-  sidebarCollapsed?: boolean;
-  onToggleSidebar: () => void;
-}) {
+export default function AdminHeader() {
+  const router = useRouter();
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user_role");
+    router.push("/");
+  };
+
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-primary/10 bg-white px-8 dark:bg-slate-900">
-      <div className="flex w-full max-w-2xl items-center">
-        <button
-          type="button"
-          onClick={onToggleSidebar}
-          className="mr-3 rounded-lg p-2 text-slate-600 hover:bg-primary/10 dark:text-slate-400"
-          title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
-        >
-          <span className="material-symbols-outlined">menu</span>
-        </button>
-        <div className="relative w-full">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-          <input
-            className="w-full rounded-lg border-none bg-background-light py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 dark:bg-background-dark"
-            placeholder="Search transactions, users or API keys..."
-            type="text"
-          />
+    <header className="fixed left-0 right-0 top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/80 px-8 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+            <span className="material-symbols-outlined">sync_alt</span>
+          </div>
+          <div>
+            <h1 className="text-lg font-bold leading-tight">Point Control</h1>
+            <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Admin Panel</p>
+          </div>
+        </div>
+        <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+          Admin Plan
+        </span>
+        <div className="h-4 w-px bg-slate-300 dark:bg-slate-700" />
+        <div className="hidden items-center gap-2 text-sm text-slate-500 md:flex">
+          <span className="material-symbols-outlined text-sm">cloud_done</span>
+          <span>API Status: Healthy</span>
         </div>
       </div>
       <div className="flex items-center gap-4">
         <ThemeSwitcher />
-        <button className="relative rounded-full p-2 text-slate-600 hover:bg-primary/10 dark:text-slate-400">
+        <button className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
           <span className="material-symbols-outlined">notifications</span>
-          <span className="absolute right-2 top-2 size-2 rounded-full border-2 border-white bg-red-500 dark:border-slate-900" />
+          <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500 dark:border-slate-900" />
         </button>
-        <div className="h-8 w-px bg-primary/10" />
-        <div
-          className="h-10 w-10 rounded-full border border-primary/10 bg-cover bg-center"
-          style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDrtzBcCiypSpk1Pkhn138U2ckPVKMoEOe7ZmjxjIJt-S8clCAJHjgZ-vQ_fX6ykSe2-JxmTKW5CDnKjAonf0FDQYAVsa_s3EmAER8h77io3woYPYOJDr0WEPooIm0ee6iyaVOxBvpzw9N64Z7-h1kpIRvwOdrgcCeLIDaaYoXhQa72XEdNalYh5LzJPmkgb6r7VO0ZkT6SKs4s-SVQRY5AwooLSP7215DMeOI3XsVjIlWyjNxmRjkc7FnNHMBvYb_SV8oWRgzpGiuC')" }}
-        />
+        <div className="flex items-center gap-3 border-l border-slate-200 pl-4 dark:border-slate-800">
+          <div className="text-right">
+            <p className="text-sm font-bold leading-none">Admin User</p>
+            <p className="mt-1 text-[10px] font-medium uppercase text-slate-500">admin_user</p>
+          </div>
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setShowMenu((prev) => !prev)}
+              className="h-10 w-10 overflow-hidden rounded-full border-2 border-slate-100 bg-slate-200 transition-all hover:ring-2 hover:ring-primary/30 dark:border-slate-800"
+            >
+              <img
+                alt="User Profile"
+                className="h-full w-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP8t9xa83PyPsCqbQ1lPQTqu_9nsY0kLpxsfIaeUdyFagI3hv8IftRqU1z5S2-uEx8Lh_3dxRQZq4iDENdIReJJK91AUFAwjcLGAMGu8a1AHbVzqVVEWbi0EuZSIl-o2qXnk9Gj-6HufCZfURzPpwRQMuHZQ7rxsGQjflgRLII-BKKicAhSu9FeDUtb6Wkxc_mxOsdvKEZd4nU03v_aCDESSsKx3Of1zM7nty7Bzr9jtsS0HpJTTB2pa2YrWIcQlTx3msnZErrfU8E"
+              />
+            </button>
+            {showMenu && (
+              <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                <div className="border-b border-slate-200 p-4 dark:border-slate-800">
+                  <p className="truncate text-sm font-bold">Admin User</p>
+                  <p className="truncate text-xs text-slate-500">admin@local</p>
+                  <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                    admin_user
+                  </p>
+                </div>
+                <div className="p-2">
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                  >
+                    <span className="material-symbols-outlined text-lg">logout</span>
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </header>
-  )
+  );
 }

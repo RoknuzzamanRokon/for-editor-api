@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
@@ -50,7 +49,7 @@ export default function UserHeader() {
 
   return (
     <header
-      className="fixed left-0 right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-8 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80"
+      className="fixed inset-x-0 top-0 z-30 w-screen flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-8 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80"
     >
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
@@ -81,7 +80,6 @@ export default function UserHeader() {
           <span className="material-symbols-outlined">notifications</span>
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500 dark:border-slate-900" />
         </button>
-        <ThemeSwitcher />
         <div className="flex items-center gap-3 border-l border-slate-200 pl-4 dark:border-slate-800">
           <div className="text-right">
             <p className="text-sm font-bold leading-none">{user?.full_name || user?.email || "User"}</p>
