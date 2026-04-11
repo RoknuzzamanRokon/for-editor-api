@@ -469,7 +469,7 @@ export default function DashboardProfilePage() {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="max-h-[560px] overflow-y-auto overflow-x-auto">
               {myPoints.history.length === 0 ? (
                 <div className="p-8 text-sm text-slate-500">
                   No point history found.
