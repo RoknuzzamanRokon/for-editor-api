@@ -78,6 +78,10 @@ export default function Page() {
         <span class="material-symbols-outlined">dashboard</span>
         <span class="text-sm font-medium">Dashboard</span>
       </a>
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors" href="/admin/app-center">
+        <span class="material-symbols-outlined">apps</span>
+        <span class="text-sm font-medium">App Center</span>
+      </a>
       <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors" href="/admin/history/transactions">
         <span class="material-symbols-outlined">history</span>
         <span class="text-sm font-medium">History</span>

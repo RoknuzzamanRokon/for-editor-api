@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: 'dashboard' },
+  { label: 'App Center', href: '/admin/app-center', icon: 'apps' },
   { label: 'History', href: '/admin/history/transactions', match: '/admin/history', icon: 'history' },
   { label: 'API Permissions', href: '/admin/api-permissions', icon: 'vpn_key' },
   { label: 'IP Whitelisting', href: '/admin/ip-whitelist', icon: 'verified_user' },
