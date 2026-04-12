@@ -1,325 +1,257 @@
 export default function Page() {
   const markup = `
 <!-- Navigation Bar -->
-    <nav class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-3xl font-bold">sync_alt</span>
-                    <span class="text-xl font-extrabold tracking-tight text-slate-900">ConvertPro <span
-                            class="text-primary">API</span></span>
-                </div>
-                <div class="hidden md:flex items-center gap-8">
-                    <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors"
-                        href="/#features">Features</a>
-                    <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors"
-                        href="/pricing">Pricing</a>
-                    <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors"
-                        href="/docs">Documentation</a>
-                    <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors"
-                        href="/dashboard">Dashboard</a>
-                </div>
-                <div class="flex items-center gap-3">
-                    <a href="/login" class="px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-lg transition-all">Login</a>
-                    <a href="/pricing" class="px-5 py-2 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-lg shadow-lg shadow-primary/20 transition-all">Get Started</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <!-- Hero Section -->
-    <section class="relative pt-20 pb-24 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-12">
-            <div class="flex-1 text-center lg:text-left">
+    <header
+        class="fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
+        <div class="flex h-24 w-full items-center justify-between px-6 lg:px-8">
+            <a class="flex items-center gap-2 group cursor-pointer" href="/">
                 <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-6">
-                    <span class="material-symbols-outlined text-sm">verified</span> Now processing 1M+ files daily
+                    class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white transition-transform group-hover:scale-110">
+                    <span class="material-symbols-outlined text-[28px]">sync_alt</span>
                 </div>
-                <h1 class="text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1] mb-6">
-                    Powerful File Conversion API for <span class="text-primary">Modern Applications</span>
-                </h1>
-                <p class="text-lg text-slate-600 mb-10 max-w-2xl mx-auto lg:mx-0">
-                    Secure, Fast, Role-Based API with JWT Authentication. Integrate complex document processing
-                    workflows in minutes, not months.
-                </p>
-                <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
-                    <a href="/pricing" class="px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-xl shadow-primary/30 hover:scale-[1.02] transition-transform">Try API Free</a>
-                    <a href="/docs" class="px-8 py-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors">View Documentation</a>
-                </div>
-            </div>
-            <div class="flex-1 w-full max-w-2xl">
-                <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-white">
-                    <div class="h-8 bg-slate-50 border-b border-slate-100 flex items-center px-4 gap-1.5">
-                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-amber-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
-                    </div>
-                    <img alt="Dashboard Mockup" class="w-full object-cover aspect-video"
-                        data-alt="ConvertPro API dashboard visualization showing file processing metrics and stats"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD5wujvbMWRNdzjqN5AGPZDPPvibfQIV_qqgwbvq2I04UpQ8hIteazbjnyYm5nTW3A7PuGIVFJq2mgs0dWVCUzxlKWf3lOJcefbBBbQ7iNa4vR4iLxqOxXI7FFyF1P305W3nA4b0a2HbGDSlFwQWChRQq_5Bz6BHqnmckyOiMJvtCMHK4Z4kqsfWMPR4nkCO1l2g1hZCNKuGp-hMKm2EdcGIb2RjlAY7aybdg6MY6qEISxOEHVTbeeHFO001iB-Mt4Rr3gAmu0xF44" />
-                </div>
+                <span class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">ConvertPro <span
+                        class="text-primary">API</span></span>
+            </a>
+            <nav class="hidden items-center gap-10 lg:flex">
+                <a class="text-base font-semibold text-primary" href="/features">Features</a>
+                <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
+                    href="/pricing">Pricing</a>
+                <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
+                    href="/docs">Documentation</a>
+                <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
+                    href="/dashboard">Dashboard</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <a class="hidden text-base font-semibold text-slate-900 hover:text-primary dark:text-white sm:block"
+                    href="/login">Login</a>
+                <a
+                    class="rounded-xl bg-primary px-6 py-3 text-base font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95"
+                    href="/pricing">Get Started</a>
             </div>
         </div>
-    </section>
-    <!-- Features Grid -->
-    <section class="py-24 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
-            <h2 class="text-3xl font-bold text-slate-900 mb-4">Supported Conversions</h2>
-            <p class="text-slate-600 max-w-2xl mx-auto">We support over 50+ file formats with high-fidelity output and
-                lightning-fast processing speeds.</p>
-        </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Feature Cards -->
-                <div
-                    class="p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-primary/20 transition-all group">
+    </header>
+    <main class="bg-background-light pt-24 dark:bg-background-dark">
+        <div class="mx-auto max-w-[1440px] px-6 py-12 lg:px-20">
+        <section class="relative mb-24 overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-8 py-14 dark:border-slate-800 dark:bg-slate-950 lg:px-14 lg:py-20">
+            <div
+                class="absolute -top-24 left-16 h-64 w-64 rounded-full bg-primary/10 blur-[120px]"></div>
+            <div
+                class="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-sky-400/10 blur-[140px]"></div>
+            <div class="relative grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+                <div>
                     <div
-                        class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined text-3xl">picture_as_pdf</span>
+                        class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+                        <span class="material-symbols-outlined text-sm">verified</span> Now processing 1M+ files daily
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">PDF to DOCX</h3>
-                    <p class="text-slate-600">High-fidelity document conversion maintaining original layout and
-                        formatting.</p>
-                </div>
-                <div
-                    class="p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-primary/20 transition-all group">
-                    <div
-                        class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined text-3xl">table_chart</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">PDF to Excel</h3>
-                    <p class="text-slate-600">Extract complex data tables from PDF documents into editable spreadsheets.
+                    <h1 class="mt-8 max-w-4xl text-5xl font-black tracking-tight text-slate-900 dark:text-white lg:text-7xl">
+                        Powerful file conversion API for <span class="text-primary">modern applications</span>
+                    </h1>
+                    <p class="mt-8 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
+                        Secure, fast, role-based infrastructure for document conversion, permissions, billing controls,
+                        and operational visibility. Launch workflow automation in days, not months.
                     </p>
+                    <div class="mt-10 flex flex-col gap-4 sm:flex-row">
+                        <a href="/pricing"
+                            class="rounded-2xl bg-primary px-8 py-4 text-center text-sm font-bold text-white shadow-xl shadow-primary/25 transition-all hover:bg-primary/90">
+                            Try API Free
+                        </a>
+                        <a href="/docs"
+                            class="rounded-2xl border border-slate-200 bg-white px-8 py-4 text-center text-sm font-bold text-slate-900 transition-all hover:border-primary/30 hover:text-primary dark:border-slate-800 dark:bg-slate-900 dark:text-white">
+                            View Documentation
+                        </a>
+                    </div>
                 </div>
-                <div
-                    class="p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-primary/20 transition-all group">
-                    <div
-                        class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                <div class="w-full">
+                    <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+                        <div class="flex h-10 items-center gap-2 border-b border-slate-100 bg-slate-50 px-5 dark:border-slate-800 dark:bg-slate-900/60">
+                            <span class="h-3 w-3 rounded-full bg-red-400"></span>
+                            <span class="h-3 w-3 rounded-full bg-amber-400"></span>
+                            <span class="h-3 w-3 rounded-full bg-emerald-400"></span>
+                        </div>
+                        <img alt="Dashboard Mockup" class="aspect-video w-full object-cover"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD5wujvbMWRNdzjqN5AGPZDPPvibfQIV_qqgwbvq2I04UpQ8hIteazbjnyYm5nTW3A7PuGIVFJq2mgs0dWVCUzxlKWf3lOJcefbBBbQ7iNa4vR4iLxqOxXI7FFyF1P305W3nA4b0a2HbGDSlFwQWChRQq_5Bz6BHqnmckyOiMJvtCMHK4Z4kqsfWMPR4nkCO1l2g1hZCNKuGp-hMKm2EdcGIb2RjlAY7aybdg6MY6qEISxOEHVTbeeHFO001iB-Mt4Rr3gAmu0xF44" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-24" id="features">
+            <div class="text-center mb-14">
+                <h2 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Supported conversions</h2>
+                <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
+                    Production-ready endpoints for common document and image workflows, with consistent responses and
+                    clean integration paths.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+                <div class="group rounded-3xl border border-slate-200 bg-white p-8 transition-all hover:shadow-2xl hover:shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900/50">
+                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                         <span class="material-symbols-outlined text-3xl">description</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">DOCX to PDF</h3>
-                    <p class="text-slate-600">Instant professional PDF generation from any Word document source.</p>
+                    <h3 class="mt-6 text-xl font-bold text-slate-900 dark:text-white">PDF to Word</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Turn PDFs into editable DOCX files with private download support and conversion history tracking.</p>
                 </div>
-                <div
-                    class="p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-primary/20 transition-all group">
-                    <div
-                        class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined text-3xl">grid_on</span>
+                <div class="group rounded-3xl border border-slate-200 bg-white p-8 transition-all hover:shadow-2xl hover:shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900/50">
+                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                        <span class="material-symbols-outlined text-3xl">table_chart</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">Excel to PDF</h3>
-                    <p class="text-slate-600">Transform large sheets into print-ready, optimized PDF files with one
-                        call.</p>
+                    <h3 class="mt-6 text-xl font-bold text-slate-900 dark:text-white">PDF to Excel</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Extract tables and structured data from PDFs directly into spreadsheet workflows.</p>
                 </div>
-                <div
-                    class="p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-primary/20 transition-all group">
-                    <div
-                        class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined text-3xl">image</span>
+                <div class="group rounded-3xl border border-slate-200 bg-white p-8 transition-all hover:shadow-2xl hover:shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900/50">
+                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                        <span class="material-symbols-outlined text-3xl">picture_as_pdf</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">Image to PDF</h3>
-                    <p class="text-slate-600">Compile multiple images into a single, high-resolution PDF document.</p>
+                    <h3 class="mt-6 text-xl font-bold text-slate-900 dark:text-white">Office to PDF</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Convert DOCX and Excel files into shareable PDFs for archiving, review, and delivery.</p>
                 </div>
-                <div
-                    class="p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-primary/20 transition-all group">
-                    <div
-                        class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                <div class="group rounded-3xl border border-slate-200 bg-white p-8 transition-all hover:shadow-2xl hover:shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900/50">
+                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                         <span class="material-symbols-outlined text-3xl">auto_fix_high</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">PDF Page Remove</h3>
-                    <p class="text-slate-600">Easily split, merge, or delete specific pages from any PDF document.</p>
+                    <h3 class="mt-6 text-xl font-bold text-slate-900 dark:text-white">Image workflows</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Handle image-to-PDF conversion, background removal, and other lightweight media tasks in one API surface.</p>
                 </div>
             </div>
-        </div>
-    </section>
-    <!-- Role-Based Access Section -->
-    <section class="py-24 bg-background-light">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-slate-900 mb-4">Role-Based Access Control</h2>
-                <p class="text-slate-600">Granular permissions for enterprise-grade team management.</p>
+        </section>
+
+        <section class="mb-24 grid gap-8 lg:grid-cols-3">
+            <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary">Security</p>
+                <h3 class="mt-4 text-2xl font-bold text-slate-900 dark:text-white">JWT and role-based access</h3>
+                <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">Protect write actions with bearer tokens, enforce role checks, and expose only the conversion actions each user is allowed to run.</p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- User Roles -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
-                    <div class="mb-4">
-                        <span class="material-symbols-outlined text-4xl text-slate-400">shield_person</span>
-                    </div>
-                    <span
-                        class="inline-block px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full mb-3 uppercase">Super
-                        User</span>
-                    <h4 class="font-bold text-slate-900">System Architect</h4>
-                    <p class="text-xs text-slate-500 mt-2">Full infrastructure control, API key generation, and billing
-                        management.</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
-                    <div class="mb-4">
-                        <span class="material-symbols-outlined text-4xl text-slate-400">admin_panel_settings</span>
-                    </div>
-                    <span
-                        class="inline-block px-3 py-1 bg-blue-100 text-primary text-xs font-bold rounded-full mb-3 uppercase">Admin
-                        User</span>
-                    <h4 class="font-bold text-slate-900">Team Manager</h4>
-                    <p class="text-xs text-slate-500 mt-2">User provisioning, project oversight, and analytics
-                        reporting.</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
-                    <div class="mb-4">
-                        <span class="material-symbols-outlined text-4xl text-slate-400">group</span>
-                    </div>
-                    <span
-                        class="inline-block px-3 py-1 bg-emerald-100 text-emerald-600 text-xs font-bold rounded-full mb-3 uppercase">General
-                        User</span>
-                    <h4 class="font-bold text-slate-900">Developer</h4>
-                    <p class="text-xs text-slate-500 mt-2">Standard API access, conversion task execution, and basic
-                        logging.</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
-                    <div class="mb-4">
-                        <span class="material-symbols-outlined text-4xl text-slate-400">visibility</span>
-                    </div>
-                    <span
-                        class="inline-block px-3 py-1 bg-amber-100 text-amber-600 text-xs font-bold rounded-full mb-3 uppercase">Demo
-                        User</span>
-                    <h4 class="font-bold text-slate-900">Stakeholder</h4>
-                    <p class="text-xs text-slate-500 mt-2">Read-only dashboard access for performance monitoring.</p>
-                </div>
+            <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary">Billing</p>
+                <h3 class="mt-4 text-2xl font-bold text-slate-900 dark:text-white">Points and usage controls</h3>
+                <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">Track point balances, top up users, inspect ledgers, and prevent duplicate charges with idempotency keys on conversion requests.</p>
             </div>
-        </div>
-    </section>
-    <!-- Security Section -->
-    <section class="py-24 bg-slate-900 text-white overflow-hidden relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="flex flex-col lg:flex-row items-center gap-16">
-                <div class="lg:w-1/2">
-                    <h2 class="text-4xl font-bold mb-8">Bank-Grade <span class="text-primary">Security</span> Standard
-                    </h2>
-                    <div class="space-y-8">
+            <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary">Operations</p>
+                <h3 class="mt-4 text-2xl font-bold text-slate-900 dark:text-white">Dashboard and admin insight</h3>
+                <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">Monitor recent history, conversion success, user activity, point-giving history, and per-user API permissions from one platform.</p>
+            </div>
+        </section>
+
+        <section class="mb-24 overflow-hidden rounded-[2rem] bg-slate-900 py-20 text-white">
+            <div class="grid items-center gap-14 px-8 lg:grid-cols-[1fr_0.95fr] lg:px-14">
+                <div>
+                    <h2 class="text-4xl font-black tracking-tight">Built for product, platform, and internal tools teams.</h2>
+                    <div class="mt-10 space-y-8">
                         <div class="flex gap-4">
-                            <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary">
                                 <span class="material-symbols-outlined">key</span>
                             </div>
                             <div>
-                                <h4 class="text-xl font-bold mb-1">JWT Authentication</h4>
-                                <p class="text-slate-400">Secure stateless authentication for all API endpoints using
-                                    industry-standard tokens.</p>
+                                <h4 class="text-xl font-bold">Auth and user management</h4>
+                                <p class="mt-2 text-slate-400">Sign in, refresh access, create users, update roles, and manage access without building separate admin plumbing.</p>
                             </div>
                         </div>
                         <div class="flex gap-4">
-                            <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined">lock</span>
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary">
+                                <span class="material-symbols-outlined">sync</span>
                             </div>
                             <div>
-                                <h4 class="text-xl font-bold mb-1">Secure File Handling</h4>
-                                <p class="text-slate-400">Files are encrypted at rest and automatically purged after
-                                    conversion for privacy.</p>
+                                <h4 class="text-xl font-bold">Safe conversion retries</h4>
+                                <p class="mt-2 text-slate-400">Use idempotency keys on v3 conversion requests to protect billing and avoid repeated background work.</p>
                             </div>
                         </div>
                         <div class="flex gap-4">
-                            <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined">database</span>
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary">
+                                <span class="material-symbols-outlined">monitoring</span>
                             </div>
                             <div>
-                                <h4 class="text-xl font-bold mb-1">MySQL Enterprise Database</h4>
-                                <p class="text-slate-400">Robust data management with high availability and automated
-                                    backups.</p>
+                                <h4 class="text-xl font-bold">Live operational visibility</h4>
+                                <p class="mt-2 text-slate-400">Recent history, success rates, balances, and activity views make the API easier to run at team scale.</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="lg:w-1/2 w-full">
-                    <!-- API Preview Code Block -->
-                    <div
-                        class="code-block p-6 rounded-2xl shadow-2xl border border-slate-800 font-mono text-sm leading-relaxed overflow-x-auto">
-                        <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-800">
-                            <span class="text-primary font-bold">POST /api/v1/convert</span>
-                            <div class="flex gap-2">
-                                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
-                                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
-                                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
-                            </div>
+                <div class="rounded-3xl border border-slate-800 bg-[#0f172a] p-6 shadow-2xl">
+                    <div class="mb-4 flex items-center justify-between border-b border-slate-800 pb-4">
+                        <span class="font-mono text-sm font-bold text-primary">POST /api/v3/conversions/pdf-to-word</span>
+                        <div class="flex gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-slate-700"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-slate-700"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-slate-700"></span>
                         </div>
-                        <pre><code><span class="text-pink-400">curl</span> -X POST https://api.convertpro.io/v1/convert \
-  -H <span class="text-emerald-400">"Authorization: Bearer YOUR_JWT_TOKEN"</span> \
-  -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
-  -d '{
-    <span class="text-amber-300">"source_file"</span>: "s3://bucket/document.pdf",
-    <span class="text-amber-300">"target_format"</span>: "docx",
-    <span class="text-amber-300">"options"</span>: {
-      "ocr": <span class="text-blue-400">true</span>,
-      "language": "en"
-    }
-  }'</code></pre>
                     </div>
+                    <pre class="overflow-x-auto text-sm leading-7 text-slate-300"><code><span class="text-pink-400">curl</span> -X POST http://127.0.0.1:8000/api/v3/conversions/pdf-to-word \\
+  -H <span class="text-emerald-400">"Authorization: Bearer &lt;token&gt;"</span> \\
+  -H <span class="text-emerald-400">"Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000"</span> \\
+  -F <span class="text-amber-300">"file=@document.pdf"</span>
+
+{
+  <span class="text-amber-300">"conversion_id"</span>: <span class="text-blue-400">214</span>,
+  <span class="text-amber-300">"status"</span>: <span class="text-emerald-400">"success"</span>,
+  <span class="text-amber-300">"download_url"</span>: <span class="text-emerald-400">"/api/v3/conversions/214/download"</span>,
+  <span class="text-amber-300">"points_charged"</span>: <span class="text-blue-400">3</span>,
+  <span class="text-amber-300">"remaining_balance"</span>: <span class="text-blue-400">97</span>
+}</code></pre>
                 </div>
             </div>
+        </section>
+
+        <section class="mb-24">
+            <h2 class="mb-12 text-center text-4xl font-black tracking-tight text-slate-900 dark:text-white">Why teams choose ConvertPro</h2>
+            <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <span class="material-symbols-outlined text-4xl text-primary">speed</span>
+                    <h3 class="mt-5 text-lg font-bold text-slate-900 dark:text-white">Fast delivery</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Versioned endpoints and predictable request shapes reduce integration time.</p>
+                </div>
+                <div class="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <span class="material-symbols-outlined text-4xl text-primary">group</span>
+                    <h3 class="mt-5 text-lg font-bold text-slate-900 dark:text-white">Team-ready roles</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Support demo, general, admin, and super user workflows in one system.</p>
+                </div>
+                <div class="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <span class="material-symbols-outlined text-4xl text-primary">paid</span>
+                    <h3 class="mt-5 text-lg font-bold text-slate-900 dark:text-white">Usage clarity</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Balances, ledgers, and top-ups make cost control understandable for every account.</p>
+                </div>
+                <div class="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <span class="material-symbols-outlined text-4xl text-primary">manage_search</span>
+                    <h3 class="mt-5 text-lg font-bold text-slate-900 dark:text-white">Admin visibility</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Inspect users, permissions, and conversion performance without leaving the platform.</p>
+                </div>
+            </div>
+        </section>
         </div>
-        <!-- Decorative Background Element -->
-        <div class="absolute top-0 right-0 w-96 h-96 bg-primary/20 blur-[120px] rounded-full -mr-48 -mt-48"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-primary/10 blur-[120px] rounded-full -ml-48 -mb-48"></div>
-    </section>
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-12">
-                <div class="col-span-2">
-                    <div class="flex items-center gap-2 mb-6">
-                        <span class="material-symbols-outlined text-primary text-3xl font-bold">sync_alt</span>
-                        <span class="text-xl font-extrabold tracking-tight text-slate-900">ConvertPro <span
-                                class="text-primary">API</span></span>
-                    </div>
-                    <p class="text-slate-500 max-w-xs mb-6">
-                        The world's most reliable file conversion infrastructure for developers.
-                    </p>
-                    <div class="flex gap-4">
-                        <a class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-primary hover:text-white transition-all"
-                            href="#">
-                            <span class="material-symbols-outlined text-sm">terminal</span>
-                        </a>
-                        <a class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-primary hover:text-white transition-all"
-                            href="#">
-                            <span class="material-symbols-outlined text-sm">code</span>
-                        </a>
-                    </div>
-                </div>
-                <div>
-                    <h5 class="font-bold text-slate-900 mb-6 uppercase text-xs tracking-widest">Product</h5>
-                    <ul class="space-y-4 text-slate-500 text-sm">
-                        <li><a class="hover:text-primary" href="/#features">Features</a></li>
-                        <li><a class="hover:text-primary" href="/pricing">Pricing</a></li>
-                        <li><a class="hover:text-primary" href="#">API Reference</a></li>
-                        <li><a class="hover:text-primary" href="#">Changelog</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h5 class="font-bold text-slate-900 mb-6 uppercase text-xs tracking-widest">Resources</h5>
-                    <ul class="space-y-4 text-slate-500 text-sm">
-                        <li><a class="hover:text-primary" href="/docs">Documentation</a></li>
-                        <li><a class="hover:text-primary" href="#">API Status</a></li>
-                        <li><a class="hover:text-primary" href="#">GitHub</a></li>
-                        <li><a class="hover:text-primary" href="#">Community</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h5 class="font-bold text-slate-900 mb-6 uppercase text-xs tracking-widest">Company</h5>
-                    <ul class="space-y-4 text-slate-500 text-sm">
-                        <li><a class="hover:text-primary" href="#">About Us</a></li>
-                        <li><a class="hover:text-primary" href="#">Contact</a></li>
-                        <li><a class="hover:text-primary" href="#">Privacy Policy</a></li>
-                        <li><a class="hover:text-primary" href="#">Terms of Service</a></li>
-                    </ul>
-                </div>
+    </main>
+    <footer class="bg-white border-t border-slate-200 py-16 dark:border-slate-800 dark:bg-slate-950">
+        <div class="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-6 px-6 md:flex-row lg:px-20">
+            <div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                <span>© 2026 ConvertPro API</span>
+                <span class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                <a class="transition-colors hover:text-primary" href="/features">Features</a>
+                <span class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                <a class="transition-colors hover:text-primary" href="/pricing">Pricing</a>
+                <span class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                <a class="transition-colors hover:text-primary" href="/docs">Docs</a>
             </div>
-            <div
-                class="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400 text-sm">
-                <p>© 2024 ConvertPro API Inc. All rights reserved.</p>
-                <div class="flex gap-6">
-                    <a class="hover:text-slate-600 transition-colors" href="#">Cookie Policy</a>
-                    <a class="hover:text-slate-600 transition-colors" href="#">Security</a>
-                    <a class="hover:text-slate-600 transition-colors" href="#">Sitemap</a>
-                </div>
+            <div class="flex gap-4">
+                <a class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-all hover:bg-primary/10 hover:text-primary dark:bg-slate-900 dark:text-slate-400"
+                    href="#">
+                    <svg class="h-4 w-4" fill="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z">
+                        </path>
+                    </svg>
+                </a>
+                <a class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-all hover:bg-primary/10 hover:text-primary dark:bg-slate-900 dark:text-slate-400"
+                    href="#">
+                    <svg class="h-4 w-4" fill="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z">
+                        </path>
+                    </svg>
+                </a>
             </div>
         </div>
     </footer>
 `;
+
   return (
     <div className="bg-background-light text-slate-900 font-display">
       <div dangerouslySetInnerHTML={{ __html: markup }} />

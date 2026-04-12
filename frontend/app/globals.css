@@ -11,7 +11,7 @@
   --card-hover: #f9fafb;
   --app-scale: 0.6;
   --login-ui-scale: 0.72;
-  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-dm-sans), "DM Sans", system-ui, -apple-system, sans-serif;
   --font-code: var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 

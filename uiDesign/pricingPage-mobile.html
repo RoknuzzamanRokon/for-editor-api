@@ -1,344 +1,449 @@
-<!DOCTYPE html>
+<!doctype html>
 
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>ConvertPro API - Pricing</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
-        rel="stylesheet" />
     <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+      rel="stylesheet"
+    />
     <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
     <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#2463eb",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#111621",
-                    },
-                    fontFamily: {
-                        "display": ["Inter"]
-                    },
-                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
-                },
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2463eb",
+              "background-light": "#f6f6f8",
+              "background-dark": "#111621",
             },
-        }
+            fontFamily: {
+              display: ["Inter"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "1rem",
+              xl: "1.5rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
     </script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+      }
 
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
     </style>
     <style>
-        body {
-            min-height: max(884px, 100dvh);
-        }
+      body {
+        min-height: max(884px, 100dvh);
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+  <body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display"
+  >
     <!-- Header / Navigation -->
     <header
-        class="sticky top-0 z-50 w-full bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div class="flex items-center justify-between px-4 h-16 max-w-screen-xl mx-auto">
-            <div class="flex items-center gap-2">
-                <div class="bg-primary p-1.5 rounded-lg flex items-center justify-center">
-                    <span class="material-symbols-outlined text-white">transform</span>
-                </div>
-                <h2 class="text-xl font-bold tracking-tight">ConvertPro</h2>
-            </div>
-            <button class="p-2 text-slate-600 dark:text-slate-400">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
+      class="sticky top-0 z-50 w-full bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800"
+    >
+      <div
+        class="flex items-center justify-between px-4 h-16 max-w-screen-xl mx-auto"
+      >
+        <div class="flex items-center gap-2">
+          <div
+            class="bg-primary p-1.5 rounded-lg flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined text-white">transform</span>
+          </div>
+          <h2 class="text-xl font-bold tracking-tight">ConvertPro</h2>
         </div>
+        <button class="p-2 text-slate-600 dark:text-slate-400">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+      </div>
     </header>
     <main class="flex flex-col gap-12 pb-24">
-        <!-- Hero Section -->
-        <section class="px-4 pt-12 pb-6 text-center">
-            <div class="max-w-md mx-auto flex flex-col gap-4">
-                <span
-                    class="inline-block self-center px-3 py-1 text-xs font-semibold text-primary bg-primary/10 rounded-full">PRICING
-                    PLANS</span>
-                <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                    Scalable API for Modern Teams
-                </h1>
-                <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
-                    Simple, transparent pricing that grows with your business. Get started with 10,000 free requests.
-                </p>
-                <div class="mt-4 flex flex-col gap-3">
-                    <button
-                        class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity">
-                        Start Free Trial
-                    </button>
-                </div>
+      <!-- Hero Section -->
+      <section class="px-4 pt-12 pb-6 text-center">
+        <div class="max-w-md mx-auto flex flex-col gap-4">
+          <span
+            class="inline-block self-center px-3 py-1 text-xs font-semibold text-primary bg-primary/10 rounded-full"
+            >PRICING PLANS</span
+          >
+          <h1
+            class="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white"
+          >
+            Scalable API for Modern Teams
+          </h1>
+          <p
+            class="text-slate-600 dark:text-slate-400 text-base leading-relaxed"
+          >
+            Simple, transparent pricing that grows with your business. Get
+            started with 10,000 free requests.
+          </p>
+          <div class="mt-4 flex flex-col gap-3">
+            <button
+              class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity"
+            >
+              Start Free Trial
+            </button>
+          </div>
+        </div>
+        <div class="mt-12 px-2">
+          <div
+            class="w-full aspect-video bg-primary/5 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center"
+            data-alt="Abstract blue gradient dashboard illustration"
+          >
+            <span class="material-symbols-outlined text-primary/20 text-6xl"
+              >analytics</span
+            >
+          </div>
+        </div>
+      </section>
+      <!-- Pricing Cards - Single Column -->
+      <section class="px-4 flex flex-col gap-6">
+        <h2 class="text-2xl font-bold tracking-tight px-1">Choose Your Plan</h2>
+        <!-- Starter Plan -->
+        <div
+          class="flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6"
+        >
+          <div class="flex flex-col gap-1">
+            <h3 class="text-lg font-bold">Starter</h3>
+            <p class="flex items-baseline gap-1">
+              <span class="text-4xl font-black tracking-tight">$0</span>
+              <span class="text-slate-500 font-medium">/mo</span>
+            </p>
+          </div>
+          <button
+            class="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold py-3 rounded-xl"
+          >
+            Get Started
+          </button>
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>10k requests / month</span>
             </div>
-            <div class="mt-12 px-2">
-                <div class="w-full aspect-video bg-primary/5 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center"
-                    data-alt="Abstract blue gradient dashboard illustration">
-                    <span class="material-symbols-outlined text-primary/20 text-6xl">analytics</span>
-                </div>
+            <div class="flex items-center gap-3 text-sm">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>Community support</span>
             </div>
-        </section>
-        <!-- Pricing Cards - Single Column -->
-        <section class="px-4 flex flex-col gap-6">
-            <h2 class="text-2xl font-bold tracking-tight px-1">Choose Your Plan</h2>
-            <!-- Starter Plan -->
+            <div class="flex items-center gap-3 text-sm">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>Basic analytics</span>
+            </div>
+          </div>
+        </div>
+        <!-- Pro Plan -->
+        <div
+          class="relative flex flex-col gap-6 rounded-xl border-2 border-primary bg-white dark:bg-slate-900 p-6 shadow-xl shadow-primary/5"
+        >
+          <div
+            class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full"
+          >
+            Most Popular
+          </div>
+          <div class="flex flex-col gap-1">
+            <h3 class="text-lg font-bold">Pro</h3>
+            <p class="flex items-baseline gap-1">
+              <span class="text-4xl font-black tracking-tight">$49</span>
+              <span class="text-slate-500 font-medium">/mo</span>
+            </p>
+          </div>
+          <button
+            class="w-full bg-primary text-white font-bold py-3 rounded-xl"
+          >
+            Go Pro
+          </button>
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3 text-sm font-semibold">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>100k requests / month</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm font-semibold">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>Priority support</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm font-semibold">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>Advanced insights</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm font-semibold">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>Custom headers</span>
+            </div>
+          </div>
+        </div>
+        <!-- Enterprise Plan -->
+        <div
+          class="flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6"
+        >
+          <div class="flex flex-col gap-1">
+            <h3 class="text-lg font-bold">Enterprise</h3>
+            <p class="flex items-baseline gap-1">
+              <span class="text-4xl font-black tracking-tight">$199</span>
+              <span class="text-slate-500 font-medium">/mo</span>
+            </p>
+          </div>
+          <button
+            class="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold py-3 rounded-xl"
+          >
+            Contact Sales
+          </button>
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>Unlimited requests</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>24/7 Dedicated support</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>SLA guarantee</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+              <span class="material-symbols-outlined text-primary text-xl"
+                >check_circle</span
+              >
+              <span>White-labeling</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Feature Comparison (Mobile Friendly Accordion Style) -->
+      <section class="px-4 py-8">
+        <h2 class="text-2xl font-bold tracking-tight mb-6">Compare Features</h2>
+        <div
+          class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900/50"
+        >
+          <div
+            class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50"
+          >
+            <span class="font-bold">Feature Details</span>
+            <span class="text-xs text-slate-500">View All</span>
+          </div>
+          <!-- Rows -->
+          <div
+            class="p-4 border-b border-slate-100 dark:border-slate-800/50 space-y-2"
+          >
+            <div class="text-xs uppercase font-bold text-slate-400">
+              Monthly Requests
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500">Starter</span>
+              <span class="font-medium">10,000</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500">Pro</span>
+              <span class="font-medium">100,000</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500">Enterprise</span>
+              <span class="font-medium">Unlimited</span>
+            </div>
+          </div>
+          <div
+            class="p-4 border-b border-slate-100 dark:border-slate-800/50 space-y-2"
+          >
+            <div class="text-xs uppercase font-bold text-slate-400">
+              Response Speed
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500">Starter</span>
+              <span class="font-medium">Standard</span>
+            </div>
+            <div class="flex justify-between text-sm text-primary font-bold">
+              <span>Pro</span>
+              <span>Priority</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500">Enterprise</span>
+              <span class="font-medium">Ultra High</span>
+            </div>
+          </div>
+          <div class="p-4 space-y-2">
+            <div class="text-xs uppercase font-bold text-slate-400">
+              Security
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500">OAuth Support</span>
+              <span class="material-symbols-outlined text-primary">check</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-500">Dedicated IP</span>
+              <span class="material-symbols-outlined text-slate-300"
+                >close</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- FAQ Section -->
+      <section class="px-4 py-8 bg-slate-50 dark:bg-slate-900/20">
+        <h2 class="text-2xl font-bold tracking-tight mb-6">
+          Frequently Asked Questions
+        </h2>
+        <div class="flex flex-col gap-4">
+          <div
+            class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800"
+          >
+            <button
+              class="flex items-center justify-between w-full text-left font-bold text-sm"
+            >
+              Can I change my plan later?
+              <span class="material-symbols-outlined">expand_more</span>
+            </button>
+            <p
+              class="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed"
+            >
+              Yes, you can upgrade or downgrade your plan at any time. Changes
+              take effect at the start of your next billing cycle.
+            </p>
+          </div>
+          <div
+            class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800"
+          >
+            <button
+              class="flex items-center justify-between w-full text-left font-bold text-sm"
+            >
+              What happens if I exceed my limit?
+              <span class="material-symbols-outlined">expand_more</span>
+            </button>
+          </div>
+          <div
+            class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800"
+          >
+            <button
+              class="flex items-center justify-between w-full text-left font-bold text-sm"
+            >
+              Do you offer custom enterprise solutions?
+              <span class="material-symbols-outlined">expand_more</span>
+            </button>
+          </div>
+        </div>
+      </section>
+      <!-- Call to Action -->
+      <section class="px-4 py-12">
+        <div class="bg-primary p-8 rounded-xl text-center flex flex-col gap-6">
+          <h2 class="text-2xl font-black text-white">
+            Ready to boost your workflow?
+          </h2>
+          <p class="text-primary-100/90 text-sm leading-relaxed text-blue-100">
+            Join over 2,000+ companies using ConvertPro API to scale their
+            businesses.
+          </p>
+          <button
+            class="bg-white text-primary font-bold py-4 rounded-xl shadow-lg"
+          >
+            Start Developing Now
+          </button>
+        </div>
+      </section>
+      <!-- Footer -->
+      <footer
+        class="px-6 py-12 border-t border-slate-200 dark:border-slate-800"
+      >
+        <div class="flex flex-col gap-8">
+          <div class="flex items-center gap-2">
             <div
-                class="flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6">
-                <div class="flex flex-col gap-1">
-                    <h3 class="text-lg font-bold">Starter</h3>
-                    <p class="flex items-baseline gap-1">
-                        <span class="text-4xl font-black tracking-tight">$0</span>
-                        <span class="text-slate-500 font-medium">/mo</span>
-                    </p>
-                </div>
-                <button
-                    class="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold py-3 rounded-xl">
-                    Get Started
-                </button>
-                <div class="flex flex-col gap-4">
-                    <div class="flex items-center gap-3 text-sm">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>10k requests / month</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>Community support</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>Basic analytics</span>
-                    </div>
-                </div>
+              class="bg-primary p-1.5 rounded-lg flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-white text-sm"
+                >transform</span
+              >
             </div>
-            <!-- Pro Plan -->
-            <div
-                class="relative flex flex-col gap-6 rounded-xl border-2 border-primary bg-white dark:bg-slate-900 p-6 shadow-xl shadow-primary/5">
-                <div
-                    class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full">
-                    Most Popular
-                </div>
-                <div class="flex flex-col gap-1">
-                    <h3 class="text-lg font-bold">Pro</h3>
-                    <p class="flex items-baseline gap-1">
-                        <span class="text-4xl font-black tracking-tight">$49</span>
-                        <span class="text-slate-500 font-medium">/mo</span>
-                    </p>
-                </div>
-                <button class="w-full bg-primary text-white font-bold py-3 rounded-xl">
-                    Go Pro
-                </button>
-                <div class="flex flex-col gap-4">
-                    <div class="flex items-center gap-3 text-sm font-semibold">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>100k requests / month</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm font-semibold">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>Priority support</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm font-semibold">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>Advanced insights</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm font-semibold">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>Custom headers</span>
-                    </div>
-                </div>
+            <h2 class="text-lg font-bold tracking-tight">ConvertPro</h2>
+          </div>
+          <div class="grid grid-cols-2 gap-8">
+            <div class="flex flex-col gap-3">
+              <h4 class="font-bold text-sm">Product</h4>
+              <a class="text-xs text-slate-500" href="#">API Docs</a>
+              <a class="text-xs text-slate-500" href="#">Pricing</a>
+              <a class="text-xs text-slate-500" href="#">Status</a>
             </div>
-            <!-- Enterprise Plan -->
-            <div
-                class="flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6">
-                <div class="flex flex-col gap-1">
-                    <h3 class="text-lg font-bold">Enterprise</h3>
-                    <p class="flex items-baseline gap-1">
-                        <span class="text-4xl font-black tracking-tight">$199</span>
-                        <span class="text-slate-500 font-medium">/mo</span>
-                    </p>
-                </div>
-                <button
-                    class="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold py-3 rounded-xl">
-                    Contact Sales
-                </button>
-                <div class="flex flex-col gap-4">
-                    <div class="flex items-center gap-3 text-sm">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>Unlimited requests</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>24/7 Dedicated support</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>SLA guarantee</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm">
-                        <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                        <span>White-labeling</span>
-                    </div>
-                </div>
+            <div class="flex flex-col gap-3">
+              <h4 class="font-bold text-sm">Company</h4>
+              <a class="text-xs text-slate-500" href="#">About</a>
+              <a class="text-xs text-slate-500" href="#">Careers</a>
+              <a class="text-xs text-slate-500" href="#">Contact</a>
             </div>
-        </section>
-        <!-- Feature Comparison (Mobile Friendly Accordion Style) -->
-        <section class="px-4 py-8">
-            <h2 class="text-2xl font-bold tracking-tight mb-6">Compare Features</h2>
-            <div
-                class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900/50">
-                <div
-                    class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-                    <span class="font-bold">Feature Details</span>
-                    <span class="text-xs text-slate-500">View All</span>
-                </div>
-                <!-- Rows -->
-                <div class="p-4 border-b border-slate-100 dark:border-slate-800/50 space-y-2">
-                    <div class="text-xs uppercase font-bold text-slate-400">Monthly Requests</div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Starter</span>
-                        <span class="font-medium">10,000</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Pro</span>
-                        <span class="font-medium">100,000</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Enterprise</span>
-                        <span class="font-medium">Unlimited</span>
-                    </div>
-                </div>
-                <div class="p-4 border-b border-slate-100 dark:border-slate-800/50 space-y-2">
-                    <div class="text-xs uppercase font-bold text-slate-400">Response Speed</div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Starter</span>
-                        <span class="font-medium">Standard</span>
-                    </div>
-                    <div class="flex justify-between text-sm text-primary font-bold">
-                        <span>Pro</span>
-                        <span>Priority</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Enterprise</span>
-                        <span class="font-medium">Ultra High</span>
-                    </div>
-                </div>
-                <div class="p-4 space-y-2">
-                    <div class="text-xs uppercase font-bold text-slate-400">Security</div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">OAuth Support</span>
-                        <span class="material-symbols-outlined text-primary">check</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Dedicated IP</span>
-                        <span class="material-symbols-outlined text-slate-300">close</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- FAQ Section -->
-        <section class="px-4 py-8 bg-slate-50 dark:bg-slate-900/20">
-            <h2 class="text-2xl font-bold tracking-tight mb-6">Frequently Asked Questions</h2>
-            <div class="flex flex-col gap-4">
-                <div class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <button class="flex items-center justify-between w-full text-left font-bold text-sm">
-                        Can I change my plan later?
-                        <span class="material-symbols-outlined">expand_more</span>
-                    </button>
-                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Yes, you can upgrade or downgrade your plan at any time. Changes take effect at the start of
-                        your next billing cycle.
-                    </p>
-                </div>
-                <div class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <button class="flex items-center justify-between w-full text-left font-bold text-sm">
-                        What happens if I exceed my limit?
-                        <span class="material-symbols-outlined">expand_more</span>
-                    </button>
-                </div>
-                <div class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <button class="flex items-center justify-between w-full text-left font-bold text-sm">
-                        Do you offer custom enterprise solutions?
-                        <span class="material-symbols-outlined">expand_more</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-        <!-- Call to Action -->
-        <section class="px-4 py-12">
-            <div class="bg-primary p-8 rounded-xl text-center flex flex-col gap-6">
-                <h2 class="text-2xl font-black text-white">Ready to boost your workflow?</h2>
-                <p class="text-primary-100/90 text-sm leading-relaxed text-blue-100">
-                    Join over 2,000+ companies using ConvertPro API to scale their businesses.
-                </p>
-                <button class="bg-white text-primary font-bold py-4 rounded-xl shadow-lg">
-                    Start Developing Now
-                </button>
-            </div>
-        </section>
-        <!-- Footer -->
-        <footer class="px-6 py-12 border-t border-slate-200 dark:border-slate-800">
-            <div class="flex flex-col gap-8">
-                <div class="flex items-center gap-2">
-                    <div class="bg-primary p-1.5 rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-sm">transform</span>
-                    </div>
-                    <h2 class="text-lg font-bold tracking-tight">ConvertPro</h2>
-                </div>
-                <div class="grid grid-cols-2 gap-8">
-                    <div class="flex flex-col gap-3">
-                        <h4 class="font-bold text-sm">Product</h4>
-                        <a class="text-xs text-slate-500" href="#">API Docs</a>
-                        <a class="text-xs text-slate-500" href="#">Pricing</a>
-                        <a class="text-xs text-slate-500" href="#">Status</a>
-                    </div>
-                    <div class="flex flex-col gap-3">
-                        <h4 class="font-bold text-sm">Company</h4>
-                        <a class="text-xs text-slate-500" href="#">About</a>
-                        <a class="text-xs text-slate-500" href="#">Careers</a>
-                        <a class="text-xs text-slate-500" href="#">Contact</a>
-                    </div>
-                </div>
-                <div class="pt-8 border-t border-slate-100 dark:border-slate-800 text-center">
-                    <p class="text-[10px] text-slate-400">© 2024 ConvertPro API. All rights reserved.</p>
-                </div>
-            </div>
-        </footer>
+          </div>
+          <div
+            class="pt-8 border-t border-slate-100 dark:border-slate-800 text-center"
+          >
+            <p class="text-[10px] text-slate-400">
+              © ConvertPro API. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </main>
     <!-- Bottom Navigation Bar (Mobile) -->
     <nav
-        class="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-4 pb-4 pt-2">
-        <div class="flex justify-around items-center max-w-screen-xl mx-auto">
-            <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
-                <span class="material-symbols-outlined">home</span>
-                <span class="text-[10px] font-medium">Home</span>
-            </a>
-            <a class="flex flex-col items-center gap-1 text-primary" href="#">
-                <span class="material-symbols-outlined">sell</span>
-                <span class="text-[10px] font-bold">Pricing</span>
-            </a>
-            <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
-                <span class="material-symbols-outlined">terminal</span>
-                <span class="text-[10px] font-medium">API</span>
-            </a>
-            <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
-                <span class="material-symbols-outlined">account_circle</span>
-                <span class="text-[10px] font-medium">Account</span>
-            </a>
-        </div>
+      class="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-4 pb-4 pt-2"
+    >
+      <div class="flex justify-around items-center max-w-screen-xl mx-auto">
+        <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+          <span class="material-symbols-outlined">home</span>
+          <span class="text-[10px] font-medium">Home</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-primary" href="#">
+          <span class="material-symbols-outlined">sell</span>
+          <span class="text-[10px] font-bold">Pricing</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+          <span class="material-symbols-outlined">terminal</span>
+          <span class="text-[10px] font-medium">API</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+          <span class="material-symbols-outlined">account_circle</span>
+          <span class="text-[10px] font-medium">Account</span>
+        </a>
+      </div>
     </nav>
-</body>
-
+  </body>
 </html>

@@ -1,21 +1,21 @@
 export default function Page() {
   const markup = `
-<header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
-    <div class="flex h-16 items-center justify-between px-6 lg:px-12">
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2 text-primary">
-          <span class="material-symbols-outlined text-3xl font-bold">layers</span>
-          <span class="text-xl font-bold tracking-tight text-slate-900">ConvertPro <span
+<header class="fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
+    <div class="flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-8">
+        <a class="flex items-center gap-2 text-primary cursor-pointer" href="/">
+          <span class="material-symbols-outlined text-3xl font-bold">sync_alt</span>
+          <span class="text-xl font-extrabold tracking-tight text-slate-900">ConvertPro <span
               class="text-primary">API</span></span>
-        </div>
-        <div class="hidden md:flex ml-8 items-center gap-6">
-          <a class="text-sm font-medium text-slate-600 hover:text-primary" href="/docs">Guides</a>
-          <a class="text-sm font-medium text-slate-900 border-b-2 border-primary py-5" href="/docs">Reference</a>
-          <a class="text-sm font-medium text-slate-600 hover:text-primary" href="/docs">Changelog</a>
-          <a class="text-sm font-medium text-slate-600 hover:text-primary" href="/docs">Status</a>
+        </a>
+        <div class="hidden md:flex items-center gap-8">
+          <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors" href="/features">Features</a>
+          <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors" href="/pricing">Pricing</a>
+          <a class="text-sm font-medium text-slate-900 transition-colors" href="/docs">Documentation</a>
+          <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors" href="/dashboard">Dashboard</a>
         </div>
       </div>
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3">
         <div class="relative hidden sm:block">
           <span
             class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
@@ -25,14 +25,14 @@ export default function Page() {
           <kbd
             class="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-slate-300 px-1.5 py-0.5 text-[10px] font-medium text-slate-400">⌘K</kbd>
         </div>
-        <button class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">Sign
-          Up</button>
+        <a href="/login" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-colors">Login</a>
+        <a href="/pricing" class="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-700 transition-colors">Get Started</a>
       </div>
     </div>
   </header>
-  <div class="flex min-h-[calc(100vh-64px)]">
+  <div class="flex min-h-[calc(100vh-64px)] items-start pt-16">
     <aside
-      class="sticky top-16 hidden h-[calc(100vh-64px)] w-64 flex-col overflow-y-auto border-r border-slate-200 bg-white px-6 py-8 lg:flex">
+      class="fixed left-0 top-0 hidden h-screen w-64 overflow-y-auto border-r border-slate-200 bg-white px-6 pb-8 pt-24 lg:block">
       <div class="space-y-8">
         <div>
           <h5 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Getting Started</h5>
@@ -74,35 +74,27 @@ export default function Page() {
           </ul>
         </div>
       </div>
-      <div class="mt-auto pt-8">
-        <div class="rounded-xl bg-slate-50 p-4 border border-slate-100">
-          <p class="text-xs font-semibold text-slate-900">Need help?</p>
-          <p class="mt-1 text-xs text-slate-500 leading-relaxed">Our support team is available 24/7 for Enterprise
-            users.</p>
-          <button class="mt-3 text-xs font-bold text-primary flex items-center gap-1">Contact Support <span
-              class="material-symbols-outlined text-sm">arrow_forward</span></button>
-        </div>
-      </div>
     </aside>
-    <main class="flex-1 overflow-y-auto bg-white">
-      <div class="mx-auto max-w-4xl px-8 py-12 lg:px-16">
+    <main class="min-w-0 flex-1 bg-white lg:ml-64 xl:mr-[400px]">
+      <div class="mx-auto max-w-5xl px-8 py-12 lg:px-16">
         <section class="mb-16" id="introduction">
           <div class="flex items-center gap-2 mb-2">
             <span
-              class="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">v2.0
-              Stable</span>
+              class="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">v3
+              Current</span>
           </div>
           <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">ConvertPro API Documentation
           </h1>
           <p class="mt-6 text-lg text-slate-600 leading-relaxed">
-            Welcome to the ConvertPro API. Our API allows you to programmatically convert documents between hundreds of
-            formats, manage user accounts, and track conversion usage in real-time.
+            Welcome to the ConvertPro API. This page keeps the current documentation layout while updating the real
+            API values, active endpoints, auth flow, conversion routes, user management routes, permissions, points,
+            dashboard, and admin APIs used by the backend.
           </p>
-          <div class="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6">
+          <div class="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6" id="base-url">
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Production Base URL</h4>
-                <code class="mt-2 block text-primary font-mono text-sm">https://api.convertpro.io/v2</code>
+                <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Backend Base URL</h4>
+                <code class="mt-2 block text-primary font-mono text-sm">http://127.0.0.1:8000</code>
               </div>
               <button
                 class="flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50">
@@ -110,13 +102,23 @@ export default function Page() {
               </button>
             </div>
           </div>
+          <div class="mt-6 rounded-xl border border-slate-200 bg-white p-6" id="versioning">
+            <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Versioning</h4>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600">
+              <span class="font-semibold text-slate-900">v3</span> is the current platform API for conversions,
+              points, permissions, dashboard, and admin workflows. <span class="font-semibold text-slate-900">v2</span>
+              handles auth, users, and legacy authenticated converters. <span class="font-semibold text-slate-900">v1</span>
+              remains available for older conversion integrations.
+            </p>
+          </div>
         </section>
         <hr class="border-slate-100 my-16" />
         <section class="mb-16" id="authentication">
           <h2 class="text-3xl font-bold tracking-tight text-slate-900">Authentication</h2>
           <p class="mt-4 text-slate-600">
-            The ConvertPro API uses JWT (JSON Web Tokens) for authentication. To access protected endpoints, you must
-            include a valid bearer token in your request headers.
+            The ConvertPro API uses bearer tokens. Login on <code class="font-mono text-sm">/api/v2/auth/login</code>,
+            refresh on <code class="font-mono text-sm">/api/v2/auth/refresh</code>, and pass the access token in the
+            <code class="font-mono text-sm">Authorization</code> header for protected endpoints.
           </p>
           <div class="mt-8 space-y-4">
             <div class="rounded-xl bg-[#1e293b] p-6 shadow-xl">
@@ -128,23 +130,56 @@ export default function Page() {
                   <span class="size-2.5 rounded-full bg-green-500"></span>
                 </div>
               </div>
-              <pre class="code-block text-sm leading-relaxed text-slate-300"><code><span class="text-primary">curl</span> -X POST https://api.convertpro.io/v2/auth/login \
-  -H <span class="text-green-400">"Content-Type: application/json"</span> \
+              <pre class="code-block text-sm leading-relaxed text-slate-300"><code><span class="text-primary">curl</span> -X POST http://127.0.0.1:8000/api/v2/auth/login \\
+  -H <span class="text-green-400">"Content-Type: application/json"</span> \\
   -d '{
-    <span class="text-yellow-400">"api_key"</span>: <span class="text-green-400">"your_api_key_here"</span>,
-    <span class="text-yellow-400">"secret"</span>: <span class="text-green-400">"your_secret_hash"</span>
+    <span class="text-yellow-400">"email"</span>: <span class="text-green-400">"user@example.com"</span>,
+    <span class="text-yellow-400">"password"</span>: <span class="text-green-400">"password123"</span>
   }'</code></pre>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white p-6">
               <h4 class="text-sm font-bold text-slate-900">Success Response</h4>
               <pre class="code-block mt-4 text-xs text-slate-600"><code>{
-  "status": "success",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expires_at": "2024-12-31T23:59:59Z",
-    "user_id": "usr_9420"
-  }
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer"
 }</code></pre>
+            </div>
+          </div>
+        </section>
+        <section class="mb-16" id="auth-endpoints">
+          <h3 class="text-2xl font-bold text-slate-900 mb-8">Auth Endpoints</h3>
+          <div class="space-y-4">
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
+                <code class="text-sm font-bold text-slate-700">/api/v2/auth/login</code>
+                <span class="ml-auto text-xs text-slate-400">Issue access and refresh tokens</span>
+              </div>
+              <div class="p-6">
+                <p class="text-sm text-slate-600">Request body: <code class="font-mono text-xs">email</code>,
+                  <code class="font-mono text-xs">password</code>.</p>
+              </div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
+                <code class="text-sm font-bold text-slate-700">/api/v2/auth/refresh</code>
+                <span class="ml-auto text-xs text-slate-400">Refresh an access token</span>
+              </div>
+              <div class="p-6">
+                <p class="text-sm text-slate-600">Request body: <code class="font-mono text-xs">refresh_token</code>.</p>
+              </div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
+                <code class="text-sm font-bold text-slate-700">/api/v2/auth/me</code>
+                <span class="ml-auto text-xs text-slate-400">Get current authenticated user</span>
+              </div>
+              <div class="p-6">
+                <p class="text-sm text-slate-600">Requires <code class="font-mono text-xs">Authorization: Bearer &lt;token&gt;</code>.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -156,7 +191,7 @@ export default function Page() {
                 <span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg">shield_person</span>
                 <h4 class="font-bold text-slate-900">Super User</h4>
               </div>
-              <p class="mt-2 text-sm text-slate-500 italic">Full access to system configuration and billing.</p>
+              <p class="mt-2 text-sm text-slate-500 italic">Full access to conversions, billing, admin checks, user role changes, and permission management.</p>
             </div>
             <div class="rounded-xl border border-slate-200 p-5 hover:border-primary/30 transition-colors">
               <div class="flex items-center gap-3">
@@ -164,21 +199,21 @@ export default function Page() {
                   class="material-symbols-outlined text-slate-600 bg-slate-100 p-2 rounded-lg">manage_accounts</span>
                 <h4 class="font-bold text-slate-900">Admin</h4>
               </div>
-              <p class="mt-2 text-sm text-slate-500">Manage organization users and view conversion logs.</p>
+              <p class="mt-2 text-sm text-slate-500">Manage general and demo users, top up points, and inspect user activity and permissions.</p>
             </div>
             <div class="rounded-xl border border-slate-200 p-5 hover:border-primary/30 transition-colors">
               <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-slate-600 bg-slate-100 p-2 rounded-lg">person</span>
                 <h4 class="font-bold text-slate-900">General</h4>
               </div>
-              <p class="mt-2 text-sm text-slate-500">Default role. Can perform conversions and view own history.</p>
+              <p class="mt-2 text-sm text-slate-500">Can perform allowed conversions, read dashboard data, check points, and view own history.</p>
             </div>
             <div class="rounded-xl border border-slate-200 p-5 hover:border-primary/30 transition-colors">
               <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-slate-600 bg-slate-100 p-2 rounded-lg">visibility</span>
                 <h4 class="font-bold text-slate-900">Demo</h4>
               </div>
-              <p class="mt-2 text-sm text-slate-500">Read-only access with restricted conversion limits.</p>
+              <p class="mt-2 text-sm text-slate-500">Read-only mode for protected write actions. Demo users cannot create conversion jobs.</p>
             </div>
           </div>
         </section>
@@ -188,8 +223,8 @@ export default function Page() {
             <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
               <span
                 class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
-              <code class="text-sm font-bold text-slate-700">/api/v2/pdf-to-docs</code>
-              <span class="ml-auto text-xs text-slate-400">Convert PDF to Editable Document</span>
+              <code class="text-sm font-bold text-slate-700">/api/v3/conversions/pdf-to-word</code>
+              <span class="ml-auto text-xs text-slate-400">Convert PDF to DOCX</span>
             </div>
             <div class="p-6">
               <h5 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Body Parameters</h5>
@@ -197,35 +232,138 @@ export default function Page() {
                 <div class="flex items-start justify-between pb-4 border-b border-slate-100">
                   <div>
                     <div class="flex items-center gap-2">
-                      <span class="font-mono text-sm text-slate-900 font-bold">file_url</span>
+                      <span class="font-mono text-sm text-slate-900 font-bold">file</span>
                       <span class="text-[10px] text-red-500 font-bold">REQUIRED</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-1">Publicly accessible URL of the PDF file.</p>
+                    <p class="text-xs text-slate-500 mt-1">Upload PDF file as multipart form data.</p>
                   </div>
-                  <span class="text-xs text-slate-400">string</span>
+                  <span class="text-xs text-slate-400">UploadFile</span>
                 </div>
                 <div class="flex items-start justify-between pb-4 border-b border-slate-100">
                   <div>
                     <div class="flex items-center gap-2">
-                      <span class="font-mono text-sm text-slate-900 font-bold">ocr_enabled</span>
+                      <span class="font-mono text-sm text-slate-900 font-bold">Idempotency-Key</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-1">Enable Optical Character Recognition for scanned PDFs.</p>
+                    <p class="text-xs text-slate-500 mt-1">Optional request header recommended for safe retries on v3 conversion POST calls.</p>
                   </div>
-                  <span class="text-xs text-slate-400">boolean</span>
+                  <span class="text-xs text-slate-400">header</span>
+                </div>
+                <div class="flex items-start justify-between">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono text-sm text-slate-900 font-bold">points_charged</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Successful conversions charge the flat per-request points rule for non-super users.</p>
+                  </div>
+                  <span class="text-xs text-slate-400">integer</span>
                 </div>
               </div>
             </div>
           </div>
-          <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+          <div class="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6">
             <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
               <span
                 class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
-              <code class="text-sm font-bold text-slate-700">/api/v2/auth/me</code>
-              <span class="ml-auto text-xs text-slate-400">Get Current User Profile</span>
+              <code class="text-sm font-bold text-slate-700">/api/v3/conversions/history</code>
+              <span class="ml-auto text-xs text-slate-400">Read conversion history</span>
             </div>
             <div class="p-6">
-              <p class="text-sm text-slate-600">Retrieves details for the authenticated user based on the provided
-                Bearer token.</p>
+              <p class="text-sm text-slate-600">Query params: <code class="font-mono text-xs">limit</code> and optional
+                <code class="font-mono text-xs">user_id</code> for super users.</p>
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6">
+            <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+              <span
+                class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
+              <code class="text-sm font-bold text-slate-700">/api/v3/conversions/&lt;conversion_id&gt;/download</code>
+              <span class="ml-auto text-xs text-slate-400">Download one completed output file</span>
+            </div>
+            <div class="p-6">
+              <p class="text-sm text-slate-600">Downloads the generated file for a successful owned conversion.</p>
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-white p-6">
+            <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Available v3 Conversion Routes</h4>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">POST /api/v3/conversions/pdf-to-word</code>
+              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">POST /api/v3/conversions/pdf-to-excel</code>
+              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">POST /api/v3/conversions/docx-to-pdf</code>
+              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">POST /api/v3/conversions/excel-to-pdf</code>
+              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">POST /api/v3/conversions/image-to-pdf</code>
+              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">POST /api/v3/conversions/remove-pages-from-pdf</code>
+              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">POST /api/v3/conversions/remove-background</code>
+              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">GET /api/v3/conversions/*/files/history</code>
+            </div>
+          </div>
+        </section>
+        <section class="mb-16" id="users">
+          <h3 class="text-2xl font-bold text-slate-900 mb-8">User, Points, Permissions And Admin Endpoints</h3>
+          <div class="space-y-4">
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
+                <code class="text-sm font-bold text-slate-700">/api/v2/users</code>
+                <span class="ml-auto text-xs text-slate-400">Create user</span>
+              </div>
+              <div class="p-6"><p class="text-sm text-slate-600">Admin or super user only.</p></div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
+                <code class="text-sm font-bold text-slate-700">/api/v2/users</code>
+                <span class="ml-auto text-xs text-slate-400">List users</span>
+              </div>
+              <div class="p-6"><p class="text-sm text-slate-600">Returns an array of <code class="font-mono text-xs">UserOut</code>.</p></div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-fuchsia-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">PATCH</span>
+                <code class="text-sm font-bold text-slate-700">/api/v2/users/&lt;user_id&gt;/role</code>
+                <span class="ml-auto text-xs text-slate-400">Update user role</span>
+              </div>
+              <div class="p-6"><p class="text-sm text-slate-600">Super user only.</p></div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
+                <code class="text-sm font-bold text-slate-700">/api/v3/points/balance</code>
+                <span class="ml-auto text-xs text-slate-400">Get points balance</span>
+              </div>
+              <div class="p-6"><p class="text-sm text-slate-600">Other points routes:
+                <code class="font-mono text-xs"> /api/v3/points/ledger</code>,
+                <code class="font-mono text-xs"> /api/v3/points/topup</code>,
+                <code class="font-mono text-xs"> /api/v3/points/rules</code>,
+                <code class="font-mono text-xs"> /api/v3/points/my-point</code>.</p></div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
+                <code class="text-sm font-bold text-slate-700">/api/v3/permissions/actions</code>
+                <span class="ml-auto text-xs text-slate-400">List available conversion actions</span>
+              </div>
+              <div class="p-6"><p class="text-sm text-slate-600">Also available:
+                <code class="font-mono text-xs"> /api/v3/permissions/my-api</code>,
+                <code class="font-mono text-xs"> /api/v3/permissions/users/&lt;user_id&gt;/permissions</code>,
+                <code class="font-mono text-xs"> /api/v3/permissions/users/&lt;user_id&gt;/permissions/&lt;action&gt;</code>.</p></div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
+                <code class="text-sm font-bold text-slate-700">/api/v3/dashboard/overview</code>
+                <span class="ml-auto text-xs text-slate-400">Dashboard overview</span>
+              </div>
+              <div class="p-6"><p class="text-sm text-slate-600">Summaries, active APIs, performance, and recent history for the current user.</p></div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
+                <code class="text-sm font-bold text-slate-700">/api/v3/admin/active-users</code>
+                <span class="ml-auto text-xs text-slate-400">Admin active users list</span>
+              </div>
+              <div class="p-6"><p class="text-sm text-slate-600">Other admin routes:
+                <code class="font-mono text-xs"> /api/v3/admin/points/giving-history</code> and
+                <code class="font-mono text-xs"> /api/v3/admin/check-users/&lt;user_id&gt;</code>.</p></div>
             </div>
           </div>
         </section>
@@ -236,22 +374,28 @@ export default function Page() {
               <span class="material-symbols-outlined text-orange-600">warning</span>
               <div>
                 <h5 class="text-sm font-bold text-orange-900">401 Unauthorized</h5>
-                <p class="text-sm text-orange-700">Invalid or missing authentication credentials.</p>
+                <p class="text-sm text-orange-700">Invalid or missing bearer token.</p>
               </div>
             </div>
             <div class="flex gap-4 rounded-xl border-l-4 border-red-500 bg-red-50 p-4">
               <span class="material-symbols-outlined text-red-600">block</span>
               <div>
                 <h5 class="text-sm font-bold text-red-900">403 Forbidden</h5>
-                <p class="text-sm text-red-700">User does not have required permissions for this action.</p>
+                <p class="text-sm text-red-700">Conversion not permitted, role blocked, or insufficient role privileges.</p>
               </div>
             </div>
             <div class="flex gap-4 rounded-xl border-l-4 border-purple-500 bg-purple-50 p-4">
               <span class="material-symbols-outlined text-purple-600">hourglass_top</span>
               <div>
-                <h5 class="text-sm font-bold text-purple-900">429 Too Many Requests</h5>
-                <p class="text-sm text-purple-700">You have exceeded your rate limits. See the Rate Limits section
-                  below.</p>
+                <h5 class="text-sm font-bold text-purple-900">402 Payment Required</h5>
+                <p class="text-sm text-purple-700">Raised by the backend when the user has insufficient points for a conversion request.</p>
+              </div>
+            </div>
+            <div class="flex gap-4 rounded-xl border-l-4 border-sky-500 bg-sky-50 p-4">
+              <span class="material-symbols-outlined text-sky-600">rule</span>
+              <div>
+                <h5 class="text-sm font-bold text-sky-900">422 Validation Error</h5>
+                <p class="text-sm text-sky-700">Input payload, file upload, or query parameter validation failed.</p>
               </div>
             </div>
           </div>
@@ -262,26 +406,26 @@ export default function Page() {
             <table class="w-full text-left text-sm">
               <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-500">
                 <tr>
-                  <th class="px-6 py-4">Plan</th>
-                  <th class="px-6 py-4">Request Limit</th>
-                  <th class="px-6 py-4">Burst</th>
+                  <th class="px-6 py-4">Scope</th>
+                  <th class="px-6 py-4">Current Docs Note</th>
+                  <th class="px-6 py-4">Behavior</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr>
-                  <td class="px-6 py-4 font-medium text-slate-900">Free Tier</td>
-                  <td class="px-6 py-4 text-slate-600">100 / hour</td>
-                  <td class="px-6 py-4 text-slate-600">5 / minute</td>
+                  <td class="px-6 py-4 font-medium text-slate-900">v3 Conversions</td>
+                  <td class="px-6 py-4 text-slate-600">Point-based charging</td>
+                  <td class="px-6 py-4 text-slate-600">Each successful request uses the flat cost returned by <code class="font-mono text-xs">/api/v3/points/rules</code>.</td>
                 </tr>
                 <tr>
-                  <td class="px-6 py-4 font-medium text-slate-900">Pro</td>
-                  <td class="px-6 py-4 text-slate-600">5,000 / hour</td>
-                  <td class="px-6 py-4 text-slate-600">100 / minute</td>
+                  <td class="px-6 py-4 font-medium text-slate-900">Retry Safety</td>
+                  <td class="px-6 py-4 text-slate-600">Idempotency supported</td>
+                  <td class="px-6 py-4 text-slate-600">Use <code class="font-mono text-xs">Idempotency-Key</code> on v3 POST conversions to prevent duplicate charges.</td>
                 </tr>
                 <tr>
-                  <td class="px-6 py-4 font-medium text-slate-900">Enterprise</td>
-                  <td class="px-6 py-4 text-slate-600">Unlimited</td>
-                  <td class="px-6 py-4 text-slate-600">Custom</td>
+                  <td class="px-6 py-4 font-medium text-slate-900">Admin Reads</td>
+                  <td class="px-6 py-4 text-slate-600">Role-gated</td>
+                  <td class="px-6 py-4 text-slate-600">Admin and super user access depends on backend role checks rather than public anonymous limits.</td>
                 </tr>
               </tbody>
             </table>
@@ -290,7 +434,7 @@ export default function Page() {
       </div>
     </main>
     <aside
-      class="sticky top-16 hidden h-[calc(100vh-64px)] w-[400px] flex-col border-l border-slate-200 bg-slate-50 xl:flex">
+      class="fixed right-0 top-0 hidden h-screen w-[400px] flex-col border-l border-slate-200 bg-slate-50 pt-24 xl:flex">
       <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
         <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Try It Now</h4>
         <div class="flex gap-1">
@@ -306,9 +450,9 @@ export default function Page() {
           <div class="relative">
             <select
               class="w-full rounded-lg border-slate-200 bg-white text-sm focus:border-primary focus:ring-primary appearance-none">
-              <option>POST /pdf-to-docs</option>
-              <option>GET /auth/me</option>
-              <option>POST /auth/login</option>
+              <option>POST /api/v3/conversions/pdf-to-word</option>
+              <option>GET /api/v3/conversions/history</option>
+              <option>POST /api/v2/auth/login</option>
             </select>
             <span
               class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
@@ -327,8 +471,8 @@ export default function Page() {
             </div>
             <div class="flex gap-2">
               <input class="w-1/3 rounded-lg border-slate-200 bg-white text-xs" disabled="" type="text"
-                value="Content-Type" />
-              <input class="flex-1 rounded-lg border-slate-200 bg-white text-xs" type="text" value="application/json" />
+                value="Idempotency-Key" />
+              <input class="flex-1 rounded-lg border-slate-200 bg-white text-xs" type="text" value="550e8400-e29b-41d4-a716-446655440000" />
             </div>
           </div>
         </div>
@@ -336,8 +480,8 @@ export default function Page() {
           <label class="mb-2 block text-xs font-bold text-slate-400 uppercase tracking-wider">Request Body</label>
           <div class="rounded-lg border border-slate-200 bg-[#0f172a] p-4">
             <pre class="text-xs font-mono text-blue-300"><code>{
-  "file_url": "https://example.com/cv.pdf",
-  "ocr_enabled": true
+  "file": "(multipart upload)",
+  "endpoint": "/api/v3/conversions/pdf-to-word"
 }</code></pre>
           </div>
         </div>
@@ -352,14 +496,11 @@ export default function Page() {
           </div>
           <div class="rounded-lg border border-slate-200 bg-white p-4 h-48 overflow-y-auto">
             <pre class="text-xs font-mono text-slate-600"><code>{
+  "conversion_id": 214,
   "status": "success",
-  "request_id": "req_55921",
-  "data": {
-    "conversion_id": "conv_881",
-    "result_url": "https://s3.cp.io/f/doc_1.docx",
-    "pages_processed": 12,
-    "duration_ms": 1420
-  }
+  "download_url": "/api/v3/conversions/214/download",
+  "points_charged": 3,
+  "remaining_balance": 97
 }</code></pre>
           </div>
         </div>
@@ -371,7 +512,7 @@ export default function Page() {
           </div>
           <div>
             <p class="text-[10px] font-bold text-slate-400 uppercase leading-none">Environment</p>
-            <p class="text-xs font-bold text-slate-900 leading-tight">Production API</p>
+            <p class="text-xs font-bold text-slate-900 leading-tight">Local API</p>
           </div>
           <span class="material-symbols-outlined ml-auto text-slate-400">expand_more</span>
         </div>

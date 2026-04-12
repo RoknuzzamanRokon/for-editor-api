@@ -2,36 +2,37 @@ export default function Page() {
   const markup = `
 <!-- Navigation Bar -->
     <header
-        class="sticky top-0 z-50 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
-        <div class="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-6 lg:px-20">
+        class="fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
+        <div class="flex h-24 w-full items-center justify-between px-6 lg:px-8">
             <div class="flex items-center gap-2 group cursor-pointer">
                 <div
-                    class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white transition-transform group-hover:scale-110">
-                    <span class="material-symbols-outlined">sync_alt</span>
+                    class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white transition-transform group-hover:scale-110">
+                    <span class="material-symbols-outlined text-[28px]">sync_alt</span>
                 </div>
-                <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">ConvertPro <span
+                <span class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">ConvertPro <span
                         class="text-primary">API</span></span>
             </div>
             <nav class="hidden items-center gap-10 lg:flex">
-                <a class="text-sm font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
-                    href="/#features">Features</a>
-                <a class="text-sm font-semibold text-primary" href="/pricing">Pricing</a>
-                <a class="text-sm font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
+                <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
+                    href="/features">Features</a>
+                <a class="text-base font-semibold text-primary" href="/pricing">Pricing</a>
+                <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
                     href="/docs">Documentation</a>
-                <a class="text-sm font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
+                <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
                     href="/dashboard">Dashboard</a>
             </nav>
             <div class="flex items-center gap-4">
-                <a class="hidden text-sm font-semibold text-slate-900 hover:text-primary dark:text-white sm:block"
+                <a class="hidden text-base font-semibold text-slate-900 hover:text-primary dark:text-white sm:block"
                     href="/login">Login</a>
                 <button
-                    class="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95">
+                    class="rounded-xl bg-primary px-6 py-3 text-base font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95">
                     Get Started
                 </button>
             </div>
         </div>
     </header>
-    <main class="mx-auto max-w-[1440px] px-6 py-12 lg:px-20">
+    <main class="bg-background-light pt-24 dark:bg-background-dark">
+        <div class="mx-auto max-w-[1440px] px-6 py-12 lg:px-20">
         <!-- Hero Section -->
         <section class="relative mb-20 flex flex-col items-center text-center">
             <div
@@ -327,6 +328,7 @@ export default function Page() {
                 </div>
             </div>
         </section>
+        </div>
     </main>
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-background-dark">
@@ -348,7 +350,7 @@ export default function Page() {
                     <h4 class="mb-6 text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Product
                     </h4>
                     <ul class="space-y-4 text-sm text-slate-600 dark:text-slate-400">
-                        <li><a class="hover:text-primary transition-colors" href="/#features">Features</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="/features">Features</a></li>
                         <li><a class="hover:text-primary transition-colors" href="#">Security</a></li>
                         <li><a class="hover:text-primary transition-colors" href="#">Roadmap</a></li>
                         <li><a class="hover:text-primary transition-colors" href="/pricing">Pricing</a></li>
