@@ -32,11 +32,33 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
+    const handler = (event: Event) => {
+      const customEvent = event as CustomEvent<{ theme?: Theme }>
+      const nextTheme = customEvent.detail?.theme
+      if (
+        nextTheme === 'light' ||
+        nextTheme === 'dark' ||
+        nextTheme === 'ocean' ||
+        nextTheme === 'sunset' ||
+        nextTheme === 'forest' ||
+        nextTheme === 'midnight' ||
+        nextTheme === 'livedark'
+      ) {
+        setTheme(nextTheme)
+      }
+    }
+
+    window.addEventListener('themechange', handler)
+    return () => window.removeEventListener('themechange', handler)
+  }, [])
+
+  useEffect(() => {
     if (mounted) {
       document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark')
       document.documentElement.classList.add(theme)
       if (theme !== 'light') {
         document.documentElement.classList.add('dark')
+        localStorage.setItem('theme_last_non_light', theme)
       }
       localStorage.setItem('theme', theme)
     }

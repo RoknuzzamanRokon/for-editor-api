@@ -22,6 +22,12 @@ export default function Page() {
                     href="/dashboard">Dashboard</a>
             </nav>
             <div class="flex items-center gap-4">
+                <button
+                    class="hidden h-12 w-12 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 md:inline-flex"
+                    data-theme-toggle
+                    onclick="window.__toggleMarketingTheme()">
+                    <span class="material-symbols-outlined text-[22px]" data-theme-toggle-icon>dark_mode</span>
+                </button>
                 <a class="hidden text-base font-semibold text-slate-900 hover:text-primary dark:text-white sm:block"
                     href="/login">Login</a>
                 <button
