@@ -18,7 +18,7 @@ const recentActivity = [
 export default function AdminPage() {
   return (
     <AdminShell>
-      <div className="mx-auto max-w-7xl space-y-8 p-8">
+      <div className="mx-auto max-w-8xl space-y-8 p-8">
         <div>
           <h1 className="text-3xl font-black tracking-tight">Admin Dashboard</h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">

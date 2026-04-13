@@ -114,7 +114,7 @@ export default function AdminProfilePage() {
 
   return (
     <AdminShell>
-      <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+      <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
         <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-white/40 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
           <div className="absolute -left-16 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />

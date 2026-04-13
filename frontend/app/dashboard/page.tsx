@@ -123,7 +123,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl p-8">
+      <div className="mx-auto max-w-8xl p-8">
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
           Loading dashboard...
         </div>
@@ -133,7 +133,7 @@ export default function DashboardPage() {
 
   if (error || !overview) {
     return (
-      <div className="mx-auto max-w-7xl p-8">
+      <div className="mx-auto max-w-8xl p-8">
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-300">
           {error || "Dashboard data not available"}
         </div>
@@ -144,7 +144,7 @@ export default function DashboardPage() {
   const maxTotal = Math.max(...overview.performance_30_days.map((item) => item.total), 1);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-8">
+    <div className="mx-auto max-w-8xl space-y-8 p-8">
       <div>
         <h2 className="text-3xl font-extrabold tracking-tight">Welcome back, {displayName}</h2>
         <p className="mt-1 text-slate-500">Here is what's happening with your API integrations today.</p>

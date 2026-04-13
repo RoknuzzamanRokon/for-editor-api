@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 
 const API_BASE =
@@ -12,9 +13,10 @@ type ActionItem = {
   label: string;
 };
 
-const toEditSlug = (action: string) => action.replaceAll("_", "-");
+const toEditSlug = (action: string) => action.replace(/_/g, "-");
 
 export default function AdminAppCenterPage() {
+  const router = useRouter();
   const [actions, setActions] = useState<ActionItem[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -59,10 +61,16 @@ export default function AdminAppCenterPage() {
     });
   }, [actions, search]);
 
+  useEffect(() => {
+    actions.slice(0, 24).forEach((item) => {
+      router.prefetch(`/admin/app-center/edit/${toEditSlug(item.action)}`);
+    });
+  }, [actions, router]);
+
   return (
     <AdminShell>
       <section className="h-full min-h-full overflow-y-auto bg-background-light px-8 py-6 dark:bg-background-dark">
-        <div className="mx-auto w-full max-w-6xl">
+        <div className="mx-auto w-full max-w-8xl">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
               <h2 className="text-2xl font-black tracking-tight">App Center</h2>
@@ -107,6 +115,9 @@ export default function AdminAppCenterPage() {
                     <div className="mt-4 flex items-center gap-2">
                       <Link
                         href={editHref}
+                        prefetch
+                        onMouseEnter={() => router.prefetch(editHref)}
+                        onFocus={() => router.prefetch(editHref)}
                         className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white"
                       >
                         Open Editor

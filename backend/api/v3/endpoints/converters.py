@@ -20,7 +20,12 @@ from core.points import (
 )
 from db.models import Conversion, RoleEnum, User
 from db.session import SessionLocal, get_db
-from models.conversions import ConversionCreateResponse, ConversionHistoryItem, ConversionHistoryResponse
+from models.conversions import (
+    ConversionCreateResponse,
+    ConversionHistoryItem,
+    ConversionHistoryResponse,
+    ConversionStatusResponse,
+)
 from services.docx_to_pdf_converter import DOCXToPDFConverterService
 from services.excel_to_pdf_converter import ExcelToPDFConverterService
 from services.background_remover import BackgroundRemoverService
@@ -239,6 +244,36 @@ def _build_history_item(conversion: Conversion) -> ConversionHistoryItem:
     )
 
 
+def _build_status_response(
+    db: Session,
+    current_user: User,
+    conversion: Conversion,
+) -> ConversionStatusResponse:
+    download_url = None
+    normalized_status = conversion.status
+
+    if conversion.status == "success" and conversion.output_filename:
+        normalized_status = "completed"
+        download_url = f"/api/v3/conversions/{conversion.id}/download"
+
+    remaining_balance = None
+    if current_user.role != RoleEnum.super_user:
+        remaining_balance = get_user_balance(db, current_user.id)
+
+    return ConversionStatusResponse(
+        conversion_id=conversion.id,
+        action=conversion.action,
+        input_filename=conversion.input_filename,
+        status=normalized_status,
+        error_message=conversion.error_message,
+        points_charged=conversion.points_charged,
+        remaining_balance=remaining_balance,
+        download_url=download_url,
+        created_at=conversion.created_at,
+        updated_at=conversion.updated_at,
+    )
+
+
 def _get_action_history(
     action: str,
     db: Session,
@@ -381,6 +416,36 @@ def get_remove_pages_history(
     user_id: Optional[int] = Query(None),
 ) -> ConversionHistoryResponse:
     return _get_action_history("pdf_page_remove", db, current_user, limit, user_id)
+
+
+@router.get("/{conversion_id}", response_model=ConversionStatusResponse)
+def get_conversion_status(
+    conversion_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ConversionStatusResponse:
+    conversion = _query_owned_conversion(db, current_user, conversion_id)
+    return _build_status_response(db, current_user, conversion)
+
+
+@router.delete("/{conversion_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_conversion(
+    conversion_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    conversion = _query_owned_conversion(db, current_user, conversion_id)
+    require_owner(conversion.owner_user_id, current_user)
+
+    if conversion.output_filename:
+        file_path = Path(conversion.output_filename)
+        if file_path.exists() and file_path.is_file():
+            file_path.unlink()
+
+    db.delete(conversion)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/{conversion_id}/download")

@@ -25,6 +25,19 @@ class ConversionHistoryItem(BaseModel):
     download_url: Optional[str] = None
 
 
+class ConversionStatusResponse(BaseModel):
+    conversion_id: int
+    action: str
+    input_filename: str
+    status: str
+    error_message: Optional[str] = None
+    points_charged: int
+    remaining_balance: Optional[int] = None
+    download_url: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+
 class ConversionHistoryResponse(BaseModel):
     items: list[ConversionHistoryItem]
     limit: int

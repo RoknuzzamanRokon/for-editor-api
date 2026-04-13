@@ -159,7 +159,7 @@ export default function Page() {
                 </div>
             </header>
             <!-- Content Area -->
-            <div class="flex-1 overflow-y-auto p-8 max-w-5xl mx-auto w-full">
+            <div class="flex-1 overflow-y-auto p-8 max-w-8xl mx-auto w-full">
                 <div class="mb-8">
                     <h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Settings</h1>
                     <p class="text-slate-500 dark:text-slate-400 mt-2">Manage your point system, security preferences,

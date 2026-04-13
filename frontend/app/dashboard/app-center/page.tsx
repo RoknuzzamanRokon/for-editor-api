@@ -97,16 +97,16 @@ export default function DashboardAppCenterPage() {
     }
   };
 
-  const toEditSlug = (action: string) => action.replaceAll("_", "-");
+  const toEditSlug = (action: string) => action.replace(/_/g, "-");
 
   useEffect(() => {
-    orderedEndpoints.slice(0, 20).forEach((item) => {
+    orderedEndpoints.slice(0, 32).forEach((item) => {
       router.prefetch(`/dashboard/app-center/edit/${toEditSlug(item.action)}`);
     });
   }, [orderedEndpoints, router]);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-8">
+    <div className="w-full max-w-none space-y-8 p-8">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h1 className="text-4xl font-black tracking-tight">App Center</h1>
@@ -218,6 +218,9 @@ export default function DashboardAppCenterPage() {
               <div className="flex gap-2">
                 <Link
                   href={editHref}
+                  prefetch
+                  onMouseEnter={() => router.prefetch(editHref)}
+                  onFocus={() => router.prefetch(editHref)}
                   className="flex flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white py-2 text-xs font-bold text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 >
                   Try It

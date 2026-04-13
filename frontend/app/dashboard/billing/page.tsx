@@ -80,7 +80,7 @@ export default function DashboardBillingPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl p-8">
+      <div className="mx-auto max-w-8xl p-8">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
           Loading billing...
         </div>
@@ -90,7 +90,7 @@ export default function DashboardBillingPage() {
 
   if (error || !points) {
     return (
-      <div className="mx-auto max-w-7xl p-8">
+      <div className="mx-auto max-w-8xl p-8">
         <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-300">
           {error || "Billing data not available"}
         </div>
@@ -99,7 +99,7 @@ export default function DashboardBillingPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-8">
+    <div className="mx-auto max-w-8xl space-y-8 p-8">
       <div>
         <h1 className="text-3xl font-black tracking-tight">Billing</h1>
         <p className="mt-1 text-slate-500">Track points, usage, and billing-related activity.</p>

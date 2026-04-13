@@ -361,7 +361,7 @@ export default function AdminUsersPage() {
 
   return (
     <AdminShell>
-      <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+      <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
         <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)] via-[rgb(242,249,255)] to-[rgb(232,244,255)] p-8 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(18,24,38)] dark:via-[rgb(19,30,50)] dark:to-[rgb(36,23,46)]">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/18 via-[rgb(255,255,255)]/45 to-[rgb(125,211,252)]/30 dark:from-primary/15 dark:via-white/5 dark:to-[rgb(56,189,248)]/12" />
           <div className="absolute -left-16 top-0 h-40 w-40 rounded-full bg-[rgb(59,130,246)]/20 blur-3xl dark:bg-[rgb(37,99,235)]/20" />

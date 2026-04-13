@@ -1,6 +1,6 @@
 export default function DashboardSettingsPage() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-8">
+    <div className="mx-auto max-w-8xl space-y-6 p-8">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight">Settings</h2>
