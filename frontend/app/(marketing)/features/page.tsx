@@ -28,11 +28,9 @@ export default function Page() {
                     onclick="window.__toggleMarketingTheme()">
                     <span class="material-symbols-outlined text-xl sm:text-[22px]" data-theme-toggle-icon>dark_mode</span>
                 </button>
-                <a class="hidden text-base font-semibold text-slate-900 hover:text-primary dark:text-white sm:block"
-                    href="/login">Login</a>
                 <a
-                    class="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3 sm:text-base"
-                    href="/pricing">Get Started</a>
+                    class="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/25 hover:ring-4 hover:ring-primary/15 active:scale-[0.98] sm:px-6 sm:py-3 sm:text-base"
+                    href="/login">Login</a>
             </div>
         </div>
         <div class="border-t border-slate-200/70 px-4 py-3 dark:border-slate-800 lg:hidden">

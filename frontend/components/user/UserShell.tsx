@@ -1,11 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserSidebar from "./UserSidebar";
 import UserHeader from "./UserHeader";
 
 export default function UserShell({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    const savedValue = window.localStorage.getItem("user_sidebar_collapsed");
+    if (savedValue === "true") {
+      setSidebarCollapsed(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      "user_sidebar_collapsed",
+      String(sidebarCollapsed),
+    );
+  }, [sidebarCollapsed]);
 
   return (
     <div className="min-h-screen bg-background-light text-slate-900 dark:bg-background-dark dark:text-slate-100">

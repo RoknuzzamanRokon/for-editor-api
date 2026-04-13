@@ -97,7 +97,10 @@ export default function RootLayout({
                       button.style.borderColor = meta.border;
                       button.setAttribute('title', currentTheme === 'light' ? 'Switch to current theme' : 'Switch to light theme');
                       var iconNode = button.querySelector('[data-theme-toggle-icon]');
-                      if (iconNode) iconNode.textContent = meta.icon;
+                      if (iconNode) {
+                        iconNode.textContent = meta.icon;
+                        iconNode.style.color = 'currentColor';
+                      }
                     });
                   };
                   document.addEventListener('DOMContentLoaded', window.__syncMarketingThemeButtons);

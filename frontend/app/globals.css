@@ -303,6 +303,11 @@ body {
     color: #000 !important;
   }
 
+  [data-theme-toggle-icon] {
+    color: currentColor;
+    transition: color 0.2s ease;
+  }
+
   /* Fallback for browsers without zoom support */
   @supports not (zoom: 1) {
     .app-scale {

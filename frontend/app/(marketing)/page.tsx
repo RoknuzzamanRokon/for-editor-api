@@ -28,11 +28,9 @@ export default function Page() {
                     onclick="window.__toggleMarketingTheme()">
                     <span class="material-symbols-outlined text-xl sm:text-[22px]" data-theme-toggle-icon>dark_mode</span>
                 </button>
-                <a class="hidden text-base font-semibold text-slate-900 hover:text-primary dark:text-white sm:block"
-                    href="/login">Login</a>
                 <a
-                    class="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3 sm:text-base"
-                    href="/pricing">Get Started</a>
+                    class="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/25 hover:ring-4 hover:ring-primary/15 active:scale-[0.98] sm:px-6 sm:py-3 sm:text-base"
+                    href="/login">Login</a>
             </div>
         </div>
         <div class="border-t border-slate-200/70 px-4 py-3 dark:border-slate-800 lg:hidden">
@@ -45,13 +43,12 @@ export default function Page() {
         </div>
     </header>
     <main class="bg-background-light pt-36 dark:bg-background-dark lg:pt-24">
-        <div class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 sm:py-12 lg:px-20">
-        <section class="relative mb-16 overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-5 py-10 dark:border-slate-800 dark:bg-slate-950 sm:px-8 sm:py-14 lg:mb-24 lg:px-14 lg:py-20">
+        <section class="relative mb-16 w-full overflow-hidden border-y border-slate-200 bg-white px-4 py-10 shadow-[0_24px_70px_-28px_rgba(15,23,42,0.28)] dark:border-slate-800 dark:bg-slate-950 dark:shadow-[0_24px_70px_-28px_rgba(2,6,23,0.72)] sm:px-6 sm:py-14 lg:mb-24 lg:px-8 lg:py-20">
             <div
                 class="absolute -top-24 left-16 h-64 w-64 rounded-full bg-primary/10 blur-[120px]"></div>
             <div
                 class="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-sky-400/10 blur-[140px]"></div>
-            <div class="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+            <div class="relative mx-auto grid max-w-[1440px] items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 lg:px-12">
                 <div>
                     <div
                         class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary sm:text-sm">
@@ -88,6 +85,8 @@ export default function Page() {
                 </div>
             </div>
         </section>
+
+        <div class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 sm:py-12 lg:px-20">
 
         <section class="mb-16 lg:mb-24" id="features">
             <div class="text-center mb-14">

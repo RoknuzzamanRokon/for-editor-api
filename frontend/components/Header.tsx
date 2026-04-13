@@ -23,8 +23,12 @@ export default function Header() {
 
         <div className="flex items-center gap-3">
           <ThemeSwitcher className="[&_button]:border-slate-200 [&_button]:bg-slate-100 [&_button]:text-slate-700 [&_button:hover]:bg-slate-200" />
-          <Link className="rounded-lg px-5 py-2 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-100" href="/dashboard">Login</Link>
-          <Link className="rounded-lg bg-primary px-5 py-2 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-blue-700" href="/pricing">Get Started</Link>
+          <Link
+            className="rounded-lg bg-primary px-5 py-2 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/25 hover:ring-4 hover:ring-primary/15 active:scale-[0.98]"
+            href="/dashboard"
+          >
+            Login
+          </Link>
         </div>
       </div>
     </header>
