@@ -3,13 +3,13 @@ export default function Page() {
 <!-- Navigation Bar -->
     <header
         class="fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
-        <div class="flex h-24 w-full items-center justify-between px-6 lg:px-8">
+        <div class="flex h-20 w-full items-center justify-between px-4 sm:h-24 sm:px-6 lg:px-8">
             <a class="flex items-center gap-2 group cursor-pointer" href="/">
                 <div
-                    class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white transition-transform group-hover:scale-110">
-                    <span class="material-symbols-outlined text-[28px]">sync_alt</span>
+                    class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white transition-transform group-hover:scale-110 sm:h-12 sm:w-12">
+                    <span class="material-symbols-outlined text-2xl sm:text-[28px]">sync_alt</span>
                 </div>
-                <span class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">ConvertPro <span
+                <span class="text-lg font-black tracking-tight text-slate-900 dark:text-white sm:text-2xl">ConvertPro <span
                         class="text-primary">API</span></span>
             </a>
             <nav class="hidden items-center gap-10 lg:flex">
@@ -21,42 +21,50 @@ export default function Page() {
                 <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
                     href="/dashboard">Dashboard</a>
             </nav>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <button
-                    class="hidden h-12 w-12 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 md:inline-flex"
+                    class="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 sm:h-12 sm:w-12"
                     data-theme-toggle
                     onclick="window.__toggleMarketingTheme()">
-                    <span class="material-symbols-outlined text-[22px]" data-theme-toggle-icon>dark_mode</span>
+                    <span class="material-symbols-outlined text-xl sm:text-[22px]" data-theme-toggle-icon>dark_mode</span>
                 </button>
                 <a class="hidden text-base font-semibold text-slate-900 hover:text-primary dark:text-white sm:block"
                     href="/login">Login</a>
                 <a
-                    class="rounded-xl bg-primary px-6 py-3 text-base font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95"
+                    class="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3 sm:text-base"
                     href="/pricing">Get Started</a>
             </div>
         </div>
+        <div class="border-t border-slate-200/70 px-4 py-3 dark:border-slate-800 lg:hidden">
+            <nav class="flex items-center gap-3 overflow-x-auto whitespace-nowrap text-sm font-semibold">
+                <a class="rounded-full bg-primary/10 px-3 py-1.5 text-primary" href="/features">Features</a>
+                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/pricing">Pricing</a>
+                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/docs">Documentation</a>
+                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/dashboard">Dashboard</a>
+            </nav>
+        </div>
     </header>
-    <main class="bg-background-light pt-24 dark:bg-background-dark">
-        <div class="mx-auto max-w-[1440px] px-6 py-12 lg:px-20">
-        <section class="relative mb-24 overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-8 py-14 dark:border-slate-800 dark:bg-slate-950 lg:px-14 lg:py-20">
+    <main class="bg-background-light pt-36 dark:bg-background-dark lg:pt-24">
+        <div class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 sm:py-12 lg:px-20">
+        <section class="relative mb-16 overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-5 py-10 dark:border-slate-800 dark:bg-slate-950 sm:px-8 sm:py-14 lg:mb-24 lg:px-14 lg:py-20">
             <div
                 class="absolute -top-24 left-16 h-64 w-64 rounded-full bg-primary/10 blur-[120px]"></div>
             <div
                 class="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-sky-400/10 blur-[140px]"></div>
-            <div class="relative grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+            <div class="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
                 <div>
                     <div
-                        class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+                        class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary sm:text-sm">
                         <span class="material-symbols-outlined text-sm">verified</span> Now processing 1M+ files daily
                     </div>
-                    <h1 class="mt-8 max-w-4xl text-5xl font-black tracking-tight text-slate-900 dark:text-white lg:text-7xl">
+                    <h1 class="mt-6 max-w-4xl text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:mt-8 sm:text-5xl lg:text-7xl">
                         Powerful file conversion API for <span class="text-primary">modern applications</span>
                     </h1>
-                    <p class="mt-8 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
+                    <p class="mt-6 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400 sm:mt-8 sm:text-lg sm:leading-8">
                         Secure, fast, role-based infrastructure for document conversion, permissions, billing controls,
                         and operational visibility. Launch workflow automation in days, not months.
                     </p>
-                    <div class="mt-10 flex flex-col gap-4 sm:flex-row">
+                    <div class="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:gap-4">
                         <a href="/pricing"
                             class="rounded-2xl bg-primary px-8 py-4 text-center text-sm font-bold text-white shadow-xl shadow-primary/25 transition-all hover:bg-primary/90">
                             Try API Free
@@ -81,10 +89,10 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="mb-24" id="features">
+        <section class="mb-16 lg:mb-24" id="features">
             <div class="text-center mb-14">
-                <h2 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Supported conversions</h2>
-                <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
+                <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Supported conversions</h2>
+                <p class="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400 sm:text-lg sm:leading-8">
                     Production-ready endpoints for common document and image workflows, with consistent responses and
                     clean integration paths.
                 </p>
@@ -121,7 +129,7 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="mb-24 grid gap-8 lg:grid-cols-3">
+        <section class="mb-16 grid gap-6 lg:mb-24 lg:gap-8 lg:grid-cols-3">
             <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary">Security</p>
                 <h3 class="mt-4 text-2xl font-bold text-slate-900 dark:text-white">JWT and role-based access</h3>
@@ -139,10 +147,10 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="mb-24 overflow-hidden rounded-[2rem] bg-slate-900 py-20 text-white">
-            <div class="grid items-center gap-14 px-8 lg:grid-cols-[1fr_0.95fr] lg:px-14">
+        <section class="mb-16 overflow-hidden rounded-[2rem] bg-slate-900 py-12 text-white sm:py-16 lg:mb-24 lg:py-20">
+            <div class="grid items-center gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_0.95fr] lg:gap-14 lg:px-14">
                 <div>
-                    <h2 class="text-4xl font-black tracking-tight">Built for product, platform, and internal tools teams.</h2>
+                    <h2 class="text-3xl font-black tracking-tight sm:text-4xl">Built for product, platform, and internal tools teams.</h2>
                     <div class="mt-10 space-y-8">
                         <div class="flex gap-4">
                             <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary">
@@ -182,7 +190,7 @@ export default function Page() {
                             <span class="h-2.5 w-2.5 rounded-full bg-slate-700"></span>
                         </div>
                     </div>
-                    <pre class="overflow-x-auto text-sm leading-7 text-slate-300"><code><span class="text-pink-400">curl</span> -X POST http://127.0.0.1:8000/api/v3/conversions/pdf-to-word \\
+                    <pre class="overflow-x-auto whitespace-pre-wrap break-words text-sm leading-7 text-slate-300"><code><span class="text-pink-400">curl</span> -X POST http://127.0.0.1:8000/api/v3/conversions/pdf-to-word \\
   -H <span class="text-emerald-400">"Authorization: Bearer &lt;token&gt;"</span> \\
   -H <span class="text-emerald-400">"Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000"</span> \\
   -F <span class="text-amber-300">"file=@document.pdf"</span>
@@ -198,8 +206,8 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="mb-24">
-            <h2 class="mb-12 text-center text-4xl font-black tracking-tight text-slate-900 dark:text-white">Why teams choose ConvertPro</h2>
+        <section class="mb-16 lg:mb-24">
+            <h2 class="mb-12 text-center text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Why teams choose ConvertPro</h2>
             <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <span class="material-symbols-outlined text-4xl text-primary">speed</span>

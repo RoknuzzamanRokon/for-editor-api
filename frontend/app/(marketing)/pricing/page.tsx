@@ -3,15 +3,15 @@ export default function Page() {
 <!-- Navigation Bar -->
     <header
         class="fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
-        <div class="flex h-24 w-full items-center justify-between px-6 lg:px-8">
-            <div class="flex items-center gap-2 group cursor-pointer">
+        <div class="flex h-20 w-full items-center justify-between px-4 sm:h-24 sm:px-6 lg:px-8">
+            <a class="flex items-center gap-2 group cursor-pointer" href="/">
                 <div
-                    class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white transition-transform group-hover:scale-110">
-                    <span class="material-symbols-outlined text-[28px]">sync_alt</span>
+                    class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white transition-transform group-hover:scale-110 sm:h-12 sm:w-12">
+                    <span class="material-symbols-outlined text-2xl sm:text-[28px]">sync_alt</span>
                 </div>
-                <span class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">ConvertPro <span
+                <span class="text-lg font-black tracking-tight text-slate-900 dark:text-white sm:text-2xl">ConvertPro <span
                         class="text-primary">API</span></span>
-            </div>
+            </a>
             <nav class="hidden items-center gap-10 lg:flex">
                 <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
                     href="/features">Features</a>
@@ -21,26 +21,34 @@ export default function Page() {
                 <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
                     href="/dashboard">Dashboard</a>
             </nav>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <button
-                    class="hidden h-12 w-12 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 md:inline-flex"
+                    class="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 sm:h-12 sm:w-12"
                     data-theme-toggle
                     onclick="window.__toggleMarketingTheme()">
-                    <span class="material-symbols-outlined text-[22px]" data-theme-toggle-icon>dark_mode</span>
+                    <span class="material-symbols-outlined text-xl sm:text-[22px]" data-theme-toggle-icon>dark_mode</span>
                 </button>
                 <a class="hidden text-base font-semibold text-slate-900 hover:text-primary dark:text-white sm:block"
                     href="/login">Login</a>
                 <button
-                    class="rounded-xl bg-primary px-6 py-3 text-base font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95">
+                    class="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3 sm:text-base">
                     Get Started
                 </button>
             </div>
         </div>
+        <div class="border-t border-slate-200/70 px-4 py-3 dark:border-slate-800 lg:hidden">
+            <nav class="flex items-center gap-3 overflow-x-auto whitespace-nowrap text-sm font-semibold">
+                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/features">Features</a>
+                <a class="rounded-full bg-primary/10 px-3 py-1.5 text-primary" href="/pricing">Pricing</a>
+                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/docs">Documentation</a>
+                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/dashboard">Dashboard</a>
+            </nav>
+        </div>
     </header>
-    <main class="bg-background-light pt-24 dark:bg-background-dark">
-        <div class="mx-auto max-w-[1440px] px-6 py-12 lg:px-20">
+    <main class="bg-background-light pt-36 dark:bg-background-dark lg:pt-24">
+        <div class="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 sm:py-12 lg:px-20">
         <!-- Hero Section -->
-        <section class="relative mb-20 flex flex-col items-center text-center">
+        <section class="relative mb-16 flex flex-col items-center text-center lg:mb-20">
             <div
                 class="absolute -top-24 left-1/2 -z-10 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]">
             </div>
@@ -48,18 +56,18 @@ export default function Page() {
                 class="inline-flex items-center rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6">
                 <span class="mr-2">✨</span> New: Enterprise-grade infrastructure
             </div>
-            <h1 class="max-w-3xl text-5xl font-black tracking-tight text-slate-900 dark:text-white lg:text-6xl">
+            <h1 class="max-w-3xl text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
                 Simple, Transparent <span class="text-primary">Pricing</span>
             </h1>
-            <p class="mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+            <p class="mt-6 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400 sm:text-lg sm:leading-relaxed">
                 Choose the plan that fits your integration needs. Scale as you grow with our powerful API, built for
                 developers by developers.
             </p>
             <!-- Toggle -->
-            <div class="mt-12 flex items-center justify-center gap-4">
+            <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:mt-12 sm:flex-row">
                 <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Monthly</span>
                 <div
-                    class="flex h-10 w-48 items-center justify-center rounded-xl bg-slate-200/50 p-1 dark:bg-slate-800">
+                    class="flex h-10 w-full max-w-[16rem] items-center justify-center rounded-xl bg-slate-200/50 p-1 dark:bg-slate-800">
                     <button
                         class="h-full w-1/2 rounded-lg bg-white text-sm font-bold text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white">Yearly</button>
                     <button
@@ -74,7 +82,7 @@ export default function Page() {
             </div>
         </section>
         <!-- Pricing Cards -->
-        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             <!-- Demo -->
             <div
                 class="group flex flex-col rounded-xl border border-slate-200 bg-white p-8 transition-all hover:shadow-2xl hover:shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900/50">
@@ -208,12 +216,13 @@ export default function Page() {
             </div>
         </div>
         <!-- Comparison Table Section -->
-        <section class="mt-32">
+        <section class="mt-20 sm:mt-32">
             <h2 class="mb-12 text-center text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Compare Plan
                 Features</h2>
-            <div
+            <div class="overflow-x-auto"
+                ><div
                 class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <table class="w-full text-left">
+                <table class="min-w-[760px] w-full text-left">
                     <thead>
                         <tr class="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
                             <th class="px-8 py-5 text-sm font-bold text-slate-900 dark:text-white">Feature</th>
@@ -262,17 +271,17 @@ export default function Page() {
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </div></div>
         </section>
         <!-- FAQ Section -->
-        <section class="mt-32 max-w-4xl mx-auto">
+        <section class="mt-20 max-w-4xl mx-auto sm:mt-32">
             <h2 class="mb-12 text-center text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Frequently
                 Asked Questions</h2>
             <div class="space-y-4">
                 <div
                     class="group rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
                     <button class="flex w-full items-center justify-between text-left">
-                        <span class="text-lg font-bold text-slate-900 dark:text-white">Can I switch plans
+                        <span class="pr-4 text-base font-bold text-slate-900 dark:text-white sm:text-lg">Can I switch plans
                             anytime?</span>
                         <span
                             class="material-symbols-outlined transition-transform group-hover:rotate-180">expand_more</span>
@@ -285,7 +294,7 @@ export default function Page() {
                 <div
                     class="group rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
                     <button class="flex w-full items-center justify-between text-left">
-                        <span class="text-lg font-bold text-slate-900 dark:text-white">What happens if I exceed my
+                        <span class="pr-4 text-base font-bold text-slate-900 dark:text-white sm:text-lg">What happens if I exceed my
                             request limit?</span>
                         <span
                             class="material-symbols-outlined transition-transform group-hover:rotate-180">expand_more</span>
@@ -298,7 +307,7 @@ export default function Page() {
                 <div
                     class="group rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
                     <button class="flex w-full items-center justify-between text-left">
-                        <span class="text-lg font-bold text-slate-900 dark:text-white">Do you offer custom API
+                        <span class="pr-4 text-base font-bold text-slate-900 dark:text-white sm:text-lg">Do you offer custom API
                             endpoints?</span>
                         <span
                             class="material-symbols-outlined transition-transform group-hover:rotate-180">expand_more</span>
@@ -311,23 +320,23 @@ export default function Page() {
             </div>
         </section>
         <!-- CTA Section -->
-        <section class="mt-32 mb-20">
+        <section class="mt-20 mb-16 sm:mt-32 sm:mb-20">
             <div
-                class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary to-blue-700 p-12 text-center text-white lg:p-20">
+                class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary to-blue-700 p-6 text-center text-white sm:p-12 lg:p-20">
                 <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
                 <div class="relative z-10 flex flex-col items-center">
-                    <h2 class="text-4xl font-black lg:text-5xl">Ready to integrate?</h2>
-                    <p class="mt-6 max-w-xl text-lg text-blue-100">
+                    <h2 class="text-3xl font-black sm:text-4xl lg:text-5xl">Ready to integrate?</h2>
+                    <p class="mt-6 max-w-xl text-base text-blue-100 sm:text-lg">
                         Get your API key in minutes and start transforming your data with the most reliable converter
                         API on the market.
                     </p>
                     <div class="mt-10 flex flex-col items-center gap-4 sm:flex-row">
                         <button
-                            class="rounded-xl bg-white px-8 py-4 text-lg font-bold text-primary shadow-xl transition-transform hover:scale-105 active:scale-95">
+                            class="rounded-xl bg-white px-6 py-4 text-base font-bold text-primary shadow-xl transition-transform hover:scale-105 active:scale-95 sm:px-8 sm:text-lg">
                             Get Your API Key Now
                         </button>
                         <button
-                            class="rounded-xl bg-primary/20 border border-white/20 px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-primary/30">
+                            class="rounded-xl bg-primary/20 border border-white/20 px-6 py-4 text-base font-bold text-white transition-colors hover:bg-primary/30 sm:px-8 sm:text-lg">
                             Book a Demo
                         </button>
                     </div>
@@ -338,7 +347,7 @@ export default function Page() {
     </main>
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-background-dark">
-        <div class="mx-auto max-w-[1440px] px-6 lg:px-20">
+        <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
             <div class="grid grid-cols-2 gap-12 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
                 <div class="col-span-2">
                     <div class="flex items-center gap-2 mb-6">

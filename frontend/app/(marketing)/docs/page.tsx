@@ -1,11 +1,11 @@
 export default function Page() {
   const markup = `
 <header class="fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
-    <div class="flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-8">
+    <div class="flex h-20 w-full items-center justify-between px-4 sm:h-16 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-4 sm:gap-8">
         <a class="flex items-center gap-2 text-primary cursor-pointer" href="/">
-          <span class="material-symbols-outlined text-3xl font-bold">sync_alt</span>
-          <span class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">ConvertPro <span
+          <span class="material-symbols-outlined text-2xl font-bold sm:text-3xl">sync_alt</span>
+          <span class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-xl">ConvertPro <span
               class="text-primary">API</span></span>
         </a>
         <div class="hidden md:flex items-center gap-8">
@@ -15,7 +15,7 @@ export default function Page() {
           <a class="text-sm font-medium text-slate-600 hover:text-primary transition-colors dark:text-slate-400" href="/dashboard">Dashboard</a>
         </div>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
         <div class="relative hidden sm:block">
           <span
             class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm dark:text-slate-500">search</span>
@@ -26,17 +26,25 @@ export default function Page() {
             class="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-slate-300 px-1.5 py-0.5 text-[10px] font-medium text-slate-400 dark:border-slate-700 dark:text-slate-500">⌘K</kbd>
         </div>
         <button
-          class="hidden h-11 w-11 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 md:inline-flex"
+          class="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 sm:h-11 sm:w-11 md:inline-flex"
           data-theme-toggle
           onclick="window.__toggleMarketingTheme()">
-          <span class="material-symbols-outlined text-[22px]" data-theme-toggle-icon>dark_mode</span>
+          <span class="material-symbols-outlined text-xl sm:text-[22px]" data-theme-toggle-icon>dark_mode</span>
         </button>
-        <a href="/login" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-colors dark:text-slate-300 dark:hover:bg-slate-800">Login</a>
+        <a href="/login" class="hidden rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-colors dark:text-slate-300 dark:hover:bg-slate-800 sm:inline-flex">Login</a>
         <a href="/pricing" class="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-700 transition-colors">Get Started</a>
       </div>
     </div>
+    <div class="border-t border-slate-200/70 px-4 py-3 dark:border-slate-800 md:hidden">
+      <nav class="flex items-center gap-3 overflow-x-auto whitespace-nowrap text-sm font-semibold">
+        <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/features">Features</a>
+        <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/pricing">Pricing</a>
+        <a class="rounded-full bg-primary/10 px-3 py-1.5 text-primary" href="/docs">Documentation</a>
+        <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/dashboard">Dashboard</a>
+      </nav>
+    </div>
   </header>
-  <div class="flex min-h-[calc(100vh-64px)] items-start bg-background-light pt-16 dark:bg-background-dark">
+  <div class="flex min-h-[calc(100vh-64px)] items-start bg-background-light pt-32 dark:bg-background-dark sm:pt-20 md:pt-16">
     <aside
       class="fixed left-0 top-0 hidden h-screen w-64 overflow-y-auto border-r border-slate-200 bg-white px-6 pb-8 pt-24 dark:border-slate-800 dark:bg-slate-950 lg:block">
       <div class="space-y-8">
@@ -82,7 +90,7 @@ export default function Page() {
       </div>
     </aside>
     <main class="min-w-0 flex-1 bg-white dark:bg-slate-950 lg:ml-64 xl:mr-[400px]">
-      <div class="mx-auto max-w-5xl px-8 py-12 lg:px-16">
+      <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-16 lg:py-12">
         <section class="mb-16" id="introduction">
           <div class="flex items-center gap-2 mb-2">
             <span
@@ -97,7 +105,7 @@ export default function Page() {
             dashboard, and admin APIs used by the backend.
           </p>
           <div class="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900" id="base-url">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight dark:text-white">Backend Base URL</h4>
                 <code class="mt-2 block text-primary font-mono text-sm">http://127.0.0.1:8000</code>
@@ -157,7 +165,7 @@ export default function Page() {
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-8">Auth Endpoints</h3>
           <div class="space-y-4">
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v2/auth/login</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">Issue access and refresh tokens</span>
@@ -168,7 +176,7 @@ export default function Page() {
               </div>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v2/auth/refresh</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">Refresh an access token</span>
@@ -178,7 +186,7 @@ export default function Page() {
               </div>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v2/auth/me</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">Get current authenticated user</span>
@@ -226,7 +234,7 @@ export default function Page() {
         <section class="mb-16" id="converter">
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-8">Conversion Endpoints</h3>
           <div class="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6 dark:border-slate-800 dark:bg-slate-950">
-            <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
               <span
                 class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
               <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v3/conversions/pdf-to-word</code>
@@ -267,7 +275,7 @@ export default function Page() {
             </div>
           </div>
           <div class="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6 dark:border-slate-800 dark:bg-slate-950">
-            <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
               <span
                 class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
               <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v3/conversions/history</code>
@@ -279,7 +287,7 @@ export default function Page() {
             </div>
           </div>
           <div class="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6 dark:border-slate-800 dark:bg-slate-950">
-            <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
               <span
                 class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
               <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v3/conversions/&lt;conversion_id&gt;/download</code>
@@ -307,7 +315,7 @@ export default function Page() {
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-8">User, Points, Permissions And Admin Endpoints</h3>
           <div class="space-y-4">
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v2/users</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">Create user</span>
@@ -315,7 +323,7 @@ export default function Page() {
               <div class="p-6"><p class="text-sm text-slate-600 dark:text-slate-300">Admin or super user only.</p></div>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v2/users</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">List users</span>
@@ -323,7 +331,7 @@ export default function Page() {
               <div class="p-6"><p class="text-sm text-slate-600 dark:text-slate-300">Returns an array of <code class="font-mono text-xs">UserOut</code>.</p></div>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-fuchsia-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">PATCH</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v2/users/&lt;user_id&gt;/role</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">Update user role</span>
@@ -331,7 +339,7 @@ export default function Page() {
               <div class="p-6"><p class="text-sm text-slate-600 dark:text-slate-300">Super user only.</p></div>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v3/points/balance</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">Get points balance</span>
@@ -343,7 +351,7 @@ export default function Page() {
                 <code class="font-mono text-xs"> /api/v3/points/my-point</code>.</p></div>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v3/permissions/actions</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">List available conversion actions</span>
@@ -354,7 +362,7 @@ export default function Page() {
                 <code class="font-mono text-xs"> /api/v3/permissions/users/&lt;user_id&gt;/permissions/&lt;action&gt;</code>.</p></div>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v3/dashboard/overview</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">Dashboard overview</span>
@@ -362,7 +370,7 @@ export default function Page() {
               <div class="p-6"><p class="text-sm text-slate-600 dark:text-slate-300">Summaries, active APIs, performance, and recent history for the current user.</p></div>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-              <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
                 <code class="text-sm font-bold text-slate-700 dark:text-slate-200">/api/v3/admin/active-users</code>
                 <span class="ml-auto text-xs text-slate-400 dark:text-slate-500">Admin active users list</span>
@@ -408,8 +416,8 @@ export default function Page() {
         </section>
         <section class="mb-16" id="rate-limits">
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Rate Limits</h3>
-          <div class="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-            <table class="w-full text-left text-sm">
+          <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+            <table class="min-w-[720px] w-full text-left text-sm">
               <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-500 dark:bg-slate-900 dark:text-slate-400">
                 <tr>
                   <th class="px-6 py-4">Scope</th>

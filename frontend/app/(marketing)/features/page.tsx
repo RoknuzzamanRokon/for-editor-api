@@ -3,13 +3,13 @@ export default function Page() {
 <!-- Navigation Bar -->
     <header
         class="fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
-        <div class="flex h-24 w-full items-center justify-between px-6 lg:px-8">
+        <div class="flex h-20 w-full items-center justify-between px-4 sm:h-24 sm:px-6 lg:px-8">
             <a class="flex items-center gap-2 group cursor-pointer" href="/">
                 <div
-                    class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white transition-transform group-hover:scale-110">
-                    <span class="material-symbols-outlined text-[28px]">sync_alt</span>
+                    class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white transition-transform group-hover:scale-110 sm:h-12 sm:w-12">
+                    <span class="material-symbols-outlined text-2xl sm:text-[28px]">sync_alt</span>
                 </div>
-                <span class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">ConvertPro <span
+                <span class="text-lg font-black tracking-tight text-slate-900 dark:text-white sm:text-2xl">ConvertPro <span
                         class="text-primary">API</span></span>
             </a>
             <nav class="hidden items-center gap-10 lg:flex">
@@ -21,35 +21,43 @@ export default function Page() {
                 <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
                     href="/dashboard">Dashboard</a>
             </nav>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <button
-                    class="hidden h-12 w-12 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 md:inline-flex"
+                    class="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 sm:h-12 sm:w-12"
                     data-theme-toggle
                     onclick="window.__toggleMarketingTheme()">
-                    <span class="material-symbols-outlined text-[22px]" data-theme-toggle-icon>dark_mode</span>
+                    <span class="material-symbols-outlined text-xl sm:text-[22px]" data-theme-toggle-icon>dark_mode</span>
                 </button>
                 <a class="hidden text-base font-semibold text-slate-900 hover:text-primary dark:text-white sm:block"
                     href="/login">Login</a>
                 <a
-                    class="rounded-xl bg-primary px-6 py-3 text-base font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95"
+                    class="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3 sm:text-base"
                     href="/pricing">Get Started</a>
             </div>
         </div>
+        <div class="border-t border-slate-200/70 px-4 py-3 dark:border-slate-800 lg:hidden">
+            <nav class="flex items-center gap-3 overflow-x-auto whitespace-nowrap text-sm font-semibold">
+                <a class="rounded-full bg-primary/10 px-3 py-1.5 text-primary" href="/features">Features</a>
+                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/pricing">Pricing</a>
+                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/docs">Documentation</a>
+                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/dashboard">Dashboard</a>
+            </nav>
+        </div>
     </header>
-    <main class="bg-background-light pt-24 dark:bg-background-dark">
-        <section class="relative overflow-hidden border-b border-slate-200 bg-white py-24 dark:border-slate-800 dark:bg-slate-950">
+    <main class="bg-background-light pt-36 dark:bg-background-dark lg:pt-24">
+        <section class="relative overflow-hidden border-b border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-slate-950 sm:py-24">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.14),transparent_34%),radial-gradient(circle_at_85%_15%,rgba(14,165,233,0.12),transparent_30%)]"></div>
-            <div class="relative mx-auto grid max-w-[1440px] gap-16 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-20">
+            <div class="relative mx-auto grid max-w-[1440px] gap-10 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:px-20">
                 <div>
                     <div
                         class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.24em] text-primary">
                         <span class="material-symbols-outlined text-sm">auto_awesome</span>
                         Product Features
                     </div>
-                    <h1 class="mt-8 max-w-4xl text-5xl font-black tracking-tight text-slate-900 dark:text-white lg:text-7xl">
+                    <h1 class="mt-6 max-w-4xl text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:mt-8 sm:text-5xl lg:text-7xl">
                         Everything teams need to automate file workflows with one API.
                     </h1>
-                    <p class="mt-8 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
+                    <p class="mt-6 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400 sm:mt-8 sm:text-lg sm:leading-8">
                         ConvertPro combines secure conversion pipelines, role-based access, billing controls, history,
                         downloads, and admin insight into one platform built for product teams, internal tools, and
                         customer-facing apps.
@@ -90,11 +98,11 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="bg-slate-50 py-24 dark:bg-slate-950/60">
-            <div class="mx-auto max-w-[1440px] px-6 lg:px-20">
+        <section class="bg-slate-50 py-16 dark:bg-slate-950/60 sm:py-24">
+            <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
                 <div class="max-w-3xl">
-                    <h2 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Core capabilities</h2>
-                    <p class="mt-5 text-lg leading-8 text-slate-600 dark:text-slate-400">
+                    <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Core capabilities</h2>
+                    <p class="mt-5 text-base leading-7 text-slate-600 dark:text-slate-400 sm:text-lg sm:leading-8">
                         The platform is structured around practical API building blocks that product and platform teams
                         need in real deployments.
                     </p>
@@ -140,12 +148,12 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="bg-white py-24 dark:bg-slate-950">
-            <div class="mx-auto max-w-[1440px] px-6 lg:px-20">
+        <section class="bg-white py-16 dark:bg-slate-950 sm:py-24">
+            <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
                 <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
                     <div>
-                        <h2 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Built for real teams</h2>
-                        <p class="mt-6 text-lg leading-8 text-slate-600 dark:text-slate-400">
+                        <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Built for real teams</h2>
+                        <p class="mt-6 text-base leading-7 text-slate-600 dark:text-slate-400 sm:text-lg sm:leading-8">
                             The product covers the entire workflow from authentication to conversion execution to team
                             governance, so you can ship one integrated platform instead of stitching together multiple services.
                         </p>
@@ -176,13 +184,13 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="overflow-hidden bg-slate-900 py-24 text-white">
-            <div class="mx-auto max-w-[1440px] px-6 lg:px-20">
-                <div class="grid items-center gap-12 lg:grid-cols-[1fr_0.95fr]">
+        <section class="overflow-hidden bg-slate-900 py-16 text-white sm:py-24">
+            <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
+                <div class="grid items-center gap-10 lg:grid-cols-[1fr_0.95fr] lg:gap-12">
                     <div>
                         <p class="text-sm font-bold uppercase tracking-[0.3em] text-primary">API Preview</p>
-                        <h2 class="mt-4 text-4xl font-black tracking-tight">One platform, versioned and production-friendly.</h2>
-                        <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+                        <h2 class="mt-4 text-3xl font-black tracking-tight sm:text-4xl">One platform, versioned and production-friendly.</h2>
+                        <p class="mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
                             Use v2 for auth and user management, and v3 for points, permissions, dashboard, admin,
                             and conversion workflows.
                         </p>
@@ -196,7 +204,7 @@ export default function Page() {
                                 <span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>
                             </div>
                         </div>
-                        <pre class="overflow-x-auto text-sm leading-7 text-slate-300"><code><span class="text-pink-400">curl</span> -X POST http://127.0.0.1:8000/api/v3/conversions/pdf-to-word \\
+                        <pre class="overflow-x-auto whitespace-pre-wrap break-words text-sm leading-7 text-slate-300"><code><span class="text-pink-400">curl</span> -X POST http://127.0.0.1:8000/api/v3/conversions/pdf-to-word \\
   -H <span class="text-emerald-400">"Authorization: Bearer &lt;token&gt;"</span> \\
   -H <span class="text-emerald-400">"Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000"</span> \\
   -F <span class="text-amber-300">"file=@document.pdf"</span>
@@ -214,11 +222,11 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="bg-white py-24 dark:bg-slate-950">
-            <div class="mx-auto max-w-[1440px] px-6 lg:px-20">
-                <div class="rounded-[2rem] border border-slate-200 bg-slate-50 px-8 py-14 text-center dark:border-slate-800 dark:bg-slate-900">
-                    <h2 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Ship faster with a complete conversion stack.</h2>
-                    <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
+        <section class="bg-white py-16 dark:bg-slate-950 sm:py-24">
+            <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
+                <div class="rounded-[2rem] border border-slate-200 bg-slate-50 px-5 py-10 text-center dark:border-slate-800 dark:bg-slate-900 sm:px-8 sm:py-14">
+                    <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Ship faster with a complete conversion stack.</h2>
+                    <p class="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400 sm:text-lg sm:leading-8">
                         Start with the docs, choose a pricing tier, and integrate the endpoints your team needs.
                     </p>
                     <div class="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
