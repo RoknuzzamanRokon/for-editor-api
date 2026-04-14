@@ -45,6 +45,12 @@ class User(Base):
         cascade="all, delete-orphan",
     )
     conversions = relationship("Conversion", back_populates="owner", cascade="all, delete-orphan")
+    preferences = relationship(
+        "UserPreference",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
 
 class RefreshToken(Base):
@@ -68,6 +74,20 @@ class UserPoints(Base):
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", back_populates="points")
+
+
+class UserPreference(Base):
+    __tablename__ = "user_preferences"
+
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    theme = Column(String(32), nullable=False, default="light", server_default="light")
+    security_alerts_enabled = Column(Boolean, nullable=False, default=True, server_default="1")
+    login_notifications_enabled = Column(Boolean, nullable=False, default=True, server_default="1")
+    profile_private = Column(Boolean, nullable=False, default=False, server_default="0")
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User", back_populates="preferences")
 
 
 class PointsLedger(Base):
