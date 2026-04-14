@@ -82,6 +82,14 @@ export default function AdminProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [me, setMe] = useState<MeResponse | null>(null);
+  const [selectedAvatar, setSelectedAvatar] = useState("account_circle");
+
+  const AVATARS = ["account_circle","face","person","sentiment_satisfied","mood","supervised_user_circle","manage_accounts","engineering","support_agent","psychology"];
+
+  useEffect(() => {
+    const saved = localStorage.getItem("admin_avatar");
+    if (saved) setSelectedAvatar(saved);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -126,7 +134,7 @@ export default function AdminProfilePage() {
               <div className="relative flex h-20 w-20 items-center justify-center rounded-[28px] border border-white/40 bg-white/60 text-primary shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
                 <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-primary/15 via-transparent to-transparent" />
                 <span className="material-symbols-outlined relative text-4xl">
-                  admin_panel_settings
+                  {selectedAvatar}
                 </span>
               </div>
 
@@ -251,6 +259,22 @@ export default function AdminProfilePage() {
                     label="Created At"
                     value={formatDate(me.created_at)}
                   />
+                </div>
+
+                <div className="mt-6">
+                  <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Avatar</p>
+                  <div className="flex flex-wrap gap-2">
+                    {AVATARS.map((icon) => (
+                      <button
+                        key={icon}
+                        type="button"
+                        onClick={() => { setSelectedAvatar(icon); localStorage.setItem("admin_avatar", icon); }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-2xl border transition ${selectedAvatar === icon ? "border-primary bg-primary/10 text-primary" : "border-white/40 bg-white/60 text-slate-500 hover:border-primary/40 dark:border-white/10 dark:bg-white/10 dark:text-slate-400"}`}
+                      >
+                        <span className="material-symbols-outlined text-2xl">{icon}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>
