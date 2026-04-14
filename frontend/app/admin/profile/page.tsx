@@ -16,6 +16,25 @@ type MeResponse = {
   created_at: string;
 };
 
+type LedgerEntry = {
+  id: number;
+  action: string;
+  amount: number;
+  status: string;
+  request_id: string;
+  created_at: string;
+};
+
+type MyPointResponse = {
+  user_id: number;
+  available_points: number;
+  point_status: string;
+  expires_at: string | null;
+  expiry_status: string;
+  history: LedgerEntry[];
+  total: number;
+};
+
 function formatDate(value?: string | null) {
   if (!value) return "Not available";
   return new Date(value).toLocaleString();
@@ -82,6 +101,7 @@ export default function AdminProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [me, setMe] = useState<MeResponse | null>(null);
+  const [points, setPoints] = useState<MyPointResponse | null>(null);
   const [selectedAvatar, setSelectedAvatar] = useState("account_circle");
 
   const AVATARS = ["account_circle","face","person","sentiment_satisfied","mood","supervised_user_circle","manage_accounts","engineering","support_agent","psychology"];
@@ -89,6 +109,17 @@ export default function AdminProfilePage() {
   useEffect(() => {
     const saved = localStorage.getItem("admin_avatar");
     if (saved) setSelectedAvatar(saved);
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+    fetch(`${API_BASE}/api/v3/points/my-point`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data) setPoints(data as MyPointResponse); })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -276,6 +307,87 @@ export default function AdminProfilePage() {
                     ))}
                   </div>
                 </div>
+              </div>
+            </section>
+            <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
+              <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
+
+              <div className="relative">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                    <span className="material-symbols-outlined">toll</span>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Points</h2>
+                    <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">Your balance and transaction history</p>
+                  </div>
+                </div>
+
+                {points ? (
+                  <>
+                    <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                      {[
+                        { label: "Balance", value: points.available_points, icon: "account_balance_wallet" },
+                        { label: "Status", value: points.point_status, icon: "check_circle" },
+                        { label: "Expiry", value: points.expiry_status.replace(/_/g, " "), icon: "schedule" },
+                        { label: "Transactions", value: points.total, icon: "receipt_long" },
+                      ].map(({ label, value, icon }) => (
+                        <div key={label} className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/55 px-4 py-4 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
+                          <div className="relative flex items-center gap-3">
+                            <span className="material-symbols-outlined text-xl text-primary">{icon}</span>
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
+                              <p className="text-base font-black text-slate-900 dark:text-white">{value}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="overflow-hidden rounded-2xl border border-white/40 bg-white/40 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+                      <div className="border-b border-white/30 px-4 py-3 dark:border-white/10">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Recent History</p>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                          <thead>
+                            <tr className="border-b border-white/20 dark:border-white/5">
+                              <th className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Action</th>
+                              <th className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Amount</th>
+                              <th className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Status</th>
+                              <th className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Date</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/20 dark:divide-white/5">
+                            {points.history.length === 0 ? (
+                              <tr><td colSpan={4} className="px-4 py-6 text-slate-400 dark:text-slate-500">No transactions yet.</td></tr>
+                            ) : points.history.map((entry) => (
+                              <tr key={entry.id} className="hover:bg-white/30 dark:hover:bg-white/5">
+                                <td className="px-4 py-2.5 font-medium text-slate-800 dark:text-slate-100">{entry.action}</td>
+                                <td className="px-4 py-2.5">
+                                  <span className={`font-bold ${entry.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
+                                    {entry.amount >= 0 ? "+" : ""}{entry.amount}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-2.5">
+                                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${entry.status === "success" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300"}`}>
+                                    {entry.status}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-2.5 text-slate-500 dark:text-slate-400">{formatDate(entry.created_at)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-slate-400 dark:text-slate-500">Loading points...</p>
+                )}
               </div>
             </section>
           </>

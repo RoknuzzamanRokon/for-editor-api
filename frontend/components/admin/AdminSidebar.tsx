@@ -16,6 +16,7 @@ const navItems: NavItem[] = [
   { label: "Profile", href: "/admin/profile", icon: "manage_accounts" },
   { label: "App Center", href: "/admin/app-center", icon: "apps" },
   { label: "Users", href: "/admin/users", icon: "group" },
+  { label: "Points", href: "/admin/point", icon: "toll" },
   { label: "API Permissions", href: "/admin/api-permissions", icon: "vpn_key" },
   { label: "Settings", href: "/admin/settings", icon: "settings" },
 ];
