@@ -85,3 +85,30 @@ class AdminPointGivingHistoryResponse(BaseModel):
     limit: int
     offset: int
     items: List[AdminPointGivingHistoryEntry]
+
+
+class AdminDashboardQuickStat(BaseModel):
+    label: str
+    value: int
+    icon: str
+
+
+class AdminDashboardActivityEntry(BaseModel):
+    user_id: int
+    user_email: str
+    user_username: Optional[str] = None
+    points_change: int
+    action: str
+    occurred_at: datetime
+
+
+class AdminDashboardSystemMetric(BaseModel):
+    label: str
+    value: str
+    tone: Optional[str] = None
+
+
+class AdminDashboardSummaryResponse(BaseModel):
+    quick_stats: List[AdminDashboardQuickStat]
+    recent_activity: List[AdminDashboardActivityEntry]
+    system_status: List[AdminDashboardSystemMetric]

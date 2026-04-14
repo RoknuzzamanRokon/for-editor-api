@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import case, func
@@ -16,6 +16,10 @@ from models.admin import (
     AdminCheckUserResponse,
     AdminActiveUserEntry,
     AdminActiveUsersResponse,
+    AdminDashboardActivityEntry,
+    AdminDashboardQuickStat,
+    AdminDashboardSummaryResponse,
+    AdminDashboardSystemMetric,
     AdminPointGivingHistoryEntry,
     AdminPointGivingHistoryResponse,
 )
@@ -60,6 +64,124 @@ API_META: dict[str, dict[str, str]] = {
         "description": "Remove selected pages from PDF",
     },
 }
+
+
+@router.get("/dashboard-summary", response_model=AdminDashboardSummaryResponse)
+def get_admin_dashboard_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
+) -> AdminDashboardSummaryResponse:
+    _ = current_user
+
+    total_points_issued = (
+        db.query(func.coalesce(func.sum(PointsTopup.amount), 0))
+        .scalar()
+        or 0
+    )
+    active_users = (
+        db.query(func.count(User.id))
+        .filter(User.is_active.is_(True))
+        .scalar()
+        or 0
+    )
+    total_api_requests = db.query(func.count(Conversion.id)).scalar() or 0
+    flagged_activities = (
+        db.query(func.count(Conversion.id))
+        .filter(Conversion.status == "failed")
+        .scalar()
+        or 0
+    )
+
+    recent_rows = (
+        db.query(
+            PointsLedger.user_id,
+            User.email.label("user_email"),
+            User.username.label("user_username"),
+            PointsLedger.amount,
+            PointsLedger.status,
+            PointsLedger.created_at,
+        )
+        .join(User, User.id == PointsLedger.user_id)
+        .order_by(PointsLedger.created_at.desc(), PointsLedger.id.desc())
+        .limit(8)
+        .all()
+    )
+
+    action_labels = {
+        "topup": "Top Up",
+        "spent": "Conversion Charge",
+        "refunded": "Refund",
+    }
+    recent_activity = [
+        AdminDashboardActivityEntry(
+            user_id=row.user_id,
+            user_email=row.user_email,
+            user_username=row.user_username,
+            points_change=int(row.amount or 0),
+            action=action_labels.get(row.status, str(row.status).replace("_", " ").title()),
+            occurred_at=row.created_at,
+        )
+        for row in recent_rows
+    ]
+
+    success_stats = (
+        db.query(
+            func.count(Conversion.id).label("total"),
+            func.sum(case((Conversion.status == "success", 1), else_=0)).label("success"),
+            func.sum(
+                case(
+                    (Conversion.status.in_(["processing", "pending", "queued"]), 1),
+                    else_=0,
+                )
+            ).label("processing"),
+        )
+        .first()
+    )
+    total_conversions = int(success_stats.total or 0)
+    successful_conversions = int(success_stats.success or 0)
+    processing_queue = int(success_stats.processing or 0)
+    api_success_rate = round((successful_conversions / total_conversions) * 100, 1) if total_conversions else 0.0
+
+    failed_last_day = (
+        db.query(func.count(Conversion.id))
+        .filter(
+            Conversion.status == "failed",
+            Conversion.updated_at >= datetime.utcnow() - timedelta(hours=24),
+        )
+        .scalar()
+        or 0
+    )
+
+    quick_stats = [
+        AdminDashboardQuickStat(label="Total Points Issued", value=int(total_points_issued), icon="toll"),
+        AdminDashboardQuickStat(label="Active Users", value=int(active_users), icon="group"),
+        AdminDashboardQuickStat(label="API Requests", value=int(total_api_requests), icon="api"),
+        AdminDashboardQuickStat(label="Flagged Activities", value=int(flagged_activities), icon="report_problem"),
+    ]
+
+    system_status = [
+        AdminDashboardSystemMetric(
+            label="API Success Rate",
+            value=f"{api_success_rate:.1f}%",
+            tone="success" if api_success_rate >= 95 else "warning",
+        ),
+        AdminDashboardSystemMetric(
+            label="Processing Queue",
+            value=str(processing_queue),
+            tone="warning" if processing_queue > 0 else "success",
+        ),
+        AdminDashboardSystemMetric(
+            label="Failed Last 24h",
+            value=str(int(failed_last_day)),
+            tone="danger" if failed_last_day > 0 else "success",
+        ),
+    ]
+
+    return AdminDashboardSummaryResponse(
+        quick_stats=quick_stats,
+        recent_activity=recent_activity,
+        system_status=system_status,
+    )
 
 
 @router.get("/active-users", response_model=AdminActiveUsersResponse)

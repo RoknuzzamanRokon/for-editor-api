@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 
 const API_BASE =
@@ -196,6 +197,7 @@ function InfoTile({
 }
 
 export default function AdminApiPermissionsPage() {
+  const searchParams = useSearchParams();
   const [userIdInput, setUserIdInput] = useState("");
   const [actions, setActions] = useState<ActionItem[]>([]);
   const [details, setDetails] = useState<UserDetails | null>(null);
@@ -273,6 +275,13 @@ export default function AdminApiPermissionsPage() {
   useEffect(() => {
     void loadActions();
   }, []);
+
+  useEffect(() => {
+    const queryUserId = searchParams.get("userId");
+    if (!queryUserId) return;
+    setUserIdInput(queryUserId);
+    void loadUserDetails(queryUserId);
+  }, [searchParams]);
 
   const handleLoadUser = async () => {
     if (!userIdInput.trim()) {
@@ -758,7 +767,11 @@ export default function AdminApiPermissionsPage() {
                                   void handleTogglePermission(item)
                                 }
                                 disabled={savingAction === item.action}
-                                className="inline-flex items-center gap-2 rounded-2xl border border-white/40 bg-white/60 px-4 py-2 text-xs font-bold text-slate-700 shadow-sm backdrop-blur-md transition hover:bg-white/70 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/10 dark:text-slate-100"
+                                className={`inline-flex items-center gap-2 rounded-2xl border border-primary/20 px-4 py-2 text-xs font-bold text-primary shadow-sm backdrop-blur-md transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                                  item.allowed
+                                    ? "bg-primary/10 shadow-[0_10px_24px_rgba(59,130,246,0.14)] hover:bg-primary/15 hover:shadow-[0_14px_30px_rgba(59,130,246,0.18)]"
+                                    : "bg-gradient-to-r from-primary/12 via-white/60 to-primary/6 shadow-[0_10px_24px_rgba(59,130,246,0.12)] hover:from-primary/18 hover:via-white/75 hover:to-primary/10 hover:shadow-[0_14px_30px_rgba(59,130,246,0.16)] dark:via-white/10"
+                                }`}
                                 type="button"
                               >
                                 <span className="material-symbols-outlined text-sm">

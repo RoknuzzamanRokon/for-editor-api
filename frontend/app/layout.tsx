@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
+import RouteHtmlState from "@/components/RouteHtmlState";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -42,6 +43,11 @@ export default function RootLayout({
                   var themes = ['light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark'];
                   var theme = themes.indexOf(stored) !== -1 ? stored : 'light';
                   var root = document.documentElement;
+                  if (window.location && window.location.pathname === '/login') {
+                    root.classList.add('login-fullscreen');
+                    root.style.overflow = 'hidden';
+                    if (document.body) document.body.style.overflow = 'hidden';
+                  }
                   var applyTheme = function (nextTheme) {
                     root.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark');
                     root.classList.add(nextTheme);
@@ -113,6 +119,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-background text-foreground">
         <ThemeProvider>
+          <RouteHtmlState />
           <div className="app-scale">{children}</div>
         </ThemeProvider>
       </body>

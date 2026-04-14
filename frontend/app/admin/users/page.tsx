@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import AdminShell from "@/components/admin/AdminShell";
 
 const API_BASE =
@@ -55,6 +56,45 @@ type UserDetails = {
   active_apis: UserApiPermission[];
   api_permissions: UserApiPermission[];
 };
+
+const ROLE_OPTIONS = [
+  {
+    value: "general_user",
+    label: "General User",
+    icon: "person",
+    description: "Standard access for everyday conversion work.",
+    classes:
+      "from-[rgba(59,130,246,0.18)] via-[rgba(56,189,248,0.10)] to-[rgba(255,255,255,0.72)] text-blue-700 border-blue-200/70 dark:from-[rgba(37,99,235,0.28)] dark:via-[rgba(14,165,233,0.18)] dark:to-[rgba(15,23,42,0.72)] dark:text-blue-200 dark:border-blue-400/20",
+    glow: "bg-[rgba(59,130,246,0.22)] dark:bg-[rgba(37,99,235,0.32)]",
+  },
+  {
+    value: "admin_user",
+    label: "Admin User",
+    icon: "admin_panel_settings",
+    description: "Operational control with elevated management access.",
+    classes:
+      "from-[rgba(16,185,129,0.18)] via-[rgba(34,197,94,0.10)] to-[rgba(255,255,255,0.72)] text-emerald-700 border-emerald-200/70 dark:from-[rgba(5,150,105,0.28)] dark:via-[rgba(34,197,94,0.16)] dark:to-[rgba(15,23,42,0.72)] dark:text-emerald-200 dark:border-emerald-400/20",
+    glow: "bg-[rgba(16,185,129,0.22)] dark:bg-[rgba(5,150,105,0.32)]",
+  },
+  {
+    value: "demo_user",
+    label: "Demo User",
+    icon: "smart_display",
+    description: "Restricted access suited for guided demos and trials.",
+    classes:
+      "from-[rgba(249,115,22,0.18)] via-[rgba(251,191,36,0.10)] to-[rgba(255,255,255,0.72)] text-orange-700 border-orange-200/70 dark:from-[rgba(194,65,12,0.30)] dark:via-[rgba(249,115,22,0.16)] dark:to-[rgba(15,23,42,0.72)] dark:text-orange-200 dark:border-orange-400/20",
+    glow: "bg-[rgba(249,115,22,0.22)] dark:bg-[rgba(194,65,12,0.32)]",
+  },
+  {
+    value: "super_user",
+    label: "Super User",
+    icon: "shield",
+    description: "Full platform access with highest-level privileges.",
+    classes:
+      "from-[rgba(168,85,247,0.18)] via-[rgba(236,72,153,0.10)] to-[rgba(255,255,255,0.72)] text-fuchsia-700 border-fuchsia-200/70 dark:from-[rgba(147,51,234,0.28)] dark:via-[rgba(236,72,153,0.16)] dark:to-[rgba(15,23,42,0.72)] dark:text-fuchsia-200 dark:border-fuchsia-400/20",
+    glow: "bg-[rgba(168,85,247,0.22)] dark:bg-[rgba(147,51,234,0.32)]",
+  },
+] as const;
 
 function formatDate(value?: string | null) {
   if (!value) return "N/A";
@@ -154,6 +194,77 @@ function GlassSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
         props.className ?? ""
       }`}
     />
+  );
+}
+
+function RolePicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+          User Type
+        </p>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          Choose a role with the right permission level.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {ROLE_OPTIONS.map((role) => {
+          const selected = value === role.value;
+
+          return (
+            <button
+              key={role.value}
+              type="button"
+              onClick={() => onChange(role.value)}
+              className={`group relative overflow-hidden rounded-[26px] border bg-gradient-to-br p-4 text-left shadow-[0_12px_35px_rgba(15,23,42,0.08)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(15,23,42,0.12)] dark:shadow-[0_14px_36px_rgba(2,6,23,0.22)] ${role.classes} ${
+                selected
+                  ? "ring-4 ring-primary/20"
+                  : "border-white/40 dark:border-white/10"
+              }`}
+            >
+              <div
+                className={`absolute -right-8 -top-8 h-24 w-24 rounded-full blur-3xl transition ${role.glow}`}
+              />
+              <div className="relative flex items-start justify-between gap-3">
+                <div>
+                  <div className="inline-flex rounded-2xl border border-white/50 bg-white/65 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                    <span className="material-symbols-outlined text-[22px]">
+                      {role.icon}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm font-black tracking-tight">
+                    {role.label}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
+                    {role.description}
+                  </p>
+                </div>
+
+                <div
+                  className={`mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full border text-xs ${
+                    selected
+                      ? "border-primary bg-primary text-white"
+                      : "border-slate-300/70 bg-white/70 text-slate-400 dark:border-white/15 dark:bg-white/10 dark:text-slate-500"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    {selected ? "check" : "add"}
+                  </span>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -590,17 +701,45 @@ export default function AdminUsersPage() {
                   placeholder="Username (optional)"
                   type="text"
                 />
-                <GlassSelect
+                <RolePicker
                   value={form.role}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, role: e.target.value }))
+                  onChange={(role) =>
+                    setForm((prev) => ({ ...prev, role }))
                   }
-                >
-                  <option value="general_user">general_user</option>
-                  <option value="admin_user">admin_user</option>
-                  <option value="demo_user">demo_user</option>
-                  <option value="super_user">super_user</option>
-                </GlassSelect>
+                />
+
+                <div className="relative overflow-hidden rounded-[26px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/80 via-[rgb(244,249,255)]/85 to-[rgb(232,244,255)]/80 p-5 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(19,27,41)]/85 dark:via-[rgb(21,31,49)]/88 dark:to-[rgb(29,24,44)]/88">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-[rgb(56,189,248)]/10 dark:from-primary/15 dark:to-[rgb(56,189,248)]/10" />
+                  <div className="relative">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                      User Preview
+                    </p>
+
+                    <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                          Username
+                        </p>
+                        <p className="mt-1 truncate text-xl font-black tracking-tight text-slate-900 dark:text-white">
+                          {form.username.trim() || form.email.trim() || "New User"}
+                        </p>
+                      </div>
+
+                      <div className="shrink-0">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                          Role
+                        </p>
+                        <span className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-sm font-black text-primary">
+                          <span className="material-symbols-outlined text-base">
+                            shield
+                          </span>
+                          {ROLE_OPTIONS.find((item) => item.value === form.role)?.label ??
+                            form.role}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="mt-6 flex items-center justify-end gap-3">
@@ -627,22 +766,19 @@ export default function AdminUsersPage() {
 
       {showDetails ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-md">
-          <div className="relative max-h-[90vh] w-full max-w-6xl overflow-auto rounded-[32px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/95 via-[rgb(244,249,255)]/90 to-[rgb(233,246,255)]/85 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(18,26,42)]/95 dark:via-[rgb(21,31,49)]/92 dark:to-[rgb(31,23,43)]/90">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-[rgb(255,255,255)]/35 to-[rgb(125,211,252)]/20 dark:from-primary/12 dark:via-white/5 dark:to-[rgb(56,189,248)]/10" />
-            <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-[rgb(56,189,248)]/20 blur-3xl dark:bg-[rgb(14,165,233)]/20" />
+          <div className="relative flex max-h-[96vh] w-full max-w-5xl flex-col overflow-hidden rounded-[32px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/95 via-[rgb(244,249,255)]/90 to-[rgb(233,246,255)]/85 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:from-[rgb(18,26,42)]/95 dark:via-[rgb(21,31,49)]/92 dark:to-[rgb(31,23,43)]/90">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/15 via-[rgb(255,255,255)]/35 to-[rgb(125,211,252)]/20 dark:from-primary/12 dark:via-white/5 dark:to-[rgb(56,189,248)]/10" />
+            <div className="pointer-events-none absolute right-0 top-0 h-36 w-36 rounded-full bg-[rgb(56,189,248)]/20 blur-3xl dark:bg-[rgb(14,165,233)]/20" />
 
-            <div className="relative">
-              <div className="mb-6 flex items-start justify-between gap-4">
+            {/* Header */}
+            <div className="relative shrink-0 border-b border-white/30 px-6 py-4 dark:border-white/10">
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                    User Details
-                  </h3>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    GET /api/v3/admin/check-users/
-                    {selectedUserDetails?.id ?? ""}
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">User Details</h3>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    GET /api/v3/admin/check-users/{selectedUserDetails?.id ?? ""}
                   </p>
                 </div>
-
                 <button
                   onClick={() => setShowDetails(false)}
                   className="rounded-xl border border-white/40 bg-white/60 px-3 py-2 text-xs font-bold text-slate-700 backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-200"
@@ -652,6 +788,34 @@ export default function AdminUsersPage() {
                 </button>
               </div>
 
+              {selectedUserDetails ? (
+                <div className="mt-4 relative overflow-hidden rounded-2xl border border-white/40 bg-white/55 p-4 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-[rgb(56,189,248)]/10 dark:from-primary/15 dark:to-[rgb(56,189,248)]/10" />
+                  <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                        Username
+                      </p>
+                      <p className="mt-1 truncate text-xl font-black tracking-tight text-slate-900 dark:text-white">
+                        {selectedUserDetails.username || selectedUserDetails.email}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                        Role
+                      </p>
+                      <span className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-sm font-black text-primary">
+                        <span className="material-symbols-outlined text-base">shield</span>
+                        {selectedUserDetails.role}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            {/* Body */}
+            <div className="relative flex-1 overflow-y-auto p-6">
               {detailsLoading ? (
                 <div className="rounded-2xl border border-white/40 bg-white/55 p-4 text-sm text-slate-500 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
                   Loading user details...
@@ -661,192 +825,126 @@ export default function AdminUsersPage() {
                   {detailsError}
                 </div>
               ) : selectedUserDetails ? (
-                <div className="space-y-6">
-                  <GlassSection
-                    title="Profile"
-                    description="Core account identity and activity metadata."
-                  >
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                      <InfoTile label="ID" value={selectedUserDetails.id} />
-                      <InfoTile
-                        label="Email"
-                        value={selectedUserDetails.email}
-                        mono
-                      />
-                      <InfoTile
-                        label="Username"
-                        value={selectedUserDetails.username || "-"}
-                      />
-                      <InfoTile label="Role" value={selectedUserDetails.role} />
-                      <InfoTile
-                        label="Position"
-                        value={selectedUserDetails.position}
-                      />
-                      <InfoTile
-                        label="Status"
-                        value={
-                          selectedUserDetails.is_active ? "Active" : "Inactive"
-                        }
-                      />
-                      <InfoTile
-                        label="Created"
-                        value={formatDate(selectedUserDetails.created_at)}
-                      />
-                      <InfoTile
-                        label="Last Login"
-                        value={formatDate(selectedUserDetails.last_login)}
-                      />
-                      <InfoTile
-                        label="Last Active"
-                        value={formatDate(selectedUserDetails.last_active_at)}
-                      />
+                <div className="space-y-0 divide-y divide-white/30 overflow-hidden rounded-[24px] border border-white/40 bg-white/40 backdrop-blur-xl dark:divide-white/10 dark:border-white/10 dark:bg-white/5">
+
+                  {/* Profile */}
+                  <div className="px-5 py-4">
+                    <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Profile</p>
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-3 md:grid-cols-3">
+                      {[
+                        { label: "ID", value: selectedUserDetails.id },
+                        { label: "Email", value: selectedUserDetails.email },
+                        { label: "Username", value: selectedUserDetails.username || "-" },
+                        { label: "Role", value: selectedUserDetails.role },
+                        { label: "Position", value: selectedUserDetails.position },
+                        { label: "Status", value: selectedUserDetails.is_active ? "Active" : "Inactive" },
+                        { label: "Created", value: formatDate(selectedUserDetails.created_at) },
+                        { label: "Last Login", value: formatDate(selectedUserDetails.last_login) },
+                        { label: "Last Active", value: formatDate(selectedUserDetails.last_active_at) },
+                      ].map(({ label, value }) => (
+                        <div key={label}>
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
+                          <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-slate-100 break-all">{value}</p>
+                        </div>
+                      ))}
                     </div>
-                  </GlassSection>
-
-                  <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <GlassSection
-                      title="Points"
-                      description="Wallet and points activity."
-                    >
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <InfoTile
-                          label="Balance"
-                          value={selectedUserDetails.points.balance}
-                        />
-                        <InfoTile
-                          label="Total Topup"
-                          value={selectedUserDetails.points.total_topup}
-                        />
-                        <InfoTile
-                          label="Total Spent"
-                          value={selectedUserDetails.points.total_spent}
-                        />
-                        <InfoTile
-                          label="Total Refunded"
-                          value={selectedUserDetails.points.total_refunded}
-                        />
-                        <InfoTile
-                          label="Last Points Activity"
-                          value={formatDate(
-                            selectedUserDetails.points.last_points_activity_at,
-                          )}
-                        />
-                      </div>
-                    </GlassSection>
-
-                    <GlassSection
-                      title="Conversions"
-                      description="Summary of conversion activity."
-                    >
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <InfoTile
-                          label="Total"
-                          value={selectedUserDetails.conversions.total}
-                        />
-                        <InfoTile
-                          label="Success"
-                          value={selectedUserDetails.conversions.success}
-                        />
-                        <InfoTile
-                          label="Failed"
-                          value={selectedUserDetails.conversions.failed}
-                        />
-                        <InfoTile
-                          label="Processing"
-                          value={selectedUserDetails.conversions.processing}
-                        />
-                        <InfoTile
-                          label="Last Conversion"
-                          value={formatDate(
-                            selectedUserDetails.conversions.last_conversion_at,
-                          )}
-                        />
-                      </div>
-                    </GlassSection>
                   </div>
 
-                  <GlassSection
-                    title="Active APIs"
-                    description="Currently enabled APIs for this user."
-                  >
-                    {selectedUserDetails.active_apis.length === 0 ? (
-                      <div className="rounded-2xl border border-white/40 bg-white/50 p-6 text-sm text-slate-500 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-                        No active APIs.
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {selectedUserDetails.active_apis.map((api) => (
-                          <div
-                            key={api.action}
-                            className="rounded-2xl border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/90 via-[rgb(244,250,255)]/85 to-[rgb(234,247,255)]/80 p-4 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(19,27,41)]/85 dark:via-[rgb(20,31,49)]/90 dark:to-[rgb(26,24,43)]/85"
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <p className="text-sm font-bold text-slate-900 dark:text-white">
-                                  {api.label}
-                                </p>
-                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                  {api.method} {api.route}
-                                </p>
-                              </div>
-                              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
-                                Enabled
-                              </span>
-                            </div>
+                  {/* Points + Conversions */}
+                  <div className="grid grid-cols-1 divide-y divide-white/30 md:grid-cols-2 md:divide-x md:divide-y-0 dark:divide-white/10">
+                    <div className="px-5 py-4">
+                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Points</p>
+                      <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                        {[
+                          { label: "Balance", value: selectedUserDetails.points.balance },
+                          { label: "Total Topup", value: selectedUserDetails.points.total_topup },
+                          { label: "Total Spent", value: selectedUserDetails.points.total_spent },
+                          { label: "Total Refunded", value: selectedUserDetails.points.total_refunded },
+                          { label: "Last Activity", value: formatDate(selectedUserDetails.points.last_points_activity_at) },
+                        ].map(({ label, value }) => (
+                          <div key={label}>
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
+                            <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-slate-100">{value}</p>
                           </div>
                         ))}
                       </div>
-                    )}
-                  </GlassSection>
-
-                  <GlassSection
-                    title="All API Permissions"
-                    description="Full permission coverage and usage quality."
-                  >
-                    <div className="overflow-hidden rounded-[24px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/85 via-[rgb(245,250,255)]/85 to-[rgb(238,247,255)]/80 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(18,25,39)]/80 dark:via-[rgb(22,30,47)]/85 dark:to-[rgb(30,23,44)]/85">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                          <thead className="bg-white/50 text-xs uppercase tracking-[0.16em] text-slate-500 backdrop-blur-md dark:bg-white/5 dark:text-slate-400">
-                            <tr>
-                              <th className="px-4 py-4">Action</th>
-                              <th className="px-4 py-4">Allowed</th>
-                              <th className="px-4 py-4">Success Rate</th>
-                              <th className="px-4 py-4">Last Used</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/30 dark:divide-white/10">
-                            {selectedUserDetails.api_permissions.map((api) => (
-                              <tr
-                                key={api.action}
-                                className="hover:bg-white/30 dark:hover:bg-white/5"
-                              >
-                                <td className="px-4 py-4 text-sm font-medium text-slate-900 dark:text-white">
-                                  {api.label}
-                                </td>
-                                <td className="px-4 py-4 text-sm">
-                                  <span
-                                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                                      api.allowed
-                                        ? "bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/20"
-                                        : "bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/20"
-                                    }`}
-                                  >
-                                    {api.allowed ? "Yes" : "No"}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
-                                  {api.success_rate.toFixed(1)}%
-                                </td>
-                                <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">
-                                  {formatDate(api.last_used_at)}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                    </div>
+                    <div className="px-5 py-4">
+                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Conversions</p>
+                      <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                        {[
+                          { label: "Total", value: selectedUserDetails.conversions.total },
+                          { label: "Success", value: selectedUserDetails.conversions.success },
+                          { label: "Failed", value: selectedUserDetails.conversions.failed },
+                          { label: "Processing", value: selectedUserDetails.conversions.processing },
+                          { label: "Last Conversion", value: formatDate(selectedUserDetails.conversions.last_conversion_at) },
+                        ].map(({ label, value }) => (
+                          <div key={label}>
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
+                            <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-slate-100">{value}</p>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </GlassSection>
+                  </div>
+
+                  {/* Active APIs */}
+                  <div className="px-5 py-4">
+                    <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Active APIs</p>
+                    {selectedUserDetails.active_apis.length === 0 ? (
+                      <p className="text-sm text-slate-400 dark:text-slate-500">No active APIs.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedUserDetails.active_apis.map((api) => (
+                          <span key={api.action} className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            {api.label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* All API Permissions */}
+                    <div className="px-5 py-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">All API Permissions</p>
+                      <Link
+                        href={`/admin/api-permissions?userId=${selectedUserDetails.id}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/40 bg-white/60 px-3 py-1.5 text-[11px] font-bold text-primary shadow-sm backdrop-blur-md transition hover:bg-white/80 dark:border-white/10 dark:bg-white/10"
+                      >
+                        <span className="material-symbols-outlined text-sm">manage_search</span>
+                        Lookup User
+                      </Link>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm">
+                        <thead>
+                          <tr className="border-b border-white/30 dark:border-white/10">
+                            <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Action</th>
+                            <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Allowed</th>
+                            <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Success Rate</th>
+                            <th className="pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Last Used</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/20 dark:divide-white/5">
+                          {selectedUserDetails.api_permissions.map((api) => (
+                            <tr key={api.action}>
+                              <td className="py-2.5 pr-4 font-medium text-slate-800 dark:text-slate-100">{api.label}</td>
+                              <td className="py-2.5 pr-4">
+                                <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${api.allowed ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"}`}>
+                                  {api.allowed ? "Yes" : "No"}
+                                </span>
+                              </td>
+                              <td className="py-2.5 pr-4 text-slate-600 dark:text-slate-300">{api.success_rate.toFixed(1)}%</td>
+                              <td className="py-2.5 text-slate-500 dark:text-slate-400">{formatDate(api.last_used_at)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
                 </div>
               ) : null}
             </div>
