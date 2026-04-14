@@ -4,12 +4,19 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navItems = [
+type NavItem = {
+  label: string;
+  href: string;
+  icon: string;
+  match?: string;
+};
+
+const navItems: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: "dashboard" },
-  { label: "App Center", href: "/admin/app-center", icon: "apps" },
-  { label: "API Permissions", href: "/admin/api-permissions", icon: "vpn_key" },
-  { label: "Users", href: "/admin/users", icon: "group" },
   { label: "Profile", href: "/admin/profile", icon: "manage_accounts" },
+  { label: "App Center", href: "/admin/app-center", icon: "apps" },
+  { label: "Users", href: "/admin/users", icon: "group" },
+  { label: "API Permissions", href: "/admin/api-permissions", icon: "vpn_key" },
   { label: "Settings", href: "/admin/settings", icon: "settings" },
 ];
 

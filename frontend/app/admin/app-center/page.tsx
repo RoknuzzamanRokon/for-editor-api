@@ -13,6 +13,12 @@ type ActionItem = {
   label: string;
 };
 
+type MyApiEntry = {
+  action: string;
+  label: string;
+  allowed: boolean;
+};
+
 const toEditSlug = (action: string) => action.replace(/_/g, "-");
 
 export default function AdminAppCenterPage() {
@@ -30,7 +36,7 @@ export default function AdminAppCenterPage() {
       return;
     }
 
-    fetch(`${API_BASE}/api/v3/permissions/actions`, {
+    fetch(`${API_BASE}/api/v3/permissions/my-api`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -41,8 +47,16 @@ export default function AdminAppCenterPage() {
         if (!res.ok) {
           throw new Error(body || "Failed to load actions");
         }
-        const parsed = JSON.parse(body) as ActionItem[];
-        setActions(Array.isArray(parsed) ? parsed : []);
+        const parsed = JSON.parse(body) as { user_id: number; apis: MyApiEntry[] };
+        const activeOnly = Array.isArray(parsed.apis)
+          ? parsed.apis
+              .filter((item) => item.allowed)
+              .map((item) => ({
+                action: item.action,
+                label: item.label,
+              }))
+          : [];
+        setActions(activeOnly);
       })
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Failed to load actions");
@@ -75,7 +89,7 @@ export default function AdminAppCenterPage() {
             <div>
               <h2 className="text-2xl font-black tracking-tight">App Center</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Conversion actions from <span className="font-semibold">/api/v3/permissions/actions</span>
+                Active conversion APIs from <span className="font-semibold">/api/v3/permissions/my-api</span>
               </p>
             </div>
             <div className="rounded-lg border border-primary/10 bg-primary/5 px-4 py-2 text-sm font-semibold">

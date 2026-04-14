@@ -234,6 +234,50 @@ def topup_points(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Amount must be positive")
 
     request_id = f"topup-{uuid4()}"
+
+    creator: Optional[User] = None
+    if created_by_user_id is not None:
+      creator = db.query(User).filter(User.id == created_by_user_id).first()
+
+    # super_user can mint points, but admin_user must spend from their own balance.
+    if creator and creator.role == RoleEnum.admin_user:
+        if creator.id == user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Admin cannot top up their own balance",
+            )
+
+        creator_points = (
+            db.query(UserPoints)
+            .filter(UserPoints.user_id == creator.id)
+            .with_for_update()
+            .first()
+        )
+        if not creator_points:
+            creator_points = UserPoints(user_id=creator.id, balance=0)
+            db.add(creator_points)
+            db.flush()
+
+        if creator_points.balance < amount:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Admin does not have enough points to transfer",
+            )
+
+        creator_points.balance -= amount
+        db.add(
+            PointsLedger(
+                user_id=creator.id,
+                action="admin_points_transfer",
+                amount=-amount,
+                status="spent",
+                request_id=f"{request_id}-admin-out",
+                meta_json={
+                    "target_user_id": user_id,
+                    "note": note,
+                },
+            )
+        )
     
     points = (
         db.query(UserPoints)
