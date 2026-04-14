@@ -48,16 +48,31 @@ function SectionCard({
   title,
   description,
   action,
+  hoverable = true,
   children,
 }: {
   title: string;
   description: string;
   action?: ReactNode;
+  hoverable?: boolean;
   children: ReactNode;
 }) {
   return (
-    <section className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/20 dark:border-slate-800/80 dark:bg-slate-900/80 dark:hover:shadow-slate-900/30">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:from-slate-800/40" />
+    <section
+      className={cn(
+        "group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80",
+        hoverable &&
+          "transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/20 dark:hover:shadow-slate-900/30",
+      )}
+    >
+      <div
+        className={cn(
+          "absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-slate-800/40",
+          hoverable
+            ? "opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            : "opacity-100",
+        )}
+      />
       <div className="relative p-6">
         <div className="flex flex-col gap-3 border-b border-slate-200/60 pb-5 dark:border-slate-800/60 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -220,11 +235,66 @@ function InfoCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+function ActionLauncherCard({
+  title,
+  description,
+  icon,
+  active,
+  onClick,
+}: {
+  title: string;
+  description: string;
+  icon: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "group rounded-2xl border p-5 text-left transition-all duration-300",
+        active
+          ? "border-primary bg-primary/10 shadow-lg shadow-primary/15"
+          : "border-slate-200/80 bg-white/80 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg dark:border-slate-800/80 dark:bg-slate-900/80",
+      )}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div
+            className={cn(
+              "mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-lg",
+              active ? "bg-primary" : "bg-slate-900 dark:bg-slate-700",
+            )}
+          >
+            <span className="material-symbols-outlined">{icon}</span>
+          </div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            {title}
+          </h3>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            {description}
+          </p>
+        </div>
+        <span
+          className={cn(
+            "material-symbols-outlined text-lg transition-transform duration-300",
+            active ? "rotate-90 text-primary" : "text-slate-400",
+          )}
+        >
+          chevron_right
+        </span>
+      </div>
+    </button>
+  );
+}
+
 export default function AccountSettingsPanel({
   area,
 }: {
   area: "admin" | "dashboard";
 }) {
+  const [openPanel, setOpenPanel] = useState<"profile" | "password" | "avatar" | null>(null);
   const [settings, setSettings] = useState<AccountSettingsResponse | null>(
     null,
   );
@@ -316,6 +386,14 @@ export default function AccountSettingsPanel({
       (settings?.preferences.login_notifications_enabled ?? true) ||
     profilePrivate !== (settings?.preferences.profile_private ?? false);
   const avatarDirty = avatarKey !== (settings?.preferences.avatar_key ?? "avatar_1");
+  const openPanelAnimationClass =
+    openPanel === "profile"
+      ? "settings-panel-enter-left"
+      : openPanel === "password"
+        ? "settings-panel-enter-center"
+        : openPanel === "avatar"
+          ? "settings-panel-enter-right"
+          : "";
 
   const updateProfile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -340,6 +418,7 @@ export default function AccountSettingsPanel({
       syncLocalState(parsed);
       setProfileNotice("Profile updated successfully.");
       setTimeout(() => setProfileNotice(""), 3000);
+      setOpenPanel(null);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to update profile");
     } finally {
@@ -379,6 +458,7 @@ export default function AccountSettingsPanel({
       syncLocalState(parsed);
       setPrivacyNotice("Security and privacy settings updated.");
       setTimeout(() => setPrivacyNotice(""), 3000);
+      setOpenPanel(null);
     } catch (err: unknown) {
       setError(
         err instanceof Error
@@ -416,6 +496,7 @@ export default function AccountSettingsPanel({
       syncLocalState(parsed);
       setAvatarNotice("Avatar updated successfully.");
       setTimeout(() => setAvatarNotice(""), 3000);
+      setOpenPanel(null);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to update avatar");
     } finally {
@@ -461,6 +542,7 @@ export default function AccountSettingsPanel({
       setConfirmPassword("");
       setPasswordNotice("Password updated successfully.");
       setTimeout(() => setPasswordNotice(""), 3000);
+      setOpenPanel(null);
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "Failed to update password",
@@ -531,193 +613,278 @@ export default function AccountSettingsPanel({
         </div>
       )}
 
-      {/* Settings Grid */}
-      <div className="grid gap-6 2xl:grid-cols-2">
-        <SectionCard
-          title="Avatar"
-          description="Pick the avatar shown in the navbar profile area and account menu."
-        >
-          <form className="space-y-5" onSubmit={updateAvatar}>
-            <div className="flex items-center gap-4 rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-800/30">
-              <AvatarBadge avatarKey={avatarKey} size="lg" />
-              <div>
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                  Selected Avatar
-                </p>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Changes apply to the top-right profile area and dropdown menu.
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              {AVATAR_PRESETS.map((avatar) => (
-                <button
-                  key={avatar.key}
-                  type="button"
-                  onClick={() => setAvatarKey(avatar.key)}
-                  className={cn(
-                    "rounded-xl border p-3 text-center transition-all",
-                    avatarKey === avatar.key
-                      ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
-                      : "border-slate-200/80 bg-slate-50/50 hover:border-primary/30 hover:bg-primary/5 dark:border-slate-800/80 dark:bg-slate-800/30",
-                  )}
-                >
-                  <AvatarBadge avatarKey={avatar.key} className="mx-auto" />
-                  <p className="mt-2 text-xs font-semibold text-slate-900 dark:text-white">
-                    {avatar.label}
-                  </p>
-                </button>
-              ))}
-            </div>
-            {avatarNotice && (
-              <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
-                {avatarNotice}
-              </p>
-            )}
-            <div className="flex justify-end">
-              <SaveButton
-                label="Save Avatar"
-                saving={savingAvatar}
-                disabled={!avatarDirty}
-              />
-            </div>
-          </form>
-        </SectionCard>
-
-        {/* Profile Section */}
-        <SectionCard
-          title="Profile"
-          description="Update your username while keeping your email fixed."
-        >
-          <form className="space-y-4" onSubmit={updateProfile}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextField
-                label="Email"
-                value={settings?.identity.email ?? ""}
-                readOnly
-              />
-              <TextField
-                label="Username"
-                value={username}
-                onChange={setUsername}
-                placeholder="Enter your username"
-              />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <InfoCard
-                label="Created"
-                value={formatDate(settings?.identity.created_at)}
-              />
-              <InfoCard
-                label="Last Login"
-                value={formatDate(settings?.identity.last_login)}
-              />
-            </div>
-            {profileNotice && (
-              <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
-                {profileNotice}
-              </p>
-            )}
-            <div className="flex justify-end">
-              <SaveButton
-                label="Save Profile"
-                saving={savingProfile}
-                disabled={!profileDirty}
-              />
-            </div>
-          </form>
-        </SectionCard>
-
-        {/* Security & Privacy Section */}
-        <SectionCard
-          title="Security & Privacy"
-          description="Control personal notifications and privacy behavior for this account."
-        >
-          <form className="space-y-4" onSubmit={updatePrivacy}>
-            <ToggleRow
-              title="Security alerts"
-              description="Notify me when the system detects a security-relevant event on my account."
-              checked={securityAlertsEnabled}
-              onChange={setSecurityAlertsEnabled}
-              disabled={savingPrivacy}
-            />
-            <ToggleRow
-              title="Login notifications"
-              description="Send me a notification when this account signs in successfully."
-              checked={loginNotificationsEnabled}
-              onChange={setLoginNotificationsEnabled}
-              disabled={savingPrivacy}
-            />
-            <ToggleRow
-              title="Private profile"
-              description="Reduce profile visibility in internal account listings where supported."
-              checked={profilePrivate}
-              onChange={setProfilePrivate}
-              disabled={savingPrivacy}
-            />
-            {privacyNotice && (
-              <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
-                {privacyNotice}
-              </p>
-            )}
-            <div className="flex justify-end">
-              <SaveButton
-                label="Save Preferences"
-                saving={savingPrivacy}
-                disabled={!privacyDirty}
-              />
-            </div>
-          </form>
-        </SectionCard>
-
-        {/* Password Section */}
-        <SectionCard
-          title="Password"
-          description="Change your password here. Forgot-password email reset is planned for phase 2."
-        >
-          <form className="space-y-4" onSubmit={updatePassword}>
-            <TextField
-              label="Current Password"
-              value={currentPassword}
-              onChange={setCurrentPassword}
-              type="password"
-              placeholder="Enter your current password"
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextField
-                label="New Password"
-                value={newPassword}
-                onChange={setNewPassword}
-                type="password"
-                placeholder="Minimum 8 characters"
-              />
-              <TextField
-                label="Confirm New Password"
-                value={confirmPassword}
-                onChange={setConfirmPassword}
-                type="password"
-                placeholder="Repeat the new password"
-              />
-            </div>
-            <div className="rounded-xl border border-dashed border-slate-300/60 bg-slate-50/50 px-4 py-3 text-xs text-slate-600 dark:border-slate-700/60 dark:bg-slate-800/30 dark:text-slate-300">
-              🔐 Forgot password is not live yet. The reset-token and email
-              delivery flow is planned for the next backend phase.
-            </div>
-            {passwordNotice && (
-              <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
-                {passwordNotice}
-              </p>
-            )}
-            <div className="flex justify-end">
-              <SaveButton
-                label="Change Password"
-                saving={savingPassword}
-                disabled={!currentPassword || !newPassword || !confirmPassword}
-              />
-            </div>
-          </form>
-        </SectionCard>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <ActionLauncherCard
+          title="Profile Card"
+          description="Open profile details and privacy controls."
+          icon="person"
+          active={openPanel === "profile"}
+          onClick={() =>
+            setOpenPanel((current) =>
+              current === "profile" ? null : "profile",
+            )
+          }
+        />
+        <ActionLauncherCard
+          title="Password Manage"
+          description="Open password change tools for this account."
+          icon="password"
+          active={openPanel === "password"}
+          onClick={() =>
+            setOpenPanel((current) =>
+              current === "password" ? null : "password",
+            )
+          }
+        />
+        <ActionLauncherCard
+          title="Avatar Add"
+          description="Open the avatar picker and choose a new look."
+          icon="imagesmode"
+          active={openPanel === "avatar"}
+          onClick={() =>
+            setOpenPanel((current) => (current === "avatar" ? null : "avatar"))
+          }
+        />
       </div>
+
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-500 ease-out",
+          openPanel
+            ? "max-h-[2200px] opacity-100 translate-y-0"
+            : "max-h-0 opacity-0 -translate-y-2",
+        )}
+      >
+        <div className={cn("pt-2", openPanelAnimationClass)} key={openPanel ?? "closed"}>
+          {openPanel === "avatar" ? (
+            <SectionCard
+              title="Avatar Add"
+              description="Pick the avatar shown in the navbar profile area and account menu."
+            >
+              <form className="space-y-5" onSubmit={updateAvatar}>
+                <div className="flex items-center gap-4 rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-800/30">
+                  <AvatarBadge avatarKey={avatarKey} size="lg" />
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                      Selected Avatar
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      Changes apply to the top-right profile area and dropdown
+                      menu.
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                  {AVATAR_PRESETS.map((avatar) => (
+                    <button
+                      key={avatar.key}
+                      type="button"
+                      onClick={() => setAvatarKey(avatar.key)}
+                      className={cn(
+                        "rounded-xl border p-3 text-center transition-all",
+                        avatarKey === avatar.key
+                          ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
+                          : "border-slate-200/80 bg-slate-50/50 hover:border-primary/30 hover:bg-primary/5 dark:border-slate-800/80 dark:bg-slate-800/30",
+                      )}
+                    >
+                      <AvatarBadge avatarKey={avatar.key} className="mx-auto" />
+                      <p className="mt-2 text-xs font-semibold text-slate-900 dark:text-white">
+                        {avatar.label}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+                {avatarNotice && (
+                  <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
+                    {avatarNotice}
+                  </p>
+                )}
+                <div className="flex justify-end">
+                  <SaveButton
+                    label="Save Avatar"
+                    saving={savingAvatar}
+                    disabled={!avatarDirty}
+                  />
+                </div>
+              </form>
+            </SectionCard>
+          ) : null}
+
+          {openPanel === "profile" ? (
+            <div className="space-y-6">
+              <SectionCard
+                title="Profile Card"
+                description="Update your username while keeping your email fixed."
+              >
+                <form className="space-y-4" onSubmit={updateProfile}>
+                  <div className="grid gap-4 xl:grid-cols-3">
+                    <div className="rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-800/30">
+                      <p className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">
+                        Profile Info
+                      </p>
+                      <div className="space-y-3">
+                        <InfoCard
+                          label="Name"
+                          value={settings?.identity.username || "Not set"}
+                        />
+                        <InfoCard
+                          label="Email"
+                          value={settings?.identity.email ?? ""}
+                        />
+                        <InfoCard
+                          label="Created At"
+                          value={formatDate(settings?.identity.created_at)}
+                        />
+                        <InfoCard
+                          label="Last Login"
+                          value={formatDate(settings?.identity.last_login)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-800/30">
+                      <p className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">
+                        Current Name
+                      </p>
+                      <div className="rounded-xl border border-primary/15 bg-primary/5 px-4 py-5">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                          Active Username
+                        </p>
+                        <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">
+                          {settings?.identity.username || "Not set"}
+                        </p>
+                        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                          This name appears in the navbar and account views.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-800/30">
+                      <p className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">
+                        Change Name
+                      </p>
+                      <TextField
+                        label="New Username"
+                        value={username}
+                        onChange={setUsername}
+                        placeholder="Enter your username"
+                      />
+                      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                        Update the username used across your account.
+                      </p>
+                    </div>
+                  </div>
+                  {profileNotice && (
+                    <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
+                      {profileNotice}
+                    </p>
+                  )}
+                  <div className="flex justify-end">
+                    <SaveButton
+                      label="Save Profile"
+                      saving={savingProfile}
+                      disabled={!profileDirty}
+                    />
+                  </div>
+                </form>
+              </SectionCard>
+            </div>
+          ) : null}
+
+          {openPanel === "password" ? (
+            <SectionCard
+              title="Password Manage"
+              description="Change your password here. Forgot-password email reset is planned for phase 2."
+            >
+              <form className="space-y-4" onSubmit={updatePassword}>
+                <TextField
+                  label="Current Password"
+                  value={currentPassword}
+                  onChange={setCurrentPassword}
+                  type="password"
+                  placeholder="Enter your current password"
+                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <TextField
+                    label="New Password"
+                    value={newPassword}
+                    onChange={setNewPassword}
+                    type="password"
+                    placeholder="Minimum 8 characters"
+                  />
+                  <TextField
+                    label="Confirm New Password"
+                    value={confirmPassword}
+                    onChange={setConfirmPassword}
+                    type="password"
+                    placeholder="Repeat the new password"
+                  />
+                </div>
+                <div className="rounded-xl border border-dashed border-slate-300/60 bg-slate-50/50 px-4 py-3 text-xs text-slate-600 dark:border-slate-700/60 dark:bg-slate-800/30 dark:text-slate-300">
+                  Forgot password is not live yet. The reset-token and email
+                  delivery flow is planned for the next backend phase.
+                </div>
+                {passwordNotice && (
+                  <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
+                    {passwordNotice}
+                  </p>
+                )}
+                <div className="flex justify-end">
+                  <SaveButton
+                    label="Change Password"
+                    saving={savingPassword}
+                    disabled={
+                      !currentPassword || !newPassword || !confirmPassword
+                    }
+                  />
+                </div>
+              </form>
+            </SectionCard>
+          ) : null}
+        </div>
+      </div>
+
+      <SectionCard
+        title="Privacy Controls"
+        description="Control personal notifications and privacy behavior for this account."
+        hoverable={false}
+      >
+        <form className="space-y-4" onSubmit={updatePrivacy}>
+          <ToggleRow
+            title="Security alerts"
+            description="Notify me when the system detects a security-relevant event on my account."
+            checked={securityAlertsEnabled}
+            onChange={setSecurityAlertsEnabled}
+            disabled={savingPrivacy}
+          />
+          <ToggleRow
+            title="Login notifications"
+            description="Send me a notification when this account signs in successfully."
+            checked={loginNotificationsEnabled}
+            onChange={setLoginNotificationsEnabled}
+            disabled={savingPrivacy}
+          />
+          <ToggleRow
+            title="Private profile"
+            description="Reduce profile visibility in internal account listings where supported."
+            checked={profilePrivate}
+            onChange={setProfilePrivate}
+            disabled={savingPrivacy}
+          />
+          {privacyNotice && (
+            <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
+              {privacyNotice}
+            </p>
+          )}
+          <div className="flex justify-end">
+            <SaveButton
+              label="Save Preferences"
+              saving={savingPrivacy}
+              disabled={!privacyDirty}
+            />
+          </div>
+        </form>
+      </SectionCard>
     </div>
   );
 }
