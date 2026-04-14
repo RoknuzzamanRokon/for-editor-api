@@ -6,8 +6,32 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from db.models import RoleEnum
 
 ThemeName = Literal["light", "dark", "ocean", "sunset", "forest", "midnight", "livedark"]
+AvatarKey = Literal[
+    "avatar_1",
+    "avatar_2",
+    "avatar_3",
+    "avatar_4",
+    "avatar_5",
+    "avatar_6",
+    "avatar_7",
+    "avatar_8",
+    "avatar_9",
+    "avatar_10",
+]
 
 VALID_THEMES = {"light", "dark", "ocean", "sunset", "forest", "midnight", "livedark"}
+VALID_AVATARS = {
+    "avatar_1",
+    "avatar_2",
+    "avatar_3",
+    "avatar_4",
+    "avatar_5",
+    "avatar_6",
+    "avatar_7",
+    "avatar_8",
+    "avatar_9",
+    "avatar_10",
+}
 
 
 class AccountIdentity(BaseModel):
@@ -23,6 +47,7 @@ class AccountIdentity(BaseModel):
 
 class AccountPreferences(BaseModel):
     theme: ThemeName
+    avatar_key: AvatarKey
     security_alerts_enabled: bool
     login_notifications_enabled: bool
     profile_private: bool
@@ -51,6 +76,7 @@ class AccountProfileUpdateRequest(BaseModel):
 
 class AccountPreferencesUpdateRequest(BaseModel):
     theme: ThemeName | None = None
+    avatar_key: AvatarKey | None = None
     security_alerts_enabled: bool | None = None
     login_notifications_enabled: bool | None = None
     profile_private: bool | None = None

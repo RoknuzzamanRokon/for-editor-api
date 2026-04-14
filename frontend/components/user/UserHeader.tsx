@@ -2,14 +2,31 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
 
+type HeaderSettingsPayload = {
+  identity: {
+    username: string | null;
+    email: string;
+    role: string;
+  };
+  preferences: {
+    avatar_key: AvatarKey;
+  };
+};
+
 export default function UserHeader() {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
-  const [user, setUser] = useState<{ full_name?: string; email?: string; role?: string } | null>(null);
+  const [user, setUser] = useState<{
+    username?: string | null;
+    email?: string;
+    role?: string;
+    avatarKey?: AvatarKey;
+  } | null>(null);
   const [sessionRole, setSessionRole] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -17,24 +34,47 @@ export default function UserHeader() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
-    fetch(`${API_BASE}/api/v2/auth/me`, {
+    fetch(`${API_BASE}/api/v2/auth/settings`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
-      .then((data) => setUser(data))
+      .then((data: HeaderSettingsPayload) =>
+        setUser({
+          username: data.identity.username,
+          email: data.identity.email,
+          role: data.identity.role,
+          avatarKey: data.preferences.avatar_key,
+        }),
+      )
       .catch((err) => console.error("Failed to fetch user:", err));
   }, []);
 
   useEffect(() => {
     setSessionRole(localStorage.getItem("user_role") || "");
 
+    const handleSettingsChange = (event: Event) => {
+      const customEvent = event as CustomEvent<HeaderSettingsPayload>;
+      const payload = customEvent.detail;
+      if (!payload) return;
+      setUser({
+        username: payload.identity.username,
+        email: payload.identity.email,
+        role: payload.identity.role,
+        avatarKey: payload.preferences.avatar_key,
+      });
+    };
+
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setShowMenu(false);
       }
     };
+    window.addEventListener("accountsettingschange", handleSettingsChange);
     document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("accountsettingschange", handleSettingsChange);
+      document.removeEventListener("click", handleClickOutside);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -82,30 +122,41 @@ export default function UserHeader() {
         </button>
         <div className="flex items-center gap-3 border-l border-slate-200 pl-4 dark:border-slate-800">
           <div className="text-right">
-            <p className="text-sm font-bold leading-none">{user?.full_name || user?.email || "User"}</p>
+            <p className="text-sm font-bold leading-none">{user?.username || user?.email || "User"}</p>
             <p className="mt-1 text-[10px] font-medium uppercase text-slate-500">{user?.role || "Admin"}</p>
           </div>
           <div className="relative" ref={menuRef}>
             <button
               type="button"
               onClick={() => setShowMenu((prev) => !prev)}
-              className="h-10 w-10 overflow-hidden rounded-full border-2 border-slate-100 bg-slate-200 transition-all hover:ring-2 hover:ring-primary/30 dark:border-slate-800"
+              className="rounded-full transition-all hover:ring-2 hover:ring-primary/30"
             >
-              <img
-                alt="User Profile"
-                className="h-full w-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP8t9xa83PyPsCqbQ1lPQTqu_9nsY0kLpxsfIaeUdyFagI3hv8IftRqU1z5S2-uEx8Lh_3dxRQZq4iDENdIReJJK91AUFAwjcLGAMGu8a1AHbVzqVVEWbi0EuZSIl-o2qXnk9Gj-6HufCZfURzPpwRQMuHZQ7rxsGQjflgRLII-BKKicAhSu9FeDUtb6Wkxc_mxOsdvKEZd4nU03v_aCDESSsKx3Of1zM7nty7Bzr9jtsS0HpJTTB2pa2YrWIcQlTx3msnZErrfU8E"
-              />
+              <AvatarBadge avatarKey={user?.avatarKey} />
             </button>
 
             {showMenu && (
               <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
                 <div className="border-b border-slate-200 p-4 dark:border-slate-800">
-                  <p className="truncate text-sm font-bold">{user?.full_name || user?.email || "User"}</p>
-                  <p className="truncate text-xs text-slate-500">{user?.email}</p>
+                  <div className="flex items-center gap-3">
+                    <AvatarBadge avatarKey={user?.avatarKey} />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold">{user?.username || user?.email || "User"}</p>
+                      <p className="truncate text-xs text-slate-500">{user?.email}</p>
+                    </div>
+                  </div>
                   <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-slate-400">{user?.role || "Admin"}</p>
                 </div>
                 <div className="p-2">
+                  <button
+                    onClick={() => {
+                      setShowMenu(false);
+                      router.push("/dashboard/settings");
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    <span className="material-symbols-outlined text-lg">settings</span>
+                    <span>Settings</span>
+                  </button>
                   <button
                     onClick={handleLogout}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"

@@ -7,7 +7,27 @@ from models.settings import (
     AccountPreferences,
     AccountPreferencesUpdateRequest,
     AccountSettingsResponse,
+    VALID_AVATARS,
+    VALID_THEMES,
 )
+
+
+def _normalize_preference_values(db: Session, preference: UserPreference) -> UserPreference:
+    changed = False
+
+    if preference.theme not in VALID_THEMES:
+        preference.theme = "light"
+        changed = True
+
+    if preference.avatar_key not in VALID_AVATARS:
+        preference.avatar_key = "avatar_1"
+        changed = True
+
+    if changed:
+        db.commit()
+        db.refresh(preference)
+
+    return preference
 
 
 def get_or_create_user_preferences(db: Session, user: User) -> UserPreference:
@@ -17,21 +37,22 @@ def get_or_create_user_preferences(db: Session, user: User) -> UserPreference:
         .first()
     )
     if preference:
-        return preference
+        return _normalize_preference_values(db, preference)
 
     preference = UserPreference(user_id=user.id)
     db.add(preference)
     db.commit()
     db.refresh(preference)
-    return preference
+    return _normalize_preference_values(db, preference)
 
 
 def build_account_settings_response(db: Session, user: User) -> AccountSettingsResponse:
-    preference = get_or_create_user_preferences(db, user)
+    preference = _normalize_preference_values(db, get_or_create_user_preferences(db, user))
     return AccountSettingsResponse(
         identity=user,
         preferences=AccountPreferences(
             theme=preference.theme,
+            avatar_key=preference.avatar_key,
             security_alerts_enabled=preference.security_alerts_enabled,
             login_notifications_enabled=preference.login_notifications_enabled,
             profile_private=preference.profile_private,
@@ -67,7 +88,7 @@ def update_preferences(
     user: User,
     payload: AccountPreferencesUpdateRequest,
 ) -> UserPreference:
-    preference = get_or_create_user_preferences(db, user)
+    preference = _normalize_preference_values(db, get_or_create_user_preferences(db, user))
 
     updates = payload.model_dump(exclude_unset=True)
     for field, value in updates.items():
@@ -75,7 +96,7 @@ def update_preferences(
 
     db.commit()
     db.refresh(preference)
-    return preference
+    return _normalize_preference_values(db, preference)
 
 
 def change_password(db: Session, user: User, current_password: str, new_password: str) -> None:
