@@ -1,418 +1,353 @@
+'use client'
+import { useMarketingTheme } from '@/config/marketingTheme'
+
+const navSections = [
+  { label: 'Getting Started', links: [
+    { href: '#introduction',   icon: 'info',        label: 'Introduction' },
+    { href: '#authentication', icon: 'lock',        label: 'Authentication' },
+    { href: '#base-url',       icon: 'link',        label: 'Base URL' },
+    { href: '#versioning',     icon: 'history',     label: 'Versioning' },
+  ]},
+  { label: 'API Reference', links: [
+    { href: '#auth-endpoints', icon: 'fingerprint', label: 'Auth Endpoints' },
+    { href: '#converter',      icon: 'transform',   label: 'Converter' },
+    { href: '#users',          icon: 'group',       label: 'Users' },
+    { href: '#errors',         icon: 'error',       label: 'Error Codes' },
+  ]},
+  { label: 'Resources', links: [
+    { href: '#roles',          icon: 'badge',       label: 'Roles' },
+    { href: '#rate-limits',    icon: 'speed',       label: 'Rate Limits' },
+  ]},
+]
+
+const authEndpoints = [
+  { method: 'POST', color: '#16a34a', path: '/api/v2/auth/login',   desc: 'Issue access and refresh tokens', body: 'Request body: email, password.' },
+  { method: 'POST', color: '#16a34a', path: '/api/v2/auth/refresh', desc: 'Refresh an access token',        body: 'Request body: refresh_token.' },
+  { method: 'GET',  color: '#2563eb', path: '/api/v2/auth/me',      desc: 'Get current authenticated user', body: 'Requires Authorization: Bearer <token>.' },
+]
+
+const conversionRoutes = [
+  'POST /api/v3/conversions/pdf-to-word',
+  'POST /api/v3/conversions/pdf-to-excel',
+  'POST /api/v3/conversions/docx-to-pdf',
+  'POST /api/v3/conversions/excel-to-pdf',
+  'POST /api/v3/conversions/image-to-pdf',
+  'POST /api/v3/conversions/remove-pages-from-pdf',
+  'POST /api/v3/conversions/remove-background',
+]
+
+const roles = [
+  { icon: 'shield_person', title: 'Super User', desc: 'Full access to conversions, billing, admin checks, user role changes, and permission management.' },
+  { icon: 'manage_accounts', title: 'Admin',    desc: 'Manage general and demo users, top up points, and inspect user activity and permissions.' },
+  { icon: 'person',          title: 'General',  desc: 'Can perform allowed conversions, read dashboard data, check points, and view own history.' },
+  { icon: 'visibility',      title: 'Demo',     desc: 'Read-only mode for protected write actions. Demo users cannot create conversion jobs.' },
+]
+
+const errors = [
+  { color: '#f97316', bg: 'rgba(249,115,22,0.08)', icon: 'warning',      code: '401 Unauthorized',      desc: 'Invalid or missing bearer token.' },
+  { color: '#ef4444', bg: 'rgba(239,68,68,0.08)',  icon: 'block',        code: '403 Forbidden',         desc: 'Conversion not permitted, role blocked, or insufficient role privileges.' },
+  { color: '#a855f7', bg: 'rgba(168,85,247,0.08)', icon: 'hourglass_top',code: '402 Payment Required',  desc: 'Raised when the user has insufficient points for a conversion request.' },
+  { color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)', icon: 'rule',         code: '422 Validation Error',  desc: 'Input payload, file upload, or query parameter validation failed.' },
+]
+
 export default function Page() {
-  const markup = `
-  <div class="flex min-h-screen items-start  pt-32 [html[data-theme='sunset']_&]:bg-[#451a03] sm:pt-28 md:pt-32">
-    <aside class="fixed left-0 top-0 hidden h-screen w-64 overflow-y-auto border-r border-slate-200 bg-white px-6 pb-8 pt-32 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12] sm:pt-28 md:pt-32 lg:block">
-      <div class="space-y-8">
-        <div>
-          <h5 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Getting Started</h5>
-          <ul class="space-y-2">
-            <li><a class="flex items-center gap-2 text-sm font-medium text-primary" href="#introduction"><span class="material-symbols-outlined text-lg">info</span> Introduction</a></li>
-            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary [html[data-theme='sunset']_&]:text-[#fed7aa]/80" href="#authentication"><span class="material-symbols-outlined text-lg">lock</span> Authentication</a></li>
-            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary [html[data-theme='sunset']_&]:text-[#fed7aa]/80" href="#base-url"><span class="material-symbols-outlined text-lg">link</span> Base URL</a></li>
-            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary [html[data-theme='sunset']_&]:text-[#fed7aa]/80" href="#versioning"><span class="material-symbols-outlined text-lg">history</span> Versioning</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">API Reference</h5>
-          <ul class="space-y-2">
-            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary [html[data-theme='sunset']_&]:text-[#fed7aa]/80" href="#auth-endpoints"><span class="material-symbols-outlined text-lg">fingerprint</span> Auth Endpoints</a></li>
-            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary [html[data-theme='sunset']_&]:text-[#fed7aa]/80" href="#converter"><span class="material-symbols-outlined text-lg">transform</span> Converter</a></li>
-            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary [html[data-theme='sunset']_&]:text-[#fed7aa]/80" href="#users"><span class="material-symbols-outlined text-lg">group</span> Users</a></li>
-            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary [html[data-theme='sunset']_&]:text-[#fed7aa]/80" href="#errors"><span class="material-symbols-outlined text-lg">error</span> Error Codes</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Resources</h5>
-          <ul class="space-y-2">
-            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary [html[data-theme='sunset']_&]:text-[#fed7aa]/80" href="#roles"><span class="material-symbols-outlined text-lg">badge</span> Roles</a></li>
-            <li><a class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-primary [html[data-theme='sunset']_&]:text-[#fed7aa]/80" href="#rate-limits"><span class="material-symbols-outlined text-lg">speed</span> Rate Limits</a></li>
-          </ul>
-        </div>
-      </div>
-    </aside>
-    <main class="min-w-0 flex-1 bg-white [html[data-theme='sunset']_&]:bg-[#7c2d12] lg:ml-64">
-      <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-16 lg:py-12">
-        <section class="mb-16" id="introduction">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">v3 Current</span>
-          </div>
-          <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] sm:text-5xl">ConvertPro API Documentation</h1>
-          <p class="mt-6 text-lg text-slate-600 leading-relaxed [html[data-theme='sunset']_&]:text-[#fed7aa]/80">
-            Welcome to the ConvertPro API. This page covers authentication, endpoints, conversion routes, user management, permissions, points, dashboard, and admin APIs.
-          </p>
-          <div class="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]" id="base-url">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight [html[data-theme='sunset']_&]:text-[#fed7aa]">Backend Base URL</h4>
-                <code class="mt-2 block text-primary font-mono text-sm">http://127.0.0.1:8000</code>
-              </div>
-              <button class="flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12] [html[data-theme='sunset']_&]:text-[#fed7aa]/80 [html[data-theme='sunset']_&]:hover:bg-[#9a3412]">
-                <span class="material-symbols-outlined text-sm">content_copy</span> Copy
-              </button>
+  const { theme: t } = useMarketingTheme()
+
+  const endpointCard = { background: t.card, borderColor: t.border }
+  const endpointHead = { background: t.surface, borderColor: t.divider }
+
+  return (
+    <div className="flex min-h-screen items-start pt-32 sm:pt-28 md:pt-32">
+
+      {/* ── Left sidebar ── */}
+      <aside className="fixed left-0 top-0 hidden h-screen w-64 overflow-y-auto border-r px-6 pb-8 pt-32 sm:pt-28 md:pt-32 lg:block"
+        style={{ background: t.bgSecondary, borderColor: t.border }}>
+        <div className="space-y-8">
+          {navSections.map(s => (
+            <div key={s.label}>
+              <h5 className="mb-3 text-xs font-bold uppercase tracking-wider" style={{ color: t.textMuted }}>{s.label}</h5>
+              <ul className="space-y-2">
+                {s.links.map(l => (
+                  <li key={l.href}>
+                    <a href={l.href} className="flex items-center gap-2 text-sm font-medium hover:opacity-80 transition-colors" style={{ color: t.text }}>
+                      <span className="material-symbols-outlined text-lg">{l.icon}</span> {l.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-          <div class="mt-6 rounded-xl border border-slate-200 bg-white p-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]" id="versioning">
-            <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight [html[data-theme='sunset']_&]:text-[#fed7aa]">Versioning</h4>
-            <p class="mt-3 text-sm leading-relaxed text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">
-              <span class="font-semibold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">v3</span> is the current platform API for conversions, points, permissions, dashboard, and admin workflows. 
-              <span class="font-semibold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">v2</span> handles auth, users, and legacy authenticated converters. 
-              <span class="font-semibold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">v1</span> remains available for older conversion integrations.
+          ))}
+        </div>
+      </aside>
+
+      {/* ── Main content ── */}
+      <main className="min-w-0 flex-1 lg:ml-64 xl:mr-[420px]" style={{ background: t.bg }}>
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-16 lg:py-12">
+
+          {/* Introduction */}
+          <section className="mb-16" id="introduction">
+            <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${t.primary}18`, color: t.primary }}>v3 Current</span>
+            <h1 className="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl" style={{ color: t.heading }}>ConvertPro API Documentation</h1>
+            <p className="mt-6 text-lg leading-relaxed" style={{ color: t.text }}>
+              Welcome to the ConvertPro API. This page covers authentication, endpoints, conversion routes, user management, permissions, points, dashboard, and admin APIs.
             </p>
-          </div>
-        </section>
-        
-        <hr class="border-slate-100 my-16" />
-        
-        <section class="mb-16" id="authentication">
-          <h2 class="text-3xl font-bold tracking-tight text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Authentication</h2>
-          <p class="mt-4 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">
-            The ConvertPro API uses bearer tokens. Login on <code class="font-mono text-sm">/api/v2/auth/login</code>,
-            refresh on <code class="font-mono text-sm">/api/v2/auth/refresh</code>, and pass the access token in the
-            <code class="font-mono text-sm">Authorization</code> header for protected endpoints.
-          </p>
-          <div class="mt-8 space-y-4">
-            <div class="rounded-xl bg-[#1e293b] p-6 shadow-xl">
-              <div class="mb-4 flex items-center justify-between border-b border-slate-700 pb-4">
-                <span class="text-xs font-bold uppercase tracking-widest text-slate-400">POST /api/v2/auth/login</span>
-                <div class="flex gap-2">
-                  <span class="size-2.5 rounded-full bg-red-500"></span>
-                  <span class="size-2.5 rounded-full bg-yellow-500"></span>
-                  <span class="size-2.5 rounded-full bg-green-500"></span>
+            <div className="mt-10 rounded-xl border p-6" id="base-url" style={{ background: t.surface, borderColor: t.border }}>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h4 className="text-sm font-bold uppercase tracking-tight" style={{ color: t.heading }}>Backend Base URL</h4>
+                  <code className="mt-2 block font-mono text-sm" style={{ color: t.primary }}>http://127.0.0.1:8000</code>
                 </div>
+                <button className="flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-bold transition-colors hover:opacity-80"
+                  style={{ background: t.card, borderColor: t.border, color: t.text }}>
+                  <span className="material-symbols-outlined text-sm">content_copy</span> Copy
+                </button>
               </div>
-              <pre class="code-block text-sm leading-relaxed text-slate-300"><code><span class="text-primary">curl</span> -X POST http://127.0.0.1:8000/api/v2/auth/login \\
-  -H <span class="text-green-400">"Content-Type: application/json"</span> \\
-  -d '{
-    <span class="text-yellow-400">"email"</span>: <span class="text-green-400">"user@example.com"</span>,
-    <span class="text-yellow-400">"password"</span>: <span class="text-green-400">"password123"</span>
-  }'</code></pre>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <h4 class="text-sm font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Success Response</h4>
-              <pre class="code-block mt-4 text-xs text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80"><code>{
+            <div className="mt-6 rounded-xl border p-6" id="versioning" style={{ background: t.card, borderColor: t.border }}>
+              <h4 className="text-sm font-bold uppercase tracking-tight" style={{ color: t.heading }}>Versioning</h4>
+              <p className="mt-3 text-sm leading-relaxed" style={{ color: t.text }}>
+                <strong style={{ color: t.heading }}>v3</strong> is the current platform API for conversions, points, permissions, dashboard, and admin workflows.{' '}
+                <strong style={{ color: t.heading }}>v2</strong> handles auth, users, and legacy authenticated converters.{' '}
+                <strong style={{ color: t.heading }}>v1</strong> remains available for older conversion integrations.
+              </p>
+            </div>
+          </section>
+
+          <hr className="my-16" style={{ borderColor: t.divider }} />
+
+          {/* Authentication */}
+          <section className="mb-16" id="authentication">
+            <h2 className="text-3xl font-bold tracking-tight" style={{ color: t.heading }}>Authentication</h2>
+            <p className="mt-4" style={{ color: t.text }}>
+              The ConvertPro API uses bearer tokens. Login on <code className="font-mono text-sm" style={{ color: t.primary }}>/api/v2/auth/login</code>, refresh on{' '}
+              <code className="font-mono text-sm" style={{ color: t.primary }}>/api/v2/auth/refresh</code>, and pass the access token in the{' '}
+              <code className="font-mono text-sm" style={{ color: t.primary }}>Authorization</code> header for protected endpoints.
+            </p>
+            <div className="mt-8 space-y-4">
+              <div className="rounded-xl p-6 shadow-xl" style={{ background: t.codeBlockBg }}>
+                <div className="mb-4 flex items-center justify-between border-b pb-4" style={{ borderColor: t.codeBlockBorder }}>
+                  <span className="text-xs font-bold uppercase tracking-widest" style={{ color: t.textMuted }}>POST /api/v2/auth/login</span>
+                  <div className="flex gap-2">
+                    <span className="size-2.5 rounded-full bg-red-500" /><span className="size-2.5 rounded-full bg-yellow-500" /><span className="size-2.5 rounded-full bg-green-500" />
+                  </div>
+                </div>
+                <pre className="text-sm leading-relaxed" style={{ color: t.codeBlockText }}><code>{`curl -X POST http://127.0.0.1:8000/api/v2/auth/login \\
+  -H "Content-Type: application/json" \\
+  -d '{"email": "user@example.com", "password": "password123"}'`}</code></pre>
+              </div>
+              <div className="rounded-xl border p-6" style={endpointCard}>
+                <h4 className="text-sm font-bold" style={{ color: t.heading }}>Success Response</h4>
+                <pre className="mt-4 text-xs" style={{ color: t.textMuted }}><code>{`{
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "bearer"
-}</code></pre>
-            </div>
-          </div>
-        </section>
-        
-        <section class="mb-16" id="auth-endpoints">
-          <h3 class="text-2xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] mb-8">Auth Endpoints</h3>
-          <div class="space-y-4">
-            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-                <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
-                <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v2/auth/login</code>
-                <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Issue access and refresh tokens</span>
-              </div>
-              <div class="p-6">
-                <p class="text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Request body: <code class="font-mono text-xs">email</code>, <code class="font-mono text-xs">password</code>.</p>
+}`}</code></pre>
               </div>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-                <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
-                <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v2/auth/refresh</code>
-                <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Refresh an access token</span>
-              </div>
-              <div class="p-6">
-                <p class="text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Request body: <code class="font-mono text-xs">refresh_token</code>.</p>
-              </div>
-            </div>
-            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-                <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
-                <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v2/auth/me</code>
-                <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Get current authenticated user</span>
-              </div>
-              <div class="p-6">
-                <p class="text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Requires <code class="font-mono text-xs">Authorization: Bearer &lt;token&gt;</code>.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <section class="mb-16" id="roles">
-          <h3 class="text-2xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">User Roles</h3>
-          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div class="rounded-xl border border-slate-200 bg-white p-5 hover:border-primary/30 transition-colors [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex items-center gap-3">
-                <span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg">shield_person</span>
-                <h4 class="font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Super User</h4>
-              </div>
-              <p class="mt-2 text-sm text-slate-500 italic [html[data-theme='sunset']_&]:text-[#fed7aa]/70">Full access to conversions, billing, admin checks, user role changes, and permission management.</p>
-            </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-5 hover:border-primary/30 transition-colors [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex items-center gap-3">
-                <span class="material-symbols-outlined text-slate-600 bg-slate-100 p-2 rounded-lg [html[data-theme='sunset']_&]:bg-[#9a3412] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">manage_accounts</span>
-                <h4 class="font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Admin</h4>
-              </div>
-              <p class="mt-2 text-sm text-slate-500 [html[data-theme='sunset']_&]:text-[#fed7aa]/70">Manage general and demo users, top up points, and inspect user activity and permissions.</p>
-            </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-5 hover:border-primary/30 transition-colors [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex items-center gap-3">
-                <span class="material-symbols-outlined text-slate-600 bg-slate-100 p-2 rounded-lg [html[data-theme='sunset']_&]:bg-[#9a3412] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">person</span>
-                <h4 class="font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">General</h4>
-              </div>
-              <p class="mt-2 text-sm text-slate-500 [html[data-theme='sunset']_&]:text-[#fed7aa]/70">Can perform allowed conversions, read dashboard data, check points, and view own history.</p>
-            </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-5 hover:border-primary/30 transition-colors [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex items-center gap-3">
-                <span class="material-symbols-outlined text-slate-600 bg-slate-100 p-2 rounded-lg [html[data-theme='sunset']_&]:bg-[#9a3412] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">visibility</span>
-                <h4 class="font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Demo</h4>
-              </div>
-              <p class="mt-2 text-sm text-slate-500 [html[data-theme='sunset']_&]:text-[#fed7aa]/70">Read-only mode for protected write actions. Demo users cannot create conversion jobs.</p>
-            </div>
-          </div>
-        </section>
-        
-        <section class="mb-16" id="converter">
-          <h3 class="text-2xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] mb-8">Conversion Endpoints</h3>
-          <div class="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-            <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-              <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
-              <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v3/conversions/pdf-to-word</code>
-              <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Convert PDF to DOCX</span>
-            </div>
-            <div class="p-6">
-              <h5 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Body Parameters</h5>
-              <div class="space-y-4">
-                <div class="flex items-start justify-between pb-4 border-b border-slate-100 [html[data-theme='sunset']_&]:border-[#9a3412]">
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <span class="font-mono text-sm text-slate-900 font-bold [html[data-theme='sunset']_&]:text-[#fed7aa]">file</span>
-                      <span class="text-[10px] text-red-500 font-bold">REQUIRED</span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-1 [html[data-theme='sunset']_&]:text-[#fed7aa]/70">Upload PDF file as multipart form data.</p>
+          </section>
+
+          {/* Auth endpoints */}
+          <section className="mb-16" id="auth-endpoints">
+            <h3 className="mb-8 text-2xl font-bold" style={{ color: t.heading }}>Auth Endpoints</h3>
+            <div className="space-y-4">
+              {authEndpoints.map(e => (
+                <div key={e.path} className="overflow-hidden rounded-xl border" style={endpointCard}>
+                  <div className="flex flex-wrap items-center gap-3 border-b px-6 py-4" style={endpointHead}>
+                    <span className="rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ background: e.color }}>{e.method}</span>
+                    <code className="text-sm font-bold" style={{ color: t.heading }}>{e.path}</code>
+                    <span className="ml-auto text-xs" style={{ color: t.textMuted }}>{e.desc}</span>
                   </div>
-                  <span class="text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">UploadFile</span>
+                  <div className="p-6"><p className="text-sm" style={{ color: t.text }}>{e.body}</p></div>
                 </div>
-                <div class="flex items-start justify-between pb-4 border-b border-slate-100 [html[data-theme='sunset']_&]:border-[#9a3412]">
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <span class="font-mono text-sm text-slate-900 font-bold [html[data-theme='sunset']_&]:text-[#fed7aa]">Idempotency-Key</span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-1 [html[data-theme='sunset']_&]:text-[#fed7aa]/70">Optional request header recommended for safe retries on v3 conversion POST calls.</p>
+              ))}
+            </div>
+          </section>
+
+          {/* Roles */}
+          <section className="mb-16" id="roles">
+            <h3 className="text-2xl font-bold" style={{ color: t.heading }}>User Roles</h3>
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {roles.map(r => (
+                <div key={r.title} className="rounded-xl border p-5 transition-colors hover:opacity-90" style={endpointCard}>
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined rounded-lg p-2" style={{ background: t.surface, color: t.primary }}>{r.icon}</span>
+                    <h4 className="font-bold" style={{ color: t.heading }}>{r.title}</h4>
                   </div>
-                  <span class="text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">header</span>
+                  <p className="mt-2 text-sm" style={{ color: t.textMuted }}>{r.desc}</p>
                 </div>
-                <div class="flex items-start justify-between">
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <span class="font-mono text-sm text-slate-900 font-bold [html[data-theme='sunset']_&]:text-[#fed7aa]">points_charged</span>
+              ))}
+            </div>
+          </section>
+
+          {/* Conversion endpoints */}
+          <section className="mb-16" id="converter">
+            <h3 className="mb-8 text-2xl font-bold" style={{ color: t.heading }}>Conversion Endpoints</h3>
+            <div className="overflow-hidden rounded-xl border mb-6" style={endpointCard}>
+              <div className="flex flex-wrap items-center gap-3 border-b px-6 py-4" style={endpointHead}>
+                <span className="rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ background: '#16a34a', color: '#fff' }}>POST</span>
+                <code className="text-sm font-bold" style={{ color: t.heading }}>/api/v3/conversions/pdf-to-word</code>
+                <span className="ml-auto text-xs" style={{ color: t.textMuted }}>Convert PDF to DOCX</span>
+              </div>
+              <div className="p-6 space-y-4">
+                {[
+                  { name: 'file',            req: true,  type: 'UploadFile', desc: 'Upload PDF file as multipart form data.' },
+                  { name: 'Idempotency-Key', req: false, type: 'header',     desc: 'Optional request header recommended for safe retries on v3 conversion POST calls.' },
+                  { name: 'points_charged',  req: false, type: 'integer',    desc: 'Successful conversions charge the flat per-request points rule for non-super users.' },
+                ].map(p => (
+                  <div key={p.name} className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0" style={{ borderColor: t.divider }}>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm font-bold" style={{ color: t.heading }}>{p.name}</span>
+                        {p.req && <span className="text-[10px] font-bold" style={{ color: t.error }}>REQUIRED</span>}
+                      </div>
+                      <p className="mt-1 text-xs" style={{ color: t.textMuted }}>{p.desc}</p>
                     </div>
-                    <p class="text-xs text-slate-500 mt-1 [html[data-theme='sunset']_&]:text-[#fed7aa]/70">Successful conversions charge the flat per-request points rule for non-super users.</p>
+                    <span className="text-xs" style={{ color: t.textMuted }}>{p.type}</span>
                   </div>
-                  <span class="text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">integer</span>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-xl border p-6" style={endpointCard}>
+              <h4 className="text-sm font-bold uppercase tracking-tight" style={{ color: t.heading }}>Available v3 Conversion Routes</h4>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {conversionRoutes.map(r => (
+                  <code key={r} className="rounded-lg px-3 py-2 text-xs" style={{ background: t.surface, color: t.text }}>{r}</code>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Users / Points */}
+          <section className="mb-16" id="users">
+            <h3 className="mb-8 text-2xl font-bold" style={{ color: t.heading }}>User, Points, Permissions And Admin Endpoints</h3>
+            <div className="space-y-4">
+              {[
+                { method: 'POST',  color: '#16a34a', path: '/api/v2/users',                    desc: 'Create user',        body: 'Admin or super user only.' },
+                { method: 'GET',   color: '#2563eb', path: '/api/v2/users',                    desc: 'List users',         body: 'Returns an array of UserOut.' },
+                { method: 'PATCH', color: '#a855f7', path: '/api/v2/users/<user_id>/role',     desc: 'Update user role',   body: 'Super user only.' },
+                { method: 'GET',   color: '#2563eb', path: '/api/v3/points/balance',           desc: 'Get points balance', body: 'Other points routes: /api/v3/points/ledger, /topup, /rules, /my-point.' },
+              ].map(e => (
+                <div key={e.path} className="overflow-hidden rounded-xl border" style={endpointCard}>
+                  <div className="flex flex-wrap items-center gap-3 border-b px-6 py-4" style={endpointHead}>
+                    <span className="rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ background: e.color }}>{e.method}</span>
+                    <code className="text-sm font-bold" style={{ color: t.heading }}>{e.path}</code>
+                    <span className="ml-auto text-xs" style={{ color: t.textMuted }}>{e.desc}</span>
+                  </div>
+                  <div className="p-6"><p className="text-sm" style={{ color: t.text }}>{e.body}</p></div>
                 </div>
-              </div>
+              ))}
             </div>
-          </div>
-          
-          <div class="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-            <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-              <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
-              <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v3/conversions/history</code>
-              <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Read conversion history</span>
+          </section>
+
+          {/* Errors */}
+          <section className="mb-16" id="errors">
+            <h3 className="mb-6 text-2xl font-bold" style={{ color: t.heading }}>Error Handling</h3>
+            <div className="space-y-4">
+              {errors.map(e => (
+                <div key={e.code} className="flex gap-4 rounded-xl border-l-4 p-4" style={{ background: e.bg, borderColor: e.color }}>
+                  <span className="material-symbols-outlined" style={{ color: e.color }}>{e.icon}</span>
+                  <div>
+                    <h5 className="text-sm font-bold" style={{ color: e.color }}>{e.code}</h5>
+                    <p className="text-sm" style={{ color: t.text }}>{e.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div class="p-6">
-              <p class="text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Query params: <code class="font-mono text-xs">limit</code> and optional <code class="font-mono text-xs">user_id</code> for super users.</p>
+          </section>
+
+          {/* Rate limits */}
+          <section className="mb-16" id="rate-limits">
+            <h3 className="mb-6 text-2xl font-bold" style={{ color: t.heading }}>Rate Limits</h3>
+            <div className="overflow-x-auto rounded-xl border" style={endpointCard}>
+              <table className="min-w-[720px] w-full text-left text-sm">
+                <thead style={{ background: t.surface }}>
+                  <tr>
+                    {['Scope', 'Current Docs Note', 'Behavior'].map(h => (
+                      <th key={h} className="px-6 py-4 text-xs font-bold uppercase" style={{ color: t.textMuted }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody style={{ borderColor: t.divider }}>
+                  {[
+                    ['v3 Conversions', 'Point-based charging',    'Each successful request uses the flat cost returned by /api/v3/points/rules.'],
+                    ['Retry Safety',   'Idempotency supported',   'Use Idempotency-Key on v3 POST conversions to prevent duplicate charges.'],
+                    ['Admin Reads',    'Role-gated',              'Admin and super user access depends on backend role checks.'],
+                  ].map(([scope, note, behavior]) => (
+                    <tr key={scope} className="border-t" style={{ borderColor: t.divider }}>
+                      <td className="px-6 py-4 font-medium" style={{ color: t.heading }}>{scope}</td>
+                      <td className="px-6 py-4" style={{ color: t.text }}>{note}</td>
+                      <td className="px-6 py-4" style={{ color: t.text }}>{behavior}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-          
-          <div class="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-            <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-              <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
-              <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v3/conversions/&lt;conversion_id&gt;/download</code>
-              <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Download completed output file</span>
+          </section>
+
+        </div>
+      </main>
+
+      {/* ── Right sidebar — API tester ── */}
+      <aside className="fixed right-0 top-0 hidden h-screen w-[400px] flex-col border-l pt-32 sm:pt-28 md:pt-32 xl:flex"
+        style={{ background: t.bgSecondary, borderColor: t.border }}>
+        <div className="flex h-full flex-col px-6 py-6">
+          <div className="flex-1 rounded-2xl border p-5 shadow-sm" style={{ background: t.card, borderColor: t.border }}>
+            <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.textMuted }}>Endpoint</label>
+            <div className="relative mb-4">
+              <select className="w-full appearance-none rounded-lg border px-3 py-2 pr-8 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary"
+                style={{ background: t.surface, borderColor: t.border, color: t.text }}>
+                <option>POST /api/v3/conversions/pdf-to-word</option>
+                <option>GET /api/v3/conversions/history</option>
+                <option>POST /api/v2/auth/login</option>
+                <option>GET /api/v2/auth/me</option>
+                <option>POST /api/v2/users</option>
+                <option>GET /api/v3/points/balance</option>
+              </select>
+              <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-sm" style={{ color: t.textMuted }}>expand_more</span>
             </div>
-            <div class="p-6">
-              <p class="text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Downloads the generated file for a successful owned conversion.</p>
+
+            <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.textMuted }}>Authorization</label>
+            <input className="mb-4 w-full rounded-lg border px-3 py-2 text-xs placeholder:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary"
+              style={{ background: t.surface, borderColor: t.border, color: t.text }}
+              type="text" placeholder="Bearer token" defaultValue="Bearer eyJhbGc..." />
+
+            <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.textMuted }}>Request Body</label>
+            <textarea className="mb-4 w-full rounded-lg border px-3 py-2 text-xs font-mono placeholder:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary"
+              style={{ background: t.surface, borderColor: t.border, color: t.text }}
+              rows={4} placeholder='{"email": "user@example.com", "password": "..."}' defaultValue={`{\n  "file": "(upload)",\n  "idempotency_key": "uuid"\n}`} />
+
+            <button className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold shadow-lg transition-all hover:opacity-90"
+              style={{ background: t.buttonBg, color: t.buttonText }}>
+              <span className="material-symbols-outlined text-base">play_arrow</span> Send Request
+            </button>
+
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.textMuted }}>Response</label>
+              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: `${t.success}20`, color: t.success }}>200 OK</span>
             </div>
-          </div>
-          
-          <div class="rounded-xl border border-slate-200 bg-white p-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-            <h4 class="text-sm font-bold text-slate-900 uppercase tracking-tight [html[data-theme='sunset']_&]:text-[#fed7aa]">Available v3 Conversion Routes</h4>
-            <div class="mt-4 grid gap-3 sm:grid-cols-2">
-              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700 [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">POST /api/v3/conversions/pdf-to-word</code>
-              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700 [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">POST /api/v3/conversions/pdf-to-excel</code>
-              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700 [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">POST /api/v3/conversions/docx-to-pdf</code>
-              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700 [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">POST /api/v3/conversions/excel-to-pdf</code>
-              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700 [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">POST /api/v3/conversions/image-to-pdf</code>
-              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700 [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">POST /api/v3/conversions/remove-pages-from-pdf</code>
-              <code class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700 [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]/80">POST /api/v3/conversions/remove-background</code>
-            </div>
-          </div>
-        </section>
-        
-        <section class="mb-16" id="users">
-          <h3 class="text-2xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] mb-8">User, Points, Permissions And Admin Endpoints</h3>
-          <div class="space-y-4">
-            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-                <span class="rounded bg-green-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">POST</span>
-                <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v2/users</code>
-                <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Create user</span>
-              </div>
-              <div class="p-6"><p class="text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Admin or super user only.</p></div>
-            </div>
-            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-                <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
-                <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v2/users</code>
-                <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">List users</span>
-              </div>
-              <div class="p-6"><p class="text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Returns an array of UserOut.</p></div>
-            </div>
-            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-                <span class="rounded bg-fuchsia-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">PATCH</span>
-                <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v2/users/&lt;user_id&gt;/role</code>
-                <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Update user role</span>
-              </div>
-              <div class="p-6"><p class="text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Super user only.</p></div>
-            </div>
-            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-              <div class="flex flex-wrap items-center gap-3 bg-slate-50 px-6 py-4 border-b border-slate-200 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-                <span class="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider">GET</span>
-                <code class="text-sm font-bold text-slate-700 [html[data-theme='sunset']_&]:text-[#fed7aa]">/api/v3/points/balance</code>
-                <span class="ml-auto text-xs text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Get points balance</span>
-              </div>
-              <div class="p-6"><p class="text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Other points routes: /api/v3/points/ledger, /api/v3/points/topup, /api/v3/points/rules, /api/v3/points/my-point.</p></div>
-            </div>
-          </div>
-        </section>
-        
-        <section class="mb-16" id="errors">
-          <h3 class="text-2xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] mb-6">Error Handling</h3>
-          <div class="space-y-4">
-            <div class="flex gap-4 rounded-xl border-l-4 border-orange-500 bg-orange-50 p-4 [html[data-theme='sunset']_&]:bg-orange-500/10">
-              <span class="material-symbols-outlined text-orange-600">warning</span>
-              <div>
-                <h5 class="text-sm font-bold text-orange-900 [html[data-theme='sunset']_&]:text-orange-200">401 Unauthorized</h5>
-                <p class="text-sm text-orange-700 [html[data-theme='sunset']_&]:text-orange-300">Invalid or missing bearer token.</p>
-              </div>
-            </div>
-            <div class="flex gap-4 rounded-xl border-l-4 border-red-500 bg-red-50 p-4 [html[data-theme='sunset']_&]:bg-red-500/10">
-              <span class="material-symbols-outlined text-red-600">block</span>
-              <div>
-                <h5 class="text-sm font-bold text-red-900 [html[data-theme='sunset']_&]:text-red-200">403 Forbidden</h5>
-                <p class="text-sm text-red-700 [html[data-theme='sunset']_&]:text-red-300">Conversion not permitted, role blocked, or insufficient role privileges.</p>
-              </div>
-            </div>
-            <div class="flex gap-4 rounded-xl border-l-4 border-purple-500 bg-purple-50 p-4 [html[data-theme='sunset']_&]:bg-purple-500/10">
-              <span class="material-symbols-outlined text-purple-600">hourglass_top</span>
-              <div>
-                <h5 class="text-sm font-bold text-purple-900 [html[data-theme='sunset']_&]:text-purple-200">402 Payment Required</h5>
-                <p class="text-sm text-purple-700 [html[data-theme='sunset']_&]:text-purple-300">Raised when the user has insufficient points for a conversion request.</p>
-              </div>
-            </div>
-            <div class="flex gap-4 rounded-xl border-l-4 border-sky-500 bg-sky-50 p-4 [html[data-theme='sunset']_&]:bg-sky-500/10">
-              <span class="material-symbols-outlined text-sky-600">rule</span>
-              <div>
-                <h5 class="text-sm font-bold text-sky-900 [html[data-theme='sunset']_&]:text-sky-200">422 Validation Error</h5>
-                <p class="text-sm text-sky-700 [html[data-theme='sunset']_&]:text-sky-300">Input payload, file upload, or query parameter validation failed.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <section class="mb-16" id="rate-limits">
-          <h3 class="text-2xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] mb-6">Rate Limits</h3>
-          <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-            <table class="min-w-[720px] w-full text-left text-sm">
-              <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-500 [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]/70">
-                <tr>
-                  <th class="px-6 py-4">Scope</th>
-                  <th class="px-6 py-4">Current Docs Note</th>
-                  <th class="px-6 py-4">Behavior</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 [html[data-theme='sunset']_&]:divide-[#9a3412]">
-                <tr>
-                  <td class="px-6 py-4 font-medium text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">v3 Conversions</td>
-                  <td class="px-6 py-4 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Point-based charging</td>
-                  <td class="px-6 py-4 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Each successful request uses the flat cost returned by /api/v3/points/rules.</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 font-medium text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Retry Safety</td>
-                  <td class="px-6 py-4 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Idempotency supported</td>
-                  <td class="px-6 py-4 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Use Idempotency-Key on v3 POST conversions to prevent duplicate charges.</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 font-medium text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Admin Reads</td>
-                  <td class="px-6 py-4 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Role-gated</td>
-                  <td class="px-6 py-4 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Admin and super user access depends on backend role checks.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </main>
-    
-    <aside class="fixed right-0 top-0 hidden h-screen w-[400px] flex-col border-l border-slate-200 bg-slate-50 pt-32 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03] sm:pt-28 md:pt-32 xl:flex">
-      <div class="flex h-full flex-col px-6 py-6">
-        <div class="flex-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-          <label class="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Endpoint</label>
-          <div class="relative mb-4">
-            <select class="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 pr-8 text-xs font-medium text-slate-700 focus:border-primary focus:ring-primary [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]">
-              <option>POST /api/v3/conversions/pdf-to-word</option>
-              <option>GET /api/v3/conversions/history</option>
-              <option>POST /api/v2/auth/login</option>
-              <option>GET /api/v2/auth/me</option>
-              <option>POST /api/v2/users</option>
-              <option>GET /api/v3/points/balance</option>
-            </select>
-            <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-sm text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">expand_more</span>
-          </div>
-          
-          <label class="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Authorization</label>
-          <input class="mb-4 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 placeholder:text-slate-400 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]" type="text" placeholder="Bearer token" value="Bearer eyJhbGc..." />
-          
-          <label class="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Request Body</label>
-          <textarea class="mb-4 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-mono text-slate-700 placeholder:text-slate-400 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03] [html[data-theme='sunset']_&]:text-[#fed7aa]" rows="4" placeholder='{"email": "user@example.com", "password": "..."}'>{
-  "file": "(upload)",
-  "idempotency_key": "uuid"
-}</textarea>
-          
-          <button class="mb-4 flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90">
-            <span class="material-symbols-outlined text-base">play_arrow</span> Send Request
-          </button>
-          
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-xs font-bold uppercase tracking-[0.24em] text-slate-400 [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Response</label>
-            <span class="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-600 [html[data-theme='sunset']_&]:bg-green-500/10 [html[data-theme='sunset']_&]:text-green-300">200 OK</span>
-          </div>
-          <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
-            <pre class="whitespace-pre-wrap break-words text-[11px] font-mono leading-5 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80"><code>{
+            <div className="rounded-lg border p-3" style={{ background: t.surface, borderColor: t.border }}>
+              <pre className="whitespace-pre-wrap break-words text-[11px] font-mono leading-5" style={{ color: t.text }}><code>{`{
   "conversion_id": 214,
   "status": "success",
   "download_url": "/api/v3/conversions/214/download",
   "points_charged": 3,
   "remaining_balance": 97
-}</code></pre>
+}`}</code></pre>
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center gap-3 rounded-lg border px-4 py-2.5" style={{ background: t.card, borderColor: t.border }}>
+            <div className="flex size-8 items-center justify-center rounded-full" style={{ background: `${t.primary}20` }}>
+              <span className="material-symbols-outlined text-sm" style={{ color: t.primary }}>terminal</span>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase leading-none" style={{ color: t.textMuted }}>Environment</p>
+              <p className="mt-0.5 text-xs font-bold leading-tight" style={{ color: t.heading }}>Local API</p>
+            </div>
           </div>
         </div>
-        
-        <div class="mt-4 flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-2.5 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
-          <div class="flex size-8 items-center justify-center rounded-full bg-primary/10">
-            <span class="material-symbols-outlined text-primary text-sm">terminal</span>
-          </div>
-          <div>
-            <p class="text-[9px] font-bold text-slate-400 uppercase leading-none [html[data-theme='sunset']_&]:text-[#fed7aa]/60">Environment</p>
-            <p class="mt-0.5 text-xs font-bold text-slate-900 leading-tight [html[data-theme='sunset']_&]:text-[#fed7aa]">Local API</p>
-          </div>
-        </div>
-      </div>
-    </aside>
-  </div>
-`;
-  return (
-    <div className=" text-slate-900 font-display">
-      <div dangerouslySetInnerHTML={{ __html: markup }} />
+      </aside>
+
     </div>
-  );
+  )
 }
