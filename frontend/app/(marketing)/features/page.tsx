@@ -1,49 +1,7 @@
 export default function Page() {
   const markup = `
-<!-- Navigation Bar -->
-    <header
-        class="fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
-        <div class="flex h-20 w-full items-center justify-between px-4 sm:h-24 sm:px-6 lg:px-8">
-            <a class="flex items-center gap-2 group cursor-pointer" href="/">
-                <div
-                    class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white transition-transform group-hover:scale-110 sm:h-12 sm:w-12">
-                    <span class="material-symbols-outlined text-2xl sm:text-[28px]">sync_alt</span>
-                </div>
-                <span class="text-lg font-black tracking-tight text-slate-900 dark:text-white sm:text-2xl">ConvertPro <span
-                        class="text-primary">API</span></span>
-            </a>
-            <nav class="hidden items-center gap-10 lg:flex">
-                <a class="text-base font-semibold text-primary" href="/features">Features</a>
-                <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
-                    href="/pricing">Pricing</a>
-                <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
-                    href="/docs">Documentation</a>
-                <a class="text-base font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-400"
-                    href="/dashboard">Dashboard</a>
-            </nav>
-            <div class="flex items-center gap-2 sm:gap-4">
-                <button
-                    class="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/60 transition-all hover:scale-[1.02] hover:shadow-md dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-black/20 sm:h-12 sm:w-12"
-                    data-theme-toggle
-                    onclick="window.__toggleMarketingTheme()">
-                    <span class="material-symbols-outlined text-xl sm:text-[22px]" data-theme-toggle-icon>dark_mode</span>
-                </button>
-                <a
-                    class="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/25 hover:ring-4 hover:ring-primary/15 active:scale-[0.98] sm:px-6 sm:py-3 sm:text-base"
-                    href="/login">Login</a>
-            </div>
-        </div>
-        <div class="border-t border-slate-200/70 px-4 py-3 dark:border-slate-800 lg:hidden">
-            <nav class="flex items-center gap-3 overflow-x-auto whitespace-nowrap text-sm font-semibold">
-                <a class="rounded-full bg-primary/10 px-3 py-1.5 text-primary" href="/features">Features</a>
-                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/pricing">Pricing</a>
-                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/docs">Documentation</a>
-                <a class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 dark:bg-slate-900 dark:text-slate-300" href="/dashboard">Dashboard</a>
-            </nav>
-        </div>
-    </header>
-    <main class="bg-background-light pt-36 dark:bg-background-dark lg:pt-24">
-        <section class="relative overflow-hidden border-b border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-slate-950 sm:py-24">
+    <main class="pt-36 lg:pt-24">
+        <section class="relative overflow-hidden border-b border-slate-200 bg-white py-16 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12] sm:py-24">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.14),transparent_34%),radial-gradient(circle_at_85%_15%,rgba(14,165,233,0.12),transparent_30%)]"></div>
             <div class="relative mx-auto grid max-w-[1440px] gap-10 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:px-20">
                 <div>
@@ -52,10 +10,10 @@ export default function Page() {
                         <span class="material-symbols-outlined text-sm">auto_awesome</span>
                         Product Features
                     </div>
-                    <h1 class="mt-6 max-w-4xl text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:mt-8 sm:text-5xl lg:text-7xl">
+                    <h1 class="mt-6 max-w-4xl text-4xl font-black tracking-tight text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] sm:mt-8 sm:text-5xl lg:text-7xl">
                         Everything teams need to automate file workflows with one API.
                     </h1>
-                    <p class="mt-6 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400 sm:mt-8 sm:text-lg sm:leading-8">
+                    <p class="mt-6 max-w-2xl text-base leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80 sm:mt-8 sm:text-lg sm:leading-8">
                         ConvertPro combines secure conversion pipelines, role-based access, billing controls, history,
                         downloads, and admin insight into one platform built for product teams, internal tools, and
                         customer-facing apps.
@@ -66,77 +24,77 @@ export default function Page() {
                             Explore Docs
                         </a>
                         <a href="/pricing"
-                            class="rounded-2xl border border-slate-200 bg-white px-8 py-4 text-center text-sm font-bold text-slate-900 transition-all hover:border-primary/30 hover:text-primary dark:border-slate-800 dark:bg-slate-900 dark:text-white">
+                            class="rounded-2xl border border-slate-200 bg-white px-8 py-4 text-center text-sm font-bold text-slate-900 transition-all hover:border-primary/30 hover:text-primary [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12] [html[data-theme='sunset']_&]:text-[#fed7aa]">
                             View Plans
                         </a>
                     </div>
                 </div>
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
                         <span class="material-symbols-outlined text-4xl text-primary">transform</span>
-                        <h3 class="mt-5 text-xl font-bold text-slate-900 dark:text-white">7 live conversion flows</h3>
-                        <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">PDF to Word, PDF to Excel, DOCX to PDF, Excel to PDF, Image to PDF, background removal, and page removal.</p>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">7 live conversion flows</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">PDF to Word, PDF to Excel, DOCX to PDF, Excel to PDF, Image to PDF, background removal, and page removal.</p>
                     </div>
-                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
                         <span class="material-symbols-outlined text-4xl text-primary">admin_panel_settings</span>
-                        <h3 class="mt-5 text-xl font-bold text-slate-900 dark:text-white">Role-based control</h3>
-                        <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Built-in super user, admin, general, and demo roles with permission gates for conversion actions.</p>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Role-based control</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Built-in super user, admin, general, and demo roles with permission gates for conversion actions.</p>
                     </div>
-                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
                         <span class="material-symbols-outlined text-4xl text-primary">toll</span>
-                        <h3 class="mt-5 text-xl font-bold text-slate-900 dark:text-white">Points and billing</h3>
-                        <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Track balances, top up accounts, inspect ledger history, and enforce per-request charging in v3.</p>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Points and billing</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Track balances, top up accounts, inspect ledger history, and enforce per-request charging in v3.</p>
                     </div>
-                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
                         <span class="material-symbols-outlined text-4xl text-primary">query_stats</span>
-                        <h3 class="mt-5 text-xl font-bold text-slate-900 dark:text-white">Operational visibility</h3>
-                        <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Dashboard overview, recent conversion history, success tracking, active-user monitoring, and admin user inspection.</p>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Operational visibility</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Dashboard overview, recent conversion history, success tracking, active-user monitoring, and admin user inspection.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="bg-slate-50 py-16 dark:bg-slate-950/60 sm:py-24">
+        <section class="bg-slate-50 py-16 [html[data-theme='sunset']_&]:bg-[#451a03] sm:py-24">
             <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
                 <div class="max-w-3xl">
-                    <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Core capabilities</h2>
-                    <p class="mt-5 text-base leading-7 text-slate-600 dark:text-slate-400 sm:text-lg sm:leading-8">
+                    <h2 class="text-3xl font-black tracking-tight text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] sm:text-4xl">Core capabilities</h2>
+                    <p class="mt-5 text-base leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80 sm:text-lg sm:leading-8">
                         The platform is structured around practical API building blocks that product and platform teams
                         need in real deployments.
                     </p>
                 </div>
                 <div class="mt-16 grid gap-6 lg:grid-cols-3">
-                    <article class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <article class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
                         <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                             <span class="material-symbols-outlined text-3xl">upload_file</span>
                         </div>
-                        <h3 class="mt-6 text-2xl font-bold text-slate-900 dark:text-white">Conversion pipeline</h3>
-                        <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">Upload-based conversion endpoints with private output storage, download-by-conversion-id, idempotency protection, and per-action history feeds.</p>
-                        <ul class="mt-6 space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                        <h3 class="mt-6 text-2xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Conversion pipeline</h3>
+                        <p class="mt-4 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Upload-based conversion endpoints with private output storage, download-by-conversion-id, idempotency protection, and per-action history feeds.</p>
+                        <ul class="mt-6 space-y-3 text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">
                             <li class="flex gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Multipart uploads for file-based conversion</li>
                             <li class="flex gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Download URLs generated after success</li>
                             <li class="flex gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> History endpoints for each conversion type</li>
                         </ul>
                     </article>
-                    <article class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <article class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
                         <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                             <span class="material-symbols-outlined text-3xl">lock</span>
                         </div>
-                        <h3 class="mt-6 text-2xl font-bold text-slate-900 dark:text-white">Access and permissions</h3>
-                        <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">JWT auth, current-user lookup, managed user creation, role changes, and per-user conversion permissions exposed through admin-safe APIs.</p>
-                        <ul class="mt-6 space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                        <h3 class="mt-6 text-2xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Access and permissions</h3>
+                        <p class="mt-4 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">JWT auth, current-user lookup, managed user creation, role changes, and per-user conversion permissions exposed through admin-safe APIs.</p>
+                        <ul class="mt-6 space-y-3 text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">
                             <li class="flex gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Access and refresh token flow</li>
                             <li class="flex gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Bulk and per-action permission updates</li>
                             <li class="flex gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Role-gated admin operations</li>
                         </ul>
                     </article>
-                    <article class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <article class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
                         <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                             <span class="material-symbols-outlined text-3xl">monitoring</span>
                         </div>
-                        <h3 class="mt-6 text-2xl font-bold text-slate-900 dark:text-white">Insight and governance</h3>
-                        <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">Monitor usage with dashboard summaries, per-user API visibility, active-user lists, point-giving history, and detailed user audit views.</p>
-                        <ul class="mt-6 space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                        <h3 class="mt-6 text-2xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Insight and governance</h3>
+                        <p class="mt-4 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Monitor usage with dashboard summaries, per-user API visibility, active-user lists, point-giving history, and detailed user audit views.</p>
+                        <ul class="mt-6 space-y-3 text-sm text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">
                             <li class="flex gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Balance and ledger endpoints</li>
                             <li class="flex gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Dashboard success and latency insights</li>
                             <li class="flex gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Admin active-user and point history views</li>
@@ -146,55 +104,55 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="bg-white py-16 dark:bg-slate-950 sm:py-24">
+        <section class="bg-white py-16 [html[data-theme='sunset']_&]:bg-[#7c2d12] sm:py-24">
             <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
                 <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
                     <div>
-                        <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Built for real teams</h2>
-                        <p class="mt-6 text-base leading-7 text-slate-600 dark:text-slate-400 sm:text-lg sm:leading-8">
+                        <h2 class="text-3xl font-black tracking-tight text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] sm:text-4xl">Built for real teams</h2>
+                        <p class="mt-6 text-base leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80 sm:text-lg sm:leading-8">
                             The product covers the entire workflow from authentication to conversion execution to team
                             governance, so you can ship one integrated platform instead of stitching together multiple services.
                         </p>
                     </div>
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900">
+                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
                             <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary">Developers</p>
-                            <h3 class="mt-3 text-xl font-bold text-slate-900 dark:text-white">Simple integration</h3>
-                            <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Clean REST paths, predictable JSON responses, and upload-first conversion flows.</p>
+                            <h3 class="mt-3 text-xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Simple integration</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Clean REST paths, predictable JSON responses, and upload-first conversion flows.</p>
                         </div>
-                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900">
+                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
                             <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary">Operations</p>
-                            <h3 class="mt-3 text-xl font-bold text-slate-900 dark:text-white">Safe retries</h3>
-                            <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Idempotency keys help avoid duplicate charges and repeated conversion work.</p>
+                            <h3 class="mt-3 text-xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Safe retries</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Idempotency keys help avoid duplicate charges and repeated conversion work.</p>
                         </div>
-                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900">
+                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
                             <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary">Admins</p>
-                            <h3 class="mt-3 text-xl font-bold text-slate-900 dark:text-white">User governance</h3>
-                            <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Manage roles, conversion permissions, balances, and inspect activity from one place.</p>
+                            <h3 class="mt-3 text-xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">User governance</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Manage roles, conversion permissions, balances, and inspect activity from one place.</p>
                         </div>
-                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900">
+                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03]">
                             <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary">Product teams</p>
-                            <h3 class="mt-3 text-xl font-bold text-slate-900 dark:text-white">Scalable packaging</h3>
-                            <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">Support demo users, internal teams, and enterprise customers with one backend model.</p>
+                            <h3 class="mt-3 text-xl font-bold text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa]">Scalable packaging</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80">Support demo users, internal teams, and enterprise customers with one backend model.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="overflow-hidden bg-slate-900 py-16 text-white sm:py-24">
+        <section class="overflow-hidden bg-slate-900 py-16 text-white [html[data-theme='sunset']_&]:bg-[#451a03] sm:py-24">
             <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
                 <div class="grid items-center gap-10 lg:grid-cols-[1fr_0.95fr] lg:gap-12">
                     <div>
                         <p class="text-sm font-bold uppercase tracking-[0.3em] text-primary">API Preview</p>
-                        <h2 class="mt-4 text-3xl font-black tracking-tight sm:text-4xl">One platform, versioned and production-friendly.</h2>
-                        <p class="mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
+                        <h2 class="mt-4 text-3xl font-black tracking-tight [html[data-theme='sunset']_&]:text-[#fed7aa] sm:text-4xl">One platform, versioned and production-friendly.</h2>
+                        <p class="mt-6 max-w-2xl text-base leading-7 text-slate-300 [html[data-theme='sunset']_&]:text-[#fed7aa]/80 sm:text-lg sm:leading-8">
                             Use v2 for auth and user management, and v3 for points, permissions, dashboard, admin,
                             and conversion workflows.
                         </p>
                     </div>
-                    <div class="rounded-3xl border border-slate-800 bg-[#0f172a] p-6 shadow-2xl">
-                        <div class="mb-4 flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div class="rounded-3xl border border-slate-800 bg-[#0f172a] p-6 shadow-2xl [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12]">
+                        <div class="mb-4 flex items-center justify-between border-b border-slate-800 pb-4 [html[data-theme='sunset']_&]:border-[#9a3412]">
                             <span class="font-mono text-sm font-bold text-primary">POST /api/v3/conversions/pdf-to-word</span>
                             <div class="flex gap-2">
                                 <span class="h-2.5 w-2.5 rounded-full bg-red-500"></span>
@@ -202,7 +160,7 @@ export default function Page() {
                                 <span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>
                             </div>
                         </div>
-                        <pre class="overflow-x-auto whitespace-pre-wrap break-words text-sm leading-7 text-slate-300"><code><span class="text-pink-400">curl</span> -X POST http://127.0.0.1:8000/api/v3/conversions/pdf-to-word \\
+                        <pre class="overflow-x-auto whitespace-pre-wrap break-words text-sm leading-7 text-slate-300 [html[data-theme='sunset']_&]:text-[#fed7aa]/90"><code><span class="text-pink-400">curl</span> -X POST http://127.0.0.1:8000/api/v3/conversions/pdf-to-word \\
   -H <span class="text-emerald-400">"Authorization: Bearer &lt;token&gt;"</span> \\
   -H <span class="text-emerald-400">"Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000"</span> \\
   -F <span class="text-amber-300">"file=@document.pdf"</span>
@@ -220,11 +178,11 @@ export default function Page() {
             </div>
         </section>
 
-        <section class="bg-white py-16 dark:bg-slate-950 sm:py-24">
+        <section class="bg-white py-16 [html[data-theme='sunset']_&]:bg-[#7c2d12] sm:py-24">
             <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
-                <div class="rounded-[2rem] border border-slate-200 bg-slate-50 px-5 py-10 text-center dark:border-slate-800 dark:bg-slate-900 sm:px-8 sm:py-14">
-                    <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Ship faster with a complete conversion stack.</h2>
-                    <p class="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400 sm:text-lg sm:leading-8">
+                <div class="rounded-[2rem] border border-slate-200 bg-slate-50 px-5 py-10 text-center [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#451a03] sm:px-8 sm:py-14">
+                    <h2 class="text-3xl font-black tracking-tight text-slate-900 [html[data-theme='sunset']_&]:text-[#fed7aa] sm:text-4xl">Ship faster with a complete conversion stack.</h2>
+                    <p class="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 [html[data-theme='sunset']_&]:text-[#fed7aa]/80 sm:text-lg sm:leading-8">
                         Start with the docs, choose a pricing tier, and integrate the endpoints your team needs.
                     </p>
                     <div class="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
@@ -233,7 +191,7 @@ export default function Page() {
                             Read Documentation
                         </a>
                         <a href="/pricing"
-                            class="rounded-2xl border border-slate-200 bg-white px-8 py-4 text-sm font-bold text-slate-900 transition-all hover:border-primary/30 hover:text-primary dark:border-slate-800 dark:bg-slate-950 dark:text-white">
+                            class="rounded-2xl border border-slate-200 bg-white px-8 py-4 text-sm font-bold text-slate-900 transition-all hover:border-primary/30 hover:text-primary [html[data-theme='sunset']_&]:border-[#9a3412] [html[data-theme='sunset']_&]:bg-[#7c2d12] [html[data-theme='sunset']_&]:text-[#fed7aa]">
                             Compare Pricing
                         </a>
                     </div>
@@ -241,41 +199,10 @@ export default function Page() {
             </div>
         </section>
     </main>
-    <footer class="bg-white border-t border-slate-200 py-16 dark:border-slate-800 dark:bg-slate-950">
-        <div class="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-6 px-6 md:flex-row lg:px-20">
-            <div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-                <span>© 2026 ConvertPro API</span>
-                <span class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                <a class="transition-colors hover:text-primary" href="/features">Features</a>
-                <span class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                <a class="transition-colors hover:text-primary" href="/pricing">Pricing</a>
-                <span class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                <a class="transition-colors hover:text-primary" href="/docs">Docs</a>
-            </div>
-            <div class="flex gap-4">
-                <a class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-all hover:bg-primary/10 hover:text-primary dark:bg-slate-900 dark:text-slate-400"
-                    href="#">
-                    <svg class="h-4 w-4" fill="currentColor" viewbox="0 0 24 24">
-                        <path
-                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z">
-                        </path>
-                    </svg>
-                </a>
-                <a class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-all hover:bg-primary/10 hover:text-primary dark:bg-slate-900 dark:text-slate-400"
-                    href="#">
-                    <svg class="h-4 w-4" fill="currentColor" viewbox="0 0 24 24">
-                        <path
-                            d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z">
-                        </path>
-                    </svg>
-                </a>
-            </div>
-        </div>
-    </footer>
 `;
 
   return (
-    <div className="bg-background-light text-slate-900 font-display">
+    <div className="text-slate-900 font-display">
       <div dangerouslySetInnerHTML={{ __html: markup }} />
     </div>
   );

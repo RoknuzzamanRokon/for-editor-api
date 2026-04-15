@@ -98,6 +98,17 @@ body {
   animation: sunsetShift 14s ease-in-out infinite;
 }
 
+html[data-theme='sunset'] {
+  background-image:
+    radial-gradient(circle at 12% 22%, rgba(251, 146, 60, 0.35) 0%, transparent 38%),
+    radial-gradient(circle at 86% 14%, rgba(244, 63, 94, 0.28) 0%, transparent 34%),
+    radial-gradient(circle at 78% 86%, rgba(249, 115, 22, 0.26) 0%, transparent 36%),
+    linear-gradient(120deg, #2f1202 0%, #451a03 42%, #7c2d12 72%, #5b200d 100%);
+  background-size: 180% 180%;
+  animation: sunsetShift 14s ease-in-out infinite;
+  min-height: 100vh;
+}
+
 .midnight body {
   background-image:
     radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.18) 0%, transparent 38%),

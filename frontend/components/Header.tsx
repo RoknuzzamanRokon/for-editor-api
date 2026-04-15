@@ -15,6 +15,7 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
+          <Link className="text-sm font-medium text-slate-600 transition-colors hover:text-primary" href="/#features">Home</Link>
           <Link className="text-sm font-medium text-slate-600 transition-colors hover:text-primary" href="/#features">Features</Link>
           <Link className="text-sm font-medium text-slate-600 transition-colors hover:text-primary" href="/pricing">Pricing</Link>
           <Link className="text-sm font-medium text-slate-600 transition-colors hover:text-primary" href="/docs">Documentation</Link>
