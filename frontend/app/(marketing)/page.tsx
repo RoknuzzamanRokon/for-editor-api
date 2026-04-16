@@ -1,17 +1,17 @@
 'use client'
 import Image from 'next/image'
-import { getTheme, cardClass, sectionClass } from '@/config/marketingTheme'
+import { useMarketingTheme, cardClass, sectionClass } from '@/config/marketingTheme'
 
 export default function Page() {
-  const t = getTheme()
-  const mode = 'light'
+  const { theme: t, mode } = useMarketingTheme()
 
   const card = cardClass(mode, 'group p-8 transition-all hover:-translate-y-1 hover:shadow-2xl')
-  const sec  = sectionClass(mode)
-  const sec2 = sectionClass(mode, 'secondary')
 
   return (
-    <main className="mx-3 mb-6 overflow-hidden rounded-[32px] bg-white pt-36 shadow-[0_24px_80px_rgba(15,23,42,0.12)] lg:mx-6 lg:pt-24">
+    <main
+      className="mx-3 mb-6 overflow-hidden rounded-[32px] pt-36 transition-colors duration-300 lg:mx-6 lg:pt-24"
+      style={{ background: t.card, boxShadow: t.panelShadow }}
+    >
 
       {/* ── Hero ── */}
       <section

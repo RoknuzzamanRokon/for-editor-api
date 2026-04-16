@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 export interface MarketingTheme {
-  mode: 'light'
+  mode: 'light' | 'dark'
   bg: string
   bgSecondary: string
   surface: string
@@ -35,11 +37,13 @@ export interface MarketingTheme {
   codeBlockBg: string
   codeBlockText: string
   codeBlockBorder: string
+  shellBg: string
+  panelShadow: string
 }
 
-export type ThemeMode = 'light'
+export type ThemeMode = 'light' | 'dark'
 
-const theme: MarketingTheme = {
+const light: MarketingTheme = {
   mode: 'light',
   bg: '#ffffff',
   bgSecondary: '#f8fafc',
@@ -74,26 +78,126 @@ const theme: MarketingTheme = {
   codeBlockBg: '#0f172a',
   codeBlockText: '#e2e8f0',
   codeBlockBorder: '#1e293b',
+  shellBg: '#f1f5f9',
+  panelShadow: '0 24px 80px rgba(15,23,42,0.12)',
 }
 
-export function getTheme(): MarketingTheme {
-  return theme
+const dark: MarketingTheme = {
+  mode: 'dark',
+  bg: '#020617',
+  bgSecondary: '#0b1120',
+  surface: '#111827',
+  card: '#09111f',
+  cardHover: '#111827',
+  text: '#d6d3d1',
+  textMuted: '#a8a29e',
+  heading: '#f8fafc',
+  primary: '#f97316',
+  primaryHover: '#fb923c',
+  secondary: '#fed7aa',
+  accent: '#ffb17a',
+  border: 'rgba(249,115,22,0.28)',
+  divider: 'rgba(249,115,22,0.18)',
+  buttonBg: '#f97316',
+  buttonText: '#111827',
+  buttonHover: '#fb923c',
+  buttonOutlineBg: '#0b1220',
+  buttonOutlineText: '#fed7aa',
+  buttonOutlineBorder: 'rgba(251,146,60,0.35)',
+  buttonOutlineHover: '#111827',
+  link: '#fed7aa',
+  linkHover: '#fb923c',
+  success: '#4ade80',
+  warning: '#fbbf24',
+  error: '#f87171',
+  glassBg: 'bg-slate-950/85 backdrop-blur-md',
+  glassBorder: 'border border-orange-500/20',
+  headerBg: 'bg-slate-950/88 backdrop-blur-md',
+  headerBorder: 'border-orange-500/20',
+  codeBlockBg: '#020617',
+  codeBlockText: '#d6d3d1',
+  codeBlockBorder: 'rgba(249,115,22,0.24)',
+  shellBg: '#020617',
+  panelShadow: '0 28px 90px rgba(2,6,23,0.58), 0 0 0 1px rgba(249,115,22,0.12), 0 0 50px rgba(249,115,22,0.14)',
+}
+
+const themes = { light, dark } as const
+
+function isThemeMode(value: string | null | undefined): value is ThemeMode {
+  return value === 'light' || value === 'dark'
+}
+
+function getInitialMode(): ThemeMode {
+  if (typeof window === 'undefined') {
+    return 'light'
+  }
+
+  const rootMode = document.documentElement.getAttribute('data-theme')
+  if (isThemeMode(rootMode)) {
+    return rootMode
+  }
+
+  const stored = localStorage.getItem('marketing-theme')
+  return isThemeMode(stored) ? stored : 'light'
+}
+
+export function getTheme(mode: ThemeMode = 'light'): MarketingTheme {
+  return themes[mode]
 }
 
 export function useMarketingTheme() {
+  const [mode, setModeState] = useState<ThemeMode>(getInitialMode)
+
+  useEffect(() => {
+    const nextMode = getInitialMode()
+    setModeState(nextMode)
+    document.documentElement.setAttribute('data-theme', nextMode)
+
+    const handleThemeChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ mode?: ThemeMode }>
+      const nextTheme = customEvent.detail?.mode
+      if (!isThemeMode(nextTheme)) {
+        return
+      }
+      setModeState(nextTheme)
+      document.documentElement.setAttribute('data-theme', nextTheme)
+    }
+
+    window.addEventListener('marketingthemechange', handleThemeChange)
+    return () => {
+      window.removeEventListener('marketingthemechange', handleThemeChange)
+    }
+  }, [])
+
+  const setMode = (nextMode: ThemeMode) => {
+    setModeState(nextMode)
+    localStorage.setItem('marketing-theme', nextMode)
+    document.documentElement.setAttribute('data-theme', nextMode)
+    window.dispatchEvent(
+      new CustomEvent('marketingthemechange', { detail: { mode: nextMode } }),
+    )
+  }
+
+  const toggle = () => setMode(mode === 'light' ? 'dark' : 'light')
+
   return {
-    theme,
-    mode: theme.mode,
-    toggle: () => {},
-    setMode: (_mode: ThemeMode) => {},
+    theme: getTheme(mode),
+    mode,
+    toggle,
+    setMode,
   }
 }
 
-export function cardClass(_mode: ThemeMode, extra = '') {
-  const base = 'rounded-3xl border border-slate-200 bg-white transition-all'
-  return `${base} ${extra}`.trim()
+export function cardClass(mode: ThemeMode, extra = '') {
+  const base = 'rounded-3xl border transition-all'
+  const surface =
+    mode === 'dark'
+      ? 'border-orange-500/20 bg-slate-950/95 shadow-[0_0_32px_rgba(249,115,22,0.12)]'
+      : 'border-slate-200 bg-white'
+  return `${base} ${surface} ${extra}`.trim()
 }
 
-export function sectionClass(_mode: ThemeMode, _variant: 'primary' | 'secondary' = 'primary', extra = '') {
-  return `${extra}`.trim()
+export function sectionClass(mode: ThemeMode, _variant: 'primary' | 'secondary' = 'primary', extra = '') {
+  const surface = mode === 'dark' ? 'bg-slate-950' : 'bg-white'
+  return `${surface} ${extra}`.trim()
 }

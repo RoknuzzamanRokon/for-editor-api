@@ -1,14 +1,16 @@
 'use client'
-import { getTheme, cardClass } from '@/config/marketingTheme'
+import { useMarketingTheme, cardClass } from '@/config/marketingTheme'
 
 export default function Page() {
-  const t = getTheme()
-  const mode = 'light'
+  const { theme: t, mode } = useMarketingTheme()
   const card = cardClass(mode, 'p-6 shadow-sm')
   const card8 = cardClass(mode, 'p-8 shadow-sm')
 
   return (
-    <main className="mx-3 mb-6 overflow-hidden rounded-[32px] bg-white pt-36 shadow-[0_24px_80px_rgba(15,23,42,0.12)] lg:mx-6 lg:pt-24">
+    <main
+      className="mx-3 mb-6 overflow-hidden rounded-[32px] pt-36 transition-colors duration-300 lg:mx-6 lg:pt-24"
+      style={{ background: t.card, boxShadow: t.panelShadow }}
+    >
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden border-b py-16 sm:py-24" style={{ background: t.bgSecondary, borderColor: t.border }}>

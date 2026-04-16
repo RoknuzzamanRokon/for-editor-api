@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { getTheme } from '@/config/marketingTheme'
+import { useMarketingTheme } from '@/config/marketingTheme'
 
 const footerLinks = [
   ['/', 'Home'],
@@ -10,7 +10,7 @@ const footerLinks = [
 ] as const
 
 export default function MarketingFooter() {
-  const theme = getTheme()
+  const { theme } = useMarketingTheme()
 
   return (
     <footer className="border-t py-12" style={{ background: theme.bgSecondary, borderColor: theme.border }}>
@@ -29,7 +29,11 @@ export default function MarketingFooter() {
           ].map((pathEl, i) => (
             <a key={i} href="#"
               className="flex h-9 w-9 items-center justify-center rounded-xl transition-all hover:scale-110"
-              style={{ background: theme.surface, color: theme.textMuted }}>
+              style={{
+                background: theme.surface,
+                color: theme.mode === 'dark' ? theme.primary : theme.textMuted,
+                boxShadow: theme.mode === 'dark' ? '0 0 22px rgba(249,115,22,0.1)' : undefined,
+              }}>
               <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">{pathEl}</svg>
             </a>
           ))}

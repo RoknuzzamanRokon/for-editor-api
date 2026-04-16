@@ -39,7 +39,8 @@ export default function RootLayout({
                   var themes = ['light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark'];
                   var theme = themes.indexOf(stored) !== -1 ? stored : 'light';
                   var root = document.documentElement;
-                  var marketingTheme = 'light';
+                  var marketingStored = localStorage.getItem('marketing-theme');
+                  var marketingTheme = marketingStored === 'dark' ? 'dark' : 'light';
                   if (window.location && window.location.pathname === '/login') {
                     root.classList.add('login-fullscreen');
                     root.style.overflow = 'hidden';
