@@ -15,14 +15,10 @@ const themeScript = `
 `
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const { theme: t, mode } = useMarketingTheme()
+  const { theme: t } = useMarketingTheme()
 
   return (
-    <div
-      className="min-h-screen font-display"
-      style={{ background: mode === 'sunset' ? 'transparent' : t.bg, color: t.text }}
-    >
-      {/* Runs synchronously before paint to avoid theme flash */}
+    <div className="min-h-screen font-display" style={{ color: t.text }}>
       <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       <MarketingHeader />
       {children}

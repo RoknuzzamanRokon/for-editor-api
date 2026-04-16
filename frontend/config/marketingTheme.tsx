@@ -18,6 +18,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 // ─── Token shape ─────────────────────────────────────────────
 export interface MarketingTheme {
@@ -121,19 +122,17 @@ const light: MarketingTheme = {
 const sunset: MarketingTheme = {
   mode: 'sunset',
 
-  // ── Backgrounds ───────────────────────────────────────────
-  // html[data-theme='sunset'] in globals.css provides the animated
-  // deep-warm gradient base. Sections use semi-transparent overlays.
-  bg:           'rgba(30, 10, 2, 0.60)',          // dark warm overlay — shows gradient
-  bgSecondary:  'rgba(90, 28, 8, 0.70)',          // richer warm strip
-  surface:      'rgba(18, 6, 1, 0.80)',           // deep dark inset
-  card:         'rgba(120, 40, 12, 0.45)',        // warm glass card
-  cardHover:    'rgba(35, 33, 32, 0.94)',        // brighter on hover
+  // ── Backgrounds — pure black, gradient shows through ──────
+  bg:           'transparent',                    // html handles the black + glows
+  bgSecondary:  'rgba(0, 0, 0, 0.55)',            // subtle black section strip
+  surface:      'rgba(0, 0, 0, 0.75)',            // deeper — code blocks / insets
+  card:         'rgba(0, 0, 0, 0.65)',            // black card — orange outline only
+  cardHover:    'rgba(0, 0, 0, 0.80)',
 
   // ── Typography ────────────────────────────────────────────
   text:         '#fde8c8',                        // warm cream
-  textMuted:    'rgba(253,232,200,0.58)',
-  heading:      '#fff8f0',                        // near-white warm
+  textMuted:    'rgba(253,232,200,0.55)',
+  heading:      '#ffffff',                        // pure white headings
 
   // ── Brand ─────────────────────────────────────────────────
   primary:      '#ff7c2a',                        // vivid sunset orange
@@ -141,18 +140,18 @@ const sunset: MarketingTheme = {
   secondary:    '#ffb347',                        // golden amber
   accent:       '#ff4f6e',                        // sunset pink
 
-  // ── Borders ───────────────────────────────────────────────
-  border:       'rgba(255,140,50,0.28)',
-  divider:      'rgba(255,140,50,0.14)',
+  // ── Borders — orange outline only ─────────────────────────
+  border:       'rgba(255,124,42,0.40)',           // orange outline
+  divider:      'rgba(255,124,42,0.15)',
 
   // ── Buttons ───────────────────────────────────────────────
   buttonBg:            '#ff7c2a',
-  buttonText:          '#ffffff',
+  buttonText:          '#000000',                 // black text on orange
   buttonHover:         '#f96316',
-  buttonOutlineBg:     'rgba(255,124,42,0.14)',
-  buttonOutlineText:   '#fde8c8',
-  buttonOutlineBorder: 'rgba(255,140,50,0.45)',
-  buttonOutlineHover:  'rgba(255,124,42,0.24)',
+  buttonOutlineBg:     'rgba(0,0,0,0.70)',
+  buttonOutlineText:   '#ff7c2a',
+  buttonOutlineBorder: 'rgba(255,124,42,0.55)',
+  buttonOutlineHover:  'rgba(255,124,42,0.12)',
 
   // ── Links ─────────────────────────────────────────────────
   link:         '#ffb347',
@@ -164,15 +163,15 @@ const sunset: MarketingTheme = {
   error:        '#ff6b6b',
 
   // ── Glass / chrome ────────────────────────────────────────
-  glassBg:      'bg-[#5a1c08]/50 backdrop-blur-md',
-  glassBorder:  'border border-orange-400/25',
-  headerBg:     'bg-[#1e0a02]/60 backdrop-blur-xl',
-  headerBorder: 'border-orange-400/20',
+  glassBg:      'bg-black/70 backdrop-blur-xl',
+  glassBorder:  'border border-orange-400/40',
+  headerBg:     'bg-black/75 backdrop-blur-xl',
+  headerBorder: 'border-orange-400/30',
 
   // ── Code blocks ───────────────────────────────────────────
-  codeBlockBg:     'rgba(12, 4, 1, 0.90)',
+  codeBlockBg:     'rgba(0, 0, 0, 0.92)',
   codeBlockText:   '#fde8c8',
-  codeBlockBorder: 'rgba(255,124,42,0.30)',
+  codeBlockBorder: 'rgba(255,124,42,0.35)',
 }
 // ─── Token map ────────────────────────────────────────────────
 const themes = { light, sunset } as const
@@ -190,27 +189,26 @@ export function useMarketingTheme(): {
   toggle: () => void
   setMode: (m: ThemeMode) => void
 } {
-  // Read synchronously so first render already has the right mode
-  const [mode, setModeState] = useState<ThemeMode>(() => {
-    if (typeof window === 'undefined') return 'light'
-    return (localStorage.getItem('marketing-theme') as ThemeMode) || 'light'
-  })
+  const [mode, setModeState] = useState<ThemeMode>('light')
+  const [mounted, setMounted] = useState(false)
+  const pathname = usePathname()
 
-  // Apply data-theme on mount and whenever the page becomes visible again
-  // (covers back-navigation from login or any other page)
+  const apply = () => {
+    const saved = (localStorage.getItem('marketing-theme') as ThemeMode) || 'light'
+    setModeState(saved)
+    document.documentElement.setAttribute('data-theme', saved)
+  }
+
+  // Re-apply on every route change (covers client-side navigation)
   useEffect(() => {
-    const apply = () => {
-      const saved = (localStorage.getItem('marketing-theme') as ThemeMode) || 'light'
-      setModeState(saved)
-      document.documentElement.setAttribute('data-theme', saved)
-    }
+    apply()
+    setMounted(true)
+  }, [pathname])
 
-    apply() // run immediately on mount
-
-    // Re-apply when tab regains focus or page becomes visible
+  // Also re-apply when tab regains focus (covers back-navigation)
+  useEffect(() => {
     window.addEventListener('focus', apply)
     document.addEventListener('visibilitychange', apply)
-
     return () => {
       window.removeEventListener('focus', apply)
       document.removeEventListener('visibilitychange', apply)
@@ -225,7 +223,7 @@ export function useMarketingTheme(): {
 
   const toggle = () => setMode(mode === 'light' ? 'sunset' : 'light')
 
-  return { theme: getTheme(mode), mode, toggle, setMode }
+  return { theme: getTheme(mounted ? mode : 'light'), mode: mounted ? mode : 'light', toggle, setMode }
 }
 
 // ─── Tailwind class helpers ───────────────────────────────────
@@ -236,7 +234,8 @@ export function useMarketingTheme(): {
 export function cardClass(mode: ThemeMode, extra = '') {
   const base = 'rounded-3xl border transition-all backdrop-blur-sm'
   const l = 'bg-white border-neutral-200'
-  const s = 'border-orange-400/25'
+  // sunset: black bg, orange outline, orange glow shadow
+  const s = 'bg-black/75 border-orange-400/40 shadow-[0_0_24px_rgba(255,124,42,0.15)]'
   return `${base} ${mode === 'sunset' ? s : l} ${extra}`.trim()
 }
 

@@ -78,6 +78,11 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+html[data-theme='sunset'] body {
+  background-color: transparent;
+  background-image: none;
+}
+
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }
@@ -99,16 +104,20 @@ body {
 }
 
 html[data-theme='sunset'] {
+  background-color: #000000;
   background-image:
-    radial-gradient(ellipse at 8%  18%,  rgba(255, 100, 20,  0.50) 0%, transparent 42%),
-    radial-gradient(ellipse at 90% 8%,   rgba(220, 50,  80,  0.40) 0%, transparent 38%),
-    radial-gradient(ellipse at 70% 88%,  rgba(255, 150, 20,  0.35) 0%, transparent 44%),
-    radial-gradient(ellipse at 25% 72%,  rgba(160, 25,  5,   0.45) 0%, transparent 38%),
-    radial-gradient(ellipse at 55% 45%,  rgba(200, 60,  10,  0.20) 0%, transparent 50%),
-    linear-gradient(155deg, #120400 0%, #2e0a01 20%, #5c1a06 45%, #8b2a0c 70%, #4a1204 100%);
+    radial-gradient(ellipse at 8%  18%,  rgba(255, 100, 20,  0.55) 0%, transparent 40%),
+    radial-gradient(ellipse at 90% 8%,   rgba(220, 50,  80,  0.45) 0%, transparent 38%),
+    radial-gradient(ellipse at 70% 88%,  rgba(255, 160, 20,  0.40) 0%, transparent 44%),
+    radial-gradient(ellipse at 25% 72%,  rgba(200, 30,  5,   0.50) 0%, transparent 38%),
+    radial-gradient(ellipse at 55% 45%,  rgba(255, 80,  10,  0.25) 0%, transparent 50%);
   background-size: 220% 220%;
   animation: sunsetShift 18s ease-in-out infinite;
   min-height: 100vh;
+}
+
+html:not([data-theme='sunset']) {
+  background-color: #ffffff;
 }
 
 .midnight body {
