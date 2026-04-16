@@ -1,15 +1,17 @@
 'use client'
-import { useMarketingTheme, cardClass, sectionClass } from '@/config/marketingTheme'
+import Image from 'next/image'
+import { getTheme, cardClass, sectionClass } from '@/config/marketingTheme'
 
 export default function Page() {
-  const { theme: t, mode } = useMarketingTheme()
+  const t = getTheme()
+  const mode = 'light'
 
   const card = cardClass(mode, 'group p-8 transition-all hover:-translate-y-1 hover:shadow-2xl')
   const sec  = sectionClass(mode)
   const sec2 = sectionClass(mode, 'secondary')
 
   return (
-    <main className="pt-36 lg:pt-24">
+    <main className="mx-3 mb-6 overflow-hidden rounded-[32px] bg-white pt-36 shadow-[0_24px_80px_rgba(15,23,42,0.12)] lg:mx-6 lg:pt-24">
 
       {/* ── Hero ── */}
       <section
@@ -48,8 +50,14 @@ export default function Page() {
                 <span className="h-3 w-3 rounded-full bg-amber-400" />
                 <span className="h-3 w-3 rounded-full bg-emerald-400" />
               </div>
-              <img alt="Dashboard Mockup" className="aspect-video w-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD5wujvbMWRNdzjqN5AGPZDPPvibfQIV_qqgwbvq2I04UpQ8hIteazbjnyYm5nTW3A7PuGIVFJq2mgs0dWVCUzxlKWf3lOJcefbBBbQ7iNa4vR4iLxqOxXI7FFyF1P305W3nA4b0a2HbGDSlFwQWChRQq_5Bz6BHqnmckyOiMJvtCMHK4Z4kqsfWMPR4nkCO1l2g1hZCNKuGp-hMKm2EdcGIb2RjlAY7aybdg6MY6qEISxOEHVTbeeHFO001iB-Mt4Rr3gAmu0xF44" />
+              <Image
+                alt="Dashboard Mockup"
+                className="aspect-video w-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD5wujvbMWRNdzjqN5AGPZDPPvibfQIV_qqgwbvq2I04UpQ8hIteazbjnyYm5nTW3A7PuGIVFJq2mgs0dWVCUzxlKWf3lOJcefbBBbQ7iNa4vR4iLxqOxXI7FFyF1P305W3nA4b0a2HbGDSlFwQWChRQq_5Bz6BHqnmckyOiMJvtCMHK4Z4kqsfWMPR4nkCO1l2g1hZCNKuGp-hMKm2EdcGIb2RjlAY7aybdg6MY6qEISxOEHVTbeeHFO001iB-Mt4Rr3gAmu0xF44"
+                width={1440}
+                height={810}
+                unoptimized
+              />
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
@@ -961,9 +962,12 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
             </div>
           ) : preview.mimeType.startsWith("image/") ? (
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/30">
-              <img
+              <Image
                 src={preview.url}
                 alt={preview.filename}
+                width={1440}
+                height={900}
+                unoptimized
                 className="max-h-[720px] w-full rounded-xl object-contain"
               />
             </div>

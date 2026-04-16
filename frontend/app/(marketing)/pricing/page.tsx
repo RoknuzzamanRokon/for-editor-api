@@ -1,5 +1,5 @@
 'use client'
-import { useMarketingTheme } from '@/config/marketingTheme'
+import { getTheme } from '@/config/marketingTheme'
 
 const plans = [
   { name: 'Demo',       price: '$0',     sub: 'Perfect for testing and small personal projects.',  btn: 'Start Free',    featured: false, features: ['100 requests / month', 'Basic Converters', 'Community Support'] },
@@ -9,10 +9,10 @@ const plans = [
 ]
 
 export default function Page() {
-  const { theme: t } = useMarketingTheme()
+  const t = getTheme()
 
   return (
-    <main className="pt-36 lg:pt-24">
+    <main className="mx-3 mb-6 overflow-hidden rounded-[32px] bg-white pt-36 shadow-[0_24px_80px_rgba(15,23,42,0.12)] lg:mx-6 lg:pt-24">
       <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 sm:py-12 lg:px-20">
 
         {/* ── Header ── */}

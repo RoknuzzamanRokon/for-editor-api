@@ -11,22 +11,34 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
+const THEMES: Theme[] = ['light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark']
+
+function isTheme(value: string | null | undefined): value is Theme {
+  return value != null && THEMES.includes(value as Theme)
+}
+
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') {
+    return 'light'
+  }
+
+  const root = document.documentElement
+  const stored = localStorage.getItem('theme')
+
+  if (isTheme(stored)) {
+    return stored
+  }
+
+  const classTheme = THEMES.find((themeName) => root.classList.contains(themeName))
+  return classTheme ?? 'light'
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light')
-  const [mounted, setMounted] = useState(false)
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
-    setMounted(true)
     const stored = localStorage.getItem('theme') as Theme | null
-    if (
-      stored === 'light' ||
-      stored === 'dark' ||
-      stored === 'ocean' ||
-      stored === 'sunset' ||
-      stored === 'forest' ||
-      stored === 'midnight' ||
-      stored === 'livedark'
-    ) {
+    if (isTheme(stored)) {
       setTheme(stored)
     }
   }, [])
@@ -35,15 +47,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const handler = (event: Event) => {
       const customEvent = event as CustomEvent<{ theme?: Theme }>
       const nextTheme = customEvent.detail?.theme
-      if (
-        nextTheme === 'light' ||
-        nextTheme === 'dark' ||
-        nextTheme === 'ocean' ||
-        nextTheme === 'sunset' ||
-        nextTheme === 'forest' ||
-        nextTheme === 'midnight' ||
-        nextTheme === 'livedark'
-      ) {
+      if (isTheme(nextTheme)) {
         setTheme(nextTheme)
       }
     }
@@ -53,16 +57,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (mounted) {
-      document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark')
-      document.documentElement.classList.add(theme)
-      if (theme !== 'light') {
-        document.documentElement.classList.add('dark')
-        localStorage.setItem('theme_last_non_light', theme)
-      }
-      localStorage.setItem('theme', theme)
+    document.documentElement.classList.remove(...THEMES)
+    document.documentElement.classList.add(theme)
+    if (theme !== 'light') {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme_last_non_light', theme)
     }
-  }, [theme, mounted])
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>

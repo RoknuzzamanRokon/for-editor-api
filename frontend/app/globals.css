@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -374,11 +376,6 @@ html:not([data-theme='sunset']) {
   .docx-preview,
   .docx-preview * {
     color: #000 !important;
-  }
-
-  [data-theme-toggle-icon] {
-    color: currentColor;
-    transition: color 0.2s ease;
   }
 
   /* Fallback for browsers without zoom support */

@@ -318,7 +318,7 @@ function LoginForm() {
           {/* Footer */}
           <div className="mt-6 text-center">
             <p className="text-xs text-foreground/70">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <a
                 href="/register"
                 className="font-medium text-primary transition-colors hover:text-primary/80"

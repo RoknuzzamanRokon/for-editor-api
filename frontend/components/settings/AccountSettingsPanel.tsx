@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AVATAR_PRESETS, AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
 
 const API_BASE =
@@ -324,7 +324,7 @@ export default function AccountSettingsPanel({
       ? "Manage your admin account, password, and privacy preferences."
       : "Manage your account profile, password, and privacy preferences.";
 
-  const syncLocalState = (payload: AccountSettingsResponse) => {
+  const syncLocalState = useCallback((payload: AccountSettingsResponse) => {
     setSettings(payload);
     setUsername(payload.identity.username ?? "");
     setAvatarKey(payload.preferences.avatar_key);
@@ -338,17 +338,17 @@ export default function AccountSettingsPanel({
         detail: payload,
       }),
     );
-  };
+  }, []);
 
-  const getToken = () => {
+  const getToken = useCallback(() => {
     const token = window.localStorage.getItem("access_token");
     if (!token) {
       throw new Error("No access token found.");
     }
     return token;
-  };
+  }, []);
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -369,11 +369,11 @@ export default function AccountSettingsPanel({
     } finally {
       setLoading(false);
     }
-  };
+  }, [getToken, syncLocalState]);
 
   useEffect(() => {
-    loadSettings();
-  }, []);
+    void loadSettings();
+  }, [loadSettings]);
 
   const profileDirty = useMemo(() => {
     return username.trim() !== (settings?.identity.username ?? "");

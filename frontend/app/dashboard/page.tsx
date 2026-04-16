@@ -147,7 +147,7 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-8xl space-y-8 p-8">
       <div>
         <h2 className="text-3xl font-extrabold tracking-tight">Welcome back, {displayName}</h2>
-        <p className="mt-1 text-slate-500">Here is what's happening with your API integrations today.</p>
+        <p className="mt-1 text-slate-500">Here is what&apos;s happening with your API integrations today.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">

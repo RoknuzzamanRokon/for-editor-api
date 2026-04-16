@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 
@@ -212,15 +212,15 @@ export default function AdminApiPermissionsPage() {
     "all" | "allowed" | "blocked"
   >("all");
 
-  const getToken = () => {
+  const getToken = useCallback(() => {
     const token = localStorage.getItem("access_token");
     if (!token) {
       throw new Error("No access token found.");
     }
     return token;
-  };
+  }, []);
 
-  const loadActions = async () => {
+  const loadActions = useCallback(async () => {
     setLoadingActions(true);
     setError("");
     try {
@@ -242,9 +242,9 @@ export default function AdminApiPermissionsPage() {
     } finally {
       setLoadingActions(false);
     }
-  };
+  }, [getToken]);
 
-  const loadUserDetails = async (userId: string) => {
+  const loadUserDetails = useCallback(async (userId: string) => {
     setLoadingDetails(true);
     setError("");
     setSuccess("");
@@ -270,18 +270,18 @@ export default function AdminApiPermissionsPage() {
     } finally {
       setLoadingDetails(false);
     }
-  };
+  }, [getToken]);
 
   useEffect(() => {
     void loadActions();
-  }, []);
+  }, [loadActions]);
 
   useEffect(() => {
     const queryUserId = searchParams.get("userId");
     if (!queryUserId) return;
     setUserIdInput(queryUserId);
     void loadUserDetails(queryUserId);
-  }, [searchParams]);
+  }, [loadUserDetails, searchParams]);
 
   const handleLoadUser = async () => {
     if (!userIdInput.trim()) {

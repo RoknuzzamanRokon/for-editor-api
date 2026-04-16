@@ -1,13 +1,14 @@
 'use client'
-import { useMarketingTheme, cardClass } from '@/config/marketingTheme'
+import { getTheme, cardClass } from '@/config/marketingTheme'
 
 export default function Page() {
-  const { theme: t, mode } = useMarketingTheme()
+  const t = getTheme()
+  const mode = 'light'
   const card = cardClass(mode, 'p-6 shadow-sm')
   const card8 = cardClass(mode, 'p-8 shadow-sm')
 
   return (
-    <main className="pt-36 lg:pt-24">
+    <main className="mx-3 mb-6 overflow-hidden rounded-[32px] bg-white pt-36 shadow-[0_24px_80px_rgba(15,23,42,0.12)] lg:mx-6 lg:pt-24">
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden border-b py-16 sm:py-24" style={{ background: t.bgSecondary, borderColor: t.border }}>
@@ -50,7 +51,7 @@ export default function Page() {
       </section>
 
       {/* ── Core capabilities ── */}
-      <section className="py-16 sm:py-24" style={{ background: mode === 'sunset' ? 'transparent' : t.bg }}>
+      <section className="py-16 sm:py-24" style={{ background: t.bg }}>
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
           <div className="max-w-3xl">
             <h2 className="text-3xl font-black tracking-tight sm:text-4xl" style={{ color: t.heading }}>Core capabilities</h2>

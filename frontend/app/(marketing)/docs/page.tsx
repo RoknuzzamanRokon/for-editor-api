@@ -1,5 +1,5 @@
 'use client'
-import { useMarketingTheme } from '@/config/marketingTheme'
+import { getTheme } from '@/config/marketingTheme'
 
 const navSections = [
   { label: 'Getting Started', links: [
@@ -51,13 +51,13 @@ const errors = [
 ]
 
 export default function Page() {
-  const { theme: t } = useMarketingTheme()
+  const t = getTheme()
 
   const endpointCard = { background: t.card, borderColor: t.border }
   const endpointHead = { background: t.surface, borderColor: t.divider }
 
   return (
-    <div className="flex min-h-screen items-start pt-32 sm:pt-28 md:pt-32">
+    <div className="mx-3 mb-6 flex min-h-screen items-start overflow-hidden rounded-[32px] bg-white pt-32 shadow-[0_24px_80px_rgba(15,23,42,0.12)] sm:pt-28 md:pt-32 lg:mx-6">
 
       {/* ── Left sidebar ── */}
       <aside className="fixed left-0 top-0 hidden h-screen w-64 overflow-y-auto border-r px-6 pb-8 pt-32 sm:pt-28 md:pt-32 lg:block"

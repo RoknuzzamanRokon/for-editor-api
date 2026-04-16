@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
 import Script from 'next/script'
 
@@ -274,9 +275,12 @@ export default function PdfPageRemover() {
 
               {pagePreviews.find((p) => p.pageNumber === currentPage) && (
                 <div className="relative rounded-lg border overflow-hidden bg-card flex justify-center">
-                  <img
+                  <Image
                     src={pagePreviews.find((p) => p.pageNumber === currentPage)!.dataUrl}
                     alt={`Page ${currentPage}`}
+                    width={1200}
+                    height={1600}
+                    unoptimized
                     className="max-w-full h-auto"
                     style={{ imageRendering: 'crisp-edges' }}
                   />

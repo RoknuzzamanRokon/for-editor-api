@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import { useState, useEffect, useCallback } from 'react'
 
 interface FileInfo {
   filename: string
@@ -33,19 +34,7 @@ export default function FileConverter({
   const [outputPreviewUrl, setOutputPreviewUrl] = useState<string | null>(null)
   const [outputFilename, setOutputFilename] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadFiles()
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      if (inputPreviewUrl) {
-        URL.revokeObjectURL(inputPreviewUrl)
-      }
-    }
-  }, [inputPreviewUrl])
-
-  const loadFiles = async () => {
+  const loadFiles = useCallback(async () => {
     try {
       const res = await fetch(filesEndpoint)
       const data = await res.json()
@@ -55,7 +44,19 @@ export default function FileConverter({
     } catch (error) {
       console.error('Error loading files:', error)
     }
-  }
+  }, [filesEndpoint])
+
+  useEffect(() => {
+    void loadFiles()
+  }, [loadFiles])
+
+  useEffect(() => {
+    return () => {
+      if (inputPreviewUrl) {
+        URL.revokeObjectURL(inputPreviewUrl)
+      }
+    }
+  }, [inputPreviewUrl])
 
   const handleUpload = async () => {
     if (!file) {
@@ -164,9 +165,12 @@ export default function FileConverter({
             <div className="rounded-lg border border-border bg-background p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60 mb-3">Selected Image</p>
               <div className="relative overflow-hidden rounded-lg border border-border bg-card">
-                <img
+                <Image
                   src={inputPreviewUrl}
                   alt="Selected preview"
+                  width={1200}
+                  height={800}
+                  unoptimized
                   className="h-64 w-full object-contain bg-white"
                 />
               </div>
@@ -191,9 +195,12 @@ export default function FileConverter({
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60 mb-3">Result Preview</p>
                 <div className="relative overflow-hidden rounded-lg border border-border bg-card">
-                  <img
+                  <Image
                     src={outputPreviewUrl}
                     alt="Output preview"
+                    width={1200}
+                    height={800}
+                    unoptimized
                     className="h-64 w-full object-contain bg-white"
                   />
                 </div>
