@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import AdminShell from "@/components/admin/AdminShell";
 
 const API_BASE =
@@ -48,12 +49,27 @@ type MyPointResponse = {
   total: number;
 };
 
+type MyApiEntry = {
+  action: string;
+  label: string;
+  route?: string;
+  method?: string;
+  allowed: boolean;
+};
+
+type MyApiResponse = {
+  user_id: number;
+  apis: MyApiEntry[];
+};
+
 type ProfileState = {
   me: MeResponse | null;
   points: MyPointResponse | null;
+  apis: MyApiEntry[];
   loading: boolean;
   error: string;
   pointsError: string;
+  apisError: string;
 };
 
 function formatDate(value?: string | null, fallback = "Not available") {
@@ -71,6 +87,14 @@ function formatDate(value?: string | null, fallback = "Not available") {
 function capitalizeFirstLetter(value: string) {
   if (!value) return value;
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function getApiIcon(action: string) {
+  if (action.includes("pdf")) return "picture_as_pdf";
+  if (action.includes("doc")) return "description";
+  if (action.includes("excel") || action.includes("xlsx")) return "table_view";
+  if (action.includes("image")) return "image";
+  return "api";
 }
 
 async function fetchJson<T>(
@@ -342,9 +366,11 @@ export default function AdminProfilePage() {
   const [state, setState] = useState<ProfileState>({
     me: null,
     points: null,
+    apis: [],
     loading: true,
     error: "",
     pointsError: "",
+    apisError: "",
   });
 
   const [selectedAvatar, setSelectedAvatar] = useState("account_circle");
@@ -362,6 +388,7 @@ export default function AdminProfilePage() {
         ...prev,
         loading: false,
         error: "No access token found",
+        apis: [],
       }));
       return;
     }
@@ -377,9 +404,10 @@ export default function AdminProfilePage() {
           loading: true,
           error: "",
           pointsError: "",
+          apisError: "",
         }));
 
-        const [meResult, pointsResult] = await Promise.allSettled([
+        const [meResult, pointsResult, apisResult] = await Promise.allSettled([
           fetchJson<MeResponse>(
             `${API_BASE}/api/v2/auth/me`,
             accessToken,
@@ -390,11 +418,20 @@ export default function AdminProfilePage() {
             accessToken,
             controller.signal,
           ),
+          fetchJson<MyApiResponse>(
+            `${API_BASE}/api/v3/permissions/my-api`,
+            accessToken,
+            controller.signal,
+          ),
         ]);
 
         const me = meResult.status === "fulfilled" ? meResult.value : null;
         const points =
           pointsResult.status === "fulfilled" ? pointsResult.value : null;
+        const apis =
+          apisResult.status === "fulfilled"
+            ? (apisResult.value.apis ?? []).filter((item) => item.allowed)
+            : [];
 
         if (!me) {
           throw new Error("Failed to load profile");
@@ -403,11 +440,16 @@ export default function AdminProfilePage() {
         setState({
           me,
           points,
+          apis,
           loading: false,
           error: "",
           pointsError:
             pointsResult.status === "rejected"
               ? "Points data could not be loaded."
+              : "",
+          apisError:
+            apisResult.status === "rejected"
+              ? "Active endpoints could not be loaded."
               : "",
         });
       } catch (error) {
@@ -416,10 +458,12 @@ export default function AdminProfilePage() {
         setState({
           me: null,
           points: null,
+          apis: [],
           loading: false,
           error:
             error instanceof Error ? error.message : "Failed to load profile",
           pointsError: "",
+          apisError: "",
         });
       }
     }
@@ -440,6 +484,8 @@ export default function AdminProfilePage() {
     setSelectedAvatar(icon);
     window.localStorage.setItem("admin_avatar", icon);
   };
+
+  const endpointCount = state.apis.length;
 
   return (
     <AdminShell>
@@ -521,7 +567,7 @@ export default function AdminProfilePage() {
         </section>
 
         {!state.loading && !state.error && state.me ? (
-          <section className="-mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-[13px] border border-white/40 bg-white/45 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05]">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
                 Role Channel
@@ -601,8 +647,9 @@ export default function AdminProfilePage() {
         ) : null}
 
         {!state.loading && !state.error && state.me ? (
-          <>
-            <section className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+        <>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <section className="w-full relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
               <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
               <SectionKicker
                 icon="person"
@@ -645,29 +692,82 @@ export default function AdminProfilePage() {
                   value="Admin"
                 />
               </div>
-            </section>
-
-            <section className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
+              </section>
+              
+            <section className="w-full relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
               <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+              <SectionKicker
+                icon="api"
+                title="Application active status"
+                description="All active endpoints available for this admin account."
+              />
 
-              <div className="relative pl-4 sm:pl-8">
-                <SectionKicker
-                  icon="toll"
-                  title="Point Ledger"
-                  description="Balance telemetry and transaction flow with better fault tolerance and cleaner layout."
-                />
+              <div className="mt-8 flex items-center justify-between rounded-[18px] border border-white/40 bg-white/40 px-4 py-3 dark:border-white/10 dark:bg-white/[0.04]">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                    Active Endpoints
+                  </p>
+                  <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+                    {endpointCount}
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
+                  <span className="material-symbols-outlined text-sm">
+                    check_circle
+                  </span>
+                  Live Access
+                </span>
+              </div>
 
-                {state.pointsError ? (
-                  <div className="mt-6 rounded-2xl border border-amber-200/70 bg-amber-50/80 px-4 py-3 text-sm text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
-                    {state.pointsError}
-                  </div>
-                ) : null}
+              <div className="mt-6 space-y-3">
+                {state.apisError ? (
+                  <p className="rounded-[18px] border border-amber-300/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+                    {state.apisError}
+                  </p>
+                ) : endpointCount === 0 ? (
+                  <p className="rounded-[18px] border border-dashed border-slate-300/70 px-4 py-4 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">
+                    No active endpoints found for this account.
+                  </p>
+                ) : (
+                  state.apis.map((api) => (
+                    <div
+                      key={api.action}
+                      className="flex items-center justify-between gap-3 rounded-[18px] border border-white/40 bg-white/40 px-4 py-3 dark:border-white/10 dark:bg-white/[0.04]"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="material-symbols-outlined text-primary">
+                          {getApiIcon(api.action)}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                            {api.label}
+                          </p>
+                          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                            {api.route || api.action}
+                          </p>
+                        </div>
+                      </div>
 
-                <TransactionTable points={state.points} />
+                      <div className="flex shrink-0 items-center gap-2">
+                        {api.method ? (
+                          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+                            {api.method}
+                          </span>
+                        ) : null}
+                        <Link
+                          href={`/admin/app-center/edit/${api.action.replace(/_/g, "-")}`}
+                          className="rounded-full border border-white/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 transition hover:border-primary/40 hover:text-primary dark:border-white/10 dark:text-slate-200"
+                        >
+                          Open
+                        </Link>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </section>
-          </>
+         </div>  
+         </> 
         ) : null}
       </div>
     </AdminShell>
