@@ -68,7 +68,11 @@ export default function MarketingHeader() {
           <Link
             href="/login"
             className="rounded-xl px-4 py-2.5 text-sm font-bold shadow-lg transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] sm:px-6 sm:py-3 sm:text-base"
-            style={{ background: theme.buttonBg, color: theme.buttonText }}
+            style={{
+              background: theme.buttonBg,
+              color: theme.buttonText,
+              boxShadow: theme.mode === 'dark' ? '0 0 24px rgba(249,115,22,0.18)' : undefined,
+            }}
           >
             Login
           </Link>

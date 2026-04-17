@@ -1,22 +1,30 @@
 'use client'
 import Image from 'next/image'
-import { useMarketingTheme, cardClass, sectionClass } from '@/config/marketingTheme'
+import { useMarketingTheme, cardClass } from '@/config/marketingTheme'
 
 export default function Page() {
   const { theme: t, mode } = useMarketingTheme()
 
   const card = cardClass(mode, 'group p-8 transition-all hover:-translate-y-1 hover:shadow-2xl')
+  const mainBackground = mode === 'dark' ? 'rgba(9,17,31,0.72)' : 'rgba(255,255,255,0.92)'
+  const heroBackground = mode === 'dark' ? 'rgba(11,17,32,0.82)' : 'rgba(248,250,252,0.9)'
+  const primaryCardBackground = mode === 'dark' ? 'rgba(9,17,31,0.74)' : 'rgba(255,255,255,0.94)'
+  const secondaryCardBackground = mode === 'dark' ? 'rgba(17,24,39,0.74)' : 'rgba(241,245,249,0.9)'
+  const ctaBackground =
+    mode === 'dark'
+      ? 'linear-gradient(135deg, rgba(17,24,39,0.82) 0%, rgba(9,17,31,0.76) 100%)'
+      : 'linear-gradient(135deg, rgba(241,245,249,0.94) 0%, rgba(255,255,255,0.92) 100%)'
 
   return (
     <main
-      className="mx-3 mb-6 overflow-hidden rounded-[32px] pt-36 transition-colors duration-300 lg:mx-6 lg:pt-24"
-      style={{ background: t.card, boxShadow: t.panelShadow }}
+      className="mx-3 mb-6 overflow-hidden rounded-[32px] border pt-36 backdrop-blur-xl transition-colors duration-300 lg:mx-6 lg:pt-24"
+      style={{ background: mainBackground, borderColor: t.border, boxShadow: t.panelShadow }}
     >
 
       {/* ── Hero ── */}
       <section
         className="relative mb-16 w-full overflow-hidden border-y px-4 py-10 backdrop-blur-sm sm:px-6 sm:py-14 lg:mb-24 lg:px-8 lg:py-20"
-        style={{ background: t.bgSecondary, borderColor: t.border }}
+        style={{ background: heroBackground, borderColor: t.border }}
       >
         <div className="absolute -top-24 left-16 h-64 w-64 rounded-full blur-[120px]" style={{ background: `${t.primary}18` }} />
         <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full blur-[140px]" style={{ background: `${t.primary}18` }} />
@@ -34,7 +42,11 @@ export default function Page() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:gap-4">
               <a href="/pricing" className="group relative rounded-2xl px-8 py-4 text-center text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] sm:text-lg"
-                style={{ background: t.buttonBg, color: t.buttonText }}>
+                style={{
+                  background: t.buttonBg,
+                  color: t.buttonText,
+                  boxShadow: t.actionShadow,
+                }}>
                 <span className="relative z-10">Try API Free</span>
               </a>
               <a href="/docs" className="rounded-2xl border px-8 py-4 text-center text-base font-bold backdrop-blur-sm transition-all hover:opacity-90 sm:text-lg"
@@ -44,8 +56,15 @@ export default function Page() {
             </div>
           </div>
           <div className="w-full">
-            <div className="overflow-hidden rounded-3xl border shadow-2xl transition-transform hover:scale-[1.02]" style={{ borderColor: t.border, background: t.card }}>
-              <div className="flex h-10 items-center gap-2 border-b px-5" style={{ borderColor: t.divider, background: t.surface }}>
+            <div
+              className="overflow-hidden rounded-3xl border shadow-2xl transition-transform hover:scale-[1.02]"
+              style={{
+                borderColor: t.border,
+                background: primaryCardBackground,
+                boxShadow: t.elevatedCardShadow,
+              }}
+            >
+              <div className="flex h-10 items-center gap-2 border-b px-5" style={{ borderColor: t.divider, background: secondaryCardBackground }}>
                 <span className="h-3 w-3 rounded-full bg-red-400" />
                 <span className="h-3 w-3 rounded-full bg-amber-400" />
                 <span className="h-3 w-3 rounded-full bg-emerald-400" />
@@ -80,7 +99,7 @@ export default function Page() {
               { icon: 'picture_as_pdf',title: 'Office to PDF',     desc: 'Convert DOCX and Excel files into shareable PDFs for archiving, review, and delivery.' },
               { icon: 'auto_fix_high', title: 'Image workflows',   desc: 'Handle image-to-PDF conversion, background removal, and other lightweight media tasks.' },
             ].map(({ icon, title, desc }) => (
-              <div key={title} className={card} style={{ background: t.card, borderColor: t.border }}>
+              <div key={title} className={card} style={{ background: primaryCardBackground, borderColor: t.border }}>
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl transition-all group-hover:scale-110"
                   style={{ background: `${t.primary}18`, color: t.primary }}>
                   <span className="material-symbols-outlined text-3xl">{icon}</span>
@@ -99,7 +118,15 @@ export default function Page() {
             { label: 'Billing',    title: 'Points and usage controls',    desc: 'Track point balances, top up users, inspect ledgers, and prevent duplicate charges with idempotency keys on conversion requests.' },
             { label: 'Operations', title: 'Dashboard and admin insight',  desc: 'Monitor recent history, conversion success, user activity, point-giving history, and per-user API permissions from one platform.' },
           ].map(({ label, title, desc }) => (
-            <div key={title} className="group rounded-3xl border p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm" style={{ background: t.card, borderColor: t.border }}>
+            <div
+              key={title}
+              className="group rounded-3xl border p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm"
+              style={{
+                background: primaryCardBackground,
+                borderColor: t.border,
+                boxShadow: t.softCardShadow,
+              }}
+            >
               <p className="text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.primary }}>{label}</p>
               <h3 className="mt-4 text-2xl font-bold" style={{ color: t.heading }}>{title}</h3>
               <p className="mt-4 text-base leading-7" style={{ color: t.text }}>{desc}</p>
@@ -109,7 +136,11 @@ export default function Page() {
 
         {/* ── Dark CTA band ── */}
         <section className="mb-16 overflow-hidden rounded-[2rem] py-12 shadow-2xl sm:py-16 lg:mb-24 lg:py-20"
-          style={{ background: `linear-gradient(135deg, ${t.surface} 0%, ${t.card} 100%)`, color: t.heading }}>
+          style={{
+            background: ctaBackground,
+            color: t.heading,
+            boxShadow: t.elevatedCardShadow,
+          }}>
           <div className="grid items-center gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_0.95fr] lg:gap-14 lg:px-14">
             <div>
               <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl" style={{ color: t.heading }}>
@@ -134,7 +165,14 @@ export default function Page() {
                 ))}
               </div>
             </div>
-            <div className="rounded-3xl border p-6 shadow-2xl transition-transform hover:scale-[1.01]" style={{ background: t.surface, borderColor: t.border }}>
+            <div
+              className="rounded-3xl border p-6 transition-transform hover:scale-[1.01]"
+              style={{
+                background: secondaryCardBackground,
+                borderColor: t.border,
+                boxShadow: t.elevatedCardShadow,
+              }}
+            >
               <div className="mb-4 flex items-center justify-between border-b pb-4" style={{ borderColor: t.divider }}>
                 <span className="font-mono text-sm font-bold" style={{ color: t.primary }}>POST /api/v3/conversions/pdf-to-word</span>
                 <div className="flex gap-2">
@@ -173,7 +211,15 @@ export default function Page() {
               { icon: 'paid',          title: 'Usage clarity',    desc: 'Balances, ledgers, and top-ups make cost control understandable for every account.' },
               { icon: 'manage_search', title: 'Admin visibility', desc: 'Inspect users, permissions, and conversion performance without leaving the platform.' },
             ].map(({ icon, title, desc }) => (
-              <div key={title} className="group rounded-3xl border p-8 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm" style={{ background: t.card, borderColor: t.border }}>
+              <div
+                key={title}
+                className="group rounded-3xl border p-8 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm"
+                style={{
+                  background: primaryCardBackground,
+                  borderColor: t.border,
+                  boxShadow: t.softCardShadow,
+                }}
+              >
                 <span className="material-symbols-outlined text-4xl transition-transform group-hover:scale-110" style={{ color: t.primary }}>{icon}</span>
                 <h3 className="mt-5 text-xl font-bold" style={{ color: t.heading }}>{title}</h3>
                 <p className="mt-3 text-base leading-7" style={{ color: t.text }}>{desc}</p>

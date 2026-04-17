@@ -9,8 +9,8 @@
   --border: #e5e7eb;
   --card: #ffffff;
   --card-hover: #f9fafb;
-  --app-scale: 0.6;
-  --login-ui-scale: 0.8;
+  --app-scale: .8;
+  --login-ui-scale: 1;
   --font-sans: var(--font-dm-sans), "DM Sans", system-ui, -apple-system, sans-serif;
   --font-code: var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
@@ -78,6 +78,7 @@ body {
     radial-gradient(circle at 80% 82%, rgba(34, 197, 94, 0.12) 0%, transparent 24%);
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-wrap: break-word;
 }
 
 html[data-theme='sunset'] body {
@@ -238,14 +239,40 @@ html:not([data-theme='sunset']) {
   transform-origin: top right;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .sunset body,
-  .sunset .hero-glow,
-  .midnight body,
-  .settings-panel-enter-left,
-  .settings-panel-enter-center,
-  .settings-panel-enter-right {
-    animation: none;
+@media (max-width: 1535px) {
+  :root {
+    --app-scale: 0.9;
+    --login-ui-scale: 0.95;
+  }
+}
+
+@media (max-width: 1279px) {
+  :root {
+    --app-scale: 0.72;
+    --login-ui-scale: 0.92;
+  }
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --app-scale: 1;
+    --login-ui-scale: 1;
+  }
+
+  .app-scale,
+  html.login-fullscreen .login-ui {
+    width: 100%;
+    min-height: 100vh;
+  }
+}
+
+@media (max-width: 767px) {
+  html {
+    font-size: 15px;
+  }
+
+  .app-scale {
+    zoom: 1;
   }
 }
 
@@ -329,11 +356,54 @@ html:not([data-theme='sunset']) {
   }
   html {
     @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  img,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
   }
 
+  input,
+  textarea,
+  select,
+  button {
+    max-width: 100%;
+    font: inherit;
+  }
   html,
   body {
     overflow-x: hidden;
+  }
+
+  main,
+  section,
+  article,
+  aside,
+  header,
+  footer {
+    min-width: 0;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  pre,
+  code {
+    overflow-wrap: anywhere;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Global app scaling through root wrapper */
@@ -398,6 +468,46 @@ html:not([data-theme='sunset']) {
       transform-origin: top left;
       width: calc(100% / var(--login-ui-scale));
       min-height: calc(100vh / var(--login-ui-scale));
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .rounded-\[32px\] {
+      border-radius: 24px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    html {
+      font-size: 15px;
+    }
+
+    body {
+      min-width: 320px;
+    }
+
+    .rounded-\[32px\] {
+      border-radius: 20px;
+    }
+
+    .text-6xl,
+    .text-7xl {
+      line-height: 1.05;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .rounded-\[32px\] {
+      border-radius: 18px;
+    }
+
+    .pt-36 {
+      padding-top: 7rem;
+    }
+
+    .overflow-x-auto table,
+    .overflow-x-auto pre {
+      min-width: 32rem;
     }
   }
 }

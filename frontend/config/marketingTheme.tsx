@@ -39,6 +39,9 @@ export interface MarketingTheme {
   codeBlockBorder: string
   shellBg: string
   panelShadow: string
+  elevatedCardShadow: string
+  softCardShadow: string
+  actionShadow: string
 }
 
 export type ThemeMode = 'light' | 'dark'
@@ -80,6 +83,9 @@ const light: MarketingTheme = {
   codeBlockBorder: '#1e293b',
   shellBg: '#f1f5f9',
   panelShadow: '0 24px 80px rgba(15,23,42,0.12)',
+  elevatedCardShadow: '0 24px 60px rgba(15,23,42,0.16), 0 10px 28px rgba(15,23,42,0.10)',
+  softCardShadow: '0 18px 42px rgba(15,23,42,0.08)',
+  actionShadow: '0 18px 38px rgba(15,23,42,0.14)',
 }
 
 const dark: MarketingTheme = {
@@ -119,6 +125,9 @@ const dark: MarketingTheme = {
   codeBlockBorder: 'rgba(249,115,22,0.24)',
   shellBg: '#020617',
   panelShadow: '0 28px 90px rgba(2,6,23,0.58), 0 0 0 1px rgba(249,115,22,0.12), 0 0 50px rgba(249,115,22,0.14)',
+  elevatedCardShadow: '0 24px 56px rgba(2,6,23,0.58), 0 0 26px rgba(249,115,22,0.14)',
+  softCardShadow: '0 16px 34px rgba(2,6,23,0.42), 0 0 18px rgba(249,115,22,0.08)',
+  actionShadow: '0 0 24px rgba(249,115,22,0.18)',
 }
 
 const themes = { light, dark } as const
@@ -192,7 +201,7 @@ export function cardClass(mode: ThemeMode, extra = '') {
   const base = 'rounded-3xl border transition-all'
   const surface =
     mode === 'dark'
-      ? 'border-orange-500/20 bg-slate-950/95 shadow-[0_0_32px_rgba(249,115,22,0.12)]'
+      ? 'border-orange-500/20 bg-slate-950/95 shadow-[0_16px_34px_rgba(2,6,23,0.42),0_0_18px_rgba(249,115,22,0.08)]'
       : 'border-slate-200 bg-white'
   return `${base} ${surface} ${extra}`.trim()
 }

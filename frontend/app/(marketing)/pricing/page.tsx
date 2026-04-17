@@ -42,7 +42,13 @@ export default function Page() {
               style={{
                 background: t.card,
                 borderColor: plan.featured ? t.primary : t.border,
-                boxShadow: plan.featured ? `0 0 40px ${t.primary}20` : undefined,
+                boxShadow: t.mode === 'dark'
+                  ? plan.featured
+                    ? t.elevatedCardShadow
+                    : t.softCardShadow
+                  : plan.featured
+                    ? `0 0 40px ${t.primary}20`
+                    : t.softCardShadow,
               }}>
               {plan.featured && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-black uppercase tracking-wider"

@@ -127,7 +127,13 @@ export default function Page() {
               <code className="font-mono text-sm" style={{ color: t.primary }}>Authorization</code> header for protected endpoints.
             </p>
             <div className="mt-8 space-y-4">
-              <div className="rounded-xl p-6 shadow-xl" style={{ background: t.codeBlockBg }}>
+              <div
+                className="rounded-xl p-6 shadow-xl"
+                style={{
+                  background: t.codeBlockBg,
+                  boxShadow: t.elevatedCardShadow,
+                }}
+              >
                 <div className="mb-4 flex items-center justify-between border-b pb-4" style={{ borderColor: t.codeBlockBorder }}>
                   <span className="text-xs font-bold uppercase tracking-widest" style={{ color: t.textMuted }}>POST /api/v2/auth/login</span>
                   <div className="flex gap-2">
@@ -294,7 +300,14 @@ export default function Page() {
       <aside className="fixed right-0 top-0 hidden h-screen w-[400px] flex-col border-l pt-32 sm:pt-28 md:pt-32 xl:flex"
         style={{ background: t.bgSecondary, borderColor: t.border }}>
         <div className="flex h-full flex-col px-6 py-6">
-          <div className="flex-1 rounded-2xl border p-5 shadow-sm" style={{ background: t.card, borderColor: t.border }}>
+            <div
+            className="flex-1 rounded-2xl border p-5 shadow-sm"
+            style={{
+              background: t.card,
+              borderColor: t.border,
+              boxShadow: t.softCardShadow,
+            }}
+          >
             <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.textMuted }}>Endpoint</label>
             <div className="relative mb-4">
               <select className="w-full appearance-none rounded-lg border px-3 py-2 pr-8 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary"
@@ -320,7 +333,11 @@ export default function Page() {
               rows={4} placeholder='{"email": "user@example.com", "password": "..."}' defaultValue={`{\n  "file": "(upload)",\n  "idempotency_key": "uuid"\n}`} />
 
             <button className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold shadow-lg transition-all hover:opacity-90"
-              style={{ background: t.buttonBg, color: t.buttonText }}>
+              style={{
+                background: t.buttonBg,
+                color: t.buttonText,
+                boxShadow: t.actionShadow,
+              }}>
               <span className="material-symbols-outlined text-base">play_arrow</span> Send Request
             </button>
 

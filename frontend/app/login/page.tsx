@@ -175,13 +175,8 @@ function LoginForm() {
               ConvertPro <span className="text-primary">API</span>
             </span>
           </a>
-          <div className="hidden md:flex items-center gap-6">
-            <a href="/#features" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Features</a>
-            <a href="/pricing" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Pricing</a>
-            <a href="/docs" className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">Docs</a>
-          </div>
-          <a href="/pricing" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">
-            Get Started
+          <a href="/" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">
+            Home
           </a>
         </nav>
 

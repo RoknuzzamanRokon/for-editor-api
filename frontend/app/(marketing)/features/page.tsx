@@ -28,7 +28,11 @@ export default function Page() {
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <a href="/docs" className="rounded-2xl px-8 py-4 text-center text-sm font-bold shadow-xl transition-all hover:opacity-90"
-                style={{ background: t.buttonBg, color: t.buttonText }}>Explore Docs</a>
+                style={{
+                  background: t.buttonBg,
+                  color: t.buttonText,
+                  boxShadow: t.actionShadow,
+                }}>Explore Docs</a>
               <a href="/pricing" className="rounded-2xl border px-8 py-4 text-center text-sm font-bold transition-all hover:opacity-90"
                 style={{ background: t.buttonOutlineBg, color: t.buttonOutlineText, borderColor: t.buttonOutlineBorder }}>
                 View Plans
@@ -129,7 +133,14 @@ export default function Page() {
                 Use v2 for auth and user management, and v3 for points, permissions, dashboard, admin, and conversion workflows.
               </p>
             </div>
-            <div className="rounded-3xl border p-6 shadow-2xl" style={{ background: t.card, borderColor: t.border }}>
+            <div
+              className="rounded-3xl border p-6"
+              style={{
+                background: t.card,
+                borderColor: t.border,
+                boxShadow: t.elevatedCardShadow,
+              }}
+            >
               <div className="mb-4 flex items-center justify-between border-b pb-4" style={{ borderColor: t.divider }}>
                 <span className="font-mono text-sm font-bold" style={{ color: t.primary }}>POST /api/v3/conversions/pdf-to-word</span>
                 <div className="flex gap-2">
@@ -160,7 +171,11 @@ export default function Page() {
             </p>
             <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
               <a href="/docs" className="rounded-2xl px-8 py-4 text-sm font-bold shadow-xl transition-all hover:opacity-90"
-                style={{ background: t.buttonBg, color: t.buttonText }}>Read Documentation</a>
+                style={{
+                  background: t.buttonBg,
+                  color: t.buttonText,
+                  boxShadow: t.actionShadow,
+                }}>Read Documentation</a>
               <a href="/pricing" className="rounded-2xl border px-8 py-4 text-sm font-bold transition-all hover:opacity-90"
                 style={{ background: t.buttonOutlineBg, color: t.buttonOutlineText, borderColor: t.buttonOutlineBorder }}>
                 Compare Pricing
