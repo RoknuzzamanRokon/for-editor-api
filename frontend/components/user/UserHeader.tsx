@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
 
 const API_BASE =
@@ -113,6 +114,7 @@ export default function UserHeader() {
         </div>
       </div>
       <div className="flex items-center gap-4">
+        <ThemeSwitcher />
         <button
           type="button"
           className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
