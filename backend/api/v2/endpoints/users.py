@@ -16,7 +16,7 @@ def create_user(
     db: Session = Depends(get_db),
     current_user=Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
 ) -> UserOut:
-    return user_service.create_user(db, payload, created_by_role=current_user.role)
+    return user_service.create_user(db, payload, created_by_user=current_user)
 
 
 @router.get("", response_model=list[UserOut])

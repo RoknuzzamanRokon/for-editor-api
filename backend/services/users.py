@@ -2,9 +2,9 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from core.config import settings
+from core.points import DEFAULT_ROLE_POINTS, topup_points
 from core.security import get_password_hash
 from db.models import RoleEnum, User, UserPoints
-from core.points import DEFAULT_ROLE_POINTS
 from models.auth import UserCreate
 
 
@@ -20,8 +20,13 @@ def list_users(db: Session) -> list[User]:
     return db.query(User).order_by(User.id.asc()).all()
 
 
-def create_user(db: Session, user_in: UserCreate, created_by_role: RoleEnum | None = None) -> User:
+def create_user(
+    db: Session,
+    user_in: UserCreate,
+    created_by_user: User | None = None,
+) -> User:
     role = user_in.role or RoleEnum.general_user
+    created_by_role = created_by_user.role if created_by_user else None
 
     if created_by_role == RoleEnum.admin_user and role == RoleEnum.super_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin cannot create super_user")
@@ -45,8 +50,25 @@ def create_user(db: Session, user_in: UserCreate, created_by_role: RoleEnum | No
     db.flush()
 
     starting_balance = DEFAULT_ROLE_POINTS.get(role, 0)
-    db.add(UserPoints(user_id=user.id, balance=starting_balance))
-    db.commit()
+
+    db.add(UserPoints(user_id=user.id, balance=0))
+    db.flush()
+
+    if starting_balance > 0:
+        try:
+            topup_points(
+                db,
+                user_id=user.id,
+                amount=starting_balance,
+                created_by_user_id=created_by_user.id if created_by_user else None,
+                note="Initial points assigned during user creation",
+            )
+        except HTTPException:
+            db.rollback()
+            raise
+    else:
+        db.commit()
+
     db.refresh(user)
     return user
 
