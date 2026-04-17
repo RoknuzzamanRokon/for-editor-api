@@ -17,6 +17,15 @@ type UserItem = {
   created_at: string;
 };
 
+type MeResponse = {
+  id: number;
+  email: string;
+  username: string | null;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+};
+
 type UserApiPermission = {
   action: string;
   label: string;
@@ -298,6 +307,7 @@ function InfoTile({
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserItem[]>([]);
+  const [me, setMe] = useState<MeResponse | null>(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -308,6 +318,8 @@ export default function AdminUsersPage() {
   const [showDetails, setShowDetails] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const [selectedUserDetails, setSelectedUserDetails] =
     useState<UserDetails | null>(null);
   const [form, setForm] = useState({
@@ -344,6 +356,23 @@ export default function AdminUsersPage() {
       })
       .finally(() => {
         setLoading(false);
+      });
+
+    fetch(`${API_BASE}/api/v2/auth/me`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(async (res) => {
+        const body = await res.text();
+        if (!res.ok) {
+          throw new Error(body || "Failed to fetch current user");
+        }
+        setMe(JSON.parse(body) as MeResponse);
+      })
+      .catch(() => {
+        setMe(null);
       });
   }, []);
 
@@ -437,6 +466,7 @@ export default function AdminUsersPage() {
     setShowDetails(true);
     setDetailsLoading(true);
     setDetailsError("");
+    setDeleteError("");
     setSelectedUserDetails(null);
 
     try {
@@ -469,6 +499,52 @@ export default function AdminUsersPage() {
       setDetailsLoading(false);
     }
   };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUserDetails) return;
+
+    const confirmed = window.confirm(
+      `Delete user "${selectedUserDetails.email}" permanently? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    try {
+      setDeleteLoading(true);
+      setDeleteError("");
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("No access token found.");
+      }
+
+      const res = await fetch(`${API_BASE}/api/v2/users/${selectedUserDetails.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const body = await res.text();
+      if (!res.ok) {
+        throw new Error(body || "Failed to delete user");
+      }
+
+      setUsers((prev) => prev.filter((user) => user.id !== selectedUserDetails.id));
+      setShowDetails(false);
+      setSelectedUserDetails(null);
+      setCreateSuccess("User deleted successfully.");
+    } catch (err: unknown) {
+      setDeleteError(
+        err instanceof Error ? err.message : "Failed to delete user",
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const canDeleteSelectedUser =
+    me?.role === "super_user" &&
+    !!selectedUserDetails &&
+    me.id !== selectedUserDetails.id;
 
   return (
     <AdminShell>
@@ -788,9 +864,15 @@ export default function AdminUsersPage() {
                 </button>
               </div>
 
+              {deleteError ? (
+                <div className="mt-4 rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 backdrop-blur-md dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
+                  {deleteError}
+                </div>
+              ) : null}
+
               {selectedUserDetails ? (
                 <div className="mt-4 relative overflow-hidden rounded-2xl border border-white/40 bg-white/55 p-4 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-[rgb(56,189,248)]/10 dark:from-primary/15 dark:to-[rgb(56,189,248)]/10" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-[rgb(56,189,248)]/10 dark:from-primary/15 dark:to-[rgb(56,189,248)]/10" />
                   <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0 flex-1">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
@@ -810,6 +892,20 @@ export default function AdminUsersPage() {
                       </span>
                     </div>
                   </div>
+
+                  {canDeleteSelectedUser ? (
+                    <div className="relative mt-4 flex justify-end">
+                      <button
+                        onClick={handleDeleteUser}
+                        disabled={deleteLoading}
+                        className="inline-flex items-center gap-2 rounded-2xl border border-rose-400/20 bg-rose-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-rose-500/20 transition duration-200 hover:-translate-y-0.5 hover:border-rose-300/40 hover:bg-rose-600 hover:shadow-[0_16px_36px_rgba(244,63,94,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
+                        type="button"
+                      >
+                        <span className="material-symbols-outlined text-base">delete</span>
+                        {deleteLoading ? "Deleting..." : "Delete User"}
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </div>

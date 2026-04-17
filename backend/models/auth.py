@@ -73,6 +73,12 @@ class UserDisableResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class UserDeleteResponse(BaseModel):
+    id: int
+    success: bool = True
+    message: str
+
+
 class UserCreatorSummary(BaseModel):
     id: int
     email: str

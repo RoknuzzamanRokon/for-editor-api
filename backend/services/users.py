@@ -4,7 +4,18 @@ from fastapi import HTTPException, status
 from core.config import settings
 from core.points import DEFAULT_ROLE_POINTS, topup_points
 from core.security import get_password_hash
-from db.models import RoleEnum, User, UserPoints
+from db.models import (
+    Conversion,
+    PointsLedger,
+    PointsTopup,
+    PointsTopupRequest,
+    RefreshToken,
+    RoleEnum,
+    User,
+    UserConversionPermission,
+    UserPoints,
+    UserPreference,
+)
 from models.auth import UserCreate
 
 
@@ -99,6 +110,57 @@ def disable_user(db: Session, user_id: int) -> User:
     db.commit()
     db.refresh(user)
     return user
+
+
+def delete_user(db: Session, user_id: int, current_user: User) -> None:
+    user = get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if current_user.id == user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Super user cannot delete their own account",
+        )
+
+    db.query(User).filter(User.created_by_user_id == user_id).update(
+        {User.created_by_user_id: None},
+        synchronize_session=False,
+    )
+
+    db.query(UserConversionPermission).filter(
+        UserConversionPermission.created_by == user_id
+    ).update({UserConversionPermission.created_by: None}, synchronize_session=False)
+    db.query(UserConversionPermission).filter(
+        UserConversionPermission.updated_by == user_id
+    ).update({UserConversionPermission.updated_by: None}, synchronize_session=False)
+
+    db.query(PointsTopup).filter(PointsTopup.created_by_user_id == user_id).update(
+        {PointsTopup.created_by_user_id: None},
+        synchronize_session=False,
+    )
+
+    db.query(PointsTopupRequest).filter(
+        PointsTopupRequest.resolved_by_user_id == user_id
+    ).update({PointsTopupRequest.resolved_by_user_id: None}, synchronize_session=False)
+
+    db.query(PointsTopupRequest).filter(
+        (PointsTopupRequest.user_id == user_id)
+        | (PointsTopupRequest.requested_admin_user_id == user_id)
+        | (PointsTopupRequest.created_by_user_id == user_id)
+    ).delete(synchronize_session=False)
+
+    db.query(PointsTopup).filter(PointsTopup.user_id == user_id).delete(synchronize_session=False)
+    db.query(PointsLedger).filter(PointsLedger.user_id == user_id).delete(synchronize_session=False)
+    db.query(Conversion).filter(Conversion.owner_user_id == user_id).delete(synchronize_session=False)
+    db.query(UserConversionPermission).filter(
+        UserConversionPermission.user_id == user_id
+    ).delete(synchronize_session=False)
+    db.query(RefreshToken).filter(RefreshToken.user_id == user_id).delete(synchronize_session=False)
+    db.query(UserPreference).filter(UserPreference.user_id == user_id).delete(synchronize_session=False)
+    db.query(UserPoints).filter(UserPoints.user_id == user_id).delete(synchronize_session=False)
+    db.delete(user)
+    db.commit()
 
 
 def ensure_default_super_user(db: Session) -> None:

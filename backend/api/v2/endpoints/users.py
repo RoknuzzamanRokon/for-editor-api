@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from core.deps import require_role
-from db.models import RoleEnum
+from db.models import RoleEnum, User
 from db.session import get_db
-from models.auth import UserCreate, UserDisableResponse, UserOut, UserRoleUpdate
+from models.auth import UserCreate, UserDeleteResponse, UserDisableResponse, UserOut, UserRoleUpdate
 from services import users as user_service
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -44,3 +44,13 @@ def disable_user(
     current_user=Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
 ) -> UserDisableResponse:
     return user_service.disable_user(db, user_id)
+
+
+@router.delete("/{user_id}", response_model=UserDeleteResponse)
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user)),
+) -> UserDeleteResponse:
+    user_service.delete_user(db, user_id, current_user)
+    return UserDeleteResponse(id=user_id, message="User deleted successfully")
