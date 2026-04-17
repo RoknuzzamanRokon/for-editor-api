@@ -16,8 +16,13 @@ def get_user_by_id(db: Session, user_id: int) -> User | None:
     return db.query(User).filter(User.id == user_id).first()
 
 
-def list_users(db: Session) -> list[User]:
-    return db.query(User).order_by(User.id.asc()).all()
+def list_users(db: Session, current_user: User) -> list[User]:
+    query = db.query(User)
+
+    if current_user.role == RoleEnum.admin_user:
+        query = query.filter(User.created_by_user_id == current_user.id)
+
+    return query.order_by(User.id.asc()).all()
 
 
 def create_user(
@@ -45,6 +50,7 @@ def create_user(
         hashed_password=get_password_hash(user_in.password),
         role=role,
         is_active=True,
+        created_by_user_id=created_by_user.id if created_by_user else None,
     )
     db.add(user)
     db.flush()

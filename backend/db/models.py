@@ -33,6 +33,7 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     role = Column(Enum(RoleEnum, name="user_role"), nullable=False, default=RoleEnum.general_user)
     is_active = Column(Boolean, nullable=False, default=True)
+    created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     last_login = Column(DateTime, nullable=True)  # Track last login time
 
@@ -51,6 +52,7 @@ class User(Base):
         uselist=False,
         cascade="all, delete-orphan",
     )
+    creator = relationship("User", remote_side=[id], foreign_keys=[created_by_user_id])
 
 
 class RefreshToken(Base):

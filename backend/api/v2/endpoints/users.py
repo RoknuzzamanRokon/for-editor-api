@@ -24,7 +24,7 @@ def list_users(
     db: Session = Depends(get_db),
     current_user=Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
 ) -> list[UserOut]:
-    return user_service.list_users(db)
+    return user_service.list_users(db, current_user)
 
 
 @router.patch("/{user_id}/role", response_model=UserOut)

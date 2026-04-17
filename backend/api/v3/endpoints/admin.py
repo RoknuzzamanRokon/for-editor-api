@@ -344,10 +344,18 @@ def check_user_details(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
 ) -> AdminCheckUserResponse:
-    _ = current_user
     target_user = get_user_by_id(db, user_id)
     if not target_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if (
+        current_user.role == RoleEnum.admin_user
+        and target_user.created_by_user_id != current_user.id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not permitted to view this user",
+        )
 
     action_rows = list_allowed_actions()
 
