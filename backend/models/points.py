@@ -37,6 +37,36 @@ class PointsTopupResponse(BaseModel):
     balance: int
 
 
+class PointsTopupCreateRequest(BaseModel):
+    user_id: int
+    requested_admin_user_id: int
+    amount: int = Field(gt=0)
+    note: Optional[str] = None
+
+
+class PointsTopupRequestEntry(BaseModel):
+    id: int
+    user_id: int
+    requested_admin_user_id: int
+    amount: int
+    note: Optional[str] = None
+    status: str
+    created_by_user_id: int
+    resolved_by_user_id: Optional[int] = None
+    resolved_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PointsTopupRequestList(BaseModel):
+    items: list[PointsTopupRequestEntry]
+    total: int
+    limit: int
+    offset: int
+
+
 class MyPointResponse(BaseModel):
     user_id: int
     available_points: int

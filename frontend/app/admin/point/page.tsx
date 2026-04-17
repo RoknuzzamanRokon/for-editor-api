@@ -26,6 +26,35 @@ type GivingHistory = {
   items: GivingEntry[];
 };
 
+type TopupRequestEntry = {
+  id: number;
+  user_id: number;
+  user_email: string;
+  user_username: string | null;
+  requested_admin_user_id: number;
+  requested_admin_email: string;
+  requested_admin_username: string | null;
+  amount: number;
+  note: string | null;
+  status: string;
+  created_by_user_id: number;
+  created_by_email: string;
+  created_by_username: string | null;
+  resolved_by_user_id: number | null;
+  resolved_by_email: string | null;
+  resolved_by_username: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type TopupRequestList = {
+  total: number;
+  limit: number;
+  offset: number;
+  items: TopupRequestEntry[];
+};
+
 type UserItem = { id: number; email: string; username: string | null };
 
 function formatDate(v: string) {
@@ -50,9 +79,11 @@ function StatTile({ label, value, icon }: { label: string; value: string | numbe
 
 export default function AdminPointPage() {
   const [history, setHistory] = useState<GivingHistory | null>(null);
+  const [requests, setRequests] = useState<TopupRequestList | null>(null);
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [topupLoading, setTopupLoading] = useState(false);
+  const [requestActionId, setRequestActionId] = useState<number | null>(null);
   const [topupError, setTopupError] = useState("");
   const [topupSuccess, setTopupSuccess] = useState("");
   const [form, setForm] = useState({ user_id: "", amount: "", note: "" });
@@ -66,16 +97,29 @@ export default function AdminPointPage() {
 
     Promise.all([
       fetch(`${API_BASE}/api/v3/admin/points/giving-history?limit=50&offset=0`, { headers: h }),
+      fetch(`${API_BASE}/api/v3/admin/points/topup-requests?limit=50&offset=0`, { headers: h }),
       fetch(`${API_BASE}/api/v2/users`, { headers: h }),
     ])
-      .then(async ([hr, ur]) => {
+      .then(async ([hr, rr, ur]) => {
         if (hr.ok) setHistory(await hr.json() as GivingHistory);
+        if (rr.ok) setRequests(await rr.json() as TopupRequestList);
         if (ur.ok) setUsers(await ur.json() as UserItem[]);
       })
       .finally(() => setLoading(false));
   }, []);
 
   const totalGiven = history?.items.reduce((s, i) => s + i.amount, 0) ?? 0;
+  const pendingRequests = requests?.items.filter((item) => item.status === "pending").length ?? 0;
+
+  const refreshData = async () => {
+    const h = { Authorization: `Bearer ${token()}` };
+    const [hr, rr] = await Promise.all([
+      fetch(`${API_BASE}/api/v3/admin/points/giving-history?limit=50&offset=0`, { headers: h }),
+      fetch(`${API_BASE}/api/v3/admin/points/topup-requests?limit=50&offset=0`, { headers: h }),
+    ]);
+    if (hr.ok) setHistory(await hr.json() as GivingHistory);
+    if (rr.ok) setRequests(await rr.json() as TopupRequestList);
+  };
 
   const handleTopup = async () => {
     setTopupError(""); setTopupSuccess("");
@@ -91,13 +135,31 @@ export default function AdminPointPage() {
       if (!res.ok) throw new Error(body || "Failed");
       setTopupSuccess(`Points distributed successfully.`);
       setForm({ user_id: "", amount: "", note: "" });
-      // refresh history
-      const hr = await fetch(`${API_BASE}/api/v3/admin/points/giving-history?limit=50&offset=0`, { headers: { Authorization: `Bearer ${token()}` } });
-      if (hr.ok) setHistory(await hr.json() as GivingHistory);
+      await refreshData();
     } catch (e) {
       setTopupError(e instanceof Error ? e.message : "Failed");
     } finally {
       setTopupLoading(false);
+    }
+  };
+
+  const handleRequestAction = async (requestId: number, action: "approve" | "reject") => {
+    setTopupError("");
+    setTopupSuccess("");
+    setRequestActionId(requestId);
+    try {
+      const res = await fetch(`${API_BASE}/api/v3/admin/points/topup-requests/${requestId}/${action}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token()}` },
+      });
+      const body = await res.text();
+      if (!res.ok) throw new Error(body || `Failed to ${action} request`);
+      setTopupSuccess(`Request ${action}d successfully.`);
+      await refreshData();
+    } catch (e) {
+      setTopupError(e instanceof Error ? e.message : `Failed to ${action} request`);
+    } finally {
+      setRequestActionId(null);
     }
   };
 
@@ -125,7 +187,7 @@ export default function AdminPointPage() {
         <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <StatTile label="Total Distributed" value={totalGiven.toLocaleString()} icon="account_balance_wallet" />
           <StatTile label="Transactions" value={history?.total ?? 0} icon="receipt_long" />
-          <StatTile label="Users" value={users.length} icon="group" />
+          <StatTile label="Pending Requests" value={pendingRequests} icon="notifications_active" />
         </section>
 
         {/* Distribute form */}
@@ -199,6 +261,91 @@ export default function AdminPointPage() {
                 {topupLoading ? "Distributing..." : "Distribute Points"}
               </button>
             </div>
+          </div>
+        </section>
+
+        <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
+          <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                <span className="material-symbols-outlined">pending_actions</span>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Incoming Topup Requests</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">GET /api/v3/admin/points/topup-requests</p>
+              </div>
+            </div>
+          </div>
+          <div className="relative p-6">
+            {loading ? (
+              <p className="text-sm text-slate-400 dark:text-slate-500">Loading...</p>
+            ) : (
+              <div className="overflow-hidden rounded-2xl border border-white/40 bg-white/40 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-white/30 dark:border-white/10">
+                        {["#", "User", "Amount", "Requested By", "Status", "Date", "Action"].map((h) => (
+                          <th key={h} className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/20 dark:divide-white/5">
+                      {!requests?.items.length ? (
+                        <tr><td colSpan={7} className="px-4 py-8 text-slate-400 dark:text-slate-500">No incoming requests.</td></tr>
+                      ) : requests.items.map((entry) => (
+                        <tr key={entry.id} className="hover:bg-white/30 dark:hover:bg-white/5">
+                          <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.id}</td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{entry.user_username || entry.user_email}</td>
+                          <td className="px-4 py-3 font-black text-primary">{entry.amount}</td>
+                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{entry.created_by_username || entry.created_by_email}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${
+                              entry.status === "pending"
+                                ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
+                                : entry.status === "approved"
+                                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                                  : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"
+                            }`}>
+                              {entry.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{formatDate(entry.created_at)}</td>
+                          <td className="px-4 py-3">
+                            {entry.status === "pending" ? (
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRequestAction(entry.id, "approve")}
+                                  disabled={requestActionId === entry.id}
+                                  className="rounded-xl bg-emerald-500 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRequestAction(entry.id, "reject")}
+                                  disabled={requestActionId === entry.id}
+                                  className="rounded-xl bg-rose-500 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-slate-500 dark:text-slate-400">
+                                {entry.resolved_by_username || entry.resolved_by_email || "-"}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 

@@ -17,6 +17,7 @@ Welcome to the PDF Converter API documentation. This folder contains comprehensi
 #### Additional Guides
 - **[Troubleshooting Guide](./TROUBLESHOOTING.md)** - Common issues and solutions
 - **[Email Validation Note](./EMAIL_VALIDATION_NOTE.md)** - Email validation configuration details
+- **[Topup Requests API](./TOPUP_REQUESTS_API.md)** - Request, approve, reject, and scope topup workflows
 
 #### Services
 - **[Services Documentation](./SERVICES_DOCUMENTATION.md)** - Internal services and business logic documentation
@@ -57,6 +58,9 @@ Welcome to the PDF Converter API documentation. This folder contains comprehensi
 
 **Fix an error**
 → [Troubleshooting Guide](./TROUBLESHOOTING.md)
+
+**Understand topup request workflow**
+→ [Topup Requests API](./TOPUP_REQUESTS_API.md)
 
 **Understand email validation**
 → [Email Validation Note](./EMAIL_VALIDATION_NOTE.md)

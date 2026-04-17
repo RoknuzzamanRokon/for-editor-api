@@ -87,6 +87,35 @@ class AdminPointGivingHistoryResponse(BaseModel):
     items: List[AdminPointGivingHistoryEntry]
 
 
+class AdminTopupRequestEntry(BaseModel):
+    id: int
+    user_id: int
+    user_email: str
+    user_username: Optional[str] = None
+    requested_admin_user_id: int
+    requested_admin_email: str
+    requested_admin_username: Optional[str] = None
+    amount: int
+    note: Optional[str] = None
+    status: str
+    created_by_user_id: int
+    created_by_email: str
+    created_by_username: Optional[str] = None
+    resolved_by_user_id: Optional[int] = None
+    resolved_by_email: Optional[str] = None
+    resolved_by_username: Optional[str] = None
+    resolved_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class AdminTopupRequestListResponse(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    items: List[AdminTopupRequestEntry]
+
+
 class AdminDashboardQuickStat(BaseModel):
     label: str
     value: int

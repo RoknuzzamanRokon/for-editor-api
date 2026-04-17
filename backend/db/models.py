@@ -142,6 +142,24 @@ class PointsTopup(Base):
     user = relationship("User", foreign_keys=[user_id])
 
 
+class PointsTopupRequest(Base):
+    __tablename__ = "points_topup_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    requested_admin_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    amount = Column(Integer, nullable=False)
+    note = Column(String(255), nullable=True)
+    status = Column(String(32), nullable=False, default="pending", server_default="pending", index=True)
+    created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    resolved_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    resolved_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User", foreign_keys=[user_id])
+
+
 class Conversion(Base):
     __tablename__ = "conversions"
     __table_args__ = (

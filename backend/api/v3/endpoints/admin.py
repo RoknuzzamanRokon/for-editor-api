@@ -6,8 +6,17 @@ from sqlalchemy.orm import Session, aliased
 
 from core.deps import require_role
 from core.permissions import list_allowed_actions
-from core.points import POINTS_COST_PER_REQUEST, get_user_balance
-from db.models import Conversion, PointsLedger, PointsTopup, RoleEnum, User, UserConversionPermission, UserPoints
+from core.points import POINTS_COST_PER_REQUEST, get_user_balance, topup_points
+from db.models import (
+    Conversion,
+    PointsLedger,
+    PointsTopup,
+    PointsTopupRequest,
+    RoleEnum,
+    User,
+    UserConversionPermission,
+    UserPoints,
+)
 from db.session import get_db
 from models.admin import (
     AdminCheckUserApiEntry,
@@ -22,10 +31,61 @@ from models.admin import (
     AdminDashboardSystemMetric,
     AdminPointGivingHistoryEntry,
     AdminPointGivingHistoryResponse,
+    AdminTopupRequestEntry,
+    AdminTopupRequestListResponse,
 )
 from services.users import get_user_by_id
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+
+def _ensure_admin_can_handle_topup_request(current_user: User, request: PointsTopupRequest) -> None:
+    if current_user.role == RoleEnum.super_user:
+        return
+    if request.requested_admin_user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not permitted to manage this topup request",
+        )
+
+
+def _build_topup_request_entry(db: Session, request: PointsTopupRequest) -> AdminTopupRequestEntry:
+    target_user = db.query(User).filter(User.id == request.user_id).first()
+    requested_admin = db.query(User).filter(User.id == request.requested_admin_user_id).first()
+    creator_user = db.query(User).filter(User.id == request.created_by_user_id).first()
+    resolver_user = (
+        db.query(User).filter(User.id == request.resolved_by_user_id).first()
+        if request.resolved_by_user_id is not None
+        else None
+    )
+
+    if not target_user or not requested_admin or not creator_user:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Topup request references missing users",
+        )
+
+    return AdminTopupRequestEntry(
+        id=request.id,
+        user_id=request.user_id,
+        user_email=target_user.email,
+        user_username=target_user.username,
+        requested_admin_user_id=request.requested_admin_user_id,
+        requested_admin_email=requested_admin.email,
+        requested_admin_username=requested_admin.username,
+        amount=request.amount,
+        note=request.note,
+        status=request.status,
+        created_by_user_id=request.created_by_user_id,
+        created_by_email=creator_user.email,
+        created_by_username=creator_user.username,
+        resolved_by_user_id=request.resolved_by_user_id,
+        resolved_by_email=resolver_user.email if resolver_user else None,
+        resolved_by_username=resolver_user.username if resolver_user else None,
+        resolved_at=request.resolved_at,
+        created_at=request.created_at,
+        updated_at=request.updated_at,
+    )
 
 API_META: dict[str, dict[str, str]] = {
     "pdf_to_docs": {
@@ -278,8 +338,6 @@ def get_points_giving_history(
     user_id: int | None = Query(None, ge=1),
     created_by_user_id: int | None = Query(None, ge=1),
 ) -> AdminPointGivingHistoryResponse:
-    _ = current_user
-
     target_user = aliased(User)
     creator_user = aliased(User)
 
@@ -302,7 +360,14 @@ def get_points_giving_history(
 
     if user_id is not None:
         base_query = base_query.filter(PointsTopup.user_id == user_id)
-    if created_by_user_id is not None:
+    if current_user.role == RoleEnum.admin_user:
+        if created_by_user_id is not None and created_by_user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin can only view their own point transactions",
+            )
+        base_query = base_query.filter(PointsTopup.created_by_user_id == current_user.id)
+    elif created_by_user_id is not None:
         base_query = base_query.filter(PointsTopup.created_by_user_id == created_by_user_id)
 
     total = base_query.count()
@@ -336,6 +401,144 @@ def get_points_giving_history(
         offset=offset,
         items=items,
     )
+
+
+@router.get("/points/topup-requests", response_model=AdminTopupRequestListResponse)
+def get_topup_requests(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    status_filter: str | None = Query(None, alias="status"),
+) -> AdminTopupRequestListResponse:
+    target_user = aliased(User)
+    requested_admin = aliased(User)
+    creator_user = aliased(User)
+    resolver_user = aliased(User)
+
+    base_query = (
+        db.query(
+            PointsTopupRequest.id,
+            PointsTopupRequest.user_id,
+            PointsTopupRequest.requested_admin_user_id,
+            PointsTopupRequest.amount,
+            PointsTopupRequest.note,
+            PointsTopupRequest.status,
+            PointsTopupRequest.created_by_user_id,
+            PointsTopupRequest.resolved_by_user_id,
+            PointsTopupRequest.resolved_at,
+            PointsTopupRequest.created_at,
+            PointsTopupRequest.updated_at,
+            target_user.email.label("user_email"),
+            target_user.username.label("user_username"),
+            requested_admin.email.label("requested_admin_email"),
+            requested_admin.username.label("requested_admin_username"),
+            creator_user.email.label("created_by_email"),
+            creator_user.username.label("created_by_username"),
+            resolver_user.email.label("resolved_by_email"),
+            resolver_user.username.label("resolved_by_username"),
+        )
+        .join(target_user, target_user.id == PointsTopupRequest.user_id)
+        .join(requested_admin, requested_admin.id == PointsTopupRequest.requested_admin_user_id)
+        .join(creator_user, creator_user.id == PointsTopupRequest.created_by_user_id)
+        .outerjoin(resolver_user, resolver_user.id == PointsTopupRequest.resolved_by_user_id)
+    )
+
+    if current_user.role == RoleEnum.admin_user:
+        base_query = base_query.filter(PointsTopupRequest.requested_admin_user_id == current_user.id)
+    if status_filter:
+        base_query = base_query.filter(PointsTopupRequest.status == status_filter)
+
+    total = base_query.count()
+    rows = (
+        base_query
+        .order_by(PointsTopupRequest.created_at.desc(), PointsTopupRequest.id.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+
+    items = [
+        AdminTopupRequestEntry(
+            id=row.id,
+            user_id=row.user_id,
+            user_email=row.user_email,
+            user_username=row.user_username,
+            requested_admin_user_id=row.requested_admin_user_id,
+            requested_admin_email=row.requested_admin_email,
+            requested_admin_username=row.requested_admin_username,
+            amount=row.amount,
+            note=row.note,
+            status=row.status,
+            created_by_user_id=row.created_by_user_id,
+            created_by_email=row.created_by_email,
+            created_by_username=row.created_by_username,
+            resolved_by_user_id=row.resolved_by_user_id,
+            resolved_by_email=row.resolved_by_email,
+            resolved_by_username=row.resolved_by_username,
+            resolved_at=row.resolved_at,
+            created_at=row.created_at,
+            updated_at=row.updated_at,
+        )
+        for row in rows
+    ]
+
+    return AdminTopupRequestListResponse(
+        total=total,
+        limit=limit,
+        offset=offset,
+        items=items,
+    )
+
+
+@router.post("/points/topup-requests/{request_id}/approve", response_model=AdminTopupRequestEntry)
+def approve_topup_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
+) -> AdminTopupRequestEntry:
+    request = db.query(PointsTopupRequest).filter(PointsTopupRequest.id == request_id).first()
+    if not request:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Topup request not found")
+    _ensure_admin_can_handle_topup_request(current_user, request)
+    if request.status != "pending":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Topup request is not pending")
+
+    topup_points(
+        db,
+        user_id=request.user_id,
+        amount=request.amount,
+        created_by_user_id=current_user.id,
+        note=request.note,
+    )
+
+    request.status = "approved"
+    request.resolved_by_user_id = current_user.id
+    request.resolved_at = datetime.utcnow()
+    db.commit()
+    db.refresh(request)
+    return _build_topup_request_entry(db, request)
+
+
+@router.post("/points/topup-requests/{request_id}/reject", response_model=AdminTopupRequestEntry)
+def reject_topup_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
+) -> AdminTopupRequestEntry:
+    request = db.query(PointsTopupRequest).filter(PointsTopupRequest.id == request_id).first()
+    if not request:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Topup request not found")
+    _ensure_admin_can_handle_topup_request(current_user, request)
+    if request.status != "pending":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Topup request is not pending")
+
+    request.status = "rejected"
+    request.resolved_by_user_id = current_user.id
+    request.resolved_at = datetime.utcnow()
+    db.commit()
+    db.refresh(request)
+    return _build_topup_request_entry(db, request)
 
 
 @router.get("/check-users/{user_id}", response_model=AdminCheckUserResponse)

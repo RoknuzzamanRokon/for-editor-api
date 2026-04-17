@@ -26,6 +26,27 @@ type MyPointResponse = {
   offset: number;
 };
 
+type TopupRequestEntry = {
+  id: number;
+  user_id: number;
+  requested_admin_user_id: number;
+  amount: number;
+  note: string | null;
+  status: string;
+  created_by_user_id: number;
+  resolved_by_user_id: number | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type TopupRequestList = {
+  items: TopupRequestEntry[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
 function formatDate(value?: string | null) {
   if (!value) return "Not configured";
   return new Date(value).toLocaleString();
@@ -49,34 +70,92 @@ export default function DashboardBillingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [points, setPoints] = useState<MyPointResponse | null>(null);
+  const [requests, setRequests] = useState<TopupRequestList | null>(null);
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [requestError, setRequestError] = useState("");
+  const [requestSuccess, setRequestSuccess] = useState("");
+  const [form, setForm] = useState({ requested_admin_user_id: "", amount: "", note: "" });
+
+  const token = () => localStorage.getItem("access_token") ?? "";
+
+  const refreshPageData = async () => {
+    const auth = token();
+    const [pointsRes, requestsRes] = await Promise.all([
+      fetch(`${API_BASE}/api/v3/points/my-point`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${auth}`,
+        },
+      }),
+      fetch(`${API_BASE}/api/v3/points/topup-requests/mine`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${auth}`,
+        },
+      }),
+    ]);
+
+    const pointsBody = await pointsRes.text();
+    if (!pointsRes.ok) {
+      throw new Error(pointsBody || "Failed to load billing data");
+    }
+    setPoints(JSON.parse(pointsBody) as MyPointResponse);
+
+    if (requestsRes.ok) {
+      setRequests(await requestsRes.json() as TopupRequestList);
+    }
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    const auth = token();
+    if (!auth) {
       setError("No access token found");
       setLoading(false);
       return;
     }
 
-    fetch(`${API_BASE}/api/v3/points/my-point`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(async (res) => {
-        const bodyText = await res.text();
-        if (!res.ok) {
-          throw new Error(bodyText || "Failed to load billing data");
-        }
-        return JSON.parse(bodyText) as MyPointResponse;
-      })
-      .then((data) => setPoints(data))
+    refreshPageData()
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Failed to load billing data");
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const handleCreateRequest = async () => {
+    setRequestError("");
+    setRequestSuccess("");
+    if (!form.requested_admin_user_id || !form.amount) {
+      setRequestError("Admin ID and amount are required.");
+      return;
+    }
+    setRequestLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/v3/points/topup-requests`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: points?.user_id,
+          requested_admin_user_id: Number(form.requested_admin_user_id),
+          amount: Number(form.amount),
+          note: form.note || undefined,
+        }),
+      });
+      const body = await res.text();
+      if (!res.ok) {
+        throw new Error(body || "Failed to create topup request");
+      }
+      setRequestSuccess("Topup request submitted successfully.");
+      setForm({ requested_admin_user_id: "", amount: "", note: "" });
+      await refreshPageData();
+    } catch (err) {
+      setRequestError(err instanceof Error ? err.message : "Failed to create topup request");
+    } finally {
+      setRequestLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -125,6 +204,64 @@ export default function DashboardBillingPage() {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-primary/10 bg-primary/5 p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Topup Request</h2>
+            <p className="mt-1 text-sm text-slate-500">Send a topup request to a specific admin by admin ID.</p>
+          </div>
+          <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-bold text-primary dark:bg-slate-900/70">
+            User #{points.user_id}
+          </span>
+        </div>
+
+        {requestError ? (
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-300">
+            {requestError}
+          </div>
+        ) : null}
+        {requestSuccess ? (
+          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/30 dark:bg-emerald-900/20 dark:text-emerald-300">
+            {requestSuccess}
+          </div>
+        ) : null}
+
+        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <input
+            type="number"
+            min={1}
+            value={form.requested_admin_user_id}
+            onChange={(e) => setForm((prev) => ({ ...prev, requested_admin_user_id: e.target.value }))}
+            placeholder="Admin ID"
+            className="rounded-xl border border-primary/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-900"
+          />
+          <input
+            type="number"
+            min={1}
+            value={form.amount}
+            onChange={(e) => setForm((prev) => ({ ...prev, amount: e.target.value }))}
+            placeholder="Amount"
+            className="rounded-xl border border-primary/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-900"
+          />
+          <input
+            type="text"
+            value={form.note}
+            onChange={(e) => setForm((prev) => ({ ...prev, note: e.target.value }))}
+            placeholder="Note (optional)"
+            className="rounded-xl border border-primary/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-900"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleCreateRequest}
+          disabled={requestLoading}
+          className="mt-5 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-60"
+        >
+          {requestLoading ? "Submitting..." : "Submit Request"}
+        </button>
+      </section>
+
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
           <h2 className="text-lg font-bold">Billing History</h2>
@@ -171,7 +308,51 @@ export default function DashboardBillingPage() {
           </table>
         </div>
       </section>
+
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
+          <h2 className="text-lg font-bold">My Topup Requests</h2>
+          <span className="text-xs text-slate-500">Total requests: {requests?.total ?? 0}</span>
+        </div>
+        <div className="max-h-[420px] overflow-y-auto overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
+                <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4">Admin</th>
+                <th className="px-6 py-4">Amount</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Note</th>
+                <th className="px-6 py-4">Created</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {!requests?.items.length ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-sm text-slate-500">
+                    No topup requests found.
+                  </td>
+                </tr>
+              ) : (
+                requests.items.map((entry) => (
+                  <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{entry.id}</td>
+                    <td className="px-6 py-4 text-slate-500">#{entry.requested_admin_user_id}</td>
+                    <td className="px-6 py-4">{entry.amount}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusClass(entry.status)}`}>
+                        {entry.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-slate-500">{entry.note || "-"}</td>
+                    <td className="px-6 py-4 text-slate-500">{formatDate(entry.created_at)}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }
-
