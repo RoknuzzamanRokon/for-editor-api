@@ -452,39 +452,39 @@ export default function AdminProfilePage() {
           <div className="absolute bottom-0 left-1/3 h-20 w-20 rounded-full bg-cyan-400/10 blur-3xl" />
 
           <div className="relative">
-              <div className="flex  flex-col gap-5 sm:flex-row sm:items-start">
-                <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-[30px] border border-primary/25 bg-white/55 text-primary shadow-[0_0_50px_rgba(59,130,246,0.18)] backdrop-blur-xl dark:border-cyan-300/10 dark:bg-white/5 dark:shadow-[0_0_56px_rgba(59,130,246,0.20)]">
-                  <span className="material-symbols-outlined relative text-5xl">
-                    {selectedAvatar}
+            <div className="flex  flex-col gap-5 sm:flex-row sm:items-start">
+              <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-[30px] border border-primary/25 bg-white/55 text-primary shadow-[0_0_50px_rgba(59,130,246,0.18)] backdrop-blur-xl dark:border-cyan-300/10 dark:bg-white/5 dark:shadow-[0_0_56px_rgba(59,130,246,0.20)]">
+                <span className="material-symbols-outlined relative text-5xl">
+                  {selectedAvatar}
+                </span>
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/65 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                  <span className="material-symbols-outlined text-sm">
+                    shield
+                  </span>
+                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    {(state.me?.role ?? "").toUpperCase()}
                   </span>
                 </div>
 
-                <div className="min-w-0 flex-1">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/65 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
-                    <span className="material-symbols-outlined text-sm">
-                      shield
-                    </span>
-                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                      {(state.me?.role ?? "").toUpperCase()}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
-                    <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-5xl">
-                      {displayName}
-                    </h1>
-                    {/* {state.me ? (
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-5xl">
+                    {displayName}
+                  </h1>
+                  {/* {state.me ? (
                       <StatusBadge active={state.me.is_active} />
                     ) : null} */}
-                  </div>
+                </div>
 
-                  {/* <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 md:text-base">
+                {/* <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 md:text-base">
                     Command center for your admin identity, access state, and
                     account telemetry with sharper hierarchy and cleaner
                     production-ready structure.
                   </p> */}
 
-                  {/* {state.me ? (
+                {/* {state.me ? (
                     <div className="mt-6 flex flex-wrap gap-3">
                       <div className="inline-flex items-center gap-2 rounded-2xl border border-white/45 bg-white/55 px-4 py-2 backdrop-blur-md dark:border-white/10 dark:bg-white/10">
                         <span className="material-symbols-outlined text-primary">
@@ -515,13 +515,13 @@ export default function AdminProfilePage() {
                       </div>
                     </div>
                   ) : null} */}
-                </div>
               </div>
+            </div>
           </div>
         </section>
 
         {!state.loading && !state.error && state.me ? (
-          <section className="-mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <section className="-mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-[13px] border border-white/40 bg-white/45 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05]">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
                 Role Channel
@@ -532,6 +532,20 @@ export default function AdminProfilePage() {
                 </span>
                 <p className="text-lg font-black text-slate-900 dark:text-white">
                   {state.me.role}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-[13px] border border-white/40 bg-white/45 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+                Point
+              </p>
+              <div className="mt-3 flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">
+                  badge
+                </span>
+                <p className="text-lg font-black text-slate-900 dark:text-white">
+                  {state.points ? String(state.points.available_points) : "N/A"}
                 </p>
               </div>
             </div>
