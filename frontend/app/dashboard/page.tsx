@@ -321,10 +321,47 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-8xl space-y-8 p-8">
-      <div>
-        <h2 className="text-3xl font-extrabold tracking-tight">Welcome back, {displayName}</h2>
-        <p className="mt-1 text-slate-500">Here is what&apos;s happening with your API integrations today.</p>
-      </div>
+      <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
+
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
+              <span className="material-symbols-outlined text-base">dashboard</span>
+              Live API overview
+            </div>
+
+            <h1 className="text-3xl font-black tracking-tight md:text-5xl">
+              Welcome back, {displayName}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm text-white/80 md:text-base">
+              Track request volume, API usage, conversion health, and recent activity from one clean dashboard.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase tracking-wider text-white/70">Role</p>
+              <p className="mt-1 text-sm font-bold">{overview.user.role.replaceAll("_", " ")}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase tracking-wider text-white/70">Status</p>
+              <p className="mt-1 text-sm font-bold">
+                {overview.user.is_active ? "Active" : "Inactive"}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase tracking-wider text-white/70">Points</p>
+              <p className="mt-1 text-sm font-bold">{overview.summary.remaining_points}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase tracking-wider text-white/70">Active APIs</p>
+              <p className="mt-1 text-sm font-bold">{overview.summary.active_api_count}</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
