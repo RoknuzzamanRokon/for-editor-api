@@ -1,4 +1,7 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import case, func
 from sqlalchemy.orm import Session
 
 from core.deps import get_current_user, require_role
@@ -7,6 +10,8 @@ from db.models import PointsLedger, PointsTopupRequest as PointsTopupRequestMode
 from db.session import get_db
 from models.points import (
     MyPointResponse,
+    PointsActivitySummaryDay,
+    PointsActivitySummaryResponse,
     PointsBalanceResponse,
     PointsLedgerList,
     PointsLedgerEntry,
@@ -157,9 +162,97 @@ def get_my_topup_requests(
     )
 
 
+@router.post("/topup-cancel/request/{request_id}", response_model=PointsTopupRequestEntry)
+def cancel_my_topup_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> PointsTopupRequestEntry:
+    request = (
+        db.query(PointsTopupRequestModel)
+        .filter(PointsTopupRequestModel.id == request_id)
+        .first()
+    )
+    if not request:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Topup request not found")
+
+    if request.created_by_user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can cancel only your own topup request",
+        )
+
+    if request.status != "pending":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only pending topup requests can be cancelled",
+        )
+
+    request.status = "cancelled"
+    request.resolved_by_user_id = current_user.id
+    request.resolved_at = datetime.utcnow()
+    db.commit()
+    db.refresh(request)
+    return PointsTopupRequestEntry.model_validate(request)
+
+
 @router.get("/rules")
 def get_rules(current_user: User = Depends(get_current_user)) -> dict:
     return {"flat_cost_per_request": POINTS_COST_PER_REQUEST}
+
+
+@router.get("/activity-summary", response_model=PointsActivitySummaryResponse)
+def get_activity_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    days: int = Query(30, ge=1, le=90),
+) -> PointsActivitySummaryResponse:
+    today = datetime.utcnow().date()
+    start_day = today - timedelta(days=days - 1)
+    start_datetime = datetime.combine(start_day, datetime.min.time())
+
+    rows = (
+        db.query(
+            func.date(PointsLedger.created_at).label("day"),
+            func.sum(case((PointsLedger.status == "topup", PointsLedger.amount), else_=0)).label("topup"),
+            func.sum(case((PointsLedger.status == "refunded", PointsLedger.amount), else_=0)).label("refunded"),
+            func.sum(case((PointsLedger.status == "spent", -PointsLedger.amount), else_=0)).label("spent"),
+        )
+        .filter(
+            PointsLedger.user_id == current_user.id,
+            PointsLedger.created_at >= start_datetime,
+        )
+        .group_by(func.date(PointsLedger.created_at))
+        .order_by(func.date(PointsLedger.created_at).asc())
+        .all()
+    )
+
+    row_map = {
+        str(row.day): {
+            "topup": int(row.topup or 0),
+            "refunded": int(row.refunded or 0),
+            "spent": int(row.spent or 0),
+        }
+        for row in rows
+    }
+
+    items: list[PointsActivitySummaryDay] = []
+    for offset in range(days):
+        day = start_day + timedelta(days=offset)
+        date_key = day.isoformat()
+        values = row_map.get(date_key, {"topup": 0, "refunded": 0, "spent": 0})
+        net = values["topup"] + values["refunded"] - values["spent"]
+        items.append(
+            PointsActivitySummaryDay(
+                date=date_key,
+                topup=values["topup"],
+                refunded=values["refunded"],
+                spent=values["spent"],
+                net=net,
+            )
+        )
+
+    return PointsActivitySummaryResponse(days=days, items=items)
 
 
 @router.get("/my-point", response_model=MyPointResponse)

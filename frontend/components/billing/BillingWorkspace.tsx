@@ -5,6 +5,9 @@ import { formatRoleLabel } from "@/lib/roleLabel";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+const POINT_ACTIVITY_CHART_WIDTH = 1920;
+const POINT_ACTIVITY_CHART_HEIGHT = 240;
+const POINT_ACTIVITY_CHART_PADDING = { top: 16, right: 18, bottom: 34, left: 18 };
 
 type PointHistoryEntry = {
   id: number;
@@ -25,6 +28,19 @@ type MyPointResponse = {
   total: number;
   limit: number;
   offset: number;
+};
+
+type PointActivitySummaryDay = {
+  date: string;
+  topup: number;
+  refunded: number;
+  spent: number;
+  net: number;
+};
+
+type PointActivitySummaryResponse = {
+  days: number;
+  items: PointActivitySummaryDay[];
 };
 
 type TopupRequestEntry = {
@@ -65,12 +81,9 @@ type MeResponse = {
 };
 
 type PointActivityChartItem = {
-  id: number;
+  date: string;
   label: string;
-  signedAmount: number;
-  rawAmount: number;
-  status: string;
-  color: string;
+  spent: number;
 };
 
 function formatDate(value?: string | null) {
@@ -98,21 +111,6 @@ function formatCompactDate(value: string) {
     day: "numeric",
     timeZone: "UTC",
   }).format(new Date(value));
-}
-
-function getSignedPointAmount(entry: PointHistoryEntry) {
-  const normalized = entry.status.toLowerCase();
-  if (normalized === "spent") return -Math.abs(entry.amount);
-  if (normalized === "topup" || normalized === "refunded") return Math.abs(entry.amount);
-  return Math.abs(entry.amount);
-}
-
-function getPointActivityColor(status: string) {
-  const normalized = status.toLowerCase();
-  if (normalized === "topup") return "#10b981";
-  if (normalized === "refunded") return "#06b6d4";
-  if (normalized === "spent") return "#f97316";
-  return "#64748b";
 }
 
 function MetricCard({
@@ -147,8 +145,10 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
   const [error, setError] = useState("");
   const [me, setMe] = useState<MeResponse | null>(null);
   const [points, setPoints] = useState<MyPointResponse | null>(null);
+  const [activitySummary, setActivitySummary] = useState<PointActivitySummaryResponse | null>(null);
   const [requests, setRequests] = useState<TopupRequestList | null>(null);
   const [requestLoading, setRequestLoading] = useState(false);
+  const [cancelRequestId, setCancelRequestId] = useState<number | null>(null);
   const [requestError, setRequestError] = useState("");
   const [requestSuccess, setRequestSuccess] = useState("");
   const [form, setForm] = useState({
@@ -161,12 +161,16 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
   const refreshPageData = async () => {
     const auth = token();
-    const [meRes, pointsRes, requestsRes] = await Promise.all([
+    const [meRes, pointsRes, activitySummaryRes, requestsRes] = await Promise.all([
       fetch(`${API_BASE}/api/v2/auth/me`, {
         method: "GET",
         headers: { Authorization: `Bearer ${auth}` },
       }),
       fetch(`${API_BASE}/api/v3/points/my-point`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${auth}` },
+      }),
+      fetch(`${API_BASE}/api/v3/points/activity-summary?days=30`, {
         method: "GET",
         headers: { Authorization: `Bearer ${auth}` },
       }),
@@ -187,6 +191,12 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
       throw new Error(pointsBody || "Failed to load billing data");
     }
     setPoints(JSON.parse(pointsBody) as MyPointResponse);
+
+    const summaryBody = await activitySummaryRes.text();
+    if (!activitySummaryRes.ok) {
+      throw new Error(summaryBody || "Failed to load point activity summary");
+    }
+    setActivitySummary(JSON.parse(summaryBody) as PointActivitySummaryResponse);
 
     if (requestsRes.ok) {
       setRequests(await requestsRes.json() as TopupRequestList);
@@ -229,35 +239,17 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     return `${formatRoleLabel(me.role)} • User #${points.user_id}`;
   }, [me, points]);
   const pointActivityChart = useMemo(() => {
-    if (!points) return [];
-    return points.history
-      .slice()
-      .reverse()
-      .map((entry) => ({
-        id: entry.id,
-        label: formatCompactDate(entry.created_at),
-        signedAmount: getSignedPointAmount(entry),
-        rawAmount: entry.amount,
-        status: entry.status,
-        color: getPointActivityColor(entry.status),
-      }));
-  }, [points]);
-  const pointActivitySummary = useMemo(() => {
-    if (!points) {
-      return { totalTopup: 0, totalSpent: 0, totalRefunded: 0 };
-    }
-
-    return points.history.reduce(
-      (summary, entry) => {
-        const normalized = entry.status.toLowerCase();
-        if (normalized === "topup") summary.totalTopup += entry.amount;
-        else if (normalized === "spent") summary.totalSpent += entry.amount;
-        else if (normalized === "refunded") summary.totalRefunded += entry.amount;
-        return summary;
-      },
-      { totalTopup: 0, totalSpent: 0, totalRefunded: 0 },
-    );
-  }, [points]);
+    if (!activitySummary) return [];
+    return activitySummary.items.map((item) => ({
+      date: item.date,
+      label: formatCompactDate(item.date),
+      spent: item.spent,
+    }));
+  }, [activitySummary]);
+  const pointActivityLabelIndexes = useMemo(() => {
+    if (pointActivityChart.length === 0) return new Set<number>();
+    return new Set(pointActivityChart.map((_, index) => index));
+  }, [pointActivityChart]);
 
   const handlePrefillCreator = () => {
     if (!me?.created_by) return;
@@ -303,6 +295,32 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     }
   };
 
+  const handleCancelRequest = async (requestId: number) => {
+    setRequestError("");
+    setRequestSuccess("");
+    setCancelRequestId(requestId);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v3/points/topup-cancel/request/${requestId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token()}`,
+        },
+      });
+      const body = await res.text();
+      if (!res.ok) {
+        throw new Error(body || "Failed to cancel topup request");
+      }
+
+      setRequestSuccess("Topup request cancelled successfully.");
+      await refreshPageData();
+    } catch (err) {
+      setRequestError(err instanceof Error ? err.message : "Failed to cancel topup request");
+    } finally {
+      setCancelRequestId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="mx-auto max-w-8xl p-6 md:p-8">
@@ -323,14 +341,36 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     );
   }
 
-  const maxPositivePointAmount = Math.max(
-    ...pointActivityChart.map((item) => Math.max(item.signedAmount, 0)),
-    1,
-  );
-  const maxNegativePointAmount = Math.max(
-    ...pointActivityChart.map((item) => Math.max(-item.signedAmount, 0)),
-    1,
-  );
+  const maxSpentPointAmount = Math.max(...pointActivityChart.map((item) => item.spent), 1);
+  const pointActivityUsableWidth =
+    POINT_ACTIVITY_CHART_WIDTH - POINT_ACTIVITY_CHART_PADDING.left - POINT_ACTIVITY_CHART_PADDING.right;
+  const pointActivityUsableHeight =
+    POINT_ACTIVITY_CHART_HEIGHT - POINT_ACTIVITY_CHART_PADDING.top - POINT_ACTIVITY_CHART_PADDING.bottom;
+  const pointActivityBars = pointActivityChart.map((item, index) => {
+    const totalBars = Math.max(pointActivityChart.length, 1);
+    const slotWidth = pointActivityUsableWidth / totalBars;
+    const barWidth = Math.max(Math.min(slotWidth * 0.8, 26), 10);
+    const x =
+      POINT_ACTIVITY_CHART_PADDING.left + slotWidth * index + (slotWidth - barWidth) / 2;
+    const height =
+      item.spent > 0 ? Math.max((item.spent / maxSpentPointAmount) * pointActivityUsableHeight, 6) : 0;
+    const y = POINT_ACTIVITY_CHART_HEIGHT - POINT_ACTIVITY_CHART_PADDING.bottom - height;
+
+    return {
+      ...item,
+      x,
+      y,
+      width: barWidth,
+      height,
+    };
+  });
+  const pointActivityTicks = Array.from({ length: 4 }, (_, index) => {
+    const value = Math.round((maxSpentPointAmount * (3 - index)) / 3);
+    const y =
+      POINT_ACTIVITY_CHART_PADDING.top + (pointActivityUsableHeight * index) / 3;
+
+    return { value, y };
+  });
 
   return (
     <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
@@ -520,7 +560,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_1fr]">
+      <section className="grid grid-cols-1 gap-6">
         <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
@@ -541,7 +581,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b border-white/30 dark:border-white/10">
-                      {["ID", "Target", "Amount", "Status", "Note", "Created"].map((head) => (
+                      {["ID", "Target", "Amount", "Status", "Note", "Created", "Action"].map((head) => (
                         <th key={head} className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                           {head}
                         </th>
@@ -551,7 +591,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                   <tbody className="divide-y divide-white/20 dark:divide-white/5">
                     {!requests?.items.length ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-8 text-slate-400 dark:text-slate-500">
+                        <td colSpan={7} className="px-4 py-8 text-slate-400 dark:text-slate-500">
                           No topup requests submitted yet.
                         </td>
                       </tr>
@@ -568,6 +608,21 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                           </td>
                           <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{entry.note || "-"}</td>
                           <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{formatDate(entry.created_at)}</td>
+                          <td className="px-4 py-3">
+                            {entry.status === "pending" ? (
+                              <button
+                                type="button"
+                                onClick={() => handleCancelRequest(entry.id)}
+                                disabled={cancelRequestId === entry.id}
+                                className="inline-flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
+                              >
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                                {cancelRequestId === entry.id ? "Cancelling..." : "Cancel"}
+                              </button>
+                            ) : (
+                              <span className="text-xs text-slate-400 dark:text-slate-500">-</span>
+                            )}
+                          </td>
                         </tr>
                       ))
                     )}
@@ -594,114 +649,103 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
           </div>
           <div className="relative p-6">
             <div className="mb-6 rounded-2xl border border-white/40 bg-white/40 p-5 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                    Signed point movement across the current activity window.
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    Topups and refunds rise above zero, while spent points drop below zero.
-                  </p>
-                </div>
-                <div className="grid grid-cols-3 gap-3 text-xs sm:min-w-[320px]">
-                  <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-3 py-2 dark:border-emerald-900/30 dark:bg-emerald-950/20">
-                    <p className="font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Topup</p>
-                    <p className="mt-1 text-lg font-black text-emerald-700 dark:text-emerald-300">
-                      {pointActivitySummary.totalTopup}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-orange-200/70 bg-orange-50/80 px-3 py-2 dark:border-orange-900/30 dark:bg-orange-950/20">
-                    <p className="font-bold uppercase tracking-wide text-orange-700 dark:text-orange-300">Spent</p>
-                    <p className="mt-1 text-lg font-black text-orange-700 dark:text-orange-300">
-                      {pointActivitySummary.totalSpent}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-cyan-200/70 bg-cyan-50/80 px-3 py-2 dark:border-cyan-900/30 dark:bg-cyan-950/20">
-                    <p className="font-bold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">Refunded</p>
-                    <p className="mt-1 text-lg font-black text-cyan-700 dark:text-cyan-300">
-                      {pointActivitySummary.totalRefunded}
-                    </p>
-                  </div>
+              <div className="overflow-x-auto">
+                <div className="w-full">
+                  <svg
+                    viewBox={`0 0 ${POINT_ACTIVITY_CHART_WIDTH} ${POINT_ACTIVITY_CHART_HEIGHT}`}
+                    className="h-72 w-full"
+                    role="img"
+                    aria-label="Point activity 30 day usage chart"
+                    preserveAspectRatio="none"
+                  >
+                    {pointActivityTicks.map((tick) => (
+                      <g key={`${tick.value}-${tick.y}`}>
+                        <line
+                          x1={POINT_ACTIVITY_CHART_PADDING.left}
+                          y1={tick.y}
+                          x2={POINT_ACTIVITY_CHART_WIDTH - POINT_ACTIVITY_CHART_PADDING.right}
+                          y2={tick.y}
+                          stroke="currentColor"
+                          strokeOpacity="0.12"
+                          strokeDasharray="4 6"
+                        />
+                        <text
+                          x={POINT_ACTIVITY_CHART_PADDING.left}
+                          y={tick.y - 6}
+                          fontSize="11"
+                          fill="currentColor"
+                          opacity="0.55"
+                        >
+                          {tick.value}
+                        </text>
+                      </g>
+                    ))}
+
+                    <line
+                      x1={POINT_ACTIVITY_CHART_PADDING.left}
+                      y1={POINT_ACTIVITY_CHART_HEIGHT - POINT_ACTIVITY_CHART_PADDING.bottom}
+                      x2={POINT_ACTIVITY_CHART_WIDTH - POINT_ACTIVITY_CHART_PADDING.right}
+                      y2={POINT_ACTIVITY_CHART_HEIGHT - POINT_ACTIVITY_CHART_PADDING.bottom}
+                      stroke="currentColor"
+                      strokeOpacity="0.18"
+                    />
+
+                    {pointActivityBars.map((item, index) => (
+                      <g key={item.date}>
+                        <rect
+                          x={item.x}
+                          y={item.y}
+                          width={item.width}
+                          height={item.height}
+                          rx="6"
+                          fill="var(--primary)"
+                        >
+                          <title>{`${item.date}: ${item.spent}`}</title>
+                        </rect>
+
+                        {pointActivityLabelIndexes.has(index) ? (
+                          <>
+                            <text
+                              x={item.x + item.width / 2}
+                              y={POINT_ACTIVITY_CHART_HEIGHT - 12}
+                              textAnchor="middle"
+                              fontSize="11"
+                              fill="currentColor"
+                              opacity="0.6"
+                            >
+                              {item.label}
+                            </text>
+                            <text
+                              x={item.x + item.width / 2}
+                              y={Math.max(item.y - 8, POINT_ACTIVITY_CHART_PADDING.top + 12)}
+                              textAnchor="middle"
+                              fontSize="11"
+                              fill="currentColor"
+                              opacity="0.75"
+                            >
+                              {item.spent}
+                            </text>
+                          </>
+                        ) : null}
+                      </g>
+                    ))}
+
+                    {pointActivityBars.every((item) => item.spent === 0) ? (
+                      <text
+                        x={POINT_ACTIVITY_CHART_WIDTH / 2}
+                        y={POINT_ACTIVITY_CHART_HEIGHT / 2}
+                        textAnchor="middle"
+                        fontSize="14"
+                        fill="currentColor"
+                        opacity="0.55"
+                      >
+                        No point usage in the last 30 days
+                      </text>
+                    ) : null}
+                  </svg>
                 </div>
               </div>
 
-              <div className="mt-5 overflow-x-auto">
-                <div className="min-w-[640px]">
-                  <div className="relative h-64">
-                    <div className="absolute inset-x-0 top-0 h-1/2 border-b border-slate-200/70 dark:border-slate-700/70" />
-                    <div className="absolute inset-x-0 top-1/2 border-t border-dashed border-slate-300/80 dark:border-slate-600/80" />
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 border-t border-slate-200/70 dark:border-slate-700/70" />
-
-                    <div className="relative flex h-full items-stretch gap-3 pt-3">
-                      {(pointActivityChart.length === 0
-                        ? [{ id: 0, label: "-", signedAmount: 0, rawAmount: 0, status: "empty", color: "#cbd5e1" }]
-                        : pointActivityChart
-                      ).map((item) => {
-                        const positiveHeight =
-                          item.signedAmount > 0
-                            ? `${Math.max((item.signedAmount / maxPositivePointAmount) * 100, 8)}%`
-                            : "0%";
-                        const negativeHeight =
-                          item.signedAmount < 0
-                            ? `${Math.max((Math.abs(item.signedAmount) / maxNegativePointAmount) * 100, 8)}%`
-                            : "0%";
-
-                        return (
-                          <div key={item.id} className="flex min-w-[48px] flex-1 flex-col items-center">
-                            <div className="flex h-1/2 w-full items-end justify-center">
-                              {item.signedAmount > 0 ? (
-                                <div
-                                  className="w-full max-w-[28px] rounded-t-xl shadow-sm"
-                                  style={{ height: positiveHeight, backgroundColor: item.color }}
-                                  title={`${item.status}: +${item.rawAmount}`}
-                                />
-                              ) : (
-                                <div className="w-full max-w-[28px]" />
-                              )}
-                            </div>
-
-                            <div className="flex h-1/2 w-full items-start justify-center">
-                              {item.signedAmount < 0 ? (
-                                <div
-                                  className="w-full max-w-[28px] rounded-b-xl shadow-sm"
-                                  style={{ height: negativeHeight, backgroundColor: item.color }}
-                                  title={`${item.status}: -${item.rawAmount}`}
-                                />
-                              ) : (
-                                <div className="w-full max-w-[28px]" />
-                              )}
-                            </div>
-
-                            <div className="mt-3 text-center">
-                              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                                {item.label}
-                              </p>
-                              <p className="mt-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                                {item.signedAmount > 0 ? `+${item.rawAmount}` : item.signedAmount < 0 ? `-${item.rawAmount}` : item.rawAmount}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/60 px-3 py-1.5 dark:border-white/10 dark:bg-white/10">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                  Topup
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/60 px-3 py-1.5 dark:border-white/10 dark:bg-white/10">
-                  <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
-                  Spent
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/60 px-3 py-1.5 dark:border-white/10 dark:bg-white/10">
-                  <span className="h-2.5 w-2.5 rounded-full bg-cyan-500" />
-                  Refunded
-                </span>
-              </div>
             </div>
             
           </div>

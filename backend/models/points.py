@@ -26,6 +26,19 @@ class PointsLedgerList(BaseModel):
     offset: int
 
 
+class PointsActivitySummaryDay(BaseModel):
+    date: str
+    topup: int
+    refunded: int
+    spent: int
+    net: int
+
+
+class PointsActivitySummaryResponse(BaseModel):
+    days: int
+    items: list[PointsActivitySummaryDay]
+
+
 class PointsTopupRequest(BaseModel):
     user_id: int
     amount: int = Field(gt=0)
