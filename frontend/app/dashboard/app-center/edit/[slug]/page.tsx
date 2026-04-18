@@ -613,26 +613,26 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
           Back to App Center
         </Link>
 
-        <div className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-primary/5 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950">
-          <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 rounded-full bg-primary/15 blur-3xl" />
-          <div className="absolute bottom-0 left-0 h-24 w-24 -translate-x-6 translate-y-6 rounded-full bg-sky-500/10 blur-3xl" />
+        <div className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-6 text-white shadow-xl dark:border-slate-800">
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
 
           <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/80 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-slate-600 backdrop-blur dark:border-primary/20 dark:bg-slate-900/70 dark:text-slate-300">
-                <span className="material-symbols-outlined text-sm text-primary">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-white backdrop-blur">
+                <span className="material-symbols-outlined text-sm text-white">
                   auto_awesome
                 </span>
                 Dashboard App Center
               </div>
 
-              <p className="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+              <p className="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-white/65">
                 App Center / Edit / {params.slug}
               </p>
-              <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">
+              <h1 className="mt-3 text-3xl font-black tracking-tight text-white md:text-4xl">
                 {title}
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80">
                 Upload a file, submit a conversion request, preview the result,
                 and review history for this tool from one focused workspace.
               </p>

@@ -606,9 +606,6 @@ export default function DashboardPage() {
                       ))}
                     </svg>
                     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                        Recent Items
-                      </span>
                       <span className="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">
                         {recentHistoryTotal}
                       </span>
