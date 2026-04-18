@@ -729,7 +729,7 @@ export default function AccountSettingsPanel({
           {openPanel === "profile" ? (
             <div className="space-y-6">
               <SectionCard
-                title="Profile Card"
+                title="Profile"
                 description="Update your username while keeping your email fixed."
               >
                 <form className="space-y-4" onSubmit={updateProfile}>

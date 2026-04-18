@@ -4,17 +4,14 @@ import { startTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const PREFETCH_ROUTES = [
-  "/admin",
-  "/admin/profile",
-  "/admin/app-center",
-  "/admin/billing",
-  "/admin/users",
-  "/admin/point",
-  "/admin/api-permissions",
-  "/admin/settings",
+  "/dashboard",
+  "/dashboard/profile",
+  "/dashboard/app-center",
+  "/dashboard/billing",
+  "/dashboard/settings",
 ];
 
-export default function AdminClientNavigation({
+export default function UserClientNavigation({
   children,
 }: {
   children: React.ReactNode;
@@ -31,7 +28,13 @@ export default function AdminClientNavigation({
         return;
       }
 
-      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      if (
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
         return;
       }
 
