@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdminShell from "@/components/admin/AdminShell";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
@@ -510,7 +511,7 @@ export default function AdminProfilePage() {
                     shield
                   </span>
                   <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    {(state.me?.role ?? "").toUpperCase()}
+                    {formatRoleLabel(state.me?.role)}
                   </span>
                 </div>
 
@@ -576,7 +577,7 @@ export default function AdminProfilePage() {
                   badge
                 </span>
                 <p className="text-lg font-black text-slate-900 dark:text-white">
-                  {state.me.role}
+                  {formatRoleLabel(state.me.role)}
                 </p>
               </div>
             </div>
@@ -662,7 +663,7 @@ export default function AdminProfilePage() {
                   value={state.me.username || "Not set"}
                 />
                 <ProfileLine label="Email" value={state.me.email} mono />
-                <ProfileLine label="Role" value={state.me.role.toUpperCase()} />
+                <ProfileLine label="Role" value={formatRoleLabel(state.me.role)} />
                 <ProfileLine
                   label="Created At"
                   value={formatDate(state.me.created_at)}

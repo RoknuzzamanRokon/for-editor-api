@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdminShell from "@/components/admin/AdminShell";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
@@ -158,7 +159,7 @@ function GlassSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)] via-[rgb(244,250,255)] to-[rgb(236,247,255)] shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(17,24,39)] dark:via-[rgb(21,30,48)] dark:to-[rgb(31,23,46)]">
+    <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)] via-[rgb(244,250,255)] to-[rgb(236,247,255)] shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(17,24,39)] dark:via-[rgb(21,30,48)] dark:to-[rgb(31,23,46)]">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/12 via-[rgb(255,255,255)]/35 to-[rgb(147,197,253)]/20 dark:from-primary/15 dark:via-white/5 dark:to-[rgb(96,165,250)]/10" />
       <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-[rgb(96,165,250)]/18 blur-3xl dark:bg-[rgb(59,130,246)]/20" />
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
@@ -549,7 +550,7 @@ export default function AdminUsersPage() {
   return (
     <AdminShell>
       <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
-        <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+        <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
 
@@ -694,7 +695,7 @@ export default function AdminUsersPage() {
                           {user.username || "-"}
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-200">
-                          {user.role}
+                          {formatRoleLabel(user.role)}
                         </td>
                         <td className="px-6 py-4 text-sm">
                           <span
@@ -720,7 +721,7 @@ export default function AdminUsersPage() {
 
       {showCreate ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-md">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-[32px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/95 via-[rgb(244,249,255)]/90 to-[rgb(233,246,255)]/85 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(18,26,42)]/95 dark:via-[rgb(21,31,49)]/92 dark:to-[rgb(31,23,43)]/90">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-[13px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/95 via-[rgb(244,249,255)]/90 to-[rgb(233,246,255)]/85 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(18,26,42)]/95 dark:via-[rgb(21,31,49)]/92 dark:to-[rgb(31,23,43)]/90">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-[rgb(255,255,255)]/35 to-[rgb(125,211,252)]/20 dark:from-primary/12 dark:via-white/5 dark:to-[rgb(56,189,248)]/10" />
             <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-[rgb(56,189,248)]/20 blur-3xl dark:bg-[rgb(14,165,233)]/20" />
 
@@ -840,7 +841,7 @@ export default function AdminUsersPage() {
 
       {showDetails ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-md">
-          <div className="relative flex max-h-[96vh] w-full max-w-5xl flex-col overflow-hidden rounded-[32px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/95 via-[rgb(244,249,255)]/90 to-[rgb(233,246,255)]/85 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:from-[rgb(18,26,42)]/95 dark:via-[rgb(21,31,49)]/92 dark:to-[rgb(31,23,43)]/90">
+          <div className="relative flex max-h-[96vh] w-full max-w-5xl flex-col overflow-hidden rounded-[13px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/95 via-[rgb(244,249,255)]/90 to-[rgb(233,246,255)]/85 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:from-[rgb(18,26,42)]/95 dark:via-[rgb(21,31,49)]/92 dark:to-[rgb(31,23,43)]/90">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/15 via-[rgb(255,255,255)]/35 to-[rgb(125,211,252)]/20 dark:from-primary/12 dark:via-white/5 dark:to-[rgb(56,189,248)]/10" />
             <div className="pointer-events-none absolute right-0 top-0 h-36 w-36 rounded-full bg-[rgb(56,189,248)]/20 blur-3xl dark:bg-[rgb(14,165,233)]/20" />
 
@@ -886,7 +887,7 @@ export default function AdminUsersPage() {
                       </p>
                       <span className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-sm font-black text-primary">
                         <span className="material-symbols-outlined text-base">shield</span>
-                        {selectedUserDetails.role}
+                        {formatRoleLabel(selectedUserDetails.role)}
                       </span>
                     </div>
                   </div>
@@ -929,7 +930,7 @@ export default function AdminUsersPage() {
                         { label: "ID", value: selectedUserDetails.id },
                         { label: "Email", value: selectedUserDetails.email },
                         { label: "Username", value: selectedUserDetails.username || "-" },
-                        { label: "Role", value: selectedUserDetails.role },
+                        { label: "Role", value: formatRoleLabel(selectedUserDetails.role) },
                         { label: "Position", value: selectedUserDetails.position },
                         { label: "Status", value: selectedUserDetails.is_active ? "Active" : "Inactive" },
                         { label: "Created", value: formatDate(selectedUserDetails.created_at) },

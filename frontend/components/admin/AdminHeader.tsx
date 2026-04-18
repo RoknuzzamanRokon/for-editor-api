@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
@@ -81,7 +82,7 @@ export default function AdminHeader() {
   };
 
   const displayName = user?.username || user?.email || "Admin User";
-  const roleLabel = user?.role || "admin_user";
+  const roleLabel = formatRoleLabel(user?.role || "admin_user");
 
   return (
     <header className="fixed left-0 right-0 top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/80 px-8 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80">

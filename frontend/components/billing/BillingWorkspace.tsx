@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
@@ -193,7 +194,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
   const profilePill = useMemo(() => {
     if (!me || !points) return "Loading profile";
-    return `${me.role.replace(/_/g, " ")} • User #${points.user_id}`;
+    return `${formatRoleLabel(me.role)} • User #${points.user_id}`;
   }, [me, points]);
 
   const handlePrefillCreator = () => {
@@ -243,7 +244,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
   if (loading) {
     return (
       <div className="mx-auto max-w-8xl p-6 md:p-8">
-        <div className="rounded-[28px] border border-white/40 bg-white/55 p-6 text-sm text-slate-500 backdrop-blur-2xl dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
+        <div className="rounded-[13px] border border-white/40 bg-white/55 p-6 text-sm text-slate-500 backdrop-blur-2xl dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
           Loading billing...
         </div>
       </div>
@@ -253,7 +254,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
   if (error || !points || !me) {
     return (
       <div className="mx-auto max-w-8xl p-6 md:p-8">
-        <div className="rounded-[28px] border border-rose-200/70 bg-rose-50/80 p-6 text-sm text-rose-700 backdrop-blur-2xl dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
+        <div className="rounded-[13px] border border-rose-200/70 bg-rose-50/80 p-6 text-sm text-rose-700 backdrop-blur-2xl dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
           {error || "Billing data not available"}
         </div>
       </div>
@@ -262,7 +263,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
   return (
     <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
-      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+      <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
         <div className="relative">
@@ -308,7 +309,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
         />
       </section>
 
-      <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+      <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
         <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
@@ -401,7 +402,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_1fr]">
-        <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
           <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
@@ -458,7 +459,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
           </div>
         </section>
 
-        <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
           <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
@@ -238,7 +239,7 @@ export default function DashboardProfilePage() {
               <p className="text-xs uppercase tracking-wider text-white/70">
                 Role
               </p>
-              <p className="mt-1 text-sm font-bold">{me.role}</p>
+              <p className="mt-1 text-sm font-bold">{formatRoleLabel(me.role)}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
               <p className="text-xs uppercase tracking-wider text-white/70">

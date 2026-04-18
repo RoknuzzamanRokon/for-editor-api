@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
@@ -125,7 +126,7 @@ export default function UserHeader() {
         <div className="flex items-center gap-3 border-l border-slate-200 pl-4 dark:border-slate-800">
           <div className="text-right">
             <p className="text-sm font-bold leading-none">{user?.username || user?.email || "User"}</p>
-            <p className="mt-1 text-[10px] font-medium uppercase text-slate-500">{user?.role || "Admin"}</p>
+            <p className="mt-1 text-[10px] font-medium uppercase text-slate-500">{formatRoleLabel(user?.role || "general_user")}</p>
           </div>
           <div className="relative" ref={menuRef}>
             <button
@@ -146,7 +147,7 @@ export default function UserHeader() {
                       <p className="truncate text-xs text-slate-500">{user?.email}</p>
                     </div>
                   </div>
-                  <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-slate-400">{user?.role || "Admin"}</p>
+                  <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-slate-400">{formatRoleLabel(user?.role || "general_user")}</p>
                 </div>
                 <div className="p-2">
                   <button

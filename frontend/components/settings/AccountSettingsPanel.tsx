@@ -3,6 +3,7 @@
 import type { FormEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AVATAR_PRESETS, AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
@@ -60,7 +61,7 @@ function SectionCard({
   return (
     <section
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80",
+        "group relative overflow-hidden rounded-[13px] border border-slate-200/80 bg-white/80 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80",
         hoverable &&
           "transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/20 dark:hover:shadow-slate-900/30",
       )}
@@ -555,7 +556,7 @@ export default function AccountSettingsPanel({
   if (loading) {
     return (
       <div className="space-y-6 p-6 md:p-8">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 p-8 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80">
+        <div className="relative overflow-hidden rounded-[13px] border border-slate-200/80 bg-white/80 p-8 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80">
           <div className="h-8 w-56 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
           <div className="mt-3 h-4 w-96 max-w-full animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
         </div>
@@ -563,7 +564,7 @@ export default function AccountSettingsPanel({
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 p-6 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80"
+              className="relative overflow-hidden rounded-[13px] border border-slate-200/80 bg-white/80 p-6 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80"
             >
               <div className="h-6 w-40 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
               <div className="mt-3 h-4 w-72 max-w-full animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
@@ -582,7 +583,7 @@ export default function AccountSettingsPanel({
   return (
     <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
       {/* Header Section */}
-      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+      <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
         <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
@@ -613,7 +614,7 @@ export default function AccountSettingsPanel({
                   Role
                 </p>
                 <p className="mt-1 text-sm font-medium text-white">
-                  {settings.identity.role}
+                  {formatRoleLabel(settings.identity.role)}
                 </p>
               </div>
             </div>
