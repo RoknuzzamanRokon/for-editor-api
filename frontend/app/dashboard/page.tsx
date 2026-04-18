@@ -4,6 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+const CHART_WIDTH = 1920;
+const CHART_HEIGHT = 240;
+const CHART_PADDING = { top: 16, right: 16, bottom: 34, left: 16 };
+const X_AXIS_LABEL_INDEXES = new Set([0, 7, 14, 21, 29]);
 
 type DashboardOverviewResponse = {
   user: {
@@ -56,9 +60,27 @@ type DashboardOverviewResponse = {
   }>;
 };
 
+type PerformancePoint = {
+  date: string;
+  label: string;
+  total: number;
+  x: number;
+  y: number;
+};
+
 function formatDate(value?: string | null) {
   if (!value) return "-";
   return new Date(value).toLocaleString();
+}
+
+function formatShortDate(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, (month || 1) - 1, day || 1));
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(date);
 }
 
 function formatDuration(durationMs?: number | null) {
@@ -79,6 +101,40 @@ function getStatusBadge(status: string) {
     return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
   }
   return "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
+}
+
+function buildLast30DaysSeries(
+  performance: DashboardOverviewResponse["performance_30_days"],
+): PerformancePoint[] {
+  const performanceMap = new Map(performance.map((item) => [item.date, item.total]));
+  const today = new Date();
+  const series: Array<{ date: string; total: number; label: string }> = [];
+
+  for (let offset = 29; offset >= 0; offset -= 1) {
+    const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    date.setUTCDate(date.getUTCDate() - offset);
+    const key = date.toISOString().slice(0, 10);
+    series.push({
+      date: key,
+      total: performanceMap.get(key) ?? 0,
+      label: formatShortDate(key),
+    });
+  }
+
+  const maxTotal = Math.max(...series.map((item) => item.total), 1);
+  const usableWidth = CHART_WIDTH - CHART_PADDING.left - CHART_PADDING.right;
+  const usableHeight = CHART_HEIGHT - CHART_PADDING.top - CHART_PADDING.bottom;
+
+  return series.map((item, index) => {
+    const x = CHART_PADDING.left + (usableWidth * index) / Math.max(series.length - 1, 1);
+    const y = CHART_PADDING.top + usableHeight - (item.total / maxTotal) * usableHeight;
+
+    return {
+      ...item,
+      x,
+      y,
+    };
+  });
 }
 
 export default function DashboardPage() {
@@ -121,6 +177,11 @@ export default function DashboardPage() {
     return overview.user.username || overview.user.email;
   }, [overview]);
 
+  const performanceSeries = useMemo(
+    () => (overview ? buildLast30DaysSeries(overview.performance_30_days) : []),
+    [overview],
+  );
+
   if (loading) {
     return (
       <div className="mx-auto max-w-8xl p-8">
@@ -141,7 +202,28 @@ export default function DashboardPage() {
     );
   }
 
-  const maxTotal = Math.max(...overview.performance_30_days.map((item) => item.total), 1);
+  const totalRequests30Days = performanceSeries.reduce((sum, item) => sum + item.total, 0);
+  const busiestDay = performanceSeries.reduce((best, current) => {
+    if (!best || current.total > best.total) {
+      return current;
+    }
+    return best;
+  }, performanceSeries[0]);
+  const chartLinePath = performanceSeries
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
+    .join(" ");
+  const chartAreaPath = chartLinePath
+    ? `${chartLinePath} L ${performanceSeries[performanceSeries.length - 1]?.x ?? CHART_PADDING.left} ${CHART_HEIGHT - CHART_PADDING.bottom} L ${performanceSeries[0]?.x ?? CHART_PADDING.left} ${CHART_HEIGHT - CHART_PADDING.bottom} Z`
+    : "";
+  const maxTotal = Math.max(...performanceSeries.map((item) => item.total), 1);
+  const yAxisTicks = Array.from({ length: 4 }, (_, index) => {
+    const value = Math.round((maxTotal * (3 - index)) / 3);
+    const y =
+      CHART_PADDING.top +
+      ((CHART_HEIGHT - CHART_PADDING.top - CHART_PADDING.bottom) * index) / 3;
+
+    return { value, y };
+  });
 
   return (
     <div className="mx-auto max-w-8xl space-y-8 p-8">
@@ -176,17 +258,122 @@ export default function DashboardPage() {
 
       <div className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="border-b border-slate-100 p-6 dark:border-slate-800">
-          <h3 className="text-lg font-bold">API Performance (30 Days)</h3>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h3 className="text-lg font-bold">API Performance (30 Days)</h3>
+              <p className="mt-1 text-sm text-slate-500">
+                Daily request volume across the last 30 days, including inactive days.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm sm:min-w-[280px]">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/60">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Total Requests
+                </p>
+                <p className="mt-1 text-xl font-bold text-slate-900 dark:text-slate-100">
+                  {totalRequests30Days.toLocaleString()}
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/60">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Busiest Day
+                </p>
+                <p className="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100">
+                  {busiestDay ? `${busiestDay.label} (${busiestDay.total})` : "-"}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex h-64 items-end gap-2 p-8">
-          {(overview.performance_30_days.length > 0 ? overview.performance_30_days : [{ date: "-", total: 0, success: 0, failed: 0, processing: 0 }]).map((item) => (
-            <div
-              key={item.date}
-              className="flex-1 rounded-t-lg bg-primary/20 transition-all hover:bg-primary"
-              style={{ height: `${Math.max((item.total / maxTotal) * 100, 3)}%` }}
-              title={`${item.date}: ${item.total}`}
-            />
-          ))}
+        <div className="p-6 sm:p-8">
+          <div className="w-full">
+            <svg
+              viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
+              className="h-72 w-full"
+              role="img"
+              aria-label="30 day API usage line chart"
+              preserveAspectRatio="none"
+            >
+                <defs>
+                  <linearGradient id="performance-area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.28" />
+                    <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.03" />
+                  </linearGradient>
+                </defs>
+
+                {yAxisTicks.map((tick) => (
+                  <g key={`${tick.value}-${tick.y}`}>
+                    <line
+                      x1={CHART_PADDING.left}
+                      y1={tick.y}
+                      x2={CHART_WIDTH - CHART_PADDING.right}
+                      y2={tick.y}
+                      stroke="currentColor"
+                      strokeOpacity="0.12"
+                      strokeDasharray="4 6"
+                    />
+                    <text
+                      x={CHART_PADDING.left}
+                      y={tick.y - 6}
+                      fontSize="11"
+                      fill="currentColor"
+                      opacity="0.55"
+                    >
+                      {tick.value}
+                    </text>
+                  </g>
+                ))}
+
+                <line
+                  x1={CHART_PADDING.left}
+                  y1={CHART_HEIGHT - CHART_PADDING.bottom}
+                  x2={CHART_WIDTH - CHART_PADDING.right}
+                  y2={CHART_HEIGHT - CHART_PADDING.bottom}
+                  stroke="currentColor"
+                  strokeOpacity="0.16"
+                />
+
+                {chartAreaPath ? (
+                  <path d={chartAreaPath} fill="url(#performance-area)" stroke="none" />
+                ) : null}
+
+                <path
+                  d={chartLinePath}
+                  fill="none"
+                  stroke="var(--primary)"
+                  strokeWidth="3"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+
+                {performanceSeries.map((point, index) => (
+                  <g key={point.date}>
+                    <circle
+                      cx={point.x}
+                      cy={point.y}
+                      r={index === performanceSeries.length - 1 ? 5 : 4}
+                      fill="var(--primary)"
+                      stroke="white"
+                      strokeWidth="2"
+                    >
+                      <title>{`${point.date}: ${point.total} request${point.total === 1 ? "" : "s"}`}</title>
+                    </circle>
+                    {X_AXIS_LABEL_INDEXES.has(index) ? (
+                      <text
+                        x={point.x}
+                        y={CHART_HEIGHT - 10}
+                        textAnchor={index === 0 ? "start" : index === 29 ? "end" : "middle"}
+                        fontSize="11"
+                        fill="currentColor"
+                        opacity="0.6"
+                      >
+                        {point.label}
+                      </text>
+                    ) : null}
+                  </g>
+                ))}
+            </svg>
+          </div>
         </div>
       </div>
 
