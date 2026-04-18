@@ -107,15 +107,25 @@ export default function DashboardAppCenterPage() {
 
   return (
     <div className="w-full max-w-none space-y-8 p-8">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-        <div>
-          <h1 className="text-4xl font-black tracking-tight">App Center</h1>
-          <p className="mt-1 text-slate-500">
-            Explore and test all available conversion endpoints for your
-            workflow.
-          </p>
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
+              <span className="material-symbols-outlined text-sm">apps</span>
+              App Center
+            </div>
+            <h1 className="mt-4 text-4xl font-black tracking-tight text-white">App Center</h1>
+            <p className="mt-2 max-w-3xl text-sm text-white/80 md:text-base">
+              Active conversion APIs from <span className="font-semibold text-white">/api/v3/permissions/my-api</span>, ready to launch, pin, and run through your daily workflow without digging through menus.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur">
+            Total: {allowedApis.length}
+          </div>
         </div>
-      </div>
+      </section>
 
       <div className="flex items-center justify-between rounded-xl border border-primary/10 bg-primary/5 p-4">
         <div className="flex items-center gap-3">

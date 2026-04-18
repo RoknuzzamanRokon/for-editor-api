@@ -168,18 +168,16 @@ export default function AdminPointPage() {
       <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
 
         {/* Header */}
-        <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-white/40 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-          <div className="absolute -left-16 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />
-          <div className="absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
+        <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
           <div className="relative">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/60 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
               <span className="material-symbols-outlined text-sm">toll</span>
               Points Management
             </div>
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">Point Distribution</h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Distribute points to users and view the full giving history.</p>
+            <h1 className="mt-4 text-3xl font-black tracking-tight text-white md:text-4xl">Point Distribution</h1>
+            <p className="mt-2 text-sm text-white/80">Distribute points to users, review incoming requests, and monitor the full giving history from one admin control surface.</p>
           </div>
         </section>
 

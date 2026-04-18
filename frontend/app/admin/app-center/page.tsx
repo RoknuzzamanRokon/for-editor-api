@@ -85,17 +85,27 @@ export default function AdminAppCenterPage() {
     <AdminShell>
       <section className="h-full min-h-full overflow-y-auto bg-background-light px-8 py-6 dark:bg-background-dark">
         <div className="mx-auto w-full max-w-8xl">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-black tracking-tight">App Center</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Active conversion APIs from <span className="font-semibold">/api/v3/permissions/my-api</span>
-              </p>
+          <section className="relative mb-6 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
+            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
+                  <span className="material-symbols-outlined text-sm">apps</span>
+                  App Center
+                </div>
+                <h1 className="mt-4 text-3xl font-black tracking-tight text-white md:text-4xl">
+                  App Center
+                </h1>
+                <p className="mt-2 max-w-3xl text-sm text-white/80 md:text-base">
+                  Active conversion APIs from <span className="font-semibold text-white">/api/v3/permissions/my-api</span>, organized for fast launch, confident testing, and cleaner admin operations.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur">
+                Total: {filteredActions.length}
+              </div>
             </div>
-            <div className="rounded-lg border border-primary/10 bg-primary/5 px-4 py-2 text-sm font-semibold">
-              Total: {filteredActions.length}
-            </div>
-          </div>
+          </section>
 
           <div className="mb-5">
             <input

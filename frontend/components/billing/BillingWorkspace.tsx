@@ -262,27 +262,25 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
   return (
     <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
-      <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/55 p-8 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-white/35 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
-        <div className="absolute -left-12 top-0 h-40 w-40 rounded-full bg-primary/15 blur-3xl" />
-        <div className="absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
         <div className="relative">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/65 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur">
             <span className="material-symbols-outlined text-sm">credit_card</span>
             {audience === "admin" ? "Admin Billing" : "Billing Center"}
           </div>
           <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">
+              <h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">
                 Point wallet, request routing, and usage timeline
               </h1>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-white/80">
                 Track your point balance, request more credits from a target admin or super admin, and monitor every request status from one place.
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/45 bg-white/65 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-700 backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-200">
-              <span className="material-symbols-outlined text-sm text-primary">shield_person</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
+              <span className="material-symbols-outlined text-sm text-white/80">shield_person</span>
               {profilePill}
             </div>
           </div>

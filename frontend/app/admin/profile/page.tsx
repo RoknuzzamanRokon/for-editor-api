@@ -490,12 +490,11 @@ export default function AdminProfilePage() {
   return (
     <AdminShell>
       <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
-        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/40 px-6 py-7 shadow-[0_28px_90px_rgba(15,23,42,0.12)] backdrop-blur-2xl md:px-8 md:py-8 dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.68),rgba(15,23,42,0.28))]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.20),transparent_32%),radial-gradient(circle_at_100%_100%,rgba(34,211,238,0.14),transparent_28%),linear-gradient(120deg,rgba(255,255,255,0.12),transparent_40%)] dark:bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.24),transparent_34%),radial-gradient(circle_at_100%_100%,rgba(34,211,238,0.16),transparent_28%),linear-gradient(120deg,rgba(255,255,255,0.04),transparent_40%)]" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/80 to-transparent" />
-          <div className="absolute left-0 top-10 h-40 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-          <div className="absolute right-8 top-8 h-24 w-24 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute bottom-0 left-1/3 h-20 w-20 rounded-full bg-cyan-400/10 blur-3xl" />
+        <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary px-6 py-7 text-white shadow-[0_28px_90px_rgba(15,23,42,0.18)] md:px-8 md:py-8 dark:border-slate-800">
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          <div className="absolute left-0 top-10 h-40 w-px bg-gradient-to-b from-white/0 via-white/20 to-white/0" />
 
           <div className="relative">
             <div className="flex  flex-col gap-5 sm:flex-row sm:items-start">

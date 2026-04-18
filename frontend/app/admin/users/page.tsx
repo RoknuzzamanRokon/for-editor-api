@@ -549,24 +549,22 @@ export default function AdminUsersPage() {
   return (
     <AdminShell>
       <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
-        <section className="relative overflow-hidden rounded-[32px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)] via-[rgb(242,249,255)] to-[rgb(232,244,255)] p-8 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(18,24,38)] dark:via-[rgb(19,30,50)] dark:to-[rgb(36,23,46)]">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/18 via-[rgb(255,255,255)]/45 to-[rgb(125,211,252)]/30 dark:from-primary/15 dark:via-white/5 dark:to-[rgb(56,189,248)]/12" />
-          <div className="absolute -left-16 top-0 h-40 w-40 rounded-full bg-[rgb(59,130,246)]/20 blur-3xl dark:bg-[rgb(37,99,235)]/20" />
-          <div className="absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-[rgb(56,189,248)]/20 blur-3xl dark:bg-[rgb(14,165,233)]/20" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
+        <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
 
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/60 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
                 <span className="material-symbols-outlined text-sm">group</span>
                 Users Management
               </div>
 
-              <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-white md:text-4xl">
                 Admin Users
               </h1>
 
-              <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
+              <p className="mt-2 max-w-2xl text-sm text-white/80">
                 Manage users, inspect account details, and create new accounts
                 with the same liquid glass design system as the admin profile
                 page.
@@ -589,7 +587,7 @@ export default function AdminUsersPage() {
                 Add User
               </button>
 
-              <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-200">
+              <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur">
                 Total: {filteredUsers.length}
               </div>
             </div>

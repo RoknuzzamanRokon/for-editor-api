@@ -582,25 +582,40 @@ export default function AccountSettingsPanel({
   return (
     <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
       {/* Header Section */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-primary/10 to-transparent p-8 shadow-sm backdrop-blur-sm">
-        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
         <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary backdrop-blur-sm">
-              <span className="text-base">⚙️</span>
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur">
+              <span className="material-symbols-outlined text-base">settings</span>
               Personal Settings
             </p>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+            <h1 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
               {title}
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
+            <p className="mt-2 max-w-2xl text-sm text-white/80">
               {subtitle}
             </p>
           </div>
           {settings && (
             <div className="grid gap-3 sm:grid-cols-2">
-              <InfoCard label="Email" value={settings.identity.email} />
-              <InfoCard label="Role" value={settings.identity.role} />
+              <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+                <p className="text-xs font-semibold uppercase tracking-wider text-white/70">
+                  Email
+                </p>
+                <p className="mt-1 text-sm font-medium text-white">
+                  {settings.identity.email}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+                <p className="text-xs font-semibold uppercase tracking-wider text-white/70">
+                  Role
+                </p>
+                <p className="mt-1 text-sm font-medium text-white">
+                  {settings.identity.role}
+                </p>
+              </div>
             </div>
           )}
         </div>
