@@ -181,7 +181,7 @@ export default function DashboardProfilePage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-8xl p-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-[13px] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 animate-pulse rounded-2xl bg-primary/20" />
             <div className="space-y-2">
@@ -198,7 +198,7 @@ export default function DashboardProfilePage() {
   if (error || !me || !myPoints || !myApis) {
     return (
       <div className="mx-auto max-w-8xl p-8">
-        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
+        <div className="rounded-[13px] border border-rose-200 bg-rose-50 p-8 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined">error</span>
             <p className="font-semibold">
@@ -212,7 +212,7 @@ export default function DashboardProfilePage() {
 
   return (
     <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
-      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+      <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
 
@@ -296,7 +296,7 @@ export default function DashboardProfilePage() {
 
       <section className="grid grid-cols-1 gap-8 xl:grid-cols-12">
         <div className="space-y-6 xl:col-span-4">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="mb-5 flex items-center gap-3">
               <div className="rounded-2xl bg-primary/10 p-3 text-primary">
                 <span className="material-symbols-outlined">person</span>
@@ -348,7 +348,7 @@ export default function DashboardProfilePage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-primary/10 bg-primary/5 p-6 shadow-sm">
+          <div className="rounded-[13px] border border-primary/10 bg-primary/5 p-6 shadow-sm">
             <div className="flex items-start gap-3">
               <div className="rounded-2xl bg-primary/15 p-3 text-primary">
                 <span className="material-symbols-outlined">info</span>
@@ -389,7 +389,7 @@ export default function DashboardProfilePage() {
         </div>
 
         <div className="space-y-6 xl:col-span-8">
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -451,7 +451,7 @@ export default function DashboardProfilePage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex flex-col gap-3 border-b border-slate-100 p-6 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">

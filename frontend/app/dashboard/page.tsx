@@ -124,7 +124,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-8xl p-8">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-[13px] border border-slate-200 bg-white p-6 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
           Loading dashboard...
         </div>
       </div>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
   if (error || !overview) {
     return (
       <div className="mx-auto max-w-8xl p-8">
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-300">
+        <div className="rounded-[13px] border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-300">
           {error || "Dashboard data not available"}
         </div>
       </div>
@@ -151,22 +151,22 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-medium text-slate-500">Monthly Requests</p>
           <p className="mt-1 text-2xl font-bold">{overview.summary.monthly_requests.toLocaleString()}</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-medium text-slate-500">Remaining Points</p>
           <p className="mt-1 text-2xl font-bold">{overview.summary.remaining_points.toLocaleString()}</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-medium text-slate-500">Success Rate</p>
           <p className="mt-1 text-2xl font-bold">{overview.summary.success_rate.toFixed(1)}%</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-medium text-slate-500">Avg. Latency</p>
           <p className="mt-1 text-2xl font-bold">
             {overview.summary.avg_latency_ms == null ? "-" : `${Math.round(overview.summary.avg_latency_ms)}ms`}
@@ -174,7 +174,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="border-b border-slate-100 p-6 dark:border-slate-800">
           <h3 className="text-lg font-bold">API Performance (30 Days)</h3>
         </div>
@@ -192,7 +192,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h3 className="mb-4 font-bold">My Active APIs</h3>
             {overview.active_apis.length === 0 ? (
               <p className="text-sm text-slate-500">No active APIs found.</p>
@@ -208,7 +208,7 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h4 className="mb-3 font-bold">Conversion Summary</h4>
             <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
               <p>Total: <span className="font-semibold">{overview.summary.total_conversions}</span></p>
@@ -220,7 +220,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
               <h3 className="text-lg font-bold">Recent History</h3>
               <span className="text-xs text-slate-500">
