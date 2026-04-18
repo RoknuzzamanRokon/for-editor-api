@@ -114,6 +114,7 @@ def get_dashboard_overview(
                 route=meta.get("route", ""),
                 method=meta.get("method", "POST"),
                 points=POINTS_COST_PER_REQUEST,
+                usage_count=total_count,
                 last_used_at=last_used_at,
                 success_rate=success_rate,
                 description=meta.get("description", label),

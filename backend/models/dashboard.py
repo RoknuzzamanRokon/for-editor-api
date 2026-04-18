@@ -39,6 +39,7 @@ class DashboardApiEntry(BaseModel):
     route: str
     method: str
     points: int
+    usage_count: int = 0
     last_used_at: Optional[str] = None
     success_rate: float
     description: str
