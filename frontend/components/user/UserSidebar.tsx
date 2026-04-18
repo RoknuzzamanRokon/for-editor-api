@@ -1,7 +1,11 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') || 'http://127.0.0.1:8000'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
@@ -18,6 +22,31 @@ export default function UserSidebar({
   onToggleSidebar: () => void;
 }) {
   const pathname = usePathname()
+  const [pointsBalance, setPointsBalance] = useState<number | null>(null)
+
+  useEffect(() => {
+    const token = window.localStorage.getItem('access_token')
+    if (!token) return
+
+    fetch(`${API_BASE}/api/v3/points/balance`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error('Failed to load points balance')
+        }
+        return res.json() as Promise<{ balance: number }>
+      })
+      .then((data) => {
+        setPointsBalance(data.balance)
+      })
+      .catch(() => {
+        setPointsBalance(null)
+      })
+  }, [])
 
   return (
     <aside
@@ -74,18 +103,29 @@ export default function UserSidebar({
           <span className="material-symbols-outlined">settings</span>
           {!collapsed ? "Settings" : null}
         </Link>
-        <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
-          <div className="mb-2 flex justify-between text-xs font-bold">
-            {!collapsed ? <span>PLAN LIMIT</span> : null}
-            <span>43%</span>
+        {collapsed ? (
+          <div className="flex justify-center pt-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-center text-[11px] font-black text-primary shadow-sm">
+              {pointsBalance ?? '--'}
+            </div>
           </div>
-          <div className="mb-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
-            <div className="h-1.5 w-[43%] rounded-full bg-primary" />
+        ) : (
+          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                  Current Points
+                </p>
+                <p className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
+                  {pointsBalance ?? '--'}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary">
+                <span className="material-symbols-outlined">toll</span>
+              </div>
+            </div>
           </div>
-          {!collapsed ? (
-            <p className="text-[10px] uppercase text-slate-500">4,320 / 10,000 Requests</p>
-          ) : null}
-        </div>
+        )}
       </div>
     </aside>
   )

@@ -226,7 +226,7 @@ export default function DashboardProfilePage() {
             </div>
 
             <h1 className="text-3xl font-black tracking-tight md:text-5xl">
-              Welcome back, {displayName}
+              {displayName}
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-white/80 md:text-base">
               Manage your profile, point balance, API access, and recent
@@ -235,13 +235,13 @@ export default function DashboardProfilePage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+            <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
               <p className="text-xs uppercase tracking-wider text-white/70">
                 Role
               </p>
               <p className="mt-1 text-sm font-bold">{formatRoleLabel(me.role)}</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+            <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
               <p className="text-xs uppercase tracking-wider text-white/70">
                 Status
               </p>
@@ -249,7 +249,7 @@ export default function DashboardProfilePage() {
                 {me.is_active ? "Active" : "Inactive"}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+            <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
               <p className="text-xs uppercase tracking-wider text-white/70">
                 Points
               </p>
@@ -257,7 +257,7 @@ export default function DashboardProfilePage() {
                 {myPoints.available_points}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+            <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
               <p className="text-xs uppercase tracking-wider text-white/70">
                 APIs
               </p>
