@@ -2,9 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AdminShell from "../../components/admin/AdminShell";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+import { API_BASE } from "@/lib/apiBase";
 
 type AdminDashboardQuickStat = {
   label: string;

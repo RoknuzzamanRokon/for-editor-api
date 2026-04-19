@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { API_BASE } from "@/lib/apiBase";
 
 type Role = "super_user" | "admin" | "admin_user" | "general_user" | string;
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
 
 async function fetchMe(token: string) {
   const res = await fetch(`${API_BASE}/api/v2/auth/me`, {
