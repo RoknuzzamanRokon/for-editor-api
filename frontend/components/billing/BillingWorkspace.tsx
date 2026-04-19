@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_BASE } from "@/lib/apiBase";
 import { formatRoleLabel } from "@/lib/roleLabel";
 const POINT_ACTIVITY_CHART_WIDTH = 1920;
@@ -155,10 +155,8 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     note: "",
   });
 
-  const token = () => localStorage.getItem("access_token") ?? "";
-
-  const refreshPageData = async () => {
-    const auth = token();
+  const refreshPageData = useCallback(async () => {
+    const auth = localStorage.getItem("access_token") ?? "";
     const [meRes, pointsRes, activitySummaryRes, requestsRes] = await Promise.all([
       fetch(`${API_BASE}/api/v2/auth/me`, {
         method: "GET",
@@ -199,10 +197,10 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     if (requestsRes.ok) {
       setRequests(await requestsRes.json() as TopupRequestList);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    const auth = token();
+    const auth = localStorage.getItem("access_token") ?? "";
     if (!auth) {
       setError("No access token found");
       setLoading(false);
@@ -214,7 +212,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
         setError(err instanceof Error ? err.message : "Failed to load billing data");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [refreshPageData]);
 
   const pendingRequests = useMemo(
     () => requests?.items.filter((entry) => entry.status === "pending").length ?? 0,
