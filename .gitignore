@@ -11,3 +11,5 @@ test*.py
 
 
 backend/static/*
+backend/log/
+
