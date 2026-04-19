@@ -3,10 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-  "http://127.0.0.1:8000";
+import { API_BASE } from "@/lib/apiBase";
 
 const ACTION_TO_ROUTE: Record<string, string> = {
   pdf_to_docs: "/api/v3/conversions/pdf-to-word",

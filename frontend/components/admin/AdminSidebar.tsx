@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { API_BASE } from "@/lib/apiBase";
 
 type NavItem = {
   label: string;
@@ -39,10 +40,6 @@ export default function AdminSidebar({
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-
-    const API_BASE =
-      process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-      "http://127.0.0.1:8000";
 
     const headers = { Authorization: `Bearer ${token}` };
 

@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { API_BASE } from "@/lib/apiBase";
 import { formatRoleLabel } from "@/lib/roleLabel";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
 const POINT_ACTIVITY_CHART_WIDTH = 1920;
 const POINT_ACTIVITY_CHART_HEIGHT = 240;
 const POINT_ACTIVITY_CHART_PADDING = { top: 16, right: 18, bottom: 34, left: 18 };

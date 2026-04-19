@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+import { API_BASE } from "@/lib/apiBase";
 const CHART_WIDTH = 1920;
 const CHART_HEIGHT = 240;
 const CHART_PADDING = { top: 16, right: 16, bottom: 34, left: 16 };
