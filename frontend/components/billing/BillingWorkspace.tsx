@@ -264,10 +264,11 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     }
     setRequestLoading(true);
     try {
+      const auth = localStorage.getItem("access_token") ?? "";
       const res = await fetch(`${API_BASE}/api/v3/points/topup-requests`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token()}`,
+          Authorization: `Bearer ${auth}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -297,10 +298,11 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     setCancelRequestId(requestId);
 
     try {
+      const auth = localStorage.getItem("access_token") ?? "";
       const res = await fetch(`${API_BASE}/api/v3/points/topup-cancel/request/${requestId}`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token()}`,
+          Authorization: `Bearer ${auth}`,
         },
       });
       const body = await res.text();
