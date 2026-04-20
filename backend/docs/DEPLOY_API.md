@@ -59,6 +59,9 @@ Success response:
 {
   "status": "started",
   "log_file": "/path/to/deploy_backend.log",
+  "pid_file": "/path/to/deploy_backend.pid",
+  "pid": 24561,
+  "last_push_time": "2026-04-20T17:35:10.123456+00:00",
   "stdout": "",
   "stderr": ""
 }
@@ -83,6 +86,9 @@ Success response:
 {
   "status": "started",
   "log_file": "/path/to/deploy_frontend.log",
+  "pid_file": "/path/to/deploy_frontend.pid",
+  "pid": 24574,
+  "last_push_time": "2026-04-20T17:36:02.654321+00:00",
   "stdout": "",
   "stderr": ""
 }
@@ -108,12 +114,24 @@ Example response:
   "backend": {
     "status": "success",
     "log_file": "/path/to/deploy_backend.log",
-    "last_output": "Deployment completed successfully"
+    "pid_file": "/path/to/deploy_backend.pid",
+    "pid": 24561,
+    "is_running": false,
+    "last_push_time": "2026-04-20T17:35:10.123456+00:00",
+    "last_log_update_time": "2026-04-20T17:35:55.000000+00:00",
+    "last_output": "Deployment completed successfully",
+    "live_output": "Deployment completed successfully"
   },
   "frontend": {
     "status": "running",
     "log_file": "/path/to/deploy_frontend.log",
-    "last_output": "Installing dependencies..."
+    "pid_file": "/path/to/deploy_frontend.pid",
+    "pid": 24574,
+    "is_running": true,
+    "last_push_time": "2026-04-20T17:36:02.654321+00:00",
+    "last_log_update_time": "2026-04-20T17:36:15.000000+00:00",
+    "last_output": "Installing dependencies...",
+    "live_output": "Installing dependencies..."
   }
 }
 ```
@@ -127,8 +145,17 @@ Possible status values:
 - `not_started`: log file does not exist yet
 - `started`: log file exists but no output yet
 - `running`: log file has output and no success/failure marker found
+- `stopped`: process is no longer running and no final success marker was found
 - `success`: log contains `deployment completed successfully` or `deploy_success`
 - `failed`: log contains `error`, `failed`, or `traceback`
+
+Extra status fields:
+
+- `pid`: background process id if available
+- `is_running`: true when the pid is still alive
+- `last_push_time`: last deploy start time based on pid/log file timestamp
+- `last_log_update_time`: last time the log file changed
+- `live_output`: current log tail for UI polling/live view
 
 ---
 
@@ -158,6 +185,18 @@ Default values:
 ```python
 PROJECT_ROOT / "deploy_backend.log"
 PROJECT_ROOT / "deploy_frontend.log"
+```
+
+### PID Paths
+
+- `DEPLOY_BACKEND_PID_PATH`
+- `DEPLOY_FRONTEND_PID_PATH`
+
+Default values:
+
+```python
+PROJECT_ROOT / "deploy_backend.pid"
+PROJECT_ROOT / "deploy_frontend.pid"
 ```
 
 ---
