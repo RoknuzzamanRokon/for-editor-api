@@ -4,9 +4,9 @@ import os
 import subprocess
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
-from core.deps import require_role
+from core.deps import get_current_user
 from db.models import RoleEnum, User
 
 router = APIRouter(tags=["deploy"])
@@ -32,6 +32,15 @@ def _get_backend_log_path() -> Path:
 
 def _get_frontend_log_path() -> Path:
     return Path(os.getenv("DEPLOY_FRONTEND_LOG_PATH", DEFAULT_FRONTEND_DEPLOY_LOG_PATH))
+
+
+def _require_super_user_for_deploy(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role != RoleEnum.super_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only super_user can access this deploy API.",
+        )
+    return current_user
 
 
 def _start_deploy(script_path: Path, log_path: Path) -> dict:
@@ -100,7 +109,7 @@ def _read_status(log_path: Path) -> dict:
 
 @router.post("/live-project-push/backend")
 def live_project_push_backend(
-    current_user: User = Depends(require_role(RoleEnum.super_user)),
+    current_user: User = Depends(_require_super_user_for_deploy),
 ) -> dict:
     _ = current_user
     return _start_deploy(_get_backend_script_path(), _get_backend_log_path())
@@ -108,7 +117,7 @@ def live_project_push_backend(
 
 @router.post("/live-project-push/frontend")
 def live_project_push_frontend(
-    current_user: User = Depends(require_role(RoleEnum.super_user)),
+    current_user: User = Depends(_require_super_user_for_deploy),
 ) -> dict:
     _ = current_user
     return _start_deploy(_get_frontend_script_path(), _get_frontend_log_path())
@@ -116,7 +125,7 @@ def live_project_push_frontend(
 
 @router.get("/live-project-push/status")
 def live_project_push_status(
-    current_user: User = Depends(require_role(RoleEnum.super_user)),
+    current_user: User = Depends(_require_super_user_for_deploy),
 ) -> dict:
     _ = current_user
     return {
