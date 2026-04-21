@@ -15,15 +15,6 @@
   --font-code: var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-.dark {
-  --primary: #60a5fa;
-  --background: #020617;
-  --foreground: #e2e8f0;
-  --border: #0f172a;
-  --card: #0b1120;
-  --card-hover: #111827;
-}
-
 .ocean {
   --primary: #06b6d4;
   --background: #0c4a6e;
@@ -51,24 +42,6 @@
   --card-hover: #166534;
 }
 
-.midnight {
-  --primary: #38bdf8;
-  --background: #0b1120;
-  --foreground: #e2e8f0;
-  --border: #1e293b;
-  --card: #111827;
-  --card-hover: #1f2937;
-}
-
-.livedark {
-  --primary: #3b82f6;
-  --background: #000000;
-  --foreground: #ffffff;
-  --border: rgba(255,255,255,0.1);
-  --card: rgba(255,255,255,0.08);
-  --card-hover: rgba(255,255,255,0.12);
-}
-
 body {
   background-color: var(--background);
   font-family: var(--font-sans);
@@ -81,6 +54,9 @@ body {
   overflow-wrap: break-word;
 }
 
+html.ocean body,
+html.sunset body,
+html.forest body,
 html[data-theme='sunset'] body {
   background-color: transparent;
   background-image: none;
@@ -96,7 +72,9 @@ html[data-theme='sunset'] body {
   font-family: var(--font-code);
 }
 
-.sunset body {
+.ocean body,
+.sunset body,
+.forest body {
   background-image:
     radial-gradient(circle at 12% 22%, rgba(251, 146, 60, 0.35) 0%, transparent 38%),
     radial-gradient(circle at 86% 14%, rgba(244, 63, 94, 0.28) 0%, transparent 34%),
@@ -106,6 +84,9 @@ html[data-theme='sunset'] body {
   animation: sunsetShift 14s ease-in-out infinite;
 }
 
+html.ocean,
+html.sunset,
+html.forest,
 html[data-theme='sunset'] {
   background-color: #000000;
   background-image:
@@ -119,18 +100,8 @@ html[data-theme='sunset'] {
   min-height: 100vh;
 }
 
-html:not([data-theme='sunset']) {
+html.light {
   background-color: #ffffff;
-}
-
-.midnight body {
-  background-image:
-    radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.18) 0%, transparent 38%),
-    radial-gradient(circle at 86% 16%, rgba(59, 130, 246, 0.2) 0%, transparent 36%),
-    radial-gradient(circle at 72% 82%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
-    linear-gradient(130deg, #0b1120 0%, #111827 48%, #0f172a 100%);
-  background-size: 180% 180%;
-  animation: midnightShift 16s ease-in-out infinite;
 }
 
 .hero-glow {
@@ -176,18 +147,6 @@ html:not([data-theme='sunset']) {
   }
   100% {
     background-position: 10% 20%;
-  }
-}
-
-@keyframes midnightShift {
-  0% {
-    background-position: 0% 40%;
-  }
-  50% {
-    background-position: 100% 60%;
-  }
-  100% {
-    background-position: 0% 40%;
   }
 }
 

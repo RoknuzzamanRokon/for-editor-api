@@ -48,7 +48,7 @@ curl -X GET "http://127.0.0.1:8000/api/v2/auth/settings" \
     "last_login": "2026-04-14T08:20:01"
   },
   "preferences": {
-    "theme": "dark",
+    "theme": "sunset",
     "security_alerts_enabled": true,
     "login_notifications_enabled": true,
     "profile_private": false
@@ -125,7 +125,7 @@ PATCH /api/v2/auth/settings/preferences
 
 ```json
 {
-  "theme": "dark",
+  "theme": "sunset",
   "security_alerts_enabled": true,
   "login_notifications_enabled": true,
   "profile_private": true
@@ -141,7 +141,7 @@ curl -X PATCH "http://127.0.0.1:8000/api/v2/auth/settings/preferences" \
   -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "theme": "dark",
+    "theme": "sunset",
     "profile_private": true
   }'
 ```
@@ -155,7 +155,7 @@ import json
 url = "http://127.0.0.1:8000/api/v2/auth/settings/preferences"
 
 payload = json.dumps({
-  "theme": "dark",
+  "theme": "sunset",
   "profile_private": True,
   "security_alerts_enabled": True,
   "login_notifications_enabled": True
@@ -236,7 +236,7 @@ Your original payload mixed profile and preference fields together:
 ```json
 {
   "username": "Ron - N",
-  "theme": "dark",
+  "theme": "sunset",
   "profile_private": true
 }
 ```
@@ -281,7 +281,7 @@ preferences_response = requests.patch(
   "http://127.0.0.1:8000/api/v2/auth/settings/preferences",
   headers=headers,
   data=json.dumps({
-    "theme": "dark",
+    "theme": "sunset",
     "profile_private": True
   })
 )

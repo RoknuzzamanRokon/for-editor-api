@@ -153,7 +153,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-background-light px-4 text-foreground dark:bg-background-dark">
+    <div className="fixed inset-0 overflow-hidden bg-background-light px-4 text-foreground dark:bg-[rgba(9,17,31,0.78)]">
       <SplashCursor />
 
       {/* Liquid background effects (behind card) */}
@@ -161,12 +161,12 @@ function LoginForm() {
         <div className="absolute -left-24 top-24 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
         <div className="absolute -right-24 top-1/3 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute bottom-[-100px] left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_36%),radial-gradient(circle_at_80%_60%,rgba(255,255,255,0.06),transparent_32%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.06),transparent_36%),radial-gradient(circle_at_80%_60%,rgba(255,255,255,0.05),transparent_32%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_36%),radial-gradient(circle_at_80%_60%,rgba(255,255,255,0.06),transparent_32%)] dark:bg-[radial-gradient(circle_at_12%_18%,rgba(249,115,22,0.18),transparent_34%),radial-gradient(circle_at_84%_12%,rgba(244,63,94,0.16),transparent_30%),linear-gradient(135deg,rgba(11,17,32,0.78),rgba(9,17,31,0.72))]" />
       </div>
 
       <div className="login-ui h-full w-full">
         {/* Navbar */}
-        <nav className="fixed left-0 right-0 top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-card/70 px-6 backdrop-blur-md">
+        <nav className="fixed left-0 right-0 top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-card/70 px-6 backdrop-blur-md dark:bg-[rgba(11,17,32,0.82)]">
           <a href="/" className="flex items-center gap-2">
             <span className="material-symbols-outlined text-2xl text-primary">sync_alt</span>
             <span className="text-lg font-extrabold tracking-tight text-foreground">
@@ -180,7 +180,7 @@ function LoginForm() {
 
         <div className="absolute inset-x-0 bottom-0 top-16 z-10 flex items-center justify-center overflow-hidden">
           {/* Liquid glass card */}
-          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl">
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl dark:bg-[rgba(17,24,39,0.74)]">
             <div className="p-8">
           {/* Brand header */}
           <div className="mb-8 flex items-center gap-3">

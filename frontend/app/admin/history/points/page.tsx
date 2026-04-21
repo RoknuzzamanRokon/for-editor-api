@@ -88,7 +88,7 @@ export default function Page() {
                 </div>
             </header>
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto p-8 bg-background-light dark:bg-background-dark">
+            <main class="flex-1 overflow-y-auto bg-transparent p-8">
                 <!-- Breadcrumbs -->
                 <nav class="flex items-center gap-2 mb-6 text-sm">
                     <a class="text-slate-500 hover:text-primary transition-colors" href="/admin">Home</a>
@@ -229,7 +229,7 @@ export default function Page() {
     </div>
 `;
   return (
-    <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+    <div className="bg-background-light dark:bg-slate-950/45 text-foreground font-display">
       <div dangerouslySetInnerHTML={{ __html: markup }} />
     </div>
   );

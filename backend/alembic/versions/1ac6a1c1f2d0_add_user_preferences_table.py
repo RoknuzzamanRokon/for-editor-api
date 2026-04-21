@@ -22,7 +22,7 @@ def upgrade() -> None:
     op.create_table(
         "user_preferences",
         sa.Column("user_id", sa.Integer(), nullable=False),
-        sa.Column("theme", sa.String(length=32), nullable=False, server_default="light"),
+        sa.Column("theme", sa.String(length=32), nullable=False, server_default="sunset"),
         sa.Column("security_alerts_enabled", sa.Boolean(), nullable=False, server_default=sa.true()),
         sa.Column("login_notifications_enabled", sa.Boolean(), nullable=False, server_default=sa.true()),
         sa.Column("profile_private", sa.Boolean(), nullable=False, server_default=sa.false()),

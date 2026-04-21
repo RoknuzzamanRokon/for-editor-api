@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from db.models import RoleEnum
 
-ThemeName = Literal["light", "dark", "ocean", "sunset", "forest", "midnight", "livedark"]
+ThemeName = Literal["light", "ocean", "sunset", "forest"]
 AvatarKey = Literal[
     "avatar_1",
     "avatar_2",
@@ -19,7 +19,7 @@ AvatarKey = Literal[
     "avatar_10",
 ]
 
-VALID_THEMES = {"light", "dark", "ocean", "sunset", "forest", "midnight", "livedark"}
+VALID_THEMES = {"light", "ocean", "sunset", "forest"}
 VALID_AVATARS = {
     "avatar_1",
     "avatar_2",

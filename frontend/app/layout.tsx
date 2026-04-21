@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn(dmSans.variable, jetbrains.variable, "font-sans", "light")} data-theme="light">
+    <html lang="en" suppressHydrationWarning className={cn(dmSans.variable, jetbrains.variable, "font-sans", "sunset")} data-theme="sunset">
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -36,11 +36,9 @@ export default function RootLayout({
               (function () {
                 try {
                   var stored = localStorage.getItem('theme');
-                  var themes = ['light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark'];
-                  var theme = themes.indexOf(stored) !== -1 ? stored : 'light';
+                  var themes = ['light', 'ocean', 'sunset', 'forest'];
+                  var theme = themes.indexOf(stored) !== -1 ? stored : 'sunset';
                   var root = document.documentElement;
-                  var marketingStored = localStorage.getItem('marketing-theme');
-                  var marketingTheme = marketingStored === 'dark' ? 'dark' : 'light';
                   if (window.location && window.location.pathname === '/login') {
                     root.classList.add('login-fullscreen');
                     root.style.overflow = 'hidden';
@@ -49,13 +47,14 @@ export default function RootLayout({
                   var applyTheme = function (nextTheme) {
                     root.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark');
                     root.classList.add(nextTheme);
-                    if (nextTheme !== 'light') root.classList.add('dark');
+                    if (nextTheme !== 'light') {
+                      root.classList.add('dark');
+                    }
                   };
                   localStorage.setItem('theme', theme);
-                  if (theme !== 'light') {
-                    localStorage.setItem('theme_last_non_light', theme);
-                  }
-                  root.setAttribute('data-theme', marketingTheme);
+                  localStorage.removeItem('marketing-theme');
+                  localStorage.removeItem('theme_last_non_light');
+                  root.setAttribute('data-theme', 'sunset');
                   applyTheme(theme);
                 } catch (e) {}
               })();

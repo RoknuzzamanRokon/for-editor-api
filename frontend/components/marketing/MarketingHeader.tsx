@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useMarketingTheme } from '@/config/marketingTheme'
@@ -15,22 +14,13 @@ const navLinks = [
 
 export default function MarketingHeader() {
   const pathname = usePathname()
-  const { theme, mode, toggle } = useMarketingTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const safeMode = mounted ? mode : 'light'
-  const toggleIcon = safeMode === 'dark' ? 'light_mode' : 'dark_mode'
-  const toggleTitle = safeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+  const { theme } = useMarketingTheme()
 
   const isActive = (path: string) => pathname === path
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 w-full border-b backdrop-blur-xl"
-      style={{ background: theme.mode === 'dark' ? 'rgba(2,6,23,0.88)' : 'rgba(255,255,255,0.92)', borderColor: theme.border }}>
+      style={{ background: 'rgba(2,6,23,0.88)', borderColor: theme.border }}>
       <div className="flex h-16 w-full items-center justify-between gap-3 px-3 sm:h-20 sm:px-6 lg:h-24 lg:px-8">
         <Link href="/" className="group flex min-w-0 items-center gap-2 cursor-pointer">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110 sm:h-12 sm:w-12"
@@ -56,22 +46,13 @@ export default function MarketingHeader() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:gap-4">
-          <button
-            type="button"
-            onClick={toggle}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border shadow-sm transition-all hover:scale-[1.02] hover:shadow-md sm:h-10 sm:w-10 lg:h-12 lg:w-12"
-            style={{ background: theme.surface, borderColor: theme.border, color: theme.primary, boxShadow: theme.mode === 'dark' ? '0 0 24px rgba(249,115,22,0.12)' : undefined }}
-            title={toggleTitle}
-          >
-            <span className="material-symbols-outlined text-lg sm:text-xl lg:text-[22px]">{toggleIcon}</span>
-          </button>
           <Link
             href="/login"
             className="rounded-xl px-3 py-2 text-xs font-bold shadow-lg transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] sm:px-4 sm:py-2.5 sm:text-sm lg:px-6 lg:py-3 lg:text-base"
             style={{
               background: theme.buttonBg,
               color: theme.buttonText,
-              boxShadow: theme.mode === 'dark' ? '0 0 24px rgba(249,115,22,0.18)' : undefined,
+              boxShadow: theme.actionShadow,
             }}
           >
             Login

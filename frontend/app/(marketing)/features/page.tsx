@@ -2,13 +2,13 @@
 import { useMarketingTheme, cardClass } from '@/config/marketingTheme'
 
 export default function Page() {
-  const { theme: t, mode } = useMarketingTheme()
-  const card = cardClass(mode, 'p-6 shadow-sm')
-  const card8 = cardClass(mode, 'p-8 shadow-sm')
+  const { theme: t } = useMarketingTheme()
+  const card = cardClass('p-6 shadow-sm')
+  const card8 = cardClass('p-8 shadow-sm')
 
   return (
     <main
-      className="mx-2 mb-4 overflow-hidden rounded-[24px] pt-32 transition-colors duration-300 sm:mx-3 sm:mb-6 sm:rounded-[32px] sm:pt-36 lg:mx-6 lg:pt-24"
+      className="transparent"
       style={{ background: t.card, boxShadow: t.panelShadow }}
     >
 

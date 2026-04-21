@@ -3,21 +3,18 @@ import Image from 'next/image'
 import { useMarketingTheme, cardClass } from '@/config/marketingTheme'
 
 export default function Page() {
-  const { theme: t, mode } = useMarketingTheme()
+  const { theme: t } = useMarketingTheme()
 
-  const card = cardClass(mode, 'group p-8 transition-all hover:-translate-y-1 hover:shadow-2xl')
-  const mainBackground = mode === 'dark' ? 'rgba(9,17,31,0.72)' : 'rgba(255,255,255,0.92)'
-  const heroBackground = mode === 'dark' ? 'rgba(11,17,32,0.82)' : 'rgba(248,250,252,0.9)'
-  const primaryCardBackground = mode === 'dark' ? 'rgba(9,17,31,0.74)' : 'rgba(255,255,255,0.94)'
-  const secondaryCardBackground = mode === 'dark' ? 'rgba(17,24,39,0.74)' : 'rgba(241,245,249,0.9)'
-  const ctaBackground =
-    mode === 'dark'
-      ? 'linear-gradient(135deg, rgba(17,24,39,0.82) 0%, rgba(9,17,31,0.76) 100%)'
-      : 'linear-gradient(135deg, rgba(241,245,249,0.94) 0%, rgba(255,255,255,0.92) 100%)'
+  const card = cardClass('group p-8 transition-all hover:-translate-y-1 hover:shadow-2xl')
+  const mainBackground = 'rgba(9,17,31,0.72)'
+  const heroBackground = 'rgba(11,17,32,0.82)'
+  const primaryCardBackground = 'rgba(9,17,31,0.74)'
+  const secondaryCardBackground = 'rgba(17,24,39,0.74)'
+  const ctaBackground = 'linear-gradient(135deg, rgba(17,24,39,0.82) 0%, rgba(9,17,31,0.76) 100%)'
 
   return (
     <main
-      className="mx-2 mb-4 overflow-hidden rounded-[24px] border pt-32 backdrop-blur-xl transition-colors duration-300 sm:mx-3 sm:mb-6 sm:rounded-[32px] sm:pt-36 lg:mx-6 lg:pt-24"
+      className="transparent"
       style={{ background: mainBackground, borderColor: t.border, boxShadow: t.panelShadow }}
     >
 

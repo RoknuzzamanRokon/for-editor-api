@@ -8,12 +8,9 @@ import { formatRoleLabel } from "@/lib/roleLabel";
 
 type ThemeName =
   | "light"
-  | "dark"
   | "ocean"
   | "sunset"
-  | "forest"
-  | "midnight"
-  | "livedark";
+  | "forest";
 
 type AccountSettingsResponse = {
   identity: {

@@ -50,7 +50,7 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
   }, [isMobileMenuOpen]);
 
   return (
-    <div className="min-h-screen bg-background-light text-slate-900 dark:bg-background-dark dark:text-slate-100">
+    <div className="min-h-screen bg-background-light text-foreground dark:bg-slate-950/55">
       {isMobileMenuOpen ? (
         <button
           type="button"
@@ -72,7 +72,7 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
       >
         <UserHeader onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
         <div className="flex min-h-screen flex-col pt-16">
-          <main className="min-w-0 flex-1">{children}</main>
+          <main className="min-w-0 flex-1 bg-background-light/80 dark:bg-slate-950/40">{children}</main>
           <footer className="border-t border-slate-200/70 bg-white/60 px-4 py-3 text-center text-[11px] font-medium text-slate-600 backdrop-blur sm:px-6 sm:py-4 sm:text-xs dark:border-slate-800/70 dark:bg-slate-900/50 dark:text-slate-300">
             Developed by Md.Rokunuzzaman.
           </footer>

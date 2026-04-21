@@ -5,12 +5,9 @@ import { useTheme } from '@/contexts/ThemeContext'
 
 const themes = [
   { id: 'light', label: 'Light', color: '#f8fafc' },
-  { id: 'dark', label: 'Dark', color: '#020617' },
   { id: 'ocean', label: 'Ocean', color: '#0c4a6e' },
   { id: 'sunset', label: 'Sunset', color: '#451a03' },
   { id: 'forest', label: 'Forest', color: '#052e16' },
-  { id: 'midnight', label: 'Midnight', color: '#0b1120' },
-  { id: 'livedark', label: 'Live Dark', color: '#000000', accent: '#3b82f6' },
 ] as const
 
 export default function ThemeSwitcher({ className = '' }: { className?: string }) {
@@ -23,7 +20,7 @@ export default function ThemeSwitcher({ className = '' }: { className?: string }
     setMounted(true)
   }, [])
 
-  const displayTheme = mounted ? theme : 'light'
+  const displayTheme = mounted ? theme : 'sunset'
 
   return (
     <div className={`relative ${className}`} ref={ref}>

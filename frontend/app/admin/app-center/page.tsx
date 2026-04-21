@@ -81,7 +81,7 @@ export default function AdminAppCenterPage() {
 
   return (
     <AdminShell>
-      <section className="h-full min-h-full overflow-y-auto bg-background-light px-4 py-4 sm:px-6 sm:py-6 lg:px-8 dark:bg-background-dark">
+      <section className="h-full min-h-full overflow-y-auto bg-background-light/80 dark:bg-slate-950/35 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="mx-auto w-full max-w-8xl">
           <section className="relative mb-6 overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-5 text-white shadow-xl sm:p-8 dark:border-slate-800">
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />

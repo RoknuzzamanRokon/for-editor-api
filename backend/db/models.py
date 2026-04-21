@@ -82,7 +82,7 @@ class UserPreference(Base):
     __tablename__ = "user_preferences"
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    theme = Column(String(32), nullable=False, default="light", server_default="light")
+    theme = Column(String(32), nullable=False, default="sunset", server_default="sunset")
     avatar_key = Column(String(32), nullable=False, default="avatar_1", server_default="avatar_1")
     security_alerts_enabled = Column(Boolean, nullable=False, default=True, server_default="1")
     login_notifications_enabled = Column(Boolean, nullable=False, default=True, server_default="1")

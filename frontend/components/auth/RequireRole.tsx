@@ -97,7 +97,7 @@ export default function RequireRole({
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background-light text-slate-600">
+      <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-slate-950/50 text-foreground/70">
         Loading...
       </div>
     );

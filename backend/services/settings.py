@@ -16,7 +16,7 @@ def _normalize_preference_values(db: Session, preference: UserPreference) -> Use
     changed = False
 
     if preference.theme not in VALID_THEMES:
-        preference.theme = "light"
+        preference.theme = "sunset"
         changed = True
 
     if preference.avatar_key not in VALID_AVATARS:
