@@ -20,6 +20,7 @@ type SidebarSettingsPayload = {
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+  { label: 'Points', href: '/dashboard/points', icon: 'toll' },
   { label: 'Profile', href: '/dashboard/profile', icon: 'person' },
   { label: 'App Center', href: '/dashboard/app-center', icon: 'apps' },
   { label: 'Billing', href: '/dashboard/billing', icon: 'credit_card' },
@@ -137,7 +138,7 @@ export default function UserSidebar({
           </div>
         </div>
       </div>
-      <div className={`relative hidden justify-end pt-4 lg:flex ${compactDesktop ? "px-2" : "px-4"}`}>
+      <div className={`relative hidden pt-4 lg:flex ${compactDesktop ? "justify-center px-2" : "justify-end px-4"}`}>
         <button
           type="button"
           onClick={onToggleSidebar}
@@ -155,15 +156,22 @@ export default function UserSidebar({
             item.href === '/dashboard'
               ? pathname === '/dashboard'
               : pathname.startsWith(item.href.replace(/\/+$/, ''))
+          const linkClasses = compactDesktop
+            ? `mx-auto flex h-12 w-12 items-center justify-center rounded-full px-0 py-0 ${
+                isActive
+                  ? 'border border-primary/20 bg-white/80 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.18)] dark:border-primary/20 dark:bg-white/10'
+                  : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
+              }`
+            : `flex items-center gap-3 rounded-2xl px-3 py-3 font-medium transition-all ${
+                isActive
+                  ? 'border border-primary/20 bg-white/70 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.15)] dark:border-primary/20 dark:bg-white/10'
+                  : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
+              }`
 
           return (
             <Link
               key={item.href}
-              className={`flex items-center gap-3 rounded-2xl px-3 py-3 font-medium transition-all ${
-                isActive
-                  ? 'border border-primary/20 bg-white/70 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.15)] dark:border-primary/20 dark:bg-white/10'
-                  : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
-              }`}
+              className={linkClasses}
               href={item.href}
               onClick={onCloseMobileMenu}
               title={compactDesktop ? item.label : undefined}
@@ -176,11 +184,19 @@ export default function UserSidebar({
       </nav>
       <div className="relative mt-auto border-t border-white/30 p-4 dark:border-white/10">
         <Link
-          className={`mb-4 flex items-center gap-3 rounded-2xl px-3 py-3 font-medium transition-all ${
-            pathname.startsWith('/dashboard/settings')
-              ? 'border border-primary/20 bg-white/70 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.15)] dark:border-primary/20 dark:bg-white/10'
-              : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
-          }`}
+          className={
+            compactDesktop
+              ? `mb-4 mx-auto flex h-12 w-12 items-center justify-center rounded-full px-0 py-0 ${
+                  pathname.startsWith('/dashboard/settings')
+                    ? 'border border-primary/20 bg-white/80 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.18)] dark:border-primary/20 dark:bg-white/10'
+                    : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
+                }`
+              : `mb-4 flex items-center gap-3 rounded-2xl px-3 py-3 font-medium transition-all ${
+                  pathname.startsWith('/dashboard/settings')
+                    ? 'border border-primary/20 bg-white/70 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.15)] dark:border-primary/20 dark:bg-white/10'
+                    : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
+                }`
+          }
           href="/dashboard/settings"
           onClick={onCloseMobileMenu}
           title={compactDesktop ? "Settings" : undefined}
