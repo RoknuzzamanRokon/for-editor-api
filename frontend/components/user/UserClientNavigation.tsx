@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 const PREFETCH_ROUTES = [
   "/dashboard",
+  "/dashboard/points",
   "/dashboard/profile",
   "/dashboard/app-center",
   "/dashboard/billing",
@@ -58,6 +59,10 @@ export default function UserClientNavigation({
 
       const href = anchor.getAttribute("href");
       if (!href || !href.startsWith("/")) {
+        return;
+      }
+
+      if (href === window.location.pathname) {
         return;
       }
 

@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/apiBase";
+import RouteLoadingContent from "@/components/ui/RouteLoadingContent";
+import UserShell from "@/components/user/UserShell";
+import AdminShell from "@/components/admin/AdminShell";
 
 type Role = "super_user" | "admin" | "admin_user" | "general_user" | string;
 
@@ -96,6 +99,22 @@ export default function RequireRole({
   }, [allow, pathname, router]);
 
   if (!ready) {
+    if ((pathname || "").startsWith("/dashboard")) {
+      return (
+        <UserShell>
+          <RouteLoadingContent label="Dashboard workspace" titleWidth="w-72" />
+        </UserShell>
+      );
+    }
+
+    if ((pathname || "").startsWith("/admin")) {
+      return (
+        <AdminShell>
+          <RouteLoadingContent label="Admin workspace" titleWidth="w-80" />
+        </AdminShell>
+      );
+    }
+
     return (
       <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-slate-950/50 text-foreground/70">
         Loading...

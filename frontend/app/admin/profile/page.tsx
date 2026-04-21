@@ -625,11 +625,13 @@ export default function AdminProfilePage() {
 
         {state.loading ? (
           <div className="relative overflow-hidden rounded-[28px] border border-white/40 bg-white/40 p-6 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-            <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
-              <span className="material-symbols-outlined animate-pulse text-primary">
-                progress_activity
-              </span>
-              Loading profile...
+            <div className="space-y-4">
+              <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="grid gap-4 md:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="h-24 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
+                ))}
+              </div>
             </div>
           </div>
         ) : null}

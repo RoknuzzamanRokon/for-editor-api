@@ -1,11 +1,16 @@
 'use client'
 
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
 import { API_BASE } from "@/lib/apiBase";
 import { formatRoleLabel } from "@/lib/roleLabel";
+import {
+  clearAccountSettingsCache,
+  publishAccountSettingsCache,
+  readAccountSettingsCache,
+} from "@/lib/accountSettingsCache";
 
 type HeaderSettingsPayload = {
   identity: {
@@ -38,18 +43,29 @@ export default function UserHeader({
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
+    const cached = readAccountSettingsCache<HeaderSettingsPayload>();
+    if (cached) {
+      setUser({
+        username: cached.identity.username,
+        email: cached.identity.email,
+        role: cached.identity.role,
+        avatarKey: cached.preferences.avatar_key,
+      });
+    }
+
     fetch(`${API_BASE}/api/v2/auth/settings`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
-      .then((data: HeaderSettingsPayload) =>
+      .then((data: HeaderSettingsPayload) => {
+        publishAccountSettingsCache(data);
         setUser({
           username: data.identity.username,
           email: data.identity.email,
           role: data.identity.role,
           avatarKey: data.preferences.avatar_key,
-        }),
-      )
+        });
+      })
       .catch((err) => console.error("Failed to fetch user:", err));
   }, []);
 
@@ -85,7 +101,10 @@ export default function UserHeader({
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user_role");
-    router.push("/");
+    clearAccountSettingsCache();
+    startTransition(() => {
+      router.push("/");
+    });
   };
 
   const roleValue = (user?.role || sessionRole || "").toLowerCase();
@@ -163,7 +182,9 @@ export default function UserHeader({
                   <button
                     onClick={() => {
                       setShowMenu(false);
-                      router.push("/dashboard/settings");
+                      startTransition(() => {
+                        router.push("/dashboard/settings");
+                      });
                     }}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
                   >

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { API_BASE } from '@/lib/apiBase'
 import { AvatarBadge, type AvatarKey } from '@/lib/accountAvatar'
 import { formatRoleLabel } from '@/lib/roleLabel'
+import { publishAccountSettingsCache, readAccountSettingsCache } from '@/lib/accountSettingsCache'
 
 type SidebarSettingsPayload = {
   identity: {
@@ -75,11 +76,22 @@ export default function UserSidebar({
     const token = window.localStorage.getItem('access_token')
     if (!token) return
 
+    const cached = readAccountSettingsCache<SidebarSettingsPayload>()
+    if (cached) {
+      setAccount({
+        username: cached.identity.username,
+        email: cached.identity.email,
+        role: cached.identity.role,
+        avatarKey: cached.preferences.avatar_key,
+      })
+    }
+
     fetch(`${API_BASE}/api/v2/auth/settings`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data: SidebarSettingsPayload) => {
+        publishAccountSettingsCache(data)
         setAccount({
           username: data.identity.username,
           email: data.identity.email,
@@ -90,6 +102,25 @@ export default function UserSidebar({
       .catch(() => {
         setAccount(null)
       })
+  }, [])
+
+  useEffect(() => {
+    const handleSettingsChange = (event: Event) => {
+      const customEvent = event as CustomEvent<SidebarSettingsPayload>
+      const payload = customEvent.detail
+      if (!payload) return
+      setAccount({
+        username: payload.identity.username,
+        email: payload.identity.email,
+        role: payload.identity.role,
+        avatarKey: payload.preferences.avatar_key,
+      })
+    }
+
+    window.addEventListener("accountsettingschange", handleSettingsChange)
+    return () => {
+      window.removeEventListener("accountsettingschange", handleSettingsChange)
+    }
   }, [])
 
   const displayName = account?.username || account?.email || 'User'

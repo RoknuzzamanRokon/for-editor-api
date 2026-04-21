@@ -10,6 +10,7 @@ const PREFETCH_ROUTES = [
   "/admin/billing",
   "/admin/users",
   "/admin/point",
+  "/admin/history/points",
   "/admin/api-permissions",
   "/admin/settings",
 ];
@@ -55,6 +56,10 @@ export default function AdminClientNavigation({
 
       const href = anchor.getAttribute("href");
       if (!href || !href.startsWith("/")) {
+        return;
+      }
+
+      if (href === window.location.pathname) {
         return;
       }
 

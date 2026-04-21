@@ -209,8 +209,30 @@ export default function PointsWorkspace() {
   if (loading) {
     return (
       <div className="mx-auto max-w-8xl p-4 sm:p-6 lg:p-8">
-        <div className="rounded-[13px] border border-white/40 bg-white/55 p-6 text-sm text-slate-500 backdrop-blur-2xl dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-          Loading points activity...
+        <div className="space-y-6">
+          <div className="rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-6 shadow-xl dark:border-slate-800">
+            <div className="h-5 w-36 animate-pulse rounded bg-white/20" />
+            <div className="mt-4 h-10 w-72 max-w-full animate-pulse rounded bg-white/20" />
+            <div className="mt-3 h-4 w-full max-w-2xl animate-pulse rounded bg-white/15" />
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="rounded-[28px] border border-white/40 bg-white/55 p-5 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+                <div className="h-12 w-12 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />
+                <div className="mt-4 h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-6 xl:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <div key={index} className="rounded-[13px] border border-white/40 bg-white/55 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+                <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="mt-3 h-4 w-52 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
+                <div className="mt-6 h-56 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

@@ -658,14 +658,15 @@ export default function AdminUsersPage() {
 
                 <tbody className="divide-y divide-white/30 dark:divide-white/10">
                   {loading ? (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className="px-6 py-8 text-sm text-slate-500 dark:text-slate-400"
-                      >
-                        Loading users...
-                      </td>
-                    </tr>
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <tr key={index}>
+                        {Array.from({ length: 6 }).map((__, cellIndex) => (
+                          <td key={cellIndex} className="px-6 py-4">
+                            <div className="h-4 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
+                          </td>
+                        ))}
+                      </tr>
+                    ))
                   ) : filteredUsers.length === 0 ? (
                     <tr>
                       <td
@@ -909,8 +910,23 @@ export default function AdminUsersPage() {
             {/* Body */}
             <div className="relative flex-1 overflow-y-auto p-6">
               {detailsLoading ? (
-                <div className="rounded-2xl border border-white/40 bg-white/55 p-4 text-sm text-slate-500 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-                  Loading user details...
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <div key={index} className="rounded-2xl border border-white/40 bg-white/55 p-4 backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+                        <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                        <div className="mt-3 h-6 w-20 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-2xl border border-white/40 bg-white/55 p-5 backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+                    <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                    <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <div key={index} className="h-12 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               ) : detailsError ? (
                 <div className="rounded-2xl border border-rose-200/70 bg-rose-50/80 p-4 text-sm text-rose-700 backdrop-blur-md dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">

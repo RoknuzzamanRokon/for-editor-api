@@ -159,9 +159,17 @@ export default function DashboardAppCenterPage() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
-          <div className="rounded-[13px] border border-slate-200 bg-white p-5 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
-            Loading API list...
-          </div>
+          Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-[13px] border border-slate-200/80 bg-white p-5 shadow-[0_24px_60px_rgba(15,23,42,0.10)] dark:border-slate-800 dark:bg-slate-950"
+            >
+              <div className="h-10 w-10 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />
+              <div className="mt-4 h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
+              <div className="mt-6 h-24 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
+            </div>
+          ))
         ) : error ? (
           <div className="rounded-[13px] border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
             {error}

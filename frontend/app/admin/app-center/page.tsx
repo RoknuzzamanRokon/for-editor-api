@@ -116,9 +116,17 @@ export default function AdminAppCenterPage() {
           </div>
 
           {loading ? (
-            <div className="rounded-xl border border-primary/10 bg-primary/5 p-5 text-sm text-slate-500">
-              Loading app actions...
-            </div>
+            Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="rounded-xl border border-primary/10 bg-primary/5 p-5 shadow-sm"
+              >
+                <div className="h-10 w-10 animate-pulse rounded-xl bg-primary/10" />
+                <div className="mt-4 h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
+                <div className="mt-6 h-20 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
+              </div>
+            ))
           ) : error ? (
             <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
               {error}

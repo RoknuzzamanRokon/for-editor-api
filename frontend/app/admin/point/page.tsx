@@ -276,7 +276,15 @@ export default function AdminPointPage() {
           </div>
           <div className="relative p-6">
             {loading ? (
-              <p className="text-sm text-slate-400 dark:text-slate-500">Loading...</p>
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="grid grid-cols-2 gap-3 md:grid-cols-7">
+                    {Array.from({ length: 7 }).map((__, cellIndex) => (
+                      <div key={cellIndex} className="h-10 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
+                    ))}
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="overflow-hidden rounded-2xl border border-white/40 bg-white/40 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
                 <div className="overflow-x-auto">
@@ -362,7 +370,15 @@ export default function AdminPointPage() {
           </div>
           <div className="relative p-6">
             {loading ? (
-              <p className="text-sm text-slate-400 dark:text-slate-500">Loading...</p>
+              <div className="space-y-3">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="grid grid-cols-2 gap-3 md:grid-cols-6">
+                    {Array.from({ length: 6 }).map((__, cellIndex) => (
+                      <div key={cellIndex} className="h-10 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
+                    ))}
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="overflow-hidden rounded-2xl border border-white/40 bg-white/40 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
                 <div className="overflow-x-auto">

@@ -551,8 +551,17 @@ export default function AdminApiPermissionsPage() {
           }
         >
           {loadingActions ? (
-            <div className="rounded-2xl border border-white/40 bg-white/50 p-6 text-sm text-slate-500 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-              Loading actions...
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="rounded-2xl border border-white/40 bg-white/50 p-4 backdrop-blur-lg dark:border-white/10 dark:bg-white/5"
+                >
+                  <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                  <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
+                  <div className="mt-4 h-10 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
+                </div>
+              ))}
             </div>
           ) : filteredActions.length === 0 ? (
             <div className="rounded-2xl border border-white/40 bg-white/50 p-6 text-sm text-slate-500 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:text-slate-400">

@@ -261,8 +261,21 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-8xl p-4 sm:p-6 lg:p-8">
-        <div className="rounded-[13px] border border-slate-200 bg-white p-6 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
-          Loading dashboard...
+        <div className="space-y-6">
+          <div className="rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-6 shadow-xl dark:border-slate-800">
+            <div className="h-5 w-36 animate-pulse rounded bg-white/20" />
+            <div className="mt-4 h-10 w-80 max-w-full animate-pulse rounded bg-white/20" />
+            <div className="mt-3 h-4 w-full max-w-2xl animate-pulse rounded bg-white/15" />
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="rounded-2xl border border-primary/10 bg-primary/5 p-6 shadow-sm">
+                <div className="mb-4 h-10 w-10 animate-pulse rounded-xl bg-primary/10" />
+                <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

@@ -186,7 +186,14 @@ export default function DashboardProfilePage() {
               <div className="h-3 w-64 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
             </div>
           </div>
-          <p className="mt-6 text-sm text-slate-500">Loading profile...</p>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="mt-3 h-8 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
