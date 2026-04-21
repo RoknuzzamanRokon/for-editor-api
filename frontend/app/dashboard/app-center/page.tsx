@@ -104,8 +104,8 @@ export default function DashboardAppCenterPage() {
   }, [orderedEndpoints, router]);
 
   return (
-    <div className="w-full max-w-none space-y-8 p-8">
-      <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+    <div className="w-full max-w-none space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
+      <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-5 text-white shadow-xl sm:p-8 dark:border-slate-800">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -114,7 +114,7 @@ export default function DashboardAppCenterPage() {
               <span className="material-symbols-outlined text-sm">apps</span>
               App Center
             </div>
-            <h1 className="mt-4 text-4xl font-black tracking-tight text-white">App Center</h1>
+            <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">App Center</h1>
             <p className="mt-2 max-w-3xl text-sm text-white/80 md:text-base">
               Active conversion APIs from <span className="font-semibold text-white">/api/v3/permissions/my-api</span>, ready to launch, pin, and run through your daily workflow without digging through menus.
             </p>
@@ -125,8 +125,8 @@ export default function DashboardAppCenterPage() {
         </div>
       </section>
 
-      <div className="flex items-center justify-between rounded-xl border border-primary/10 bg-primary/5 p-4">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-4 rounded-xl border border-primary/10 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
           <div className="rounded-lg bg-primary/20 p-2 text-primary">
             <span className="material-symbols-outlined">info</span>
           </div>
@@ -138,7 +138,7 @@ export default function DashboardAppCenterPage() {
             </p>
           </div>
         </div>
-        <button className="rounded-lg bg-primary px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+        <button className="rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white sm:py-1.5">
           Top Up
         </button>
       </div>

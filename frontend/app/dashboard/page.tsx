@@ -260,7 +260,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-8xl p-8">
+      <div className="mx-auto max-w-8xl p-4 sm:p-6 lg:p-8">
         <div className="rounded-[13px] border border-slate-200 bg-white p-6 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
           Loading dashboard...
         </div>
@@ -270,7 +270,7 @@ export default function DashboardPage() {
 
   if (error || !overview) {
     return (
-      <div className="mx-auto max-w-8xl p-8">
+      <div className="mx-auto max-w-8xl p-4 sm:p-6 lg:p-8">
         <div className="rounded-[13px] border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-300">
           {error || "Dashboard data not available"}
         </div>
@@ -318,8 +318,8 @@ export default function DashboardPage() {
   const maxActiveApiUsage = Math.max(...overview.active_apis.map((api) => api.usage_count), 1);
 
   return (
-    <div className="mx-auto max-w-8xl space-y-8 p-8">
-      <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+    <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
+      <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-5 text-white shadow-xl sm:p-8 dark:border-slate-800">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
 
@@ -330,7 +330,7 @@ export default function DashboardPage() {
               Live API overview
             </div>
 
-            <h1 className="text-3xl font-black tracking-tight md:text-5xl">
+            <h1 className="text-2xl font-black tracking-tight sm:text-3xl md:text-5xl">
               Welcome back, {displayName}
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-white/80 md:text-base">
@@ -386,7 +386,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="border-b border-slate-100 p-6 dark:border-slate-800">
+        <div className="border-b border-slate-100 p-4 sm:p-6 dark:border-slate-800">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h3 className="text-lg font-bold">API Performance (30 Days)</h3>
@@ -394,7 +394,7 @@ export default function DashboardPage() {
                 Daily request volume across the last 30 days, including inactive days.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm sm:min-w-[280px]">
+            <div className="grid grid-cols-1 gap-4 text-sm sm:min-w-[280px] sm:grid-cols-2">
               <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/60">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Total Requests
@@ -414,11 +414,11 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        <div className="p-6 sm:p-8">
-          <div className="w-full">
+        <div className="p-4 sm:p-8">
+          <div className="w-full overflow-x-auto">
             <svg
               viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-              className="h-72 w-full"
+              className="h-72 min-w-[640px] w-full"
               role="img"
               aria-label="30 day API usage line chart"
               preserveAspectRatio="none"
@@ -564,7 +564,7 @@ export default function DashboardPage() {
 
         <div className="lg:col-span-2">
           <div className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
+            <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 dark:border-slate-800">
               <h3 className="text-lg font-bold">Recent History</h3>
               <span className="text-xs text-slate-500">
                 {overview.recent_history.length > 10
@@ -572,7 +572,7 @@ export default function DashboardPage() {
                   : `Last ${overview.recent_history.length} items`}
               </span>
             </div>
-            <div className="border-b border-slate-100 p-6 dark:border-slate-800">
+            <div className="border-b border-slate-100 p-4 sm:p-6 dark:border-slate-800">
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr] lg:items-center">
                 <div className="flex justify-center">
                   <div className="relative h-44 w-44">

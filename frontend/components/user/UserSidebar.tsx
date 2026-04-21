@@ -15,9 +15,13 @@ const navItems = [
 export default function UserSidebar({
   collapsed = false,
   onToggleSidebar,
+  mobileOpen = false,
+  onCloseMobileMenu,
 }: {
   collapsed?: boolean;
   onToggleSidebar: () => void;
+  mobileOpen?: boolean;
+  onCloseMobileMenu: () => void;
 }) {
   const pathname = usePathname()
   const [pointsBalance, setPointsBalance] = useState<number | null>(null)
@@ -48,11 +52,27 @@ export default function UserSidebar({
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-20 flex h-screen flex-col border-r border-slate-200 bg-white pt-16 transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 ${
-        collapsed ? "w-20" : "w-72"
+      className={`fixed left-0 top-0 z-50 flex h-screen w-[min(20rem,calc(100vw-1rem))] flex-col border-r border-slate-200 bg-white pt-16 transition-transform duration-300 lg:z-20 lg:translate-x-0 lg:transition-all dark:border-slate-800 dark:bg-slate-900 ${
+        mobileOpen ? "translate-x-0" : "-translate-x-full"
+      } ${
+        collapsed ? "lg:w-20" : "lg:w-72"
       }`}
     >
-      <div className={`flex justify-end pt-4 ${collapsed ? "px-2" : "px-4"}`}>
+      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 lg:hidden dark:border-slate-800">
+        <div>
+          <p className="text-sm font-bold text-slate-900 dark:text-white">User Navigation</p>
+          <p className="text-xs text-slate-500">Menu and account</p>
+        </div>
+        <button
+          type="button"
+          onClick={onCloseMobileMenu}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+          aria-label="Close navigation menu"
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div className={`hidden justify-end pt-4 lg:flex ${collapsed ? "px-2" : "px-4"}`}>
         <button
           type="button"
           onClick={onToggleSidebar}
@@ -80,6 +100,7 @@ export default function UserSidebar({
                   : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
               }`}
               href={item.href}
+              onClick={onCloseMobileMenu}
               title={collapsed ? item.label : undefined}
             >
               <span className="material-symbols-outlined">{item.icon}</span>
@@ -96,6 +117,7 @@ export default function UserSidebar({
               : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
           }`}
           href="/dashboard/settings"
+          onClick={onCloseMobileMenu}
           title={collapsed ? "Settings" : undefined}
         >
           <span className="material-symbols-outlined">settings</span>

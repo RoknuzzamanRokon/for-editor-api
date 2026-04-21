@@ -95,9 +95,9 @@ export default function AdminPage() {
 
   return (
     <AdminShell>
-      <div className="mx-auto max-w-8xl space-y-8 p-8">
+      <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
         <div>
-          <h1 className="text-3xl font-black tracking-tight">Admin Dashboard</h1>
+          <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Admin Dashboard</h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Monitor usage, point flow, and system-level activity from one place.
           </p>
@@ -140,7 +140,7 @@ export default function AdminPage() {
         <section className="grid grid-cols-1 gap-8 xl:grid-cols-3">
           <div className="xl:col-span-2">
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
+              <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 dark:border-slate-800">
                 <h2 className="text-lg font-bold">Recent Activity</h2>
                 <button className="text-xs font-bold text-primary hover:underline" type="button">
                   View all

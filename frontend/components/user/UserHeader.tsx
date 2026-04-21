@@ -18,7 +18,11 @@ type HeaderSettingsPayload = {
   };
 };
 
-export default function UserHeader() {
+export default function UserHeader({
+  onOpenMobileMenu,
+}: {
+  onOpenMobileMenu: () => void;
+}) {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [user, setUser] = useState<{
@@ -89,30 +93,38 @@ export default function UserHeader() {
 
   return (
     <header
-      className="fixed left-0 right-0 top-0 z-30 flex h-16 w-full max-w-none items-center justify-between border-b border-slate-200 bg-white/80 px-4 backdrop-blur-md sm:px-6 lg:px-8 dark:border-slate-800 dark:bg-slate-900/80"
+      className="fixed left-0 right-0 top-0 z-30 flex h-16 w-full max-w-none items-center justify-between border-b border-slate-200 bg-white/80 px-3 backdrop-blur-md sm:px-6 lg:px-8 dark:border-slate-800 dark:bg-slate-900/80"
     >
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+        <button
+          type="button"
+          onClick={onOpenMobileMenu}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 lg:hidden dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+          aria-label="Open navigation menu"
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
+        <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
             <span className="material-symbols-outlined">sync_alt</span>
           </div>
-          <div>
-            <h1 className="text-lg font-bold leading-tight">ConvertPro</h1>
+          <div className="min-w-0">
+            <h1 className="truncate text-base font-bold leading-tight sm:text-lg">ConvertPro</h1>
             <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
               Premium SaaS Tool
             </p>
           </div>
         </div>
-        <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+        <span className="hidden rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white sm:inline-flex">
           {planLabel} Plan
         </span>
-        <div className="h-4 w-px bg-slate-300 dark:bg-slate-700" />
+        <div className="hidden h-4 w-px bg-slate-300 dark:bg-slate-700 md:block" />
         <div className="hidden items-center gap-2 text-sm text-slate-500 md:flex">
           <span className="material-symbols-outlined text-sm">cloud_done</span>
           <span>API Status: Healthy</span>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
         <ThemeSwitcher />
         <button
           type="button"
@@ -121,8 +133,8 @@ export default function UserHeader() {
           <span className="material-symbols-outlined">notifications</span>
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500 dark:border-slate-900" />
         </button>
-        <div className="flex items-center gap-3 border-l border-slate-200 pl-4 dark:border-slate-800">
-          <div className="text-right">
+        <div className="flex items-center gap-2 border-l border-slate-200 pl-2 sm:gap-3 sm:pl-4 dark:border-slate-800">
+          <div className="hidden text-right sm:block">
             <p className="text-sm font-bold leading-none">{user?.username || user?.email || "User"}</p>
             <p className="mt-1 text-[10px] font-medium uppercase text-slate-500">{formatRoleLabel(user?.role || "general_user")}</p>
           </div>
@@ -136,7 +148,7 @@ export default function UserHeader() {
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+              <div className="absolute right-0 z-50 mt-2 w-64 max-w-[calc(100vw-1.5rem)] rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
                 <div className="border-b border-slate-200 p-4 dark:border-slate-800">
                   <div className="flex items-center gap-3">
                     <AvatarBadge avatarKey={user?.avatarKey} />

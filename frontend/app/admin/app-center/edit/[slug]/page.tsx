@@ -600,7 +600,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
 
   return (
     <AdminShell>
-      <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
+      <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
         <div className="flex flex-col gap-4">
           <Link
             href="/admin/app-center"
@@ -674,7 +674,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
               >
                 <div className="flex flex-wrap items-end gap-3">
                   {/* File Upload */}
-                  <div className="flex-1 min-w-[250px]">
+                  <div className="min-w-0 flex-1 sm:min-w-[250px]">
                     <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
                       Upload file
                     </label>
@@ -723,7 +723,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                     />
                   ) : (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
                           <p className="text-xs uppercase tracking-wider text-slate-500">
                             Conversion ID
@@ -784,7 +784,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                 title="Conversion History"
                 description="Browse previous converted files for this tool."
                 action={
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <button
                       onClick={handleLoadHistory}
                       disabled={loadingHistory}
@@ -931,7 +931,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
               <div className="space-y-4">
                 <iframe
                   src={`${preview.url}#page=${pdfPage}&zoom=page-fit`}
-                  className="h-[860px] w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800"
+                  className="h-[70vh] min-h-[420px] w-full rounded-2xl border border-slate-200 bg-white sm:h-[860px] dark:border-slate-800"
                   title="PDF Preview"
                 />
                 <div className="flex flex-wrap items-center justify-between gap-3">
