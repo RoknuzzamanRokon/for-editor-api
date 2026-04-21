@@ -13,7 +13,7 @@ export default function Page() {
 
   return (
     <main
-      className="mx-3 mb-6 overflow-hidden rounded-[32px] pt-36 transition-colors duration-300 lg:mx-6 lg:pt-24"
+      className="mx-2 mb-4 overflow-hidden rounded-[24px] pt-32 transition-colors duration-300 sm:mx-3 sm:mb-6 sm:rounded-[32px] sm:pt-36 lg:mx-6 lg:pt-24"
       style={{ background: t.card, boxShadow: t.panelShadow }}
     >
       <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 sm:py-12 lg:px-20">
@@ -38,7 +38,7 @@ export default function Page() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {plans.map(plan => (
             <div key={plan.name}
-              className={`relative flex flex-col rounded-xl p-8 transition-all hover:shadow-2xl ${plan.featured ? 'border-2' : 'border'}`}
+              className={`relative flex flex-col rounded-xl p-6 transition-all hover:shadow-2xl sm:p-8 ${plan.featured ? 'border-2' : 'border'}`}
               style={{
                 background: t.card,
                 borderColor: plan.featured ? t.primary : t.border,

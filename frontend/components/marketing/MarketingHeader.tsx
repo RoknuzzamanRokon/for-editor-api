@@ -31,13 +31,13 @@ export default function MarketingHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 w-full border-b backdrop-blur-xl"
       style={{ background: theme.mode === 'dark' ? 'rgba(2,6,23,0.88)' : 'rgba(255,255,255,0.92)', borderColor: theme.border }}>
-      <div className="flex h-20 w-full items-center justify-between px-4 sm:h-24 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 group cursor-pointer">
+      <div className="flex h-16 w-full items-center justify-between gap-3 px-3 sm:h-20 sm:px-6 lg:h-24 lg:px-8">
+        <Link href="/" className="group flex min-w-0 items-center gap-2 cursor-pointer">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110 sm:h-12 sm:w-12"
             style={{ background: theme.primary, color: theme.buttonText }}>
             <span className="material-symbols-outlined text-2xl sm:text-[28px]">sync_alt</span>
           </div>
-          <span className="text-lg font-black tracking-tight sm:text-2xl" style={{ color: theme.heading }}>
+          <span className="truncate text-base font-black tracking-tight sm:text-xl lg:text-2xl" style={{ color: theme.heading }}>
             ConvertPro <span style={{ color: theme.primary }}>API</span>
           </span>
         </Link>
@@ -55,19 +55,19 @@ export default function MarketingHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:gap-4">
           <button
             type="button"
             onClick={toggle}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl border shadow-sm transition-all hover:scale-[1.02] hover:shadow-md sm:h-12 sm:w-12"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border shadow-sm transition-all hover:scale-[1.02] hover:shadow-md sm:h-10 sm:w-10 lg:h-12 lg:w-12"
             style={{ background: theme.surface, borderColor: theme.border, color: theme.primary, boxShadow: theme.mode === 'dark' ? '0 0 24px rgba(249,115,22,0.12)' : undefined }}
             title={toggleTitle}
           >
-            <span className="material-symbols-outlined text-xl sm:text-[22px]">{toggleIcon}</span>
+            <span className="material-symbols-outlined text-lg sm:text-xl lg:text-[22px]">{toggleIcon}</span>
           </button>
           <Link
             href="/login"
-            className="rounded-xl px-4 py-2.5 text-sm font-bold shadow-lg transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] sm:px-6 sm:py-3 sm:text-base"
+            className="rounded-xl px-3 py-2 text-xs font-bold shadow-lg transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] sm:px-4 sm:py-2.5 sm:text-sm lg:px-6 lg:py-3 lg:text-base"
             style={{
               background: theme.buttonBg,
               color: theme.buttonText,
@@ -79,8 +79,8 @@ export default function MarketingHeader() {
         </div>
       </div>
 
-      <div className="border-t px-4 py-3 lg:hidden" style={{ borderColor: theme.border }}>
-        <nav className="flex items-center gap-3 overflow-x-auto whitespace-nowrap text-sm font-semibold">
+      <div className="border-t px-3 py-2.5 sm:px-4 sm:py-3 lg:hidden" style={{ borderColor: theme.border }}>
+        <nav className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 text-xs font-semibold sm:gap-3 sm:text-sm">
           {navLinks.map(([href, label]) => (
             <Link
               key={href}

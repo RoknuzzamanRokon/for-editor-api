@@ -17,7 +17,7 @@ export default function Page() {
 
   return (
     <main
-      className="mx-3 mb-6 overflow-hidden rounded-[32px] border pt-36 backdrop-blur-xl transition-colors duration-300 lg:mx-6 lg:pt-24"
+      className="mx-2 mb-4 overflow-hidden rounded-[24px] border pt-32 backdrop-blur-xl transition-colors duration-300 sm:mx-3 sm:mb-6 sm:rounded-[32px] sm:pt-36 lg:mx-6 lg:pt-24"
       style={{ background: mainBackground, borderColor: t.border, boxShadow: t.panelShadow }}
     >
 
@@ -34,14 +34,14 @@ export default function Page() {
               style={{ background: `${t.primary}18`, color: t.primary }}>
               <span className="material-symbols-outlined text-sm">verified</span> Now processing 1M+ files daily
             </div>
-            <h1 className="mt-6 max-w-5xl text-6xl font-black tracking-tight sm:mt-8 sm:text-7xl lg:text-[6.8rem] lg:leading-[1.02]" style={{ color: t.heading }}>
+            <h1 className="mt-6 max-w-5xl text-4xl font-black tracking-tight sm:mt-8 sm:text-6xl lg:text-[6.8rem] lg:leading-[1.02]" style={{ color: t.heading }}>
               Powerful file conversion API for <span style={{ color: t.primary }}>modern applications</span>
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 sm:mt-8 sm:text-xl sm:leading-9 lg:text-2xl lg:leading-10" style={{ color: t.text }}>
               Secure, fast, role-based infrastructure for document conversion, permissions, billing controls, and operational visibility.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:gap-4">
-              <a href="/pricing" className="group relative rounded-2xl px-8 py-4 text-center text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] sm:text-lg"
+              <a href="/pricing" className="group relative rounded-2xl px-6 py-3.5 text-center text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] sm:px-8 sm:py-4 sm:text-lg"
                 style={{
                   background: t.buttonBg,
                   color: t.buttonText,
@@ -49,7 +49,7 @@ export default function Page() {
                 }}>
                 <span className="relative z-10">Try API Free</span>
               </a>
-              <a href="/docs" className="rounded-2xl border px-8 py-4 text-center text-base font-bold backdrop-blur-sm transition-all hover:opacity-90 sm:text-lg"
+              <a href="/docs" className="rounded-2xl border px-6 py-3.5 text-center text-base font-bold backdrop-blur-sm transition-all hover:opacity-90 sm:px-8 sm:py-4 sm:text-lg"
                 style={{ background: t.buttonOutlineBg, color: t.buttonOutlineText, borderColor: t.buttonOutlineBorder }}>
                 View Documentation
               </a>
@@ -99,7 +99,7 @@ export default function Page() {
               { icon: 'picture_as_pdf',title: 'Office to PDF',     desc: 'Convert DOCX and Excel files into shareable PDFs for archiving, review, and delivery.' },
               { icon: 'auto_fix_high', title: 'Image workflows',   desc: 'Handle image-to-PDF conversion, background removal, and other lightweight media tasks.' },
             ].map(({ icon, title, desc }) => (
-              <div key={title} className={card} style={{ background: primaryCardBackground, borderColor: t.border }}>
+              <div key={title} className={card.replace('p-8', 'p-6 sm:p-8')} style={{ background: primaryCardBackground, borderColor: t.border }}>
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl transition-all group-hover:scale-110"
                   style={{ background: `${t.primary}18`, color: t.primary }}>
                   <span className="material-symbols-outlined text-3xl">{icon}</span>
@@ -120,7 +120,7 @@ export default function Page() {
           ].map(({ label, title, desc }) => (
             <div
               key={title}
-              className="group rounded-3xl border p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm"
+              className="group rounded-3xl border p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm sm:p-8"
               style={{
                 background: primaryCardBackground,
                 borderColor: t.border,
@@ -181,7 +181,7 @@ export default function Page() {
                   <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
                 </div>
               </div>
-              <pre className="overflow-x-auto whitespace-pre-wrap break-words text-base leading-7" style={{ color: t.textMuted }}>
+              <pre className="overflow-x-auto whitespace-pre-wrap break-words text-sm leading-6 sm:text-base sm:leading-7" style={{ color: t.textMuted }}>
                 <code>{`curl -X POST http://127.0.0.1:8000/api/v3/conversions/pdf-to-word \\
   -H "Authorization: Bearer <token>" \\
   -H "Idempotency-Key: 550e8400-..." \\

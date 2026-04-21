@@ -8,7 +8,7 @@ export default function Page() {
 
   return (
     <main
-      className="mx-3 mb-6 overflow-hidden rounded-[32px] pt-36 transition-colors duration-300 lg:mx-6 lg:pt-24"
+      className="mx-2 mb-4 overflow-hidden rounded-[24px] pt-32 transition-colors duration-300 sm:mx-3 sm:mb-6 sm:rounded-[32px] sm:pt-36 lg:mx-6 lg:pt-24"
       style={{ background: t.card, boxShadow: t.panelShadow }}
     >
 
@@ -27,13 +27,13 @@ export default function Page() {
               ConvertPro combines secure conversion pipelines, role-based access, billing controls, history, downloads, and admin insight into one platform.
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <a href="/docs" className="rounded-2xl px-8 py-4 text-center text-sm font-bold shadow-xl transition-all hover:opacity-90"
+              <a href="/docs" className="rounded-2xl px-6 py-3.5 text-center text-sm font-bold shadow-xl transition-all hover:opacity-90 sm:px-8 sm:py-4"
                 style={{
                   background: t.buttonBg,
                   color: t.buttonText,
                   boxShadow: t.actionShadow,
                 }}>Explore Docs</a>
-              <a href="/pricing" className="rounded-2xl border px-8 py-4 text-center text-sm font-bold transition-all hover:opacity-90"
+              <a href="/pricing" className="rounded-2xl border px-6 py-3.5 text-center text-sm font-bold transition-all hover:opacity-90 sm:px-8 sm:py-4"
                 style={{ background: t.buttonOutlineBg, color: t.buttonOutlineText, borderColor: t.buttonOutlineBorder }}>
                 View Plans
               </a>
@@ -46,7 +46,7 @@ export default function Page() {
               { icon: 'toll',                title: 'Points and billing',      desc: 'Track balances, top up accounts, inspect ledger history, and enforce per-request charging in v3.' },
               { icon: 'query_stats',         title: 'Operational visibility',  desc: 'Dashboard overview, recent conversion history, success tracking, active-user monitoring.' },
             ].map(({ icon, title, desc }) => (
-              <div key={title} className={card} style={{ background: t.card, borderColor: t.border }}>
+              <div key={title} className={card.replace('p-6', 'p-5 sm:p-6')} style={{ background: t.card, borderColor: t.border }}>
                 <span className="material-symbols-outlined text-4xl" style={{ color: t.primary }}>{icon}</span>
                 <h3 className="mt-5 text-xl font-bold" style={{ color: t.heading }}>{title}</h3>
                 <p className="mt-3 text-sm leading-7" style={{ color: t.text }}>{desc}</p>
@@ -74,7 +74,7 @@ export default function Page() {
               { icon: 'monitoring',  title: 'Insight and governance', desc: 'Monitor usage with dashboard summaries, per-user API visibility, active-user lists, point-giving history, and detailed user audit views.',
                 checks: ['Balance and ledger endpoints', 'Dashboard success and latency insights', 'Admin active-user and point history views'] },
             ].map(({ icon, title, desc, checks }) => (
-              <article key={title} className={card8} style={{ background: t.card, borderColor: t.border }}>
+              <article key={title} className={card8.replace('p-8', 'p-6 sm:p-8')} style={{ background: t.card, borderColor: t.border }}>
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl"
                   style={{ background: `${t.primary}18`, color: t.primary }}>
                   <span className="material-symbols-outlined text-3xl">{icon}</span>

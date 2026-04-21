@@ -58,7 +58,7 @@ export default function Page() {
 
   return (
     <div
-      className="mx-3 mb-6 flex min-h-screen items-start overflow-hidden rounded-[32px] pt-32 transition-colors duration-300 sm:pt-28 md:pt-32 lg:mx-6"
+      className="mx-2 mb-4 flex min-h-screen items-start overflow-hidden rounded-[24px] pt-28 transition-colors duration-300 sm:mx-3 sm:mb-6 sm:rounded-[32px] sm:pt-28 md:pt-32 lg:mx-6"
       style={{ background: t.card, boxShadow: t.panelShadow }}
     >
 
@@ -86,6 +86,20 @@ export default function Page() {
       {/* ── Main content ── */}
       <main className="min-w-0 flex-1 lg:ml-64 xl:mr-[420px]" style={{ background: t.bg }}>
         <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-16 lg:py-12">
+          <section className="mb-8 lg:hidden">
+            <div className="flex items-center gap-3 overflow-x-auto pb-1 text-xs font-semibold sm:text-sm">
+              {navSections.flatMap((section) => section.links).map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="shrink-0 rounded-full px-3 py-1.5 transition-colors"
+                  style={{ background: t.surface, color: t.text }}
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </section>
 
           {/* Introduction */}
           <section className="mb-16" id="introduction">
@@ -150,6 +164,64 @@ export default function Page() {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "bearer"
+}`}</code></pre>
+              </div>
+            </div>
+          </section>
+
+          <section className="mb-16 xl:hidden">
+            <div
+              className="rounded-2xl border p-5 shadow-sm"
+              style={{
+                background: t.card,
+                borderColor: t.border,
+                boxShadow: t.softCardShadow,
+              }}
+            >
+              <h3 className="text-xl font-bold" style={{ color: t.heading }}>API Tester</h3>
+              <p className="mt-2 text-sm" style={{ color: t.textMuted }}>
+                Quick request sandbox for mobile and tablet.
+              </p>
+              <label className="mb-2 mt-5 block text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.textMuted }}>Endpoint</label>
+              <div className="relative mb-4">
+                <select className="w-full appearance-none rounded-lg border px-3 py-2 pr-8 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ background: t.surface, borderColor: t.border, color: t.text }}>
+                  <option>POST /api/v3/conversions/pdf-to-word</option>
+                  <option>GET /api/v3/conversions/history</option>
+                  <option>POST /api/v2/auth/login</option>
+                  <option>GET /api/v2/auth/me</option>
+                  <option>POST /api/v2/users</option>
+                  <option>GET /api/v3/points/balance</option>
+                </select>
+                <span className="material-symbols-outlined absolute right-2 top-1/2 pointer-events-none -translate-y-1/2 text-sm" style={{ color: t.textMuted }}>expand_more</span>
+              </div>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.textMuted }}>Authorization</label>
+              <input className="mb-4 w-full rounded-lg border px-3 py-2 text-xs placeholder:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary"
+                style={{ background: t.surface, borderColor: t.border, color: t.text }}
+                type="text" placeholder="Bearer token" defaultValue="Bearer eyJhbGc..." />
+              <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.textMuted }}>Request Body</label>
+              <textarea className="mb-4 w-full rounded-lg border px-3 py-2 text-xs font-mono placeholder:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary"
+                style={{ background: t.surface, borderColor: t.border, color: t.text }}
+                rows={4} placeholder='{"email": "user@example.com", "password": "..."}' defaultValue={`{\n  "file": "(upload)",\n  "idempotency_key": "uuid"\n}`} />
+              <button className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold shadow-lg transition-all hover:opacity-90"
+                style={{
+                  background: t.buttonBg,
+                  color: t.buttonText,
+                  boxShadow: t.actionShadow,
+                }}>
+                <span className="material-symbols-outlined text-base">play_arrow</span> Send Request
+              </button>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.textMuted }}>Response</label>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: `${t.success}20`, color: t.success }}>200 OK</span>
+              </div>
+              <div className="rounded-lg border p-3" style={{ background: t.surface, borderColor: t.border }}>
+                <pre className="whitespace-pre-wrap break-words text-[11px] font-mono leading-5" style={{ color: t.text }}><code>{`{
+  "conversion_id": 214,
+  "status": "success",
+  "download_url": "/api/v3/conversions/214/download",
+  "points_charged": 3,
+  "remaining_balance": 97
 }`}</code></pre>
               </div>
             </div>
