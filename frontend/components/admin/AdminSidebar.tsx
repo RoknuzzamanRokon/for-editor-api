@@ -4,12 +4,25 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { API_BASE } from "@/lib/apiBase";
+import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 type NavItem = {
   label: string;
   href: string;
   icon: string;
   match?: string;
+};
+
+type SidebarSettingsPayload = {
+  identity: {
+    username: string | null;
+    email: string;
+    role: string;
+  };
+  preferences: {
+    avatar_key: AvatarKey;
+  };
 };
 
 const navItems: NavItem[] = [
@@ -36,6 +49,13 @@ export default function AdminSidebar({
 }) {
   const pathname = usePathname();
   const [totalGivenPoints, setTotalGivenPoints] = useState<number>(0);
+  const [account, setAccount] = useState<{
+    username?: string | null;
+    email?: string;
+    role?: string;
+    avatarKey?: AvatarKey;
+  } | null>(null);
+  const compactDesktop = collapsed && !mobileOpen;
 
   const displayGivenPoints = useMemo(() => {
     return totalGivenPoints.toLocaleString();
@@ -76,33 +96,78 @@ export default function AdminSidebar({
     void load();
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    fetch(`${API_BASE}/api/v2/auth/settings`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data: SidebarSettingsPayload) => {
+        setAccount({
+          username: data.identity.username,
+          email: data.identity.email,
+          role: data.identity.role,
+          avatarKey: data.preferences.avatar_key,
+        });
+      })
+      .catch(() => {
+        setAccount(null);
+      });
+  }, []);
+
+  const displayName = account?.username || account?.email || "Admin User";
+  const roleLabel = formatRoleLabel(account?.role || "admin_user");
+
   return (
     <aside
-      className={`fixed left-0 top-0 z-50 flex h-screen w-[min(20rem,calc(100vw-1rem))] flex-col border-r border-slate-200 bg-white pt-16 transition-transform duration-300 lg:z-20 lg:translate-x-0 lg:transition-all dark:border-slate-800 dark:bg-slate-900 ${
+      className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-[min(20rem,calc(100vw-1rem))] flex-col overflow-hidden border-r border-white/30 bg-white/50 pt-0 shadow-[0_20px_80px_rgba(15,23,42,0.18)] backdrop-blur-2xl transition-transform duration-300 lg:z-20 lg:h-screen lg:translate-x-0 lg:pt-16 lg:transition-all dark:border-white/10 dark:bg-slate-950/55 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full"
       } ${
         collapsed ? "lg:w-20" : "lg:w-72"
       }`}
     >
-      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 lg:hidden dark:border-slate-800">
-        <div>
-          <p className="text-sm font-bold text-slate-900 dark:text-white">Admin Navigation</p>
-          <p className="text-xs text-slate-500">Menu and tools</p>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.55),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.16),transparent_32%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.09),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.16),transparent_34%)]" />
+      <div className="relative flex flex-col lg:hidden">
+        <div className="flex items-center justify-between border-b border-white/30 px-4 py-4 dark:border-white/10">
+          <div>
+            <p className="text-sm font-bold text-slate-900 dark:text-white">Admin Navigation</p>
+            <p className="text-xs text-slate-500">Menu and tools</p>
+          </div>
+          <button
+            type="button"
+            onClick={onCloseMobileMenu}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+            aria-label="Close navigation menu"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onCloseMobileMenu}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
-          aria-label="Close navigation menu"
-        >
-          <span className="material-symbols-outlined">close</span>
-        </button>
+        <div className="border-b border-white/25 px-4 py-4 dark:border-white/10">
+          <div className="rounded-[28px] border border-white/35 bg-white/45 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.12)] backdrop-blur dark:border-white/10 dark:bg-white/5">
+            <div className="flex items-center gap-3">
+              <AvatarBadge avatarKey={account?.avatarKey} size="md" />
+              <div className="min-w-0">
+                <p className="truncate text-base font-black tracking-tight text-slate-900 dark:text-white">
+                  {displayName}
+                </p>
+                <p className="mt-1 inline-flex rounded-full border border-primary/15 bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+                  {roleLabel}
+                </p>
+              </div>
+            </div>
+            <p className="mt-3 truncate text-xs text-slate-500 dark:text-slate-400">
+              {account?.email || "Administrative access"}
+            </p>
+          </div>
+        </div>
       </div>
-      <div className={`hidden justify-end pt-4 lg:flex ${collapsed ? "px-2" : "px-4"}`}>
+      <div className={`relative hidden justify-end pt-4 lg:flex ${compactDesktop ? "px-2" : "px-4"}`}>
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="mb-2 flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="mb-2 flex items-center justify-center rounded-xl border border-white/35 bg-white/45 p-2 text-slate-600 transition hover:bg-white/70 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
           title="Toggle sidebar"
         >
           <span className="material-symbols-outlined">
@@ -111,7 +176,7 @@ export default function AdminSidebar({
         </button>
       </div>
 
-      <nav className={`flex flex-col gap-1 ${collapsed ? "px-2" : "px-4"}`}>
+      <nav className={`relative flex flex-col gap-2 py-4 ${compactDesktop ? "px-2" : "px-4"}`}>
         {navItems.map((item) => {
           const matchTarget = item.match ?? item.href;
           const isActive =
@@ -122,31 +187,31 @@ export default function AdminSidebar({
           return (
             <Link
               key={item.href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 font-medium transition-colors ${
+              className={`flex items-center gap-3 rounded-2xl px-3 py-3 font-medium transition-all ${
                 isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                  ? "border border-primary/20 bg-white/70 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.15)] dark:border-primary/20 dark:bg-white/10"
+                  : "border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5"
               }`}
               href={item.href}
               onClick={onCloseMobileMenu}
-              title={collapsed ? item.label : undefined}
+              title={compactDesktop ? item.label : undefined}
             >
-              <span className="material-symbols-outlined">{item.icon}</span>
-              {!collapsed ? item.label : null}
+              <span className="material-symbols-outlined shrink-0">{item.icon}</span>
+              {!compactDesktop ? <span className="truncate">{item.label}</span> : null}
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto border-t border-slate-200 p-4 dark:border-slate-800">
+      <div className="relative mt-auto border-t border-white/30 p-4 dark:border-white/10">
         <div
           className={`${
-            collapsed
-              ? "mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-primary/15 text-[11px] font-bold text-primary shadow-sm"
-              : "rounded-xl bg-slate-50 p-4 dark:bg-slate-800"
+            compactDesktop
+              ? "mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-white/65 text-[11px] font-bold text-primary shadow-[0_12px_28px_rgba(59,130,246,0.18)] backdrop-blur dark:bg-white/10"
+              : "rounded-3xl border border-white/35 bg-white/55 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.10)] backdrop-blur dark:border-white/10 dark:bg-white/5"
           }`}
         >
-          {collapsed ? (
+          {compactDesktop ? (
             <span>{displayGivenPoints}</span>
           ) : (
             <>

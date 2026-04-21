@@ -141,6 +141,7 @@ function MetricCard({
 export default function BillingWorkspace({ audience }: { audience: "dashboard" | "admin" }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isMobileChart, setIsMobileChart] = useState(false);
   const [me, setMe] = useState<MeResponse | null>(null);
   const [points, setPoints] = useState<MyPointResponse | null>(null);
   const [activitySummary, setActivitySummary] = useState<PointActivitySummaryResponse | null>(null);
@@ -214,6 +215,18 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
       .finally(() => setLoading(false));
   }, [refreshPageData]);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const syncViewport = () => setIsMobileChart(mediaQuery.matches);
+
+    syncViewport();
+    mediaQuery.addEventListener("change", syncViewport);
+
+    return () => {
+      mediaQuery.removeEventListener("change", syncViewport);
+    };
+  }, []);
+
   const pendingRequests = useMemo(
     () => requests?.items.filter((entry) => entry.status === "pending").length ?? 0,
     [requests],
@@ -236,16 +249,21 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
   }, [me, points]);
   const pointActivityChart = useMemo(() => {
     if (!activitySummary) return [];
-    return activitySummary.items.map((item) => ({
+    const visibleItems = isMobileChart
+      ? activitySummary.items.slice(-7)
+      : activitySummary.items;
+
+    return visibleItems.map((item) => ({
       date: item.date,
       label: formatCompactDate(item.date),
       spent: item.spent,
     }));
-  }, [activitySummary]);
+  }, [activitySummary, isMobileChart]);
   const pointActivityLabelIndexes = useMemo(() => {
     if (pointActivityChart.length === 0) return new Set<number>();
     return new Set(pointActivityChart.map((_, index) => index));
   }, [pointActivityChart]);
+  const pointActivityDays = isMobileChart ? 7 : 30;
 
   const handlePrefillCreator = () => {
     if (!me?.created_by) return;
@@ -574,7 +592,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
             </div>
           </div>
           <div className="relative p-6">
-            <div className="overflow-hidden rounded-2xl border border-white/40 bg-white/40 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+            <div className="transparent">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
@@ -646,14 +664,14 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
             </div>
           </div>
           <div className="relative p-6">
-            <div className="mb-6 rounded-2xl border border-white/40 bg-white/40 p-5 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+            <div className="transparent">
               <div className="overflow-x-auto">
                 <div className="w-full">
                   <svg
                     viewBox={`0 0 ${POINT_ACTIVITY_CHART_WIDTH} ${POINT_ACTIVITY_CHART_HEIGHT}`}
                     className="h-72 w-full"
                     role="img"
-                    aria-label="Point activity 30 day usage chart"
+                    aria-label={`Point activity ${pointActivityDays} day usage chart`}
                     preserveAspectRatio="none"
                   >
                     {pointActivityTicks.map((tick) => (
@@ -737,7 +755,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                         fill="currentColor"
                         opacity="0.55"
                       >
-                        No point usage in the last 30 days
+                        {`No point usage in the last ${pointActivityDays} days`}
                       </text>
                     ) : null}
                   </svg>
