@@ -1,24 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import UserSidebar from "./UserSidebar";
 import UserHeader from "./UserHeader";
 
 export default function UserShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem("user_sidebar_collapsed") === "true";
-  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarReady, setSidebarReady] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  useLayoutEffect(() => {
+    setSidebarCollapsed(window.localStorage.getItem("user_sidebar_collapsed") === "true");
+    setSidebarReady(true);
+  }, []);
+
   useEffect(() => {
+    if (!sidebarReady) return;
     window.localStorage.setItem(
       "user_sidebar_collapsed",
       String(sidebarCollapsed),
     );
-  }, [sidebarCollapsed]);
+  }, [sidebarCollapsed, sidebarReady]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -62,7 +66,7 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
         onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
       />
       <div
-        className={`min-h-screen transition-[margin] duration-300 ${
+        className={`min-h-screen ${sidebarReady ? "transition-[margin] duration-300" : ""} ${
           sidebarCollapsed ? "lg:ml-20" : "lg:ml-72"
         }`}
       >

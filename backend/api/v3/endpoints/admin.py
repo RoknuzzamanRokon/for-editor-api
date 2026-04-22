@@ -26,7 +26,9 @@ from models.admin import (
     AdminActiveUserEntry,
     AdminActiveUsersResponse,
     AdminDashboardActivityEntry,
+    AdminDashboardPointsTrendDay,
     AdminDashboardQuickStat,
+    AdminDashboardRequestTrendDay,
     AdminDashboardSummaryResponse,
     AdminDashboardSystemMetric,
     AdminPointGivingHistoryEntry,
@@ -37,6 +39,14 @@ from models.admin import (
 from services.users import get_user_by_id
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+
+def _build_recent_day_keys(day_count: int = 30) -> list[str]:
+    today = datetime.utcnow().date()
+    return [
+        (today - timedelta(days=offset)).isoformat()
+        for offset in range(day_count - 1, -1, -1)
+    ]
 
 
 def _ensure_admin_can_handle_topup_request(current_user: User, request: PointsTopupRequest) -> None:
@@ -132,6 +142,8 @@ def get_admin_dashboard_summary(
     current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
 ) -> AdminDashboardSummaryResponse:
     _ = current_user
+    recent_day_keys = _build_recent_day_keys()
+    earliest_day = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=29)
 
     total_points_issued = (
         db.query(func.coalesce(func.sum(PointsTopup.amount), 0))
@@ -237,10 +249,80 @@ def get_admin_dashboard_summary(
         ),
     ]
 
+    request_rows = (
+        db.query(
+            func.date(Conversion.created_at).label("day"),
+            func.count(Conversion.id).label("total"),
+            func.sum(case((Conversion.status == "success", 1), else_=0)).label("success"),
+            func.sum(case((Conversion.status == "failed", 1), else_=0)).label("failed"),
+            func.sum(
+                case(
+                    (Conversion.status.in_(["processing", "pending", "queued"]), 1),
+                    else_=0,
+                )
+            ).label("processing"),
+        )
+        .filter(Conversion.created_at >= earliest_day)
+        .group_by(func.date(Conversion.created_at))
+        .order_by(func.date(Conversion.created_at).asc())
+        .all()
+    )
+    request_map = {
+        str(row.day): {
+            "total": int(row.total or 0),
+            "success": int(row.success or 0),
+            "failed": int(row.failed or 0),
+            "processing": int(row.processing or 0),
+        }
+        for row in request_rows
+    }
+    request_trend_30_days = [
+        AdminDashboardRequestTrendDay(
+            date=day_key,
+            total=request_map.get(day_key, {}).get("total", 0),
+            success=request_map.get(day_key, {}).get("success", 0),
+            failed=request_map.get(day_key, {}).get("failed", 0),
+            processing=request_map.get(day_key, {}).get("processing", 0),
+        )
+        for day_key in recent_day_keys
+    ]
+
+    points_rows = (
+        db.query(
+            func.date(PointsLedger.created_at).label("day"),
+            func.sum(case((PointsLedger.status == "topup", PointsLedger.amount), else_=0)).label("topup"),
+            func.sum(case((PointsLedger.status == "spent", -PointsLedger.amount), else_=0)).label("spent"),
+            func.sum(case((PointsLedger.status == "refunded", PointsLedger.amount), else_=0)).label("refunded"),
+        )
+        .filter(PointsLedger.created_at >= earliest_day)
+        .group_by(func.date(PointsLedger.created_at))
+        .order_by(func.date(PointsLedger.created_at).asc())
+        .all()
+    )
+    points_map = {
+        str(row.day): {
+            "topup": int(row.topup or 0),
+            "spent": int(row.spent or 0),
+            "refunded": int(row.refunded or 0),
+        }
+        for row in points_rows
+    }
+    points_activity_30_days = [
+        AdminDashboardPointsTrendDay(
+            date=day_key,
+            topup=points_map.get(day_key, {}).get("topup", 0),
+            spent=points_map.get(day_key, {}).get("spent", 0),
+            refunded=points_map.get(day_key, {}).get("refunded", 0),
+        )
+        for day_key in recent_day_keys
+    ]
+
     return AdminDashboardSummaryResponse(
         quick_stats=quick_stats,
         recent_activity=recent_activity,
         system_status=system_status,
+        request_trend_30_days=request_trend_30_days,
+        points_activity_30_days=points_activity_30_days,
     )
 
 

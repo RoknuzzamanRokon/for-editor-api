@@ -137,7 +137,24 @@ class AdminDashboardSystemMetric(BaseModel):
     tone: Optional[str] = None
 
 
+class AdminDashboardRequestTrendDay(BaseModel):
+    date: str
+    total: int
+    success: int
+    failed: int
+    processing: int
+
+
+class AdminDashboardPointsTrendDay(BaseModel):
+    date: str
+    topup: int
+    spent: int
+    refunded: int
+
+
 class AdminDashboardSummaryResponse(BaseModel):
     quick_stats: List[AdminDashboardQuickStat]
     recent_activity: List[AdminDashboardActivityEntry]
     system_status: List[AdminDashboardSystemMetric]
+    request_trend_30_days: List[AdminDashboardRequestTrendDay]
+    points_activity_30_days: List[AdminDashboardPointsTrendDay]
