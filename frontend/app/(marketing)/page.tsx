@@ -23,14 +23,10 @@ export default function Page() {
         className="relative mb-16 w-full overflow-hidden border-y px-4 py-10 backdrop-blur-sm sm:px-6 sm:py-14 lg:mb-24 lg:px-8 lg:py-20"
         style={{ background: heroBackground, borderColor: t.border }}
       >
-        <div className="absolute -top-24 left-16 h-64 w-64 rounded-full blur-[120px]" style={{ background: `${t.primary}18` }} />
-        <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full blur-[140px]" style={{ background: `${t.primary}18` }} />
         <div className="relative mx-auto grid max-w-[1440px] items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 lg:px-12">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium sm:text-sm"
-              style={{ background: `${t.primary}18`, color: t.primary }}>
-              <span className="material-symbols-outlined text-sm">verified</span> Now processing 1M+ files daily
-            </div>
+            nothing to say
+            
             <h1 className="mt-6 max-w-5xl text-4xl font-black tracking-tight sm:mt-8 sm:text-6xl lg:text-[6.8rem] lg:leading-[1.02]" style={{ color: t.heading }}>
               Powerful file conversion API for <span style={{ color: t.primary }}>modern applications</span>
             </h1>
