@@ -1,5 +1,7 @@
 'use client'
 import Image from 'next/image'
+
+import panelPhoto from '@/static/panel_photo.png'
 import { useMarketingTheme, cardClass } from '@/config/marketingTheme'
 
 export default function Page() {
@@ -20,14 +22,12 @@ export default function Page() {
 
       {/* ── Hero ── */}
       <section
-        className="relative mb-16 w-full overflow-hidden border-y px-4 py-10 backdrop-blur-sm sm:px-6 sm:py-14 lg:mb-24 lg:px-8 lg:py-20"
+        className="relative mb-16 w-full overflow-hidden border-y px-4 pb-10 pt-0 backdrop-blur-sm sm:px-6 sm:pb-14 sm:pt-8 lg:mb-24 lg:px-8 lg:py-20"
         style={{ background: heroBackground, borderColor: t.border }}
       >
-        <div className="relative mx-auto grid max-w-[1440px] items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 lg:px-12">
+        <div className="relative mx-auto grid max-w-[1440px] items-center gap-5 lg:grid-cols-[0.82fr_1.18fr] lg:gap-18 lg:px-12">
           <div>
-            nothing to say
-            
-            <h1 className="mt-6 max-w-5xl text-4xl font-black tracking-tight sm:mt-8 sm:text-6xl lg:text-[6.8rem] lg:leading-[1.02]" style={{ color: t.heading }}>
+            <h1 className="mt-2 max-w-5xl text-4xl font-black tracking-tight sm:mt-0 sm:text-6xl lg:text-[6.8rem] lg:leading-[1.02]" style={{ color: t.heading }}>
               Powerful file conversion API for <span style={{ color: t.primary }}>modern applications</span>
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 sm:mt-8 sm:text-xl sm:leading-9 lg:text-2xl lg:leading-10" style={{ color: t.text }}>
@@ -48,9 +48,9 @@ export default function Page() {
               </a>
             </div>
           </div>
-          <div className="w-full">
+          <div className="w-full lg:-mr-28">
             <div
-              className="overflow-hidden rounded-3xl border shadow-2xl transition-transform hover:scale-[1.02]"
+              className="overflow-hidden rounded-3xl border shadow-2xl shadow-black transition-transform hover:scale-[1.01] lg:rounded-[2rem]"
               style={{
                 borderColor: t.border,
                 background: primaryCardBackground,
@@ -62,14 +62,16 @@ export default function Page() {
                 <span className="h-3 w-3 rounded-full bg-amber-400" />
                 <span className="h-3 w-3 rounded-full bg-emerald-400" />
               </div>
-              <Image
-                alt="Dashboard Mockup"
-                className="aspect-video w-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD5wujvbMWRNdzjqN5AGPZDPPvibfQIV_qqgwbvq2I04UpQ8hIteazbjnyYm5nTW3A7PuGIVFJq2mgs0dWVCUzxlKWf3lOJcefbBBbQ7iNa4vR4iLxqOxXI7FFyF1P305W3nA4b0a2HbGDSlFwQWChRQq_5Bz6BHqnmckyOiMJvtCMHK4Z4kqsfWMPR4nkCO1l2g1hZCNKuGp-hMKm2EdcGIb2RjlAY7aybdg6MY6qEISxOEHVTbeeHFO001iB-Mt4Rr3gAmu0xF44"
-                width={1440}
-                height={810}
-                unoptimized
-              />
+              <div className="bg-[#050b14] p-2 sm:p-3 lg:p-4">
+                <Image
+                  alt="Dashboard Mockup"
+                  className="h-auto w-full object-contain"
+                  src={panelPhoto}
+                  width={1440}
+                  height={810}
+                  priority
+                />
+              </div>
             </div>
           </div>
         </div>
