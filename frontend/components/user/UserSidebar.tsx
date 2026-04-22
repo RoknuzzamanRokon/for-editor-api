@@ -19,6 +19,31 @@ type SidebarSettingsPayload = {
   };
 }
 
+function normalizeSidebarSettings(payload: unknown) {
+  if (!payload || typeof payload !== 'object') return null
+
+  const candidate = payload as {
+    identity?: {
+      username?: string | null
+      email?: string
+      role?: string
+    }
+    preferences?: {
+      avatar_key?: AvatarKey
+    }
+  }
+
+  if (!candidate.identity?.email || !candidate.identity.role) return null
+  if (!candidate.preferences?.avatar_key) return null
+
+  return {
+    username: candidate.identity.username ?? null,
+    email: candidate.identity.email,
+    role: candidate.identity.role,
+    avatarKey: candidate.preferences.avatar_key,
+  }
+}
+
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
   { label: 'App Center', href: '/dashboard/app-center', icon: 'apps' },
@@ -78,13 +103,9 @@ export default function UserSidebar({
     if (!token) return
 
     const cached = readAccountSettingsCache<SidebarSettingsPayload>()
-    if (cached) {
-      setAccount({
-        username: cached.identity.username,
-        email: cached.identity.email,
-        role: cached.identity.role,
-        avatarKey: cached.preferences.avatar_key,
-      })
+    const normalizedCached = normalizeSidebarSettings(cached)
+    if (normalizedCached) {
+      setAccount(normalizedCached)
     }
 
     fetch(`${API_BASE}/api/v2/auth/settings`, {
@@ -93,12 +114,7 @@ export default function UserSidebar({
       .then((res) => res.json())
       .then((data: SidebarSettingsPayload) => {
         publishAccountSettingsCache(data)
-        setAccount({
-          username: data.identity.username,
-          email: data.identity.email,
-          role: data.identity.role,
-          avatarKey: data.preferences.avatar_key,
-        })
+        setAccount(normalizeSidebarSettings(data))
       })
       .catch(() => {
         setAccount(null)
@@ -109,13 +125,9 @@ export default function UserSidebar({
     const handleSettingsChange = (event: Event) => {
       const customEvent = event as CustomEvent<SidebarSettingsPayload>
       const payload = customEvent.detail
-      if (!payload) return
-      setAccount({
-        username: payload.identity.username,
-        email: payload.identity.email,
-        role: payload.identity.role,
-        avatarKey: payload.preferences.avatar_key,
-      })
+      const normalizedPayload = normalizeSidebarSettings(payload)
+      if (!normalizedPayload) return
+      setAccount(normalizedPayload)
     }
 
     window.addEventListener("accountsettingschange", handleSettingsChange)

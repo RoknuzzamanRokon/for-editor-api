@@ -7,15 +7,11 @@ import UserHeader from "./UserHeader";
 
 export default function UserShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("user_sidebar_collapsed") === "true";
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const savedValue = window.localStorage.getItem("user_sidebar_collapsed");
-    if (savedValue === "true") {
-      setSidebarCollapsed(true);
-    }
-  }, []);
 
   useEffect(() => {
     window.localStorage.setItem(
