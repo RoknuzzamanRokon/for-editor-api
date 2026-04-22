@@ -1,20 +1,17 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import AdminHeader from "./AdminHeader";
 import AdminSidebar from "./AdminSidebar";
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [sidebarReady, setSidebarReady] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("admin_sidebar_collapsed") === "true";
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useLayoutEffect(() => {
-    setSidebarCollapsed(window.localStorage.getItem("admin_sidebar_collapsed") === "true");
-    setSidebarReady(true);
-  }, []);
 
   useEffect(() => {
     document.documentElement.classList.remove("login-fullscreen");
@@ -23,12 +20,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   }, []);
 
   useEffect(() => {
-    if (!sidebarReady) return;
     window.localStorage.setItem(
       "admin_sidebar_collapsed",
       String(sidebarCollapsed),
     );
-  }, [sidebarCollapsed, sidebarReady]);
+  }, [sidebarCollapsed]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -72,7 +68,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
       />
       <div
-        className={`min-h-screen ${sidebarReady ? "transition-[margin] duration-300" : ""} ${
+        className={`min-h-screen transition-[margin] duration-300 ${
           sidebarCollapsed ? "lg:ml-20" : "lg:ml-72"
         }`}
       >
