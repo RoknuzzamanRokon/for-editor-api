@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AdminShell from "@/components/admin/AdminShell";
 import { API_BASE } from "@/lib/apiBase";
 
 type GivingEntry = {
@@ -162,7 +161,6 @@ export default function AdminPointPage() {
   };
 
   return (
-    <AdminShell>
       <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
 
         {/* Header */}
@@ -412,6 +410,5 @@ export default function AdminPointPage() {
         </section>
 
       </div>
-    </AdminShell>
   );
 }

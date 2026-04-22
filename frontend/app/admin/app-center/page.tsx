@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import AdminShell from "@/components/admin/AdminShell";
 import { API_BASE } from "@/lib/apiBase";
 
 type ActionItem = {
@@ -80,7 +79,6 @@ export default function AdminAppCenterPage() {
   }, [actions, router]);
 
   return (
-    <AdminShell>
       <section className="h-full min-h-full overflow-y-auto bg-background-light/80 dark:bg-slate-950/35 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="mx-auto w-full max-w-8xl">
           <section className="relative mb-6 overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-5 text-white shadow-xl sm:p-8 dark:border-slate-800">
@@ -165,6 +163,5 @@ export default function AdminAppCenterPage() {
           )}
         </div>
       </section>
-    </AdminShell>
   );
 }

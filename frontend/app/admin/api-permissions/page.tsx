@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import AdminShell from "@/components/admin/AdminShell";
 import { API_BASE } from "@/lib/apiBase";
 import { formatRoleLabel } from "@/lib/roleLabel";
 
@@ -392,7 +391,6 @@ export default function AdminApiPermissionsPage() {
   }, [details]);
 
   return (
-    <AdminShell>
       <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
         <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
@@ -800,6 +798,5 @@ export default function AdminApiPermissionsPage() {
           </>
         ) : null}
       </div>
-    </AdminShell>
   );
 }
