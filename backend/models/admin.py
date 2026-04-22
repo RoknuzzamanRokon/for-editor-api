@@ -152,9 +152,18 @@ class AdminDashboardPointsTrendDay(BaseModel):
     refunded: int
 
 
+class AdminDashboardTopPointHolder(BaseModel):
+    user_id: int
+    email: str
+    username: Optional[str] = None
+    role: str
+    balance: int
+
+
 class AdminDashboardSummaryResponse(BaseModel):
     quick_stats: List[AdminDashboardQuickStat]
     recent_activity: List[AdminDashboardActivityEntry]
     system_status: List[AdminDashboardSystemMetric]
     request_trend_30_days: List[AdminDashboardRequestTrendDay]
     points_activity_30_days: List[AdminDashboardPointsTrendDay]
+    top_point_holders: List[AdminDashboardTopPointHolder]

@@ -40,12 +40,21 @@ type AdminDashboardPointsTrendDay = {
   refunded: number;
 };
 
+type AdminDashboardTopPointHolder = {
+  user_id: number;
+  email: string;
+  username: string | null;
+  role: string;
+  balance: number;
+};
+
 type AdminDashboardSummaryResponse = {
   quick_stats: AdminDashboardQuickStat[];
   recent_activity: AdminDashboardActivityEntry[];
   system_status: AdminDashboardSystemMetric[];
   request_trend_30_days: AdminDashboardRequestTrendDay[];
   points_activity_30_days: AdminDashboardPointsTrendDay[];
+  top_point_holders: AdminDashboardTopPointHolder[];
 };
 
 type ChartPoint = {
@@ -134,14 +143,26 @@ function ChartStat({
 function ChartLegend({
   items,
 }: {
-  items: { label: string; color: string; value: string }[];
+  items: {
+    label: string;
+    color: string;
+    value: string;
+    active?: boolean;
+    onClick?: () => void;
+  }[];
 }) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       {items.map((item) => (
-        <div
+        <button
           key={item.label}
-          className="rounded-[16px] border border-slate-200/70 bg-white/75 px-4 py-3 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70"
+          type="button"
+          onClick={item.onClick}
+          className={`rounded-[16px] border px-4 py-3 text-left backdrop-blur-xl transition ${
+            item.active === false
+              ? "border-slate-200/70 bg-white/45 opacity-55 dark:border-slate-800 dark:bg-slate-900/40"
+              : "border-slate-200/70 bg-white/75 shadow-[0_10px_25px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900/70"
+          } ${item.onClick ? "cursor-pointer" : "cursor-default"}`}
         >
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
@@ -150,7 +171,7 @@ function ChartLegend({
             </span>
           </div>
           <p className="mt-2 text-lg font-black text-slate-900 dark:text-white">{item.value}</p>
-        </div>
+        </button>
       ))}
     </div>
   );
@@ -212,6 +233,79 @@ function DonutStat({
   );
 }
 
+function TopPointHoldersChart({
+  data,
+  loading,
+}: {
+  data: AdminDashboardTopPointHolder[];
+  loading: boolean;
+}) {
+  const maxBalance = Math.max(1, ...data.map((item) => item.balance));
+
+  return (
+    <div className="h-full rounded-2xl border border-primary/10 bg-primary/5 p-4 shadow-sm">
+      <div className="mb-3">
+        <h3 className="text-base font-bold">Top Point Holders</h3>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Users with the highest point balances across the platform.
+        </p>
+      </div>
+      {loading ? (
+        <div className="space-y-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="space-y-2">
+              <div className="h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="h-3 w-full animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+            </div>
+          ))}
+        </div>
+      ) : data.length === 0 ? (
+        <div className="flex min-h-[260px] items-center justify-center rounded-[20px] border border-dashed border-slate-200 bg-slate-50/80 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400">
+          No point holder data available yet.
+        </div>
+      ) : (
+        <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
+          {data.map((item, index) => {
+            const widthPercent = Math.max(8, (item.balance / maxBalance) * 100);
+            const displayName = item.username || item.email;
+
+            return (
+              <div
+                key={item.user_id}
+                className="rounded-[18px] border border-slate-200/70 bg-white/80 p-3 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70"
+              >
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-black text-slate-900 dark:text-white">
+                      {index + 1}. {displayName}
+                    </p>
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">{item.email}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-lg font-black text-slate-900 dark:text-white">
+                      {formatNumber(item.balance)}
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                      {item.role.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-2.5 overflow-hidden rounded-full bg-slate-200/80 dark:bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-primary via-cyan-400 to-emerald-400"
+                    style={{ width: `${widthPercent}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RequestTrendChart({
   data,
   loading,
@@ -219,13 +313,21 @@ function RequestTrendChart({
   data: AdminDashboardRequestTrendDay[];
   loading: boolean;
 }) {
+  const [visibleSeries, setVisibleSeries] = useState({
+    total: true,
+    success: true,
+    failed: true,
+  });
   const width = 680;
   const height = 220;
   const labels = useMemo(
     () =>
       data.map((item, index) => ({
         date: item.date,
-        show: index === 0 || index === data.length - 1 || index % 7 === 0,
+        show:
+          index === 0 ||
+          index === data.length - 1 ||
+          (index % 7 === 0 && index < data.length - 2),
       })),
     [data],
   );
@@ -249,6 +351,16 @@ function RequestTrendChart({
     ? Math.round((success.reduce((sum, value) => sum + value, 0) / totalRequests) * 1000) / 10
     : 0;
 
+  const toggleSeries = (key: "total" | "success" | "failed") => {
+    setVisibleSeries((current) => {
+      const next = { ...current, [key]: !current[key] };
+      if (!next.total && !next.success && !next.failed) {
+        return current;
+      }
+      return next;
+    });
+  };
+
   return (
     <ChartCard
       title="Requests Overview"
@@ -258,13 +370,28 @@ function RequestTrendChart({
         {loading ? (
           <div className="min-h-[420px] flex-1 animate-pulse rounded-[20px] bg-slate-100 dark:bg-slate-800" />
         ) : (
-          <div className="flex min-h-[420px] flex-1 flex-col overflow-hidden rounded-[20px] border border-slate-200/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-4 sm:p-5">
+          <div className="flex min-h-[420px] flex-1 flex-col overflow-hidden rounded-[20px] border border-slate-200/80 bg-gradient-to-br from-cyan-50 via-white to-sky-100 p-4 dark:border-cyan-500/10 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 sm:p-5">
             <div className="min-h-[320px] w-full flex-1">
-              <svg viewBox={`0 0 ${width} ${height + 32}`} className="h-full w-full" role="img" aria-label="Admin request trend chart">
+              <svg
+                viewBox={`0 0 ${width} ${height + 32}`}
+                className="h-full w-full"
+                role="img"
+                aria-label="Admin request trend chart"
+              >
                 <defs>
-                  <linearGradient id="admin-request-area" x1="0" x2="0" y1="0" y2="1">
+                  <linearGradient
+                    id="admin-request-area"
+                    x1="0"
+                    x2="0"
+                    y1="0"
+                    y2="1"
+                  >
                     <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.45" />
-                    <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.02" />
+                    <stop
+                      offset="100%"
+                      stopColor="#38bdf8"
+                      stopOpacity="0.02"
+                    />
                   </linearGradient>
                 </defs>
 
@@ -272,7 +399,14 @@ function RequestTrendChart({
                   const y = height - height * ratio;
                   return (
                     <g key={ratio}>
-                      <line x1="0" x2={width} y1={y} y2={y} stroke="rgba(255,255,255,0.10)" strokeDasharray="5 8" />
+                      <line
+                        x1="0"
+                        x2={width}
+                        y1={y}
+                        y2={y}
+                        stroke="rgba(255,255,255,0.10)"
+                        strokeDasharray="5 8"
+                      />
                       <text
                         x="0"
                         y={Math.max(y - 6, 12)}
@@ -285,24 +419,67 @@ function RequestTrendChart({
                   );
                 })}
 
-                <path d={totalAreaPath} fill="url(#admin-request-area)" />
-                <path d={totalPath} fill="none" stroke="#7dd3fc" strokeWidth="4" strokeLinecap="round" />
-                <path d={successPath} fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" />
-                <path d={failedPath} fill="none" stroke="#fb7185" strokeWidth="2.5" strokeLinecap="round" />
+                {visibleSeries.total ? (
+                  <path d={totalAreaPath} fill="url(#admin-request-area)" />
+                ) : null}
+                {visibleSeries.total ? (
+                  <path
+                    d={totalPath}
+                    fill="none"
+                    stroke="#7dd3fc"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                  />
+                ) : null}
+                {visibleSeries.success ? (
+                  <path
+                    d={successPath}
+                    fill="none"
+                    stroke="#34d399"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                ) : null}
+                {visibleSeries.failed ? (
+                  <path
+                    d={failedPath}
+                    fill="none"
+                    stroke="#fb7185"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                ) : null}
 
-                {totalPoints.map((point, index) => (
-                  <circle key={`${point.x}-${index}`} cx={point.x} cy={point.y} r="3.5" fill="#e0f2fe" />
-                ))}
+                {visibleSeries.total
+                  ? totalPoints.map((point, index) => (
+                      <circle
+                        key={`${point.x}-${index}`}
+                        cx={point.x}
+                        cy={point.y}
+                        r="3.5"
+                        fill="#e0f2fe"
+                      />
+                    ))
+                  : null}
 
                 {labels.map((label, index) => {
                   if (!label.show) return null;
-                  const x = labels.length === 1 ? width / 2 : (index / (labels.length - 1)) * width;
+                  const x =
+                    labels.length === 1
+                      ? width / 2
+                      : (index / (labels.length - 1)) * width;
                   return (
                     <text
                       key={label.date}
                       x={x}
                       y={height + 22}
-                      textAnchor={index === 0 ? "start" : index === labels.length - 1 ? "end" : "middle"}
+                      textAnchor={
+                        index === 0
+                          ? "start"
+                          : index === labels.length - 1
+                            ? "end"
+                            : "middle"
+                      }
                       fill="rgba(255,255,255,0.58)"
                       fontSize="12"
                     >
@@ -316,18 +493,42 @@ function RequestTrendChart({
             <div className="mt-4">
               <ChartLegend
                 items={[
-                  { label: "Total", color: "#7dd3fc", value: formatNumber(totalRequests) },
+                  {
+                    label: "Total",
+                    color: "#7dd3fc",
+                    value: formatNumber(totalRequests),
+                  },
                   {
                     label: "Successful",
                     color: "#34d399",
-                    value: formatNumber(success.reduce((sum, value) => sum + value, 0)),
+                    value: formatNumber(
+                      success.reduce((sum, value) => sum + value, 0),
+                    ),
                   },
                   {
                     label: "Failed",
                     color: "#fb7185",
-                    value: formatNumber(failed.reduce((sum, value) => sum + value, 0)),
+                    value: formatNumber(
+                      failed.reduce((sum, value) => sum + value, 0),
+                    ),
                   },
-                ]}
+                ].map((item) => ({
+                  ...item,
+                  active:
+                    item.label === "Total"
+                      ? visibleSeries.total
+                      : item.label === "Successful"
+                        ? visibleSeries.success
+                        : visibleSeries.failed,
+                  onClick: () =>
+                    toggleSeries(
+                      item.label === "Total"
+                        ? "total"
+                        : item.label === "Successful"
+                          ? "success"
+                          : "failed",
+                    ),
+                }))}
               />
             </div>
           </div>
@@ -344,13 +545,21 @@ function PointsActivityChart({
   data: AdminDashboardPointsTrendDay[];
   loading: boolean;
 }) {
+  const [visibleSeries, setVisibleSeries] = useState({
+    topup: true,
+    spent: true,
+    refunded: true,
+  });
   const width = 680;
   const height = 220;
   const labels = useMemo(
     () =>
       data.map((item, index) => ({
         date: item.date,
-        show: index === 0 || index === data.length - 1 || index % 7 === 0,
+        show:
+          index === 0 ||
+          index === data.length - 1 ||
+          (index % 7 === 0 && index < data.length - 2),
       })),
     [data],
   );
@@ -373,6 +582,15 @@ function PointsActivityChart({
       !peak || item.topup + item.spent + item.refunded > peak.topup + peak.spent + peak.refunded ? item : peak,
     null,
   );
+  const toggleSeries = (key: "topup" | "spent" | "refunded") => {
+    setVisibleSeries((current) => {
+      const next = { ...current, [key]: !current[key] };
+      if (!next.topup && !next.spent && !next.refunded) {
+        return current;
+      }
+      return next;
+    });
+  };
 
   return (
     <ChartCard
@@ -428,30 +646,36 @@ function PointsActivityChart({
 
                   return (
                     <g key={item.date}>
-                      <rect
-                        x={groupX - barWidth * 1.5}
-                        y={height - topupHeight}
-                        width={barWidth}
-                        height={topupHeight}
-                        rx="4"
-                        fill="#0ea5e9"
-                      />
-                      <rect
-                        x={groupX - barWidth / 2}
-                        y={height - spentHeight}
-                        width={barWidth}
-                        height={spentHeight}
-                        rx="4"
-                        fill="#f59e0b"
-                      />
-                      <rect
-                        x={groupX + barWidth / 2}
-                        y={height - refundedHeight}
-                        width={barWidth}
-                        height={refundedHeight}
-                        rx="4"
-                        fill="#10b981"
-                      />
+                      {visibleSeries.topup ? (
+                        <rect
+                          x={groupX - barWidth * 1.5}
+                          y={height - topupHeight}
+                          width={barWidth}
+                          height={topupHeight}
+                          rx="4"
+                          fill="#0ea5e9"
+                        />
+                      ) : null}
+                      {visibleSeries.spent ? (
+                        <rect
+                          x={groupX - barWidth / 2}
+                          y={height - spentHeight}
+                          width={barWidth}
+                          height={spentHeight}
+                          rx="4"
+                          fill="#f59e0b"
+                        />
+                      ) : null}
+                      {visibleSeries.refunded ? (
+                        <rect
+                          x={groupX + barWidth / 2}
+                          y={height - refundedHeight}
+                          width={barWidth}
+                          height={refundedHeight}
+                          rx="4"
+                          fill="#10b981"
+                        />
+                      ) : null}
 
                       {labels[index]?.show ? (
                         <text
@@ -489,7 +713,23 @@ function PointsActivityChart({
                     color: "#10b981",
                     value: formatNumber(totals.refunded),
                   },
-                ]}
+                ].map((item) => ({
+                  ...item,
+                  active:
+                    item.label === "Topup"
+                      ? visibleSeries.topup
+                      : item.label === "Spent"
+                        ? visibleSeries.spent
+                        : visibleSeries.refunded,
+                  onClick: () =>
+                    toggleSeries(
+                      item.label === "Topup"
+                        ? "topup"
+                        : item.label === "Spent"
+                          ? "spent"
+                          : "refunded",
+                    ),
+                }))}
               />
             </div>
           </div>
@@ -538,6 +778,7 @@ export default function AdminPage() {
   const systemStatus = useMemo(() => summary?.system_status ?? [], [summary]);
   const requestTrend = useMemo(() => summary?.request_trend_30_days ?? [], [summary]);
   const pointsActivity = useMemo(() => summary?.points_activity_30_days ?? [], [summary]);
+  const topPointHolders = useMemo(() => summary?.top_point_holders ?? [], [summary]);
   const requestStatusSummary = useMemo(() => {
     const totals = requestTrend.reduce(
       (acc, item) => ({
@@ -649,51 +890,46 @@ export default function AdminPage() {
               ))}
         </section>
 
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <RequestTrendChart data={requestTrend} loading={loading} />
-          <PointsActivityChart data={pointsActivity} loading={loading} />
-        </section>
-
-        <section className="grid grid-cols-1 gap-8 xl:grid-cols-3">
-          <div className="xl:col-span-2">
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 dark:border-slate-800">
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <div className="h-full rounded-2xl border border-primary/10 bg-primary/5 p-4 shadow-sm">
+            <div className="overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex flex-col gap-2 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                 <h2 className="text-lg font-bold">Recent Activity</h2>
                 <button className="text-xs font-bold text-primary hover:underline" type="button">
                   View all
                 </button>
               </div>
-              <div className="overflow-x-auto">
+              <div className="max-h-[420px] overflow-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
-                      <th className="px-6 py-4">User</th>
-                      <th className="px-6 py-4">Points</th>
-                      <th className="px-6 py-4">Action</th>
-                      <th className="px-6 py-4">Time</th>
+                      <th className="px-4 py-3">User</th>
+                      <th className="px-4 py-3">Points</th>
+                      <th className="px-4 py-3">Action</th>
+                      <th className="px-4 py-3">Time</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {loading ? (
                       Array.from({ length: 5 }).map((_, index) => (
                         <tr key={index}>
-                          <td className="px-6 py-4">
+                          <td className="px-4 py-3">
                             <div className="h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-4 py-3">
                             <div className="h-4 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-4 py-3">
                             <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-4 py-3">
                             <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                           </td>
                         </tr>
                       ))
                     ) : recentActivity.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="px-6 py-10 text-center text-sm text-slate-500">
+                        <td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-500">
                           No recent activity found.
                         </td>
                       </tr>
@@ -703,19 +939,19 @@ export default function AdminPage() {
                           key={`${row.user_id}-${row.occurred_at}-${row.action}`}
                           className="hover:bg-slate-50 dark:hover:bg-slate-800/40"
                         >
-                          <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
+                          <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
                             {row.user_username || row.user_email}
                           </td>
                           <td
-                            className={`px-6 py-4 font-bold ${
+                            className={`px-4 py-3 font-bold ${
                               row.points_change < 0 ? "text-red-600" : "text-emerald-600"
                             }`}
                           >
                             {row.points_change > 0 ? "+" : ""}
                             {formatNumber(row.points_change)}
                           </td>
-                          <td className="px-6 py-4">{row.action}</td>
-                          <td className="px-6 py-4 text-slate-500">
+                          <td className="px-4 py-3">{row.action}</td>
+                          <td className="px-4 py-3 text-slate-500">
                             {formatRelativeTime(row.occurred_at)}
                           </td>
                         </tr>
@@ -727,16 +963,16 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <TopPointHoldersChart data={topPointHolders} loading={loading} />
 
-            <div className="rounded-2xl border border-primary/10 bg-primary/5 p-6 shadow-sm">
-              <h3 className="mb-4 text-base font-bold">System Status</h3>
-              <div className="space-y-4">
+          <div className="h-full rounded-2xl border border-primary/10 bg-primary/5 p-4 shadow-sm">
+              <h3 className="mb-3 text-base font-bold">System Status</h3>
+              <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
                 {loading
                   ? Array.from({ length: 3 }).map((_, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-4 rounded-[18px] border border-slate-200/70 bg-white/80 p-4 dark:border-slate-800 dark:bg-slate-900/70"
+                        className="flex items-center gap-4 rounded-[18px] border border-slate-200/70 bg-white/80 p-3 dark:border-slate-800 dark:bg-slate-900/70"
                       >
                         <div className="h-16 w-16 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
                         <div className="flex-1 space-y-2">
@@ -753,10 +989,10 @@ export default function AdminPage() {
                         helper={item.helper}
                         color={item.color}
                       />
-                    ))}
+                  ))}
               </div>
               {!loading && systemStatus.length > 0 ? (
-                <div className="mt-4 space-y-2 border-t border-slate-200/70 pt-4 text-sm dark:border-slate-800">
+                <div className="mt-3 space-y-2 border-t border-slate-200/70 pt-3 text-sm dark:border-slate-800">
                   {systemStatus.map((item) => (
                     <div key={item.label} className="flex items-center justify-between">
                       <span className="text-slate-500">{item.label}</span>
@@ -767,8 +1003,12 @@ export default function AdminPage() {
                   ))}
                 </div>
               ) : null}
-            </div>
           </div>
+        </section>
+
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <RequestTrendChart data={requestTrend} loading={loading} />
+          <PointsActivityChart data={pointsActivity} loading={loading} />
         </section>
       </div>
     </AdminShell>

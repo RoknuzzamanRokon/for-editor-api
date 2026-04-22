@@ -31,6 +31,7 @@ from models.admin import (
     AdminDashboardRequestTrendDay,
     AdminDashboardSummaryResponse,
     AdminDashboardSystemMetric,
+    AdminDashboardTopPointHolder,
     AdminPointGivingHistoryEntry,
     AdminPointGivingHistoryResponse,
     AdminTopupRequestEntry,
@@ -317,12 +318,37 @@ def get_admin_dashboard_summary(
         for day_key in recent_day_keys
     ]
 
+    top_point_holder_rows = (
+        db.query(
+            UserPoints.user_id,
+            User.email,
+            User.username,
+            User.role,
+            UserPoints.balance,
+        )
+        .join(User, User.id == UserPoints.user_id)
+        .order_by(UserPoints.balance.desc(), User.id.asc())
+        .limit(6)
+        .all()
+    )
+    top_point_holders = [
+        AdminDashboardTopPointHolder(
+            user_id=row.user_id,
+            email=row.email,
+            username=row.username,
+            role=row.role.value if hasattr(row.role, "value") else str(row.role),
+            balance=int(row.balance or 0),
+        )
+        for row in top_point_holder_rows
+    ]
+
     return AdminDashboardSummaryResponse(
         quick_stats=quick_stats,
         recent_activity=recent_activity,
         system_status=system_status,
         request_trend_30_days=request_trend_30_days,
         points_activity_30_days=points_activity_30_days,
+        top_point_holders=top_point_holders,
     )
 
 
