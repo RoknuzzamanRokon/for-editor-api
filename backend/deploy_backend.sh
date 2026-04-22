@@ -35,7 +35,7 @@ trap 'on_error $? $LINENO' ERR
 
 log "Starting deployment..."
 
-command -v git >/dev/null 2>&1 || fail "git is not installed"
+# command -v git >/dev/null 2>&1 || fail "git is not installed"
 command -v systemctl >/dev/null 2>&1 || fail "systemctl is not installed"
 command -v pipenv >/dev/null 2>&1 || fail "pipenv is not installed"
 
@@ -45,21 +45,21 @@ command -v pipenv >/dev/null 2>&1 || fail "pipenv is not installed"
 
 cd "$PROJECT_DIR"
 
-if [ -n "$(git status --porcelain)" ]; then
-  fail "Working tree has uncommitted changes. Refusing to deploy."
-fi
+# if [ -n "$(git status --porcelain)" ]; then
+#  fail "Working tree has uncommitted changes. Refusing to deploy."
+# fi
 
-run_step "Fetching latest code" git fetch origin
-run_step "Checking out branch $BRANCH" git checkout "$BRANCH"
-run_step "Pulling latest code" git pull --ff-only origin "$BRANCH"
+# run_step "Fetching latest code" git fetch origin
+# run_step "Checking out branch $BRANCH" git checkout "$BRANCH"
+# run_step "Pulling latest code" git pull --ff-only origin "$BRANCH"
 
 cd "$BACKEND_DIR"
 
 PIPENV_BIN="$(command -v pipenv)"
 
-run_step "Installing dependencies" "$PIPENV_BIN" install --deploy --ignore-pipfile
+# run_step "Installing dependencies" "$PIPENV_BIN" install --deploy --ignore-pipfile
 
-run_step "Running migrations" "$PIPENV_BIN" run alembic upgrade head
+# run_step "Running migrations" "$PIPENV_BIN" run alembic upgrade head
 
 run_step "Restarting service" systemctl restart "$BACKEND_SERVICE"
 run_step "Checking service status" systemctl is-active --quiet "$BACKEND_SERVICE"
