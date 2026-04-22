@@ -22,6 +22,12 @@ The frontend connects to the FastAPI backend running on http://127.0.0.1:8000 th
 
 All requests to `/api/*` are automatically proxied to the backend.
 
+For client-side API base configuration, copy `frontend/.env.example` to `.env.local` and set:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+```
+
 ## Features
 
 - PDF to Excel conversion

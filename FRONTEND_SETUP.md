@@ -183,7 +183,7 @@ npm install
 Create `frontend/.env.local` for custom configuration:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-Then update the API calls to use this variable.
+The frontend already reads this variable in `frontend/lib/apiBase.ts`.
