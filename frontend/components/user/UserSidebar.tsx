@@ -21,10 +21,11 @@ type SidebarSettingsPayload = {
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-  { label: 'Points', href: '/dashboard/points', icon: 'toll' },
-  { label: 'Profile', href: '/dashboard/profile', icon: 'person' },
   { label: 'App Center', href: '/dashboard/app-center', icon: 'apps' },
+  { label: 'Profile', href: '/dashboard/profile', icon: 'person' },
+  { label: 'Points', href: '/dashboard/points', icon: 'toll' },
   { label: 'Billing', href: '/dashboard/billing', icon: 'credit_card' },
+  { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
 ]
 
 export default function UserSidebar({
@@ -214,27 +215,6 @@ export default function UserSidebar({
         })}
       </nav>
       <div className="relative mt-auto border-t border-white/30 p-4 dark:border-white/10">
-        <Link
-          className={
-            compactDesktop
-              ? `mb-4 mx-auto flex h-12 w-12 items-center justify-center rounded-full px-0 py-0 ${
-                  pathname.startsWith('/dashboard/settings')
-                    ? 'border border-primary/20 bg-white/80 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.18)] dark:border-primary/20 dark:bg-white/10'
-                    : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
-                }`
-              : `mb-4 flex items-center gap-3 rounded-2xl px-3 py-3 font-medium transition-all ${
-                  pathname.startsWith('/dashboard/settings')
-                    ? 'border border-primary/20 bg-white/70 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.15)] dark:border-primary/20 dark:bg-white/10'
-                    : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
-                }`
-          }
-          href="/dashboard/settings"
-          onClick={onCloseMobileMenu}
-          title={compactDesktop ? "Settings" : undefined}
-        >
-          <span className="material-symbols-outlined shrink-0">settings</span>
-          {!compactDesktop ? <span className="truncate">Settings</span> : null}
-        </Link>
         {compactDesktop ? (
           <div className="flex justify-center pt-2">
             <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-white/65 text-center text-[11px] font-black text-primary shadow-[0_12px_28px_rgba(59,130,246,0.18)] backdrop-blur dark:bg-white/10">
