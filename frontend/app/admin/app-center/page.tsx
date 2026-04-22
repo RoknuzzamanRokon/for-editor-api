@@ -81,7 +81,7 @@ export default function AdminAppCenterPage() {
   return (
       <section className="h-full min-h-full overflow-y-auto bg-background-light/80 dark:bg-slate-950/35 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="mx-auto w-full max-w-8xl">
-          <section className="relative mb-6 overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-5 text-white shadow-xl sm:p-8 dark:border-slate-800">
+          <section className="app-hero-card relative mb-6 overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-5 text-white shadow-xl sm:p-8 dark:border-slate-800">
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
             <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
             <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -94,7 +94,7 @@ export default function AdminAppCenterPage() {
                   App Center
                 </h1>
                 <p className="mt-2 max-w-3xl text-sm text-white/80 md:text-base">
-                  Active conversion APIs from <span className="font-semibold text-white">/api/v3/permissions/my-api</span>, organized for fast launch, confident testing, and cleaner admin operations.
+                  Active conversion APIs from <span className="font-semibold text-white">PowerFull</span>, organized for fast launch, confident testing, and cleaner admin operations.
                 </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur">

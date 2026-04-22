@@ -341,7 +341,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     return (
       <div className="mx-auto max-w-8xl p-6 md:p-8">
         <div className="space-y-6">
-          <div className="rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-6 shadow-xl dark:border-slate-800">
+          <div className="app-hero-card rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-6 shadow-xl dark:border-slate-800">
             <div className="h-5 w-40 animate-pulse rounded bg-white/20" />
             <div className="mt-4 h-10 w-80 max-w-full animate-pulse rounded bg-white/20" />
             <div className="mt-3 h-4 w-full max-w-2xl animate-pulse rounded bg-white/15" />
@@ -412,7 +412,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
   return (
     <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
-      <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+      <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
         <div className="relative">

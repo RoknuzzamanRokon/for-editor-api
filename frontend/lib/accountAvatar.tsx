@@ -50,7 +50,7 @@ export function AvatarBadge({
   return (
     <div
       className={cn(
-        "flex border items-center justify-center overflow-hidden rounded-full bg-gradient-to-br text-white shadow-lg ring-2 ring-white/60 dark:ring-slate-800/80",
+        "flex items-center justify-center overflow-hidden rounded-full border border-slate-900 bg-gradient-to-br text-slate-950 shadow-lg ring-2 ring-slate-900/55 dark:border-slate-700 dark:text-white dark:ring-slate-800/80",
         preset.gradient,
         sizeClass,
         className,

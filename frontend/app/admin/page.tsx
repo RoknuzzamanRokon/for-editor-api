@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { API_BASE } from "@/lib/apiBase";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 type AdminDashboardQuickStat = {
   label: string;
@@ -76,6 +77,22 @@ function formatRelativeTime(value: string) {
   if (Math.abs(hours) < 24) return formatter.format(hours, "hour");
   const days = Math.round(hours / 24);
   return formatter.format(days, "day");
+}
+
+function getRoleBadgeClass(role?: string) {
+  switch ((role || "").toLowerCase()) {
+    case "super_user":
+      return "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200";
+    case "admin_user":
+    case "admin":
+      return "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200";
+    case "general_user":
+      return "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200";
+    case "demo_user":
+      return "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200";
+    default:
+      return "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200";
+  }
 }
 
 function formatDayLabel(value: string) {
@@ -267,25 +284,32 @@ function TopPointHoldersChart({
           {data.map((item, index) => {
             const widthPercent = Math.max(8, (item.balance / maxBalance) * 100);
             const displayName = item.username || item.email;
+            const roleLabel = formatRoleLabel(item.role);
 
             return (
               <div
                 key={item.user_id}
                 className="rounded-[18px] border border-slate-200/70 bg-white/80 p-3 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70"
               >
-                <div className="mb-2 flex items-center justify-between gap-3">
+                <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-black text-slate-900 dark:text-white">
-                      {index + 1}. {displayName}
-                    </p>
-                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">{item.email}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="truncate text-sm font-black text-slate-900 dark:text-white">
+                        {index + 1}. {displayName}
+                      </p>
+                      <span
+                        className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${getRoleBadgeClass(item.role)}`}
+                      >
+                        {roleLabel}
+                      </span>
+                    </div>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-lg font-black text-slate-900 dark:text-white">
                       {formatNumber(item.balance)}
                     </p>
                     <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                      {item.role.replace(/_/g, " ")}
+                      Total Points
                     </p>
                   </div>
                 </div>
@@ -821,7 +845,7 @@ export default function AdminPage() {
 
   return (
       <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
-        <section className="relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary px-6 py-7 text-white shadow-[0_28px_90px_rgba(15,23,42,0.18)] md:px-8 md:py-8 dark:border-slate-800">
+        <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary px-6 py-7 text-white shadow-[0_28px_90px_rgba(15,23,42,0.18)] md:px-8 md:py-8 dark:border-slate-800">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />

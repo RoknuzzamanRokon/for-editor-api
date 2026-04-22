@@ -508,4 +508,46 @@ html.light {
       min-width: 32rem;
     }
   }
+
+  .light .app-hero-card {
+    background: linear-gradient(135deg, rgb(255, 255, 255) 0%, rgb(248, 250, 252) 58%, rgb(241, 245, 249) 100%) !important;
+    border-color: rgba(15, 23, 42, 0.12) !important;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08) !important;
+    color: rgb(15, 23, 42) !important;
+  }
+
+  .light .app-hero-card .text-white,
+  .light .app-hero-card .text-white\/90,
+  .light .app-hero-card .text-white\/80,
+  .light .app-hero-card .text-white\/70,
+  .light .app-hero-card .text-white\/55 {
+    color: rgb(15, 23, 42) !important;
+  }
+
+  .light .app-hero-card .app-hero-muted {
+    color: rgb(71, 85, 105) !important;
+  }
+
+  .light .app-hero-card .bg-white\/10,
+  .light .app-hero-card .bg-white\/15 {
+    background-color: rgba(248, 250, 252, 0.96) !important;
+  }
+
+  .light .app-hero-card .bg-white\/20 {
+    background-color: rgba(148, 163, 184, 0.22) !important;
+  }
+
+  .light .app-hero-card .border-white\/10,
+  .light .app-hero-card .border-white\/15 {
+    border-color: rgba(15, 23, 42, 0.12) !important;
+  }
+
+  .light .app-hero-card .bg-primary-foreground\/10 {
+    background-color: rgba(15, 23, 42, 0.06) !important;
+  }
+
+  .light .app-hero-card .shadow-xl,
+  .light .app-hero-card .shadow-\[0_28px_90px_rgba\(15\,23\,42\,0\.18\)\] {
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08) !important;
+  }
 }
