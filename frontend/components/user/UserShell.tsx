@@ -17,6 +17,12 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    document.documentElement.classList.remove("login-fullscreen");
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+  }, []);
+
+  useEffect(() => {
     if (!sidebarReady) return;
     window.localStorage.setItem(
       "user_sidebar_collapsed",

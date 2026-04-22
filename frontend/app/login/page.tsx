@@ -123,6 +123,11 @@ function LoginForm() {
         localStorage.setItem("refresh_token", loginData.refresh_token);
       }
 
+      // Release login route scroll locks before navigating into app shells.
+      document.documentElement.classList.remove("login-fullscreen");
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+
       // Do not block redirect on /me fetch to keep login fast.
       const cachedRole = localStorage.getItem("user_role");
       const fallbackTarget = cachedRole === "general_user" ? "/dashboard" : "/admin";
