@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 from core.config import settings
@@ -24,3 +24,14 @@ def init_db() -> None:
     from db import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+
+    inspector = inspect(engine)
+    if "users" not in inspector.get_table_names():
+        return
+
+    user_columns = {column["name"] for column in inspector.get_columns("users")}
+    if "demo_expires_at" in user_columns:
+        return
+
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE users ADD COLUMN demo_expires_at DATETIME NULL"))

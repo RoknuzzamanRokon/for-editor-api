@@ -12,7 +12,7 @@ from core.security import (
     verify_password,
 )
 from db.models import RefreshToken, User
-from services.users import get_user_by_id
+from services.users import get_user_by_id, is_demo_expired
 
 
 def authenticate_user(db: Session, email: str, password: str) -> User:
@@ -24,6 +24,8 @@ def authenticate_user(db: Session, email: str, password: str) -> User:
                 User.email,
                 User.hashed_password,
                 User.is_active,
+                User.role,
+                User.demo_expires_at,
             )
         )
         .filter(User.email == email)
@@ -33,6 +35,8 @@ def authenticate_user(db: Session, email: str, password: str) -> User:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user")
+    if is_demo_expired(user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo account expired")
     return user
 
 
@@ -75,5 +79,7 @@ def refresh_access_token(db: Session, refresh_token: str) -> str:
     user = get_user_by_id(db, int(subject))
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user")
+    if is_demo_expired(user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo account expired")
 
     return create_access_token(subject=str(user.id))

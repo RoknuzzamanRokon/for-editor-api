@@ -80,11 +80,15 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "";
+  const prefill = searchParams.get("prefill") || "";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const defaultRouteForRole = (role?: string | null) =>
+    role === "general_user" || role === "demo_user" ? "/dashboard" : "/admin";
 
   useEffect(() => {
     const prevHtmlOverflow = document.documentElement.style.overflow;
@@ -99,6 +103,31 @@ function LoginForm() {
       document.body.style.overflow = prevBodyOverflow;
     };
   }, []);
+
+  useEffect(() => {
+    if (prefill !== "register") {
+      return;
+    }
+
+    const stored = sessionStorage.getItem("register_prefill");
+    if (!stored) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(stored) as { email?: string; password?: string };
+      if (parsed.email) {
+        setEmail(parsed.email);
+      }
+      if (parsed.password) {
+        setPassword(parsed.password);
+      }
+    } catch {
+      // Ignore malformed prefill data.
+    } finally {
+      sessionStorage.removeItem("register_prefill");
+    }
+  }, [prefill]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -128,13 +157,28 @@ function LoginForm() {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
 
-      // Do not block redirect on /me fetch to keep login fast.
-      const cachedRole = localStorage.getItem("user_role");
-      const fallbackTarget = cachedRole === "general_user" ? "/dashboard" : "/admin";
       if (next) {
         router.replace(next);
       } else {
-        router.replace(fallbackTarget);
+        let target = defaultRouteForRole(localStorage.getItem("user_role"));
+
+        try {
+          const meRes = await fetch(`${API_BASE}/api/v2/auth/me`, {
+            headers: { Authorization: `Bearer ${loginData.access_token}` },
+          });
+
+          if (meRes.ok) {
+            const me = await meRes.json();
+            if (me?.role) {
+              localStorage.setItem("user_role", me.role);
+              target = defaultRouteForRole(me.role);
+            }
+          }
+        } catch {
+          // Keep cached fallback target if /me is temporarily unavailable.
+        }
+
+        router.replace(target);
       }
 
       // Refresh role in background for future routing decisions.

@@ -9,6 +9,10 @@ import AdminShell from "@/components/admin/AdminShell";
 
 type Role = "super_user" | "admin" | "admin_user" | "general_user" | string;
 
+function defaultRouteForRole(role: Role) {
+  return role === "general_user" || role === "demo_user" ? "/dashboard" : "/admin";
+}
+
 async function fetchMe(token: string) {
   const res = await fetch(`${API_BASE}/api/v2/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -55,7 +59,7 @@ export default function RequireRole({
         const role = me?.role as Role;
         localStorage.setItem("user_role", role);
         if (!allow.includes(role)) {
-          router.replace(role === "general_user" ? "/dashboard" : "/admin");
+          router.replace(defaultRouteForRole(role));
           return;
         }
       } catch {
@@ -76,7 +80,7 @@ export default function RequireRole({
           const role = me?.role as Role;
           localStorage.setItem("user_role", role);
           if (!allow.includes(role)) {
-            router.replace(role === "general_user" ? "/dashboard" : "/admin");
+            router.replace(defaultRouteForRole(role));
             return;
           }
         } catch {

@@ -36,6 +36,25 @@ class TokenRefreshRequest(BaseModel):
     refresh_token: str
 
 
+class DemoRegisterRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6)
+    username: Optional[str] = None
+    selected_actions: list[str] = Field(min_length=1, max_length=3)
+
+    @field_validator("selected_actions")
+    @classmethod
+    def validate_selected_actions(cls, value: list[str]) -> list[str]:
+        unique_actions = list(dict.fromkeys(value))
+        if len(unique_actions) != len(value):
+            raise ValueError("Selected actions must be unique")
+        if len(unique_actions) > 3:
+            raise ValueError("You can select up to 3 APIs")
+        if len(unique_actions) == 0:
+            raise ValueError("Select at least 1 API")
+        return unique_actions
+
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)
@@ -50,6 +69,7 @@ class UserOut(BaseModel):
     role: RoleEnum
     is_active: bool
     created_at: datetime
+    demo_expires_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
     
@@ -101,6 +121,7 @@ class MeResponse(BaseModel):
     role: RoleEnum
     is_active: bool
     created_at: datetime
+    demo_expires_at: Optional[datetime] = None
     last_login: Optional[datetime] = None
     created_by: Optional[UserCreatorSummary] = None
     points: UserPointSummary

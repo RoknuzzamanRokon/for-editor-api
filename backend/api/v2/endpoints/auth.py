@@ -9,6 +9,7 @@ from db.models import Conversion, PointsLedger, RoleEnum, User, UserConversionPe
 from db.session import get_db
 from models.auth import (
     AccessTokenResponse,
+    DemoRegisterRequest,
     LoginRequest,
     MeResponse,
     TokenPair,
@@ -27,6 +28,7 @@ from models.settings import (
 )
 from services import auth as auth_service
 from services import settings as settings_service
+from services import users as users_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -93,6 +95,11 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenPair:
     user = auth_service.authenticate_user(db, payload.email, payload.password)
     access_token, refresh_token = auth_service.create_token_pair(db, user)
     return TokenPair(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post("/register", response_model=UserOut)
+def register_demo_user(payload: DemoRegisterRequest, db: Session = Depends(get_db)) -> UserOut:
+    return users_service.create_demo_self_registered_user(db, payload)
 
 
 @router.post("/refresh", response_model=AccessTokenResponse)
@@ -189,6 +196,7 @@ def me(
         role=current_user.role,
         is_active=current_user.is_active,
         created_at=current_user.created_at,
+        demo_expires_at=current_user.demo_expires_at,
         last_login=current_user.last_login,
         created_by=creator,
         points=UserPointSummary(

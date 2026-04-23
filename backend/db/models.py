@@ -35,6 +35,7 @@ class User(Base):
     is_active = Column(Boolean, nullable=False, default=True)
     created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
+    demo_expires_at = Column(DateTime, nullable=True)
     last_login = Column(DateTime, nullable=True)  # Track last login time
 
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")

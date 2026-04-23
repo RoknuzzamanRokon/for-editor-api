@@ -77,10 +77,23 @@ function EyeOffIcon({ className = "" }: { className?: string }) {
 }
 
 export default function RegisterPage() {
+  const apiOptions = [
+    { action: "pdf_to_docs", label: "PDF to Word" },
+    { action: "pdf_to_excel", label: "PDF to Excel" },
+    { action: "docx_to_pdf", label: "DOCX to PDF" },
+    { action: "excel_to_pdf", label: "Excel to PDF" },
+    { action: "image_to_pdf", label: "Image to PDF" },
+    { action: "remove_background", label: "Remove Background" },
+    { action: "pdf_page_remove", label: "Remove PDF Pages" },
+  ];
+
   const router = useRouter();
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedActions, setSelectedActions] = useState<string[]>([]);
+  const [understood, setUnderstood] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -97,21 +110,23 @@ export default function RegisterPage() {
       return;
     }
 
+    if (selectedActions.length === 0) {
+      setError("Select at least 1 API");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-      const derivedUsername = email.split("@")[0]?.trim() || "user";
-      const response = await fetch(`${API_BASE}/api/v2/users`, {
+      const response = await fetch(`${API_BASE}/api/v2/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           email,
           password,
-          username: derivedUsername,
+          selected_actions: selectedActions,
         }),
       });
 
@@ -126,13 +141,64 @@ export default function RegisterPage() {
       }
 
       setSuccess("Account created successfully. Redirecting to login...");
-      window.setTimeout(() => router.push("/login"), 1000);
+      sessionStorage.setItem(
+        "register_prefill",
+        JSON.stringify({
+          email,
+          password,
+        }),
+      );
+      window.setTimeout(() => router.push("/login?prefill=register"), 1000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setLoading(false);
     }
   };
+
+  const toggleAction = (action: string) => {
+    setError("");
+    setSelectedActions((current) => {
+      if (current.includes(action)) {
+        return current.filter((item) => item !== action);
+      }
+      if (current.length >= 3) {
+        setError("You can choose up to 3 APIs");
+        return current;
+      }
+      return [...current, action];
+    });
+  };
+
+  const handleStepOneNext = () => {
+    setError("");
+    if (!email.trim()) {
+      setError("Enter your email");
+      return;
+    }
+    if (!password || !confirmPassword) {
+      setError("Enter your password and confirm password");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    setStep(2);
+  };
+
+  const handleStepTwoNext = () => {
+    setError("");
+    if (selectedActions.length === 0) {
+      setError("Select at least 1 API");
+      return;
+    }
+    setStep(3);
+  };
+
+  const selectedLabels = apiOptions
+    .filter((option) => selectedActions.includes(option.action))
+    .map((option) => option.label);
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background-light px-4 text-foreground dark:bg-[rgba(9,17,31,0.78)]">
@@ -158,10 +224,10 @@ export default function RegisterPage() {
           </a>
         </nav>
 
-        <div className="absolute inset-x-0 bottom-0 top-16 z-10 flex items-center justify-center overflow-hidden">
-          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl dark:bg-[rgba(17,24,39,0.74)]">
-            <div className="p-8">
-              <div className="mb-8 flex items-center gap-3">
+        <div className="absolute inset-x-0 bottom-0 top-16 z-10 flex items-center justify-center overflow-hidden px-4">
+          <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl dark:bg-[rgba(17,24,39,0.74)]">
+            <div className="p-6 sm:p-8">
+              <div className="mb-6 flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
                   <SparklesIcon className="h-6 w-6 text-white" />
                 </div>
@@ -172,77 +238,134 @@ export default function RegisterPage() {
               </div>
 
               <h1 className="text-2xl font-semibold text-foreground">Create account</h1>
-              <p className="mt-1 text-sm text-foreground/70">
-                Register with your email and password
-              </p>
+              <div className="mt-2 flex items-center gap-2 text-xs text-foreground/60">
+                <span className={`rounded-full px-2 py-1 ${step === 1 ? "bg-primary/15 text-primary" : "bg-background text-foreground/60"}`}>1</span>
+                <span className={`rounded-full px-2 py-1 ${step === 2 ? "bg-primary/15 text-primary" : "bg-background text-foreground/60"}`}>2</span>
+                <span className={`rounded-full px-2 py-1 ${step === 3 ? "bg-primary/15 text-primary" : "bg-background text-foreground/60"}`}>3</span>
+              </div>
 
-              <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Email address</label>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <MailIcon className="h-4 w-4 text-foreground/60" />
+              <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+                {step === 1 && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <label className="text-sm font-medium text-foreground">Email address</label>
+                      <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                          <MailIcon className="h-4 w-4 text-foreground/60" />
+                        </div>
+                        <input
+                          className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+                          type="email"
+                          placeholder="you@example.com"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                      </div>
                     </div>
-                    <input
-                      className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
-                      type="email"
-                      placeholder="you@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Password</label>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <LockIcon className="h-4 w-4 text-foreground/60" />
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground">Password</label>
+                      <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                          <LockIcon className="h-4 w-4 text-foreground/60" />
+                        </div>
+                        <input
+                          className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Create password"
+                          required
+                          minLength={6}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground/60 transition-colors hover:text-foreground"
+                        >
+                          {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                        </button>
+                      </div>
                     </div>
-                    <input
-                      className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Create password"
-                      required
-                      minLength={6}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground/60 transition-colors hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Confirm password</label>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <LockIcon className="h-4 w-4 text-foreground/60" />
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground">Confirm password</label>
+                      <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                          <LockIcon className="h-4 w-4 text-foreground/60" />
+                        </div>
+                        <input
+                          className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="Repeat password"
+                          required
+                          minLength={6}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground/60 transition-colors hover:text-foreground"
+                        >
+                          {showConfirmPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                        </button>
+                      </div>
                     </div>
-                    <input
-                      className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Repeat password"
-                      required
-                      minLength={6}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground/60 transition-colors hover:text-foreground"
-                    >
-                      {showConfirmPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
-                    </button>
                   </div>
-                </div>
+                )}
+
+                {step === 2 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <label className="text-sm font-medium text-foreground">Choose up to 3 APIs</label>
+                      <span className="text-xs text-foreground/60">{selectedActions.length}/3 selected</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {apiOptions.map((option) => {
+                        const active = selectedActions.includes(option.action);
+                        return (
+                          <button
+                            key={option.action}
+                            type="button"
+                            onClick={() => toggleAction(option.action)}
+                            className={`rounded-xl border px-3 py-2 text-left text-xs font-medium transition-all ${
+                              active ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-foreground/75 hover:border-primary/50"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-border bg-background/80 p-4">
+                      <p className="text-sm font-semibold text-foreground">Terms and conditions</p>
+                      <div className="mt-3 space-y-2 text-sm text-foreground/70">
+                        <p>Account type: Demo user</p>
+                        <p>Trial access: 8 days active account period</p>
+                        <p>Starting points: 33</p>
+                        <p>Selected apps: {selectedLabels.join(", ")}</p>
+                      </div>
+                    </div>
+
+                    <label className="flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground">
+                      <input
+                        type="radio"
+                        name="understand"
+                        checked={understood}
+                        onChange={() => setUnderstood(true)}
+                        className="h-4 w-4 border-border text-primary focus:ring-primary/20"
+                      />
+                      <span>I understand the demo account terms and selected app access.</span>
+                    </label>
+                  </div>
+                )}
 
                 {error && (
                   <div className="rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-700 backdrop-blur-sm animate-in slide-in-from-top-2 duration-200">
@@ -262,35 +385,72 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="relative w-full overflow-hidden rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      Creating account...
-                    </span>
-                  ) : (
-                    "Create account"
+                <div className="flex gap-3">
+                  {step > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setError("");
+                        setStep(step === 3 ? 2 : 1);
+                      }}
+                      className="w-full rounded-xl border border-border bg-background py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary/50"
+                    >
+                      Back
+                    </button>
                   )}
-                </button>
+
+                  {step === 1 && (
+                    <button
+                      type="button"
+                      onClick={handleStepOneNext}
+                      className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90"
+                    >
+                      Next
+                    </button>
+                  )}
+
+                  {step === 2 && (
+                    <button
+                      type="button"
+                      onClick={handleStepTwoNext}
+                      className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90"
+                    >
+                      Next
+                    </button>
+                  )}
+
+                  {step === 3 && (
+                    <button
+                      type="submit"
+                      disabled={loading || !understood}
+                      className="relative w-full overflow-hidden rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="none"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          Creating account...
+                        </span>
+                      ) : (
+                        "Create account"
+                      )}
+                    </button>
+                  )}
+                </div>
               </form>
 
               <div className="mt-6 text-center">

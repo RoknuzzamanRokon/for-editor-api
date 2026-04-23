@@ -339,36 +339,53 @@ export default function DashboardPage() {
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
-              <span className="material-symbols-outlined text-base">dashboard</span>
+              <span className="material-symbols-outlined text-base">
+                dashboard
+              </span>
               Live API overview
             </div>
 
             <h1 className="text-2xl font-black tracking-tight sm:text-3xl md:text-5xl">
-              Welcome back, {displayName}
+              Hi, {displayName.charAt(0).toUpperCase() + displayName.slice(1)}
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-white/80 md:text-base">
-              Track request volume, API usage, conversion health, and recent activity from one clean dashboard.
+              Track request volume, API usage, conversion health, and recent
+              activity from one clean dashboard.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">Role</p>
-              <p className="mt-1 text-sm font-bold">{overview.user.role.replaceAll("_", " ")}</p>
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Role
+              </p>
+              <p className="mt-1 text-sm font-bold">
+                {overview.user.role.replaceAll("_", " ")}
+              </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">Status</p>
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Status
+              </p>
               <p className="mt-1 text-sm font-bold">
                 {overview.user.is_active ? "Active" : "Inactive"}
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">Points</p>
-              <p className="mt-1 text-sm font-bold">{overview.summary.remaining_points}</p>
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Points
+              </p>
+              <p className="mt-1 text-sm font-bold">
+                {overview.summary.remaining_points}
+              </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">Active APIs</p>
-              <p className="mt-1 text-sm font-bold">{overview.summary.active_api_count}</p>
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Active APIs
+              </p>
+              <p className="mt-1 text-sm font-bold">
+                {overview.summary.active_api_count}
+              </p>
             </div>
           </div>
         </div>
@@ -377,23 +394,31 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-medium text-slate-500">Monthly Requests</p>
-          <p className="mt-1 text-2xl font-bold">{overview.summary.monthly_requests.toLocaleString()}</p>
+          <p className="mt-1 text-2xl font-bold">
+            {overview.summary.monthly_requests.toLocaleString()}
+          </p>
         </div>
 
         <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-medium text-slate-500">Remaining Points</p>
-          <p className="mt-1 text-2xl font-bold">{overview.summary.remaining_points.toLocaleString()}</p>
+          <p className="mt-1 text-2xl font-bold">
+            {overview.summary.remaining_points.toLocaleString()}
+          </p>
         </div>
 
         <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-medium text-slate-500">Success Rate</p>
-          <p className="mt-1 text-2xl font-bold">{overview.summary.success_rate.toFixed(1)}%</p>
+          <p className="mt-1 text-2xl font-bold">
+            {overview.summary.success_rate.toFixed(1)}%
+          </p>
         </div>
 
         <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-medium text-slate-500">Avg. Latency</p>
           <p className="mt-1 text-2xl font-bold">
-            {overview.summary.avg_latency_ms == null ? "-" : `${Math.round(overview.summary.avg_latency_ms)}ms`}
+            {overview.summary.avg_latency_ms == null
+              ? "-"
+              : `${Math.round(overview.summary.avg_latency_ms)}ms`}
           </p>
         </div>
       </div>
@@ -404,7 +429,8 @@ export default function DashboardPage() {
             <div>
               <h3 className="text-lg font-bold">API Performance (30 Days)</h3>
               <p className="mt-1 text-sm text-slate-500">
-                Daily request volume across the last 30 days, including inactive days.
+                Daily request volume across the last 30 days, including inactive
+                days.
               </p>
             </div>
             <div className="grid grid-cols-1 gap-4 text-sm sm:min-w-[280px] sm:grid-cols-2">
@@ -421,7 +447,9 @@ export default function DashboardPage() {
                   Busiest Day
                 </p>
                 <p className="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100">
-                  {busiestDay ? `${busiestDay.label} (${busiestDay.total})` : "-"}
+                  {busiestDay
+                    ? `${busiestDay.label} (${busiestDay.total})`
+                    : "-"}
                 </p>
               </div>
             </div>
@@ -436,84 +464,104 @@ export default function DashboardPage() {
               aria-label="30 day API usage line chart"
               preserveAspectRatio="none"
             >
-                <defs>
-                  <linearGradient id="performance-area" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.28" />
-                    <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.03" />
-                  </linearGradient>
-                </defs>
+              <defs>
+                <linearGradient
+                  id="performance-area"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="0%"
+                    stopColor="var(--primary)"
+                    stopOpacity="0.28"
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="var(--primary)"
+                    stopOpacity="0.03"
+                  />
+                </linearGradient>
+              </defs>
 
-                {yAxisTicks.map((tick) => (
-                  <g key={`${tick.value}-${tick.y}`}>
-                    <line
-                      x1={CHART_PADDING.left}
-                      y1={tick.y}
-                      x2={CHART_WIDTH - CHART_PADDING.right}
-                      y2={tick.y}
-                      stroke="currentColor"
-                      strokeOpacity="0.12"
-                      strokeDasharray="4 6"
-                    />
+              {yAxisTicks.map((tick) => (
+                <g key={`${tick.value}-${tick.y}`}>
+                  <line
+                    x1={CHART_PADDING.left}
+                    y1={tick.y}
+                    x2={CHART_WIDTH - CHART_PADDING.right}
+                    y2={tick.y}
+                    stroke="currentColor"
+                    strokeOpacity="0.12"
+                    strokeDasharray="4 6"
+                  />
+                  <text
+                    x={CHART_PADDING.left}
+                    y={tick.y - 6}
+                    fontSize="11"
+                    fill="currentColor"
+                    opacity="0.55"
+                  >
+                    {tick.value}
+                  </text>
+                </g>
+              ))}
+
+              <line
+                x1={CHART_PADDING.left}
+                y1={CHART_HEIGHT - CHART_PADDING.bottom}
+                x2={CHART_WIDTH - CHART_PADDING.right}
+                y2={CHART_HEIGHT - CHART_PADDING.bottom}
+                stroke="currentColor"
+                strokeOpacity="0.16"
+              />
+
+              {chartAreaPath ? (
+                <path
+                  d={chartAreaPath}
+                  fill="url(#performance-area)"
+                  stroke="none"
+                />
+              ) : null}
+
+              <path
+                d={chartLinePath}
+                fill="none"
+                stroke="var(--primary)"
+                strokeWidth="3"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+
+              {performanceSeries.map((point, index) => (
+                <g key={point.date}>
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r={index === performanceSeries.length - 1 ? 5 : 4}
+                    fill="var(--primary)"
+                    stroke="white"
+                    strokeWidth="2"
+                  >
+                    <title>{`${point.date}: ${point.total} request${point.total === 1 ? "" : "s"}`}</title>
+                  </circle>
+                  {X_AXIS_LABEL_INDEXES.has(index) ? (
                     <text
-                      x={CHART_PADDING.left}
-                      y={tick.y - 6}
+                      x={point.x}
+                      y={CHART_HEIGHT - 10}
+                      textAnchor={
+                        index === 0 ? "start" : index === 29 ? "end" : "middle"
+                      }
                       fontSize="11"
                       fill="currentColor"
-                      opacity="0.55"
+                      opacity="0.6"
                     >
-                      {tick.value}
+                      {point.label}
                     </text>
-                  </g>
-                ))}
-
-                <line
-                  x1={CHART_PADDING.left}
-                  y1={CHART_HEIGHT - CHART_PADDING.bottom}
-                  x2={CHART_WIDTH - CHART_PADDING.right}
-                  y2={CHART_HEIGHT - CHART_PADDING.bottom}
-                  stroke="currentColor"
-                  strokeOpacity="0.16"
-                />
-
-                {chartAreaPath ? (
-                  <path d={chartAreaPath} fill="url(#performance-area)" stroke="none" />
-                ) : null}
-
-                <path
-                  d={chartLinePath}
-                  fill="none"
-                  stroke="var(--primary)"
-                  strokeWidth="3"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
-
-                {performanceSeries.map((point, index) => (
-                  <g key={point.date}>
-                    <circle
-                      cx={point.x}
-                      cy={point.y}
-                      r={index === performanceSeries.length - 1 ? 5 : 4}
-                      fill="var(--primary)"
-                      stroke="white"
-                      strokeWidth="2"
-                    >
-                      <title>{`${point.date}: ${point.total} request${point.total === 1 ? "" : "s"}`}</title>
-                    </circle>
-                    {X_AXIS_LABEL_INDEXES.has(index) ? (
-                      <text
-                        x={point.x}
-                        y={CHART_HEIGHT - 10}
-                        textAnchor={index === 0 ? "start" : index === 29 ? "end" : "middle"}
-                        fontSize="11"
-                        fill="currentColor"
-                        opacity="0.6"
-                      >
-                        {point.label}
-                      </text>
-                    ) : null}
-                  </g>
-                ))}
+                  ) : null}
+                </g>
+              ))}
             </svg>
           </div>
         </div>
@@ -525,7 +573,9 @@ export default function DashboardPage() {
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <h3 className="font-bold">My Active APIs</h3>
-                <p className="mt-1 text-xs text-slate-500">Usage count by API action.</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  Usage count by API action.
+                </p>
               </div>
               <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
                 {overview.active_apis.length} APIs
@@ -540,26 +590,31 @@ export default function DashboardPage() {
                   .sort((left, right) => right.usage_count - left.usage_count)
                   .slice(0, 6)
                   .map((api) => (
-                  <div key={api.action} className="space-y-2">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold">{api.label}</p>
-                        <p className="truncate text-[11px] text-slate-500">{api.route}</p>
+                    <div key={api.action} className="space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold">
+                            {api.label}
+                          </p>
+                          <p className="truncate text-[11px] text-slate-500">
+                            {api.route}
+                          </p>
+                        </div>
+                        <p className="shrink-0 text-sm font-bold text-slate-900 dark:text-slate-100">
+                          {api.usage_count}{" "}
+                          {api.usage_count === 1 ? "time" : "times"}
+                        </p>
                       </div>
-                      <p className="shrink-0 text-sm font-bold text-slate-900 dark:text-slate-100">
-                        {api.usage_count} {api.usage_count === 1 ? "time" : "times"}
-                      </p>
+                      <div className="h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all"
+                          style={{
+                            width: `${Math.max((api.usage_count / maxActiveApiUsage) * 100, api.usage_count > 0 ? 8 : 0)}%`,
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div className="h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                      <div
-                        className="h-full rounded-full bg-primary transition-all"
-                        style={{
-                          width: `${Math.max((api.usage_count / maxActiveApiUsage) * 100, api.usage_count > 0 ? 8 : 0)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>
@@ -567,10 +622,30 @@ export default function DashboardPage() {
           <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h4 className="mb-3 font-bold">Conversion Summary</h4>
             <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-              <p>Total: <span className="font-semibold">{overview.summary.total_conversions}</span></p>
-              <p>Success: <span className="font-semibold">{overview.summary.success_conversions}</span></p>
-              <p>Failed: <span className="font-semibold">{overview.summary.failed_conversions}</span></p>
-              <p>Processing: <span className="font-semibold">{overview.summary.processing_conversions}</span></p>
+              <p>
+                Total:{" "}
+                <span className="font-semibold">
+                  {overview.summary.total_conversions}
+                </span>
+              </p>
+              <p>
+                Success:{" "}
+                <span className="font-semibold">
+                  {overview.summary.success_conversions}
+                </span>
+              </p>
+              <p>
+                Failed:{" "}
+                <span className="font-semibold">
+                  {overview.summary.failed_conversions}
+                </span>
+              </p>
+              <p>
+                Processing:{" "}
+                <span className="font-semibold">
+                  {overview.summary.processing_conversions}
+                </span>
+              </p>
             </div>
           </div>
         </div>
@@ -589,7 +664,12 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr] lg:items-center">
                 <div className="flex justify-center">
                   <div className="relative h-44 w-44">
-                    <svg viewBox="0 0 160 160" className="h-full w-full" role="img" aria-label="Recent history status breakdown">
+                    <svg
+                      viewBox="0 0 160 160"
+                      className="h-full w-full"
+                      role="img"
+                      aria-label="Recent history status breakdown"
+                    >
                       <circle
                         cx="80"
                         cy="80"
@@ -630,13 +710,17 @@ export default function DashboardPage() {
                       Status breakdown from the current recent history list.
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
-                      Quick health view for the same records shown in the table below.
+                      Quick health view for the same records shown in the table
+                      below.
                     </p>
                   </div>
 
                   <div className="space-y-3">
                     {recentHistoryStatusSummary.map((item) => (
-                      <div key={item.status} className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
+                      <div
+                        key={item.status}
+                        className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60"
+                      >
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-3">
                             <span
@@ -652,7 +736,9 @@ export default function DashboardPage() {
                             <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
                               {item.count}
                             </p>
-                            <p className="text-xs text-slate-500">{item.percent.toFixed(0)}%</p>
+                            <p className="text-xs text-slate-500">
+                              {item.percent.toFixed(0)}%
+                            </p>
                           </div>
                         </div>
                         <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
@@ -684,22 +770,35 @@ export default function DashboardPage() {
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {overview.recent_history.length === 0 ? (
                     <tr>
-                      <td className="px-6 py-6 text-sm text-slate-500" colSpan={5}>
+                      <td
+                        className="px-6 py-6 text-sm text-slate-500"
+                        colSpan={5}
+                      >
                         No history found.
                       </td>
                     </tr>
                   ) : (
                     overview.recent_history.map((item) => (
                       <tr key={item.id}>
-                        <td className="px-6 py-4 text-sm font-medium">{item.endpoint}</td>
+                        <td className="px-6 py-4 text-sm font-medium">
+                          {item.endpoint}
+                        </td>
                         <td className="px-6 py-4">
-                          <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${getStatusBadge(item.status)}`}>
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${getStatusBadge(item.status)}`}
+                          >
                             {item.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-500">{formatDuration(item.duration_ms)}</td>
-                        <td className="px-6 py-4 text-sm text-slate-500">{item.points_charged}</td>
-                        <td className="px-6 py-4 text-sm text-slate-500">{formatDate(item.updated_at)}</td>
+                        <td className="px-6 py-4 text-sm text-slate-500">
+                          {formatDuration(item.duration_ms)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-500">
+                          {item.points_charged}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-500">
+                          {formatDate(item.updated_at)}
+                        </td>
                       </tr>
                     ))
                   )}

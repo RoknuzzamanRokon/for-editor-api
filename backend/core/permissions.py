@@ -37,9 +37,6 @@ def ensure_permission(db: Session, user: User, action: str) -> None:
     if user.role == RoleEnum.super_user:
         return
 
-    if user.role == RoleEnum.demo_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo user is read-only")
-
     permission = (
         db.query(UserConversionPermission)
         .filter(

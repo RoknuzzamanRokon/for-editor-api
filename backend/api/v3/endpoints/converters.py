@@ -77,9 +77,6 @@ def _enforce_access(
     response: Response,
     size: Optional[int],
 ):
-    if user.role == RoleEnum.demo_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo user is read-only")
-
     ensure_permission(db, user, action)
 
     idempotency_key = request.headers.get("Idempotency-Key")
