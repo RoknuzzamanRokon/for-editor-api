@@ -151,8 +151,12 @@ def create_user(
 
 
 def create_demo_self_registered_user(db: Session, payload: DemoRegisterRequest) -> User:
-    if get_user_by_email(db, payload.email):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+    existing_user = get_user_by_email(db, payload.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This email already used a demo registration. Please sign in or contact super admin.",
+        )
 
     requested_username = (payload.username or _derive_username_from_email(payload.email)).strip()
     username = _ensure_unique_username(db, requested_username)

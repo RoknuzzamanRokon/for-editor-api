@@ -1,5 +1,8 @@
 'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useMarketingTheme } from '@/config/marketingTheme'
+import ContactModal from '@/components/marketing/ContactModal'
 
 const plans = [
   { name: 'Demo',       price: '$0',     sub: 'Perfect for testing and small personal projects.',  btn: 'Start Free',    featured: false, features: ['20 requests / one week', 'Basic 3 Converters', 'Community Support'] },
@@ -10,6 +13,18 @@ const plans = [
 
 export default function Page() {
   const { theme: t } = useMarketingTheme()
+  const router = useRouter()
+  const [contactModalOpen, setContactModalOpen] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState('')
+
+  const handlePlanClick = (planName: string) => {
+    if (planName === 'Demo') {
+      router.push('/register')
+    } else {
+      setSelectedPlan(planName)
+      setContactModalOpen(true)
+    }
+  }
 
   return (
     <main
@@ -97,6 +112,7 @@ export default function Page() {
                   </p>
                 </div>
                 <button
+                  onClick={() => handlePlanClick(plan.name)}
                   className="w-full rounded-xl border py-3 text-sm font-bold transition-all hover:opacity-90"
                   style={{
                     background: t.surface,
@@ -138,6 +154,12 @@ export default function Page() {
           })}
         </div>
       </div>
+
+      <ContactModal
+        isOpen={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
+        planName={selectedPlan}
+      />
     </main>
   );
 }

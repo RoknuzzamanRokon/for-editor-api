@@ -131,13 +131,21 @@ export default function RegisterPage() {
       });
 
       if (!response.ok) {
-        const body = await response.text();
+        let errorMessage = "Registration failed";
+        
+        try {
+          const body = await response.json();
+          errorMessage = body.detail || errorMessage;
+        } catch {
+          const body = await response.text();
+          errorMessage = body || errorMessage;
+        }
 
         if (response.status === 401 || response.status === 403) {
           throw new Error("Self-registration is not enabled yet. Please contact your admin or sign in with an existing account.");
         }
 
-        throw new Error(body || "Registration failed");
+        throw new Error(errorMessage);
       }
 
       setSuccess("Account created successfully. Redirecting to login...");

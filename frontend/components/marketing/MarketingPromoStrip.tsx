@@ -26,7 +26,7 @@ const promoItems: PromoItem[] = [
     badge: "Free Trial",
     message:
       "Test document conversions free before you move production traffic.",
-    href: "/pricing",
+    href: "/register",
     cta: "Start Free",
   },
   {

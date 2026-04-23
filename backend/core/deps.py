@@ -31,8 +31,6 @@ def get_current_user(
     user = get_user_by_id(db, int(subject))
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Inactive user")
-    if is_demo_expired(user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo account expired")
 
     return user
 

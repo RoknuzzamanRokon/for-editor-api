@@ -1134,13 +1134,8 @@ export default function Page() {
               <section className="rounded-[13px] border px-5 py-7 sm:px-7 sm:py-8 lg:px-10" style={{ background: t.bgSecondary, borderColor: t.border }}>
                 <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
                   <div className="max-w-3xl">
-                    <span
-                      className="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]"
-                      style={{ background: `${t.primary}18`, color: t.primary }}
-                    >
-                      Server Environment
-                    </span>
-                    <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl" style={{ color: t.heading }}>
+       
+                    <h1 className="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl" style={{ color: t.heading }}>
                       Convater Pro API Documentation
                     </h1>
                     <p className="mt-5 text-base leading-7 sm:text-lg" style={{ color: t.text }}>
@@ -1148,30 +1143,7 @@ export default function Page() {
                     </p>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2 xl:w-[420px]">
-                    <div className="rounded-2xl border p-4" style={{ background: t.card, borderColor: t.border }}>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: t.textMuted }}>
-                        Environment
-                      </p>
-                      <p className="mt-2 text-lg font-bold" style={{ color: t.heading }}>
-                        Server
-                      </p>
-                      <p className="mt-1 text-sm leading-6" style={{ color: t.text }}>
-                        Base requests against the hosted API environment.
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border p-4" style={{ background: t.card, borderColor: t.border }}>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: t.textMuted }}>
-                        Primary Versions
-                      </p>
-                      <p className="mt-2 text-lg font-bold" style={{ color: t.heading }}>
-                        v2 + v3
-                      </p>
-                      <p className="mt-1 text-sm leading-6" style={{ color: t.text }}>
-                        v2 handles auth/users, while v3 carries current platform operations.
-                      </p>
-                    </div>
-                  </div>
+                  
                 </div>
               </section>
 

@@ -34,7 +34,7 @@ export default function Page() {
               Secure, fast, role-based infrastructure for document conversion, permissions, billing controls, and operational visibility.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:gap-4">
-              <a href="/pricing" className="group relative rounded-2xl px-6 py-3.5 text-center text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] sm:px-8 sm:py-4 sm:text-lg"
+              <a href="/register" className="group relative rounded-2xl px-6 py-3.5 text-center text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] sm:px-8 sm:py-4 sm:text-lg"
                 style={{
                   background: t.buttonBg,
                   color: t.buttonText,

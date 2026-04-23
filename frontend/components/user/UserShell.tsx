@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import UserSidebar from "./UserSidebar";
 import UserHeader from "./UserHeader";
+import ExpiredDemoCard from "./ExpiredDemoCard";
+import { API_BASE } from "@/lib/apiBase";
+
+interface UserData {
+  role?: string;
+  demo_expires_at?: string | null;
+  active_apis?: Array<{ action: string; label: string }>;
+}
 
 export default function UserShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -12,6 +20,35 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
     return window.localStorage.getItem("user_sidebar_collapsed") === "true";
   });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isExpired, setIsExpired] = useState(false);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/v2/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUserData(data);
+
+          if (data.role === "demo_user" && data.demo_expires_at) {
+            const expiryDate = new Date(data.demo_expires_at);
+            const now = new Date();
+            setIsExpired(expiryDate <= now);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.remove("login-fullscreen");
@@ -50,6 +87,20 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isMobileMenuOpen]);
+
+  if (isExpired) {
+    return (
+      <div className="min-h-screen bg-background-light text-foreground dark:bg-slate-950/55">
+        <UserHeader onOpenMobileMenu={() => {}} />
+        <div className="pt-16">
+          <ExpiredDemoCard
+            demoExpiresAt={userData?.demo_expires_at}
+            activeApis={userData?.active_apis}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background-light text-foreground dark:bg-slate-950/55">

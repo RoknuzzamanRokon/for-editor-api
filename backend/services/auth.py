@@ -35,8 +35,6 @@ def authenticate_user(db: Session, email: str, password: str) -> User:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user")
-    if is_demo_expired(user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo account expired")
     return user
 
 
