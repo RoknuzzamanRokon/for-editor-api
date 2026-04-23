@@ -352,42 +352,110 @@ export default function DashboardProfilePage() {
             </div>
           </div>
 
-          <div className="rounded-[13px] border border-primary/10 bg-primary/5 p-6 shadow-sm">
-            <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/15 p-3 text-primary">
-                <span className="material-symbols-outlined">info</span>
+          <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                <span className="material-symbols-outlined">schedule</span>
               </div>
-              <div className="flex-1">
-                <h4 className="text-base font-bold text-slate-900 dark:text-white">
+              <div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white">
                   Point Status
                 </h4>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                  Current status:
-                  <span
-                    className={`ml-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
-                      myPoints.point_status,
-                    )}`}
-                  >
-                    {myPoints.point_status}
-                  </span>
-                </p>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                  Expiry status:
-                  <span
-                    className={`ml-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
-                      myPoints.expiry_status,
-                    )}`}
-                  >
-                    {myPoints.expiry_status}
-                  </span>
-                </p>
-                <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                  Expires at:{" "}
-                  <span className="font-semibold">
-                    {formatDate(myPoints.expires_at)}
-                  </span>
+                <p className="text-sm text-slate-500">
+                  Expiration and availability
                 </p>
               </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+                <p className="text-xs uppercase tracking-wider text-slate-500">
+                  Available Points
+                </p>
+                <p className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
+                  {myPoints.available_points}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+                <p className="text-xs uppercase tracking-wider text-slate-500">
+                  Point Status
+                </p>
+                <span
+                  className={`mt-2 inline-flex rounded-full px-3 py-1.5 text-sm font-semibold ${getStatusBadge(
+                    myPoints.point_status,
+                  )}`}
+                >
+                  {myPoints.point_status}
+                </span>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+                <p className="text-xs uppercase tracking-wider text-slate-500">
+                  Expiry Status
+                </p>
+                <span
+                  className={`mt-2 inline-flex rounded-full px-3 py-1.5 text-sm font-semibold ${getStatusBadge(
+                    myPoints.expiry_status,
+                  )}`}
+                >
+                  {myPoints.expiry_status.replace(/_/g, " ")}
+                </span>
+              </div>
+
+              {myPoints.expires_at && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20">
+                  <div className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-amber-600 dark:text-amber-400">
+                      warning
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                        Points Expiration
+                      </p>
+                      <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                        Your points will expire on{" "}
+                        <span className="font-bold">
+                          {formatDate(myPoints.expires_at)}
+                        </span>
+                      </p>
+                      <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                        {(() => {
+                          const now = new Date();
+                          const expiry = new Date(myPoints.expires_at);
+                          const days = Math.ceil(
+                            (expiry.getTime() - now.getTime()) /
+                              (1000 * 60 * 60 * 24),
+                          );
+                          if (days <= 0) return "Expired";
+                          if (days === 1) return "Expires tomorrow";
+                          if (days <= 7)
+                            return `Expires in ${days} days`;
+                          return `${days} days remaining`;
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!myPoints.expires_at && (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800/50 dark:bg-emerald-900/20">
+                  <div className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400">
+                      check_circle
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+                        No Expiration
+                      </p>
+                      <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-300">
+                        Your points do not have an expiration date
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

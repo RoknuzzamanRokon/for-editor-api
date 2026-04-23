@@ -78,12 +78,17 @@ def topup(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     _ensure_admin_can_manage_user(current_user, target_user)
 
+    expires_at = None
+    if payload.expiry_days:
+        expires_at = datetime.utcnow() + timedelta(days=payload.expiry_days)
+
     balance = topup_points(
         db,
         user_id=payload.user_id,
         amount=payload.amount,
         created_by_user_id=current_user.id,
         note=payload.note,
+        expires_at=expires_at,
     )
     return PointsTopupResponse(user_id=payload.user_id, balance=balance)
 
@@ -262,6 +267,8 @@ def get_my_point(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ) -> MyPointResponse:
+    from db.models import PointsTopup
+    
     total = db.query(PointsLedger).filter(PointsLedger.user_id == current_user.id).count()
     entries = (
         db.query(PointsLedger)
@@ -273,15 +280,41 @@ def get_my_point(
     )
 
     balance = get_user_balance(db, current_user.id)
+    
+    # Check for point expiration
+    now = datetime.utcnow()
+    next_expiry = (
+        db.query(PointsTopup)
+        .filter(
+            PointsTopup.user_id == current_user.id,
+            PointsTopup.expires_at.isnot(None),
+            PointsTopup.expires_at > now
+        )
+        .order_by(PointsTopup.expires_at.asc())
+        .first()
+    )
+    
+    expires_at = next_expiry.expires_at if next_expiry else None
+    
+    if expires_at:
+        days_remaining = (expires_at - now).days
+        if days_remaining <= 0:
+            expiry_status = "expired"
+        elif days_remaining <= 7:
+            expiry_status = "expiring_soon"
+        else:
+            expiry_status = "active"
+    else:
+        expiry_status = "no_expiry"
+    
     point_status = "available" if balance > 0 else "empty"
 
-    # Current schema has no points-expiry table/rule, so we return explicit non-expiring status.
     return MyPointResponse(
         user_id=current_user.id,
         available_points=balance,
         point_status=point_status,
-        expires_at=None,
-        expiry_status="no_expiry_configured",
+        expires_at=expires_at,
+        expiry_status=expiry_status,
         history=[PointsLedgerEntry.model_validate(entry) for entry in entries],
         total=total,
         limit=limit,

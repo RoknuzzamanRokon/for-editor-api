@@ -229,6 +229,7 @@ def topup_points(
     amount: int,
     created_by_user_id: Optional[int],
     note: Optional[str] = None,
+    expires_at: Optional[Any] = None,
 ) -> int:
     if amount <= 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Amount must be positive")
@@ -306,6 +307,7 @@ def topup_points(
             amount=amount,
             created_by_user_id=created_by_user_id,
             note=note,
+            expires_at=expires_at,
         )
     )
     db.commit()

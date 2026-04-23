@@ -138,6 +138,7 @@ class PointsTopup(Base):
     amount = Column(Integer, nullable=False)
     created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     note = Column(String(255), nullable=True)
+    expires_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     user = relationship("User", foreign_keys=[user_id])

@@ -43,6 +43,7 @@ class PointsTopupRequest(BaseModel):
     user_id: int
     amount: int = Field(gt=0)
     note: Optional[str] = None
+    expiry_days: Optional[int] = Field(None, gt=0, description="Days until points expire")
 
 
 class PointsTopupResponse(BaseModel):

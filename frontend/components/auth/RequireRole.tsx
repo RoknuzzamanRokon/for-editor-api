@@ -48,9 +48,20 @@ export default function RequireRole({
     const run = async () => {
       const access = localStorage.getItem("access_token");
       const refresh = localStorage.getItem("refresh_token");
+      const cachedRole = localStorage.getItem("user_role");
 
       if (!access && !refresh) {
         router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
+        return;
+      }
+
+      // Quick check with cached role first
+      if (cachedRole && allow.includes(cachedRole)) {
+        if (!cancelled) setReady(true);
+        // Verify in background
+        fetchMe(access || "").catch(() => {
+          // Token expired, will be handled on next request
+        });
         return;
       }
 

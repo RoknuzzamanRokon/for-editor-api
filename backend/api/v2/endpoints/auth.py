@@ -113,6 +113,9 @@ def me(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> MeResponse:
+    from sqlalchemy.orm import joinedload
+    
+    # Eager load creator in one query
     creator = None
     if current_user.created_by_user_id is not None:
         creator_user = db.query(User).filter(User.id == current_user.created_by_user_id).first()
@@ -124,6 +127,7 @@ def me(
                 role=creator_user.role,
             )
 
+    # Get points summary
     points_summary_row = (
         db.query(
             func.sum(case((PointsLedger.status == "topup", PointsLedger.amount), else_=0)).label("total_topup"),
@@ -136,6 +140,8 @@ def me(
     )
 
     action_rows = list_allowed_actions()
+    
+    # Get permissions
     permission_rows = (
         db.query(UserConversionPermission.action, UserConversionPermission.is_allowed)
         .filter(UserConversionPermission.user_id == current_user.id)
@@ -145,18 +151,26 @@ def me(
     if current_user.role == RoleEnum.super_user:
         permission_map = {item["action"]: True for item in action_rows}
 
-    stats_rows = (
-        db.query(
-            Conversion.action.label("action"),
-            func.max(Conversion.updated_at).label("last_used_at"),
-            func.count(Conversion.id).label("total_count"),
-            func.sum(case((Conversion.status == "success", 1), else_=0)).label("success_count"),
+    # Get conversion stats - only for allowed actions to reduce query size
+    allowed_actions = [action for action, allowed in permission_map.items() if allowed]
+    stats_map = {}
+    
+    if allowed_actions:
+        stats_rows = (
+            db.query(
+                Conversion.action.label("action"),
+                func.max(Conversion.updated_at).label("last_used_at"),
+                func.count(Conversion.id).label("total_count"),
+                func.sum(case((Conversion.status == "success", 1), else_=0)).label("success_count"),
+            )
+            .filter(
+                Conversion.owner_user_id == current_user.id,
+                Conversion.action.in_(allowed_actions)
+            )
+            .group_by(Conversion.action)
+            .all()
         )
-        .filter(Conversion.owner_user_id == current_user.id)
-        .group_by(Conversion.action)
-        .all()
-    )
-    stats_map = {row.action: row for row in stats_rows}
+        stats_map = {row.action: row for row in stats_rows}
 
     active_apis: list[MyApiEntry] = []
     for item in action_rows:
