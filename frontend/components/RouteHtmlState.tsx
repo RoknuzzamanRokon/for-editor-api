@@ -7,11 +7,11 @@ export default function RouteHtmlState() {
   const pathname = usePathname();
 
   useLayoutEffect(() => {
-    const isLoginRoute = pathname === "/login";
+    const isFullscreenAuthRoute = pathname === "/login" || pathname === "/register";
     const html = document.documentElement;
     const body = document.body;
 
-    if (isLoginRoute) {
+    if (isFullscreenAuthRoute) {
       html.classList.add("login-fullscreen");
       html.style.overflow = "hidden";
       body.style.overflow = "hidden";

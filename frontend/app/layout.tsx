@@ -39,7 +39,7 @@ export default function RootLayout({
                   var themes = ['light', 'ocean', 'sunset', 'forest'];
                   var theme = themes.indexOf(stored) !== -1 ? stored : 'sunset';
                   var root = document.documentElement;
-                  if (window.location && window.location.pathname === '/login') {
+                  if (window.location && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
                     root.classList.add('login-fullscreen');
                     root.style.overflow = 'hidden';
                     if (document.body) document.body.style.overflow = 'hidden';

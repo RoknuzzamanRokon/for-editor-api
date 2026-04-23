@@ -34,7 +34,7 @@ export default function Page() {
             className="max-w-3xl text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl"
             style={{ color: t.heading }}
           >
-            Simple, Transparent{" "}
+            Choose your plan {" "}
             <span style={{ color: t.primary }}>Pricing</span>
           </h1>
           <p
@@ -48,80 +48,94 @@ export default function Page() {
 
         {/* ── Plans ── */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative flex flex-col rounded-xl p-6 transition-all hover:shadow-2xl sm:p-8 ${plan.featured ? "border-2" : "border"}`}
-              style={{
-                background: t.card,
-                borderColor: plan.featured ? t.primary : t.border,
-                boxShadow: plan.featured
-                  ? t.elevatedCardShadow
-                  : t.softCardShadow,
-              }}
-            >
-              {plan.featured && (
-                <div
-                  className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-black uppercase tracking-wider"
-                  style={{ background: t.primary, color: t.buttonText }}
-                >
-                  Most Popular
-                </div>
-              )}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold" style={{ color: t.heading }}>
-                  {plan.name}
-                </h3>
-                <div className="mt-4 flex items-baseline">
-                  <span
-                    className="text-4xl font-black"
-                    style={{ color: t.heading }}
-                  >
-                    {plan.price}
-                  </span>
-                  {plan.price !== "Custom" && (
-                    <span className="ml-1" style={{ color: t.textMuted }}>
-                      /mo
-                    </span>
-                  )}
-                </div>
-                <p className="mt-2 text-xs" style={{ color: t.textMuted }}>
-                  {plan.sub}
-                </p>
-              </div>
-              <button
-                className="w-full rounded-xl py-3 text-sm font-bold transition-all hover:opacity-90"
-                style={
-                  plan.featured
-                    ? { background: t.buttonBg, color: t.buttonText }
-                    : {
-                        background: t.surface,
-                        color: t.text,
-                        border: `1px solid ${t.border}`,
-                      }
-                }
+          {plans.map((plan) => {
+            return (
+              <div
+                key={plan.name}
+                className="group relative flex flex-col rounded-xl border p-6 transition-all duration-200 hover:-translate-y-1 sm:p-8"
+                style={{
+                  background: t.card,
+                  borderColor: t.border,
+                  boxShadow: t.softCardShadow,
+                }}
+                onMouseEnter={(event) => {
+                  event.currentTarget.style.borderColor = t.primary
+                  event.currentTarget.style.boxShadow = t.elevatedCardShadow
+                }}
+                onMouseLeave={(event) => {
+                  event.currentTarget.style.borderColor = t.border
+                  event.currentTarget.style.boxShadow = t.softCardShadow
+                }}
               >
-                {plan.btn}
-              </button>
-              <div className="mt-8 flex flex-col gap-4">
-                {plan.features.map((f) => (
+                {plan.featured && (
                   <div
-                    key={f}
-                    className="flex items-center gap-3 text-sm"
-                    style={{ color: t.text }}
+                    className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-black uppercase tracking-wider"
+                    style={{ background: t.primary, color: t.buttonText }}
                   >
-                    <span
-                      className="material-symbols-outlined text-xl"
-                      style={{ color: t.primary }}
-                    >
-                      check_circle
-                    </span>
-                    {f}
+                    Most Popular
                   </div>
-                ))}
+                )}
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold" style={{ color: t.heading }}>
+                    {plan.name}
+                  </h3>
+                  <div className="mt-4 flex items-baseline">
+                    <span
+                      className="text-4xl font-black"
+                      style={{ color: t.heading }}
+                    >
+                      {plan.price}
+                    </span>
+                    {plan.price !== "Custom" && (
+                      <span className="ml-1" style={{ color: t.textMuted }}>
+                        /mo
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 text-xs" style={{ color: t.textMuted }}>
+                    {plan.sub}
+                  </p>
+                </div>
+                <button
+                  className="w-full rounded-xl border py-3 text-sm font-bold transition-all hover:opacity-90"
+                  style={{
+                    background: t.surface,
+                    color: t.text,
+                    borderColor: t.border,
+                  }}
+                  onMouseEnter={(event) => {
+                    event.currentTarget.style.background = t.buttonBg
+                    event.currentTarget.style.color = t.buttonText
+                    event.currentTarget.style.borderColor = t.buttonBg
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.background = t.surface
+                    event.currentTarget.style.color = t.text
+                    event.currentTarget.style.borderColor = t.border
+                  }}
+                >
+                  {plan.btn}
+                </button>
+                <div className="mt-8 flex flex-col gap-4">
+                  {plan.features.map((f) => (
+                    <div
+                      key={f}
+                      className="flex items-center gap-3 text-sm"
+                      style={{ color: t.text }}
+                    >
+                      <span
+                        className="material-symbols-outlined text-xl"
+                        style={{ color: t.primary }}
+                      >
+                        check_circle
+                      </span>
+                      {f}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </main>
