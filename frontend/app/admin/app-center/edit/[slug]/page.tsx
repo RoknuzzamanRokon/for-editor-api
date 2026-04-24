@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import EditableDocxPreview from "@/components/app-center/EditableDocxPreview";
+import PdfPageRemover from "@/components/PdfPageRemover";
 import { API_BASE } from "@/lib/apiBase";
 
 const ACTION_TO_ROUTE: Record<string, string> = {
@@ -81,10 +83,6 @@ const isDocxFile = (mimeType: string, filename: string) =>
   mimeType.includes("officedocument") ||
   filename.toLowerCase().endsWith(".docx");
 
-const DOCX_PREVIEW_FRAME_CLASS =
-  "relative h-[78vh] min-h-[312px] overflow-auto rounded-2xl border border-slate-200 bg-slate-100 p-4 dark:border-slate-800 dark:bg-slate-950/70 sm:h-[936px]";
-const DOCX_FALLBACK_FRAME_CLASS =
-  "h-[78vh] min-h-[312px] overflow-auto rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 sm:h-[936px]";
 const PDF_PREVIEW_FRAME_CLASS =
   "h-[88vh] min-h-[546px] w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 sm:h-[1120px]";
 const IMAGE_PREVIEW_CLASS = "max-h-[936px] w-full rounded-xl object-contain";
@@ -263,19 +261,16 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const [preview, setPreview] = useState<PreviewFile | null>(null);
   const [docxPreviewBlob, setDocxPreviewBlob] = useState<Blob | null>(null);
   const [docxHtml, setDocxHtml] = useState<string | null>(null);
-  const [docxPreviewLoading, setDocxPreviewLoading] = useState(false);
-  const [docxPreviewError, setDocxPreviewError] = useState("");
   const [pdfPage, setPdfPage] = useState(1);
   const [pdfTotalPages, setPdfTotalPages] = useState(1);
   const [conversionProgress, setConversionProgress] = useState(0);
   const [conversionStage, setConversionStage] =
     useState<ConversionProgressStage>("idle");
   const [showPreviewViewer, setShowPreviewViewer] = useState(false);
-  const docxPreviewContainerRef = useRef<HTMLDivElement | null>(null);
-  const docxPreviewStyleRef = useRef<HTMLDivElement | null>(null);
 
   const title = formatTitleFromSlug(params.slug);
   const action = params.slug.replace(/-/g, "_");
+  const isPdfPageRemove = action === "pdf_page_remove";
   const convertRoute = useMemo(() => ACTION_TO_ROUTE[action] || "", [action]);
   const historyRoute = useMemo(
     () => ACTION_TO_HISTORY_ROUTE[action] || "/api/v3/conversions/history",
@@ -330,85 +325,6 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
     });
   }, [preview, showPreviewViewer]);
 
-  useEffect(() => {
-    const isDocxPreview =
-      !!preview && isDocxFile(preview.mimeType, preview.filename);
-    const previewContainer = docxPreviewContainerRef.current;
-    const styleContainer = docxPreviewStyleRef.current;
-
-    if (!isDocxPreview || !docxPreviewBlob || !showPreviewViewer || !previewContainer) {
-      if (previewContainer) {
-        previewContainer.innerHTML = "";
-      }
-      if (styleContainer) {
-        styleContainer.innerHTML = "";
-      }
-      setDocxPreviewLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-    previewContainer.innerHTML = "";
-    if (styleContainer) {
-      styleContainer.innerHTML = "";
-    }
-    setDocxPreviewLoading(true);
-    setDocxPreviewError("");
-
-    const renderLayoutAwarePreview = async () => {
-      try {
-        const { renderAsync } = await import("docx-preview");
-        if (cancelled || !docxPreviewContainerRef.current) return;
-
-        await renderAsync(
-          docxPreviewBlob,
-          docxPreviewContainerRef.current,
-          docxPreviewStyleRef.current ?? docxPreviewContainerRef.current,
-          {
-            className: "docx-preview",
-            inWrapper: true,
-            breakPages: true,
-            ignoreWidth: false,
-            ignoreHeight: false,
-            ignoreFonts: false,
-            renderHeaders: true,
-            renderFooters: true,
-            renderFootnotes: true,
-            renderEndnotes: true,
-            renderComments: false,
-            renderChanges: false,
-            renderAltChunks: true,
-            ignoreLastRenderedPageBreak: false,
-            experimental: true,
-            useBase64URL: true,
-          },
-        );
-      } catch (err: unknown) {
-        if (!cancelled) {
-          setDocxPreviewError(
-            err instanceof Error
-              ? err.message
-              : "Unable to render layout-aware DOCX preview.",
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setDocxPreviewLoading(false);
-        }
-      }
-    };
-
-    void renderLayoutAwarePreview();
-
-    return () => {
-      cancelled = true;
-      previewContainer.innerHTML = "";
-      if (styleContainer) {
-        styleContainer.innerHTML = "";
-      }
-    };
-  }, [docxPreviewBlob, preview, showPreviewViewer]);
-
   const replacePreview = (nextPreview: PreviewFile | null) => {
     setPreview((prev) => {
       if (prev?.url) URL.revokeObjectURL(prev.url);
@@ -416,8 +332,6 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
     });
     setDocxPreviewBlob(null);
     setDocxHtml(null);
-    setDocxPreviewLoading(false);
-    setDocxPreviewError("");
     setPdfPage(1);
     setPdfTotalPages(1);
   };
@@ -762,115 +676,123 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
         {!unsupported ? (
           <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
             <div className="space-y-8 xl:col-span-12">
-              <SectionCard
-                title="Request Builder"
-                description="Choose a file and send it to the selected conversion endpoint."
-              >
-                <div className="flex flex-wrap items-end gap-3">
-                  {/* File Upload */}
-                  <div className="min-w-0 flex-1 sm:min-w-[250px]">
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
-                      Upload file
-                    </label>
-                    <input
-                      type="file"
-                      onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                      className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:font-semibold file:text-primary dark:border-slate-700 dark:bg-slate-900"
-                    />
-                  </div>
-
-                  {/* Convert Button */}
-                  <button
-                    onClick={handleConvert}
-                    disabled={!file || submitting}
-                    type="button"
-                    className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200
-                    ${
-                      file
-                        ? "bg-primary text-white hover:opacity-90"
-                        : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
-                    }
-                  `}
+              {isPdfPageRemove ? (
+                <PdfPageRemover
+                  apiBase={API_BASE}
+                  apiEndpoint="/api/v3/conversions/remove-pages-from-pdf"
+                  includeAuth
+                  showRecentFiles={false}
+                />
+              ) : (
+                <>
+                  <SectionCard
+                    title="Request Builder"
+                    description="Choose a file and send it to the selected conversion endpoint."
                   >
-                    <span className="material-symbols-outlined text-base">
-                      bolt
-                    </span>
-                    {submitting ? "Converting..." : "Convert File"}
-                  </button>
-                </div>
-
-                {/* Optional: file name below */}
-                <p className="mt-2 text-xs text-slate-500">
-                  {file ? `Selected: ${file.name}` : "No file selected yet"}
-                </p>
-              </SectionCard>
-              {submitting || result ? (
-                <SectionCard
-                  title="Response Summary"
-                  description="Most recent conversion response from the backend."
-                >
-                  {submitting ? (
-                    <ConversionProgressPanel
-                      progress={conversionProgress}
-                      stage={conversionStage}
-                      filename={file?.name}
-                    />
-                  ) : (
-                    <div className="space-y-4">
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                          <p className="text-xs uppercase tracking-wider text-slate-500">
-                            Conversion ID
-                          </p>
-                          <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                            {result?.conversion_id}
-                          </p>
-                        </div>
-
-                        <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                          <p className="text-xs uppercase tracking-wider text-slate-500">
-                            Status
-                          </p>
-                          <div className="mt-2">
-                            <StatusBadge status={result?.status || "processing"} />
-                          </div>
-                        </div>
-
-                        <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                          <p className="text-xs uppercase tracking-wider text-slate-500">
-                            Points Charged
-                          </p>
-                          <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                            {result?.points_charged ?? "-"}
-                          </p>
-                        </div>
-
-                        <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                          <p className="text-xs uppercase tracking-wider text-slate-500">
-                            Remaining Balance
-                          </p>
-                          <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                            {result?.remaining_balance ?? "-"}
-                          </p>
-                        </div>
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="min-w-0 flex-1 sm:min-w-[250px]">
+                        <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                          Upload file
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                          className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:font-semibold file:text-primary dark:border-slate-700 dark:bg-slate-900"
+                        />
                       </div>
 
-                      {preview ? (
-                        <button
-                          type="button"
-                          onClick={() => setShowPreviewViewer(true)}
-                          className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
-                        >
-                          <span className="material-symbols-outlined text-base">
-                            visibility
-                          </span>
-                          Open Preview
-                        </button>
-                      ) : null}
+                      <button
+                        onClick={handleConvert}
+                        disabled={!file || submitting}
+                        type="button"
+                        className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200
+                        ${
+                          file
+                            ? "bg-primary text-white hover:opacity-90"
+                            : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
+                        }
+                      `}
+                      >
+                        <span className="material-symbols-outlined text-base">
+                          bolt
+                        </span>
+                        {submitting ? "Converting..." : "Convert File"}
+                      </button>
                     </div>
-                  )}
-                </SectionCard>
-              ) : null}
+
+                    <p className="mt-2 text-xs text-slate-500">
+                      {file ? `Selected: ${file.name}` : "No file selected yet"}
+                    </p>
+                  </SectionCard>
+                  {submitting || result ? (
+                    <SectionCard
+                      title="Response Summary"
+                      description="Most recent conversion response from the backend."
+                    >
+                      {submitting ? (
+                        <ConversionProgressPanel
+                          progress={conversionProgress}
+                          stage={conversionStage}
+                          filename={file?.name}
+                        />
+                      ) : (
+                        <div className="space-y-4">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                              <p className="text-xs uppercase tracking-wider text-slate-500">
+                                Conversion ID
+                              </p>
+                              <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                                {result?.conversion_id}
+                              </p>
+                            </div>
+
+                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                              <p className="text-xs uppercase tracking-wider text-slate-500">
+                                Status
+                              </p>
+                              <div className="mt-2">
+                                <StatusBadge status={result?.status || "processing"} />
+                              </div>
+                            </div>
+
+                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                              <p className="text-xs uppercase tracking-wider text-slate-500">
+                                Points Charged
+                              </p>
+                              <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                                {result?.points_charged ?? "-"}
+                              </p>
+                            </div>
+
+                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                              <p className="text-xs uppercase tracking-wider text-slate-500">
+                                Remaining Balance
+                              </p>
+                              <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                                {result?.remaining_balance ?? "-"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {preview ? (
+                            <button
+                              type="button"
+                              onClick={() => setShowPreviewViewer(true)}
+                              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
+                            >
+                              <span className="material-symbols-outlined text-base">
+                                visibility
+                              </span>
+                              Open Preview
+                            </button>
+                          ) : null}
+                        </div>
+                      )}
+                    </SectionCard>
+                  ) : null}
+                </>
+              )}
             </div>
 
             <div className="space-y-8 xl:col-span-12">
@@ -1067,48 +989,10 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
               />
             </div>
           ) : isDocxFile(preview.mimeType, preview.filename) ? (
-            <div className="space-y-4">
-              <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-slate-600 dark:border-primary/20 dark:bg-primary/10 dark:text-slate-200">
-                Layout-aware DOCX preview keeps page breaks and text positions
-                closer to the original PDF.
-              </div>
-
-              {docxPreviewError ? (
-                docxHtml ? (
-                  <div className="space-y-3">
-                    <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
-                      Layout-aware preview could not load, so this is a
-                      simplified text preview instead.
-                    </div>
-                    <div className={DOCX_FALLBACK_FRAME_CLASS}>
-                      <article
-                        className="docx-preview prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: docxHtml }}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex h-[78vh] min-h-[312px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 text-center dark:border-slate-700 dark:bg-slate-800/30 sm:h-[936px]">
-                    <p className="text-sm text-slate-500">{docxPreviewError}</p>
-                  </div>
-                )
-              ) : (
-                <div className={DOCX_PREVIEW_FRAME_CLASS}>
-                  <div
-                    ref={docxPreviewStyleRef}
-                    className="hidden"
-                    aria-hidden="true"
-                  />
-                  <div ref={docxPreviewContainerRef} className="min-h-full" />
-
-                  {docxPreviewLoading ? (
-                    <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur dark:bg-slate-900/90 dark:text-slate-200">
-                      Rendering pages...
-                    </div>
-                  ) : null}
-                </div>
-              )}
-            </div>
+            <EditableDocxPreview
+              sourceBlob={docxPreviewBlob}
+              html={docxHtml}
+            />
           ) : (
             <div className="rounded-2xl border border-dashed border-slate-300 p-8 dark:border-slate-700">
                 <p className="text-sm text-slate-500">

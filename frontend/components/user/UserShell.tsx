@@ -15,10 +15,7 @@ interface UserData {
 
 export default function UserShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem("user_sidebar_collapsed") === "true";
-  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isExpired, setIsExpired] = useState(false);
@@ -54,6 +51,12 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.remove("login-fullscreen");
     document.documentElement.style.overflow = "";
     document.body.style.overflow = "";
+  }, []);
+
+  useEffect(() => {
+    setSidebarCollapsed(
+      window.localStorage.getItem("user_sidebar_collapsed") === "true",
+    );
   }, []);
 
   useEffect(() => {

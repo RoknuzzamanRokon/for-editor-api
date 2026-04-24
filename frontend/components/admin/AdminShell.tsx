@@ -7,16 +7,19 @@ import AdminSidebar from "./AdminSidebar";
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem("admin_sidebar_collapsed") === "true";
-  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.remove("login-fullscreen");
     document.documentElement.style.overflow = "";
     document.body.style.overflow = "";
+  }, []);
+
+  useEffect(() => {
+    setSidebarCollapsed(
+      window.localStorage.getItem("admin_sidebar_collapsed") === "true",
+    );
   }, []);
 
   useEffect(() => {
