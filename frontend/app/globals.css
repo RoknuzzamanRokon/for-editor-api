@@ -446,6 +446,24 @@ html.light {
     color: #000 !important;
   }
 
+  .docx-preview-wrapper {
+    padding: 1rem 0 0 !important;
+    background: transparent !important;
+  }
+
+  .docx-preview-wrapper > .docx-preview {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 1.5rem !important;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12) !important;
+  }
+
+  .dark .docx-preview-wrapper > .docx-preview {
+    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.58) !important;
+  }
+
   /* Fallback for browsers without zoom support */
   @supports not (zoom: 1) {
     .app-scale {
