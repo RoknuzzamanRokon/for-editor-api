@@ -24,6 +24,31 @@ type HeaderSettingsPayload = {
   };
 };
 
+function normalizeHeaderSettings(payload: unknown) {
+  if (!payload || typeof payload !== "object") return null;
+
+  const candidate = payload as {
+    identity?: {
+      username?: string | null;
+      email?: string;
+      role?: string;
+    };
+    preferences?: {
+      avatar_key?: AvatarKey;
+    };
+  };
+
+  if (!candidate.identity?.email || !candidate.identity.role) return null;
+  if (!candidate.preferences?.avatar_key) return null;
+
+  return {
+    username: candidate.identity.username ?? null,
+    email: candidate.identity.email,
+    role: candidate.identity.role,
+    avatarKey: candidate.preferences.avatar_key,
+  };
+}
+
 export default function UserHeader({
   onOpenMobileMenu,
 }: {
@@ -45,27 +70,29 @@ export default function UserHeader({
     if (!token) return;
 
     const cached = readAccountSettingsCache<HeaderSettingsPayload>();
-    if (cached) {
-      setUser({
-        username: cached.identity.username,
-        email: cached.identity.email,
-        role: cached.identity.role,
-        avatarKey: cached.preferences.avatar_key,
-      });
+    const normalizedCached = normalizeHeaderSettings(cached);
+    if (normalizedCached) {
+      setUser(normalizedCached);
+    } else if (cached) {
+      clearAccountSettingsCache();
     }
 
     fetch(`${API_BASE}/api/v2/auth/settings`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch user settings");
+        }
+        return res.json() as Promise<HeaderSettingsPayload>;
+      })
       .then((data: HeaderSettingsPayload) => {
+        const normalized = normalizeHeaderSettings(data);
+        if (!normalized) {
+          throw new Error("Invalid user settings payload");
+        }
         publishAccountSettingsCache(data);
-        setUser({
-          username: data.identity.username,
-          email: data.identity.email,
-          role: data.identity.role,
-          avatarKey: data.preferences.avatar_key,
-        });
+        setUser(normalized);
       })
       .catch((err) => console.error("Failed to fetch user:", err));
   }, []);
@@ -76,13 +103,9 @@ export default function UserHeader({
     const handleSettingsChange = (event: Event) => {
       const customEvent = event as CustomEvent<HeaderSettingsPayload>;
       const payload = customEvent.detail;
-      if (!payload) return;
-      setUser({
-        username: payload.identity.username,
-        email: payload.identity.email,
-        role: payload.identity.role,
-        avatarKey: payload.preferences.avatar_key,
-      });
+      const normalizedPayload = normalizeHeaderSettings(payload);
+      if (!normalizedPayload) return;
+      setUser(normalizedPayload);
     };
 
     const handleClickOutside = (e: MouseEvent) => {

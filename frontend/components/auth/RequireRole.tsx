@@ -8,6 +8,10 @@ import UserShell from "@/components/user/UserShell";
 import AdminShell from "@/components/admin/AdminShell";
 
 type Role = "super_user" | "admin" | "admin_user" | "general_user" | string;
+type RefreshTokenResponse = {
+  access_token?: string;
+  token_type?: string;
+};
 
 function defaultRouteForRole(role: Role) {
   return role === "general_user" || role === "demo_user" ? "/dashboard" : "/admin";
@@ -28,7 +32,55 @@ async function refreshToken(refreshToken: string) {
     body: JSON.stringify({ refresh_token: refreshToken }),
   });
   if (!res.ok) throw new Error("refresh_failed");
-  return res.json();
+  return res.json() as Promise<RefreshTokenResponse>;
+}
+
+function clearStoredSession() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("user_role");
+}
+
+async function fetchRoleFromToken(token: string) {
+  const me = await fetchMe(token);
+  const role = me?.role;
+  if (!role || typeof role !== "string") {
+    throw new Error("missing_role");
+  }
+  return role as Role;
+}
+
+async function refreshAccessToken(refresh: string) {
+  const refreshed = await refreshToken(refresh);
+  const newAccess = refreshed?.access_token;
+  if (!newAccess) throw new Error("no_access");
+  localStorage.setItem("access_token", newAccess);
+  return newAccess;
+}
+
+async function resolveRoleWithStoredTokens(access?: string | null, refresh?: string | null) {
+  if (access) {
+    try {
+      const role = await fetchRoleFromToken(access);
+      if (role) {
+        localStorage.setItem("user_role", role);
+      }
+      return role;
+    } catch {
+      // Fall through to refresh token flow.
+    }
+  }
+
+  if (!refresh) {
+    throw new Error("missing_refresh");
+  }
+
+  const newAccess = await refreshAccessToken(refresh);
+  const role = await fetchRoleFromToken(newAccess);
+  if (role) {
+    localStorage.setItem("user_role", role);
+  }
+  return role;
 }
 
 export default function RequireRole({
@@ -55,52 +107,33 @@ export default function RequireRole({
         return;
       }
 
-      // Quick check with cached role first
-      if (cachedRole && allow.includes(cachedRole)) {
+      // Quick check with cached role first, but only when an access token exists.
+      if (cachedRole && allow.includes(cachedRole) && access) {
         if (!cancelled) setReady(true);
-        // Verify in background
-        fetchMe(access || "").catch(() => {
-          // Token expired, will be handled on next request
-        });
+        void resolveRoleWithStoredTokens(access, refresh)
+          .then((role) => {
+            if (!role) return;
+            if (!allow.includes(role)) {
+              router.replace(defaultRouteForRole(role));
+            }
+          })
+          .catch(() => {
+            clearStoredSession();
+            router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
+          });
         return;
       }
 
       try {
-        const me = await fetchMe(access || "");
-        const role = me?.role as Role;
-        localStorage.setItem("user_role", role);
+        const role = await resolveRoleWithStoredTokens(access, refresh);
         if (!allow.includes(role)) {
           router.replace(defaultRouteForRole(role));
           return;
         }
       } catch {
-        if (!refresh) {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          localStorage.removeItem("user_role");
-          router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
-          return;
-        }
-
-        try {
-          const refreshed = await refreshToken(refresh);
-          const newAccess = refreshed?.access_token as string | undefined;
-          if (!newAccess) throw new Error("no_access");
-          localStorage.setItem("access_token", newAccess);
-          const me = await fetchMe(newAccess);
-          const role = me?.role as Role;
-          localStorage.setItem("user_role", role);
-          if (!allow.includes(role)) {
-            router.replace(defaultRouteForRole(role));
-            return;
-          }
-        } catch {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          localStorage.removeItem("user_role");
-          router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
-          return;
-        }
+        clearStoredSession();
+        router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
+        return;
       }
 
       if (!cancelled) setReady(true);

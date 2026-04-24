@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { formatRoleLabel } from "@/lib/roleLabel";
 import { API_BASE } from "@/lib/apiBase";
@@ -12,6 +13,7 @@ type MeResponse = {
   role: string;
   is_active: boolean;
   created_at: string;
+  demo_expires_at?: string | null;
 };
 
 type PointHistoryEntry = {
@@ -87,6 +89,36 @@ function getStatusBadge(status: string) {
   return "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300";
 }
 
+function toEditSlug(action: string) {
+  return action.replace(/_/g, "-");
+}
+
+function buildTrialCountdown(expiresAt?: string | null, nowMs = Date.now()) {
+  if (!expiresAt) return null;
+
+  const expiryMs = new Date(expiresAt).getTime();
+  if (Number.isNaN(expiryMs)) return null;
+
+  const remainingSeconds = Math.max(
+    0,
+    Math.floor((expiryMs - nowMs) / 1000),
+  );
+  const days = Math.floor(remainingSeconds / 86400);
+  const hours = Math.floor((remainingSeconds % 86400) / 3600);
+  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+  const seconds = remainingSeconds % 60;
+
+  return {
+    isExpired: expiryMs <= nowMs,
+    parts: [
+      { label: "Days", value: String(days).padStart(2, "0") },
+      { label: "Hours", value: String(hours).padStart(2, "0") },
+      { label: "Min", value: String(minutes).padStart(2, "0") },
+      { label: "Sec", value: String(seconds).padStart(2, "0") },
+    ],
+  };
+}
+
 function StatCard({
   title,
   value,
@@ -126,6 +158,7 @@ export default function DashboardProfilePage() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [myPoints, setMyPoints] = useState<MyPointResponse | null>(null);
   const [myApis, setMyApis] = useState<MyApiResponse | null>(null);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -166,6 +199,17 @@ export default function DashboardProfilePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (me?.role !== "demo_user" || !me.demo_expires_at) return;
+
+    setNowMs(Date.now());
+    const timer = window.setInterval(() => {
+      setNowMs(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [me?.demo_expires_at, me?.role]);
+
   const displayName = useMemo(() => {
     if (!me) return "User";
     return formatProfileName(me.username, me.email);
@@ -174,6 +218,13 @@ export default function DashboardProfilePage() {
   const activeApis = useMemo(
     () => (myApis?.apis ?? []).filter((api) => api.allowed),
     [myApis],
+  );
+
+  const isDemoUser = me?.role === "demo_user";
+  const trialCountdown = useMemo(
+    () =>
+      isDemoUser ? buildTrialCountdown(me?.demo_expires_at, nowMs) : null,
+    [isDemoUser, me?.demo_expires_at, nowMs],
   );
 
   if (loading) {
@@ -239,36 +290,92 @@ export default function DashboardProfilePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">
-                Role
-              </p>
-              <p className="mt-1 text-sm font-bold">{formatRoleLabel(me.role)}</p>
+          {isDemoUser ? (
+            <div className="w-full rounded-2xl border border-white/20 bg-white/10 p-4 shadow-lg backdrop-blur lg:w-[31rem]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
+                    Demo Trial Limit
+                  </p>
+                  <h2 className="mt-1 text-xl font-black tracking-tight">
+                    {trialCountdown?.isExpired
+                      ? "Trial expired"
+                      : "Time remaining"}
+                  </h2>
+                </div>
+                <span className="material-symbols-outlined rounded-2xl border border-white/15 bg-white/10 p-3 text-white/85">
+                  hourglass_top
+                </span>
+              </div>
+
+              {trialCountdown ? (
+                <div className="mt-4 grid grid-cols-4 gap-2">
+                  {trialCountdown.parts.map((part) => (
+                    <div
+                      key={part.label}
+                      className="min-h-[74px] rounded-xl border border-white/15 bg-slate-950/20 px-2 py-3 text-center"
+                    >
+                      <p className="font-mono text-2xl font-black leading-none tracking-normal text-white sm:text-3xl">
+                        {part.value}
+                      </p>
+                      <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white/65">
+                        {part.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-4 rounded-xl border border-white/15 bg-slate-950/20 px-4 py-3 text-sm font-semibold text-white/80">
+                  Trial expiration is not configured.
+                </div>
+              )}
+
+              <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-white/80">
+                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
+                  Expires {formatDate(me.demo_expires_at)}
+                </span>
+                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
+                  {activeApis.length} trial APIs
+                </span>
+                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
+                  {myPoints.available_points} points
+                </span>
+              </div>
             </div>
-            <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">
-                Status
-              </p>
-              <p className="mt-1 text-sm font-bold">
-                {me.is_active ? "Active" : "Inactive"}
-              </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
+                <p className="text-xs uppercase tracking-wider text-white/70">
+                  Role
+                </p>
+                <p className="mt-1 text-sm font-bold">
+                  {formatRoleLabel(me.role)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
+                <p className="text-xs uppercase tracking-wider text-white/70">
+                  Status
+                </p>
+                <p className="mt-1 text-sm font-bold">
+                  {me.is_active ? "Active" : "Inactive"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
+                <p className="text-xs uppercase tracking-wider text-white/70">
+                  Points
+                </p>
+                <p className="mt-1 text-sm font-bold">
+                  {myPoints.available_points}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
+                <p className="text-xs uppercase tracking-wider text-white/70">
+                  APIs
+                </p>
+                <p className="mt-1 text-sm font-bold">{activeApis.length}</p>
+              </div>
             </div>
-            <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">
-                Points
-              </p>
-              <p className="mt-1 text-sm font-bold">
-                {myPoints.available_points}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">
-                APIs
-              </p>
-              <p className="mt-1 text-sm font-bold">{activeApis.length}</p>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -485,9 +592,10 @@ export default function DashboardProfilePage() {
               ) : (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {activeApis.map((item) => (
-                    <div
+                    <Link
                       key={item.action}
-                      className="group rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 transition duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:from-slate-900 dark:to-slate-800/60"
+                      href={`/dashboard/app-center/edit/${toEditSlug(item.action)}`}
+                      className="group block rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 transition duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:border-slate-800 dark:from-slate-900 dark:to-slate-800/60 dark:focus-visible:ring-offset-slate-900"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div
@@ -512,12 +620,18 @@ export default function DashboardProfilePage() {
                         </p>
                       </div>
 
-                      <div className="mt-4 flex items-center gap-2">
+                      <div className="mt-4 flex items-center justify-between gap-2">
                         <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
                           Ready to use
                         </span>
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 transition-colors group-hover:text-primary dark:text-slate-400 dark:group-hover:text-primary">
+                          Open
+                          <span className="material-symbols-outlined text-sm">
+                            arrow_forward
+                          </span>
+                        </span>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
