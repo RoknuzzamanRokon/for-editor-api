@@ -75,6 +75,12 @@ async function loadPdfJsModule() {
   return pdfJsModulePromise
 }
 
+function getAuthHeaders(includeAuth: boolean): Record<string, string> {
+  if (!includeAuth) return {}
+  const token = window.localStorage.getItem('access_token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 export default function PdfPageRemover({
   apiBase = '',
   apiEndpoint = '/api/v1/conversions/remove-pages-from-pdf',
@@ -104,14 +110,6 @@ export default function PdfPageRemover({
     path.startsWith('http://') || path.startsWith('https://')
       ? path
       : `${apiBase}${path}`
-
-  const getAuthHeaders = () => {
-    if (!includeAuth) return {} as Record<string, string>
-    const token = window.localStorage.getItem('access_token')
-    return token
-      ? { Authorization: `Bearer ${token}` }
-      : ({} as Record<string, string>)
-  }
 
   useEffect(() => {
     return () => {
@@ -152,17 +150,13 @@ export default function PdfPageRemover({
 
     const fetchFiles = async () => {
       try {
-        const token = includeAuth
-          ? window.localStorage.getItem('access_token')
-          : null
-        const headers = token ? { Authorization: `Bearer ${token}` } : {}
         const requestUrl =
           filesEndpoint.startsWith('http://') || filesEndpoint.startsWith('https://')
             ? filesEndpoint
             : `${apiBase}${filesEndpoint}`
 
         const res = await fetch(requestUrl, {
-          headers,
+          headers: getAuthHeaders(includeAuth),
         })
         const data = await res.json()
         if (!cancelled && data.files) {
@@ -337,7 +331,7 @@ export default function PdfPageRemover({
 
     try {
       const res = await fetch(buildUrl(filesEndpoint), {
-        headers: getAuthHeaders(),
+        headers: getAuthHeaders(includeAuth),
       })
       const data = await res.json()
       if (data.files) {
@@ -451,7 +445,7 @@ export default function PdfPageRemover({
     try {
       const res = await fetch(buildUrl(apiEndpoint), {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: getAuthHeaders(includeAuth),
         body: formData,
       })
 
@@ -470,7 +464,7 @@ export default function PdfPageRemover({
       }
 
       const downloadRes = await fetch(buildUrl(data.download_url), {
-        headers: getAuthHeaders(),
+        headers: getAuthHeaders(includeAuth),
       })
       if (!downloadRes.ok) {
         throw new Error('Unable to load processed PDF preview.')
