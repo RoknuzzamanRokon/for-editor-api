@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
 import { API_BASE } from "@/lib/apiBase";
+import { formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
 import {
   clearAccountSettingsCache,
@@ -109,6 +110,7 @@ export default function UserHeader({
 
   const roleValue = (user?.role || sessionRole || "").toLowerCase();
   const planLabel = roleValue.includes("admin") || roleValue.includes("super") ? "Admin" : "User";
+  const displayName = formatProfileName(user?.username, user?.email || "User");
 
   return (
     <header
@@ -154,7 +156,7 @@ export default function UserHeader({
         </button>
         <div className="flex items-center gap-2 border-l border-slate-200 pl-2 sm:gap-3 sm:pl-4 dark:border-slate-800">
           <div className="hidden text-right sm:block">
-            <p className="text-sm font-bold leading-none">{user?.username || user?.email || "User"}</p>
+            <p className="text-sm font-bold leading-none">{displayName}</p>
             <p className="mt-1 text-[10px] font-medium uppercase text-slate-500">{formatRoleLabel(user?.role || "general_user")}</p>
           </div>
           <div className="relative" ref={menuRef}>
@@ -172,7 +174,7 @@ export default function UserHeader({
                   <div className="flex items-center gap-3">
                     <AvatarBadge avatarKey={user?.avatarKey} />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold">{user?.username || user?.email || "User"}</p>
+                      <p className="truncate text-sm font-bold">{displayName}</p>
                       <p className="truncate text-xs text-slate-500">{user?.email}</p>
                     </div>
                   </div>

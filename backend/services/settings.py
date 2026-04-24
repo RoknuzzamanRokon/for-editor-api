@@ -64,6 +64,8 @@ def update_username(db: Session, user: User, username: str | None) -> User:
     normalized = username.strip() if username else None
     if normalized == "":
         normalized = None
+    if normalized is not None:
+        normalized = normalized[:1].upper() + normalized[1:]
 
     if normalized is not None and len(normalized) < 3:
         raise HTTPException(

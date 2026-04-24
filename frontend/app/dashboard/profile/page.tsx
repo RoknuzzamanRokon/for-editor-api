@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatRoleLabel } from "@/lib/roleLabel";
 import { API_BASE } from "@/lib/apiBase";
+import { formatProfileName } from "@/lib/profileName";
 
 type MeResponse = {
   id: number;
@@ -167,7 +168,7 @@ export default function DashboardProfilePage() {
 
   const displayName = useMemo(() => {
     if (!me) return "User";
-    return me.username || me.email;
+    return formatProfileName(me.username, me.email);
   }, [me]);
 
   const activeApis = useMemo(
@@ -328,7 +329,7 @@ export default function DashboardProfilePage() {
                   Username
                 </p>
                 <p className="mt-1 text-sm font-semibold">
-                  {me.username || "-"}
+                  {formatProfileName(me.username, "-")}
                 </p>
               </div>
 

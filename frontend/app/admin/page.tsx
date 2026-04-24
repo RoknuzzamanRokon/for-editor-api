@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { API_BASE } from "@/lib/apiBase";
+import { formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
 
 type AdminDashboardQuickStat = {
@@ -283,7 +284,7 @@ function TopPointHoldersChart({
         <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
           {data.map((item, index) => {
             const widthPercent = Math.max(8, (item.balance / maxBalance) * 100);
-            const displayName = item.username || item.email;
+            const displayName = formatProfileName(item.username, item.email);
             const roleLabel = formatRoleLabel(item.role);
 
             return (
@@ -962,7 +963,7 @@ export default function AdminPage() {
                           className="hover:bg-slate-50 dark:hover:bg-slate-800/40"
                         >
                           <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
-                            {row.user_username || row.user_email}
+                            {formatProfileName(row.user_username, row.user_email)}
                           </td>
                           <td
                             className={`px-4 py-3 font-bold ${

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { API_BASE } from '@/lib/apiBase'
 import { AvatarBadge, type AvatarKey } from '@/lib/accountAvatar'
+import { formatProfileName } from '@/lib/profileName'
 import { formatRoleLabel } from '@/lib/roleLabel'
 import { publishAccountSettingsCache, readAccountSettingsCache } from '@/lib/accountSettingsCache'
 
@@ -136,7 +137,7 @@ export default function UserSidebar({
     }
   }, [])
 
-  const displayName = account?.username || account?.email || 'User'
+  const displayName = formatProfileName(account?.username, account?.email || 'User')
   const roleLabel = formatRoleLabel(account?.role || 'general_user')
 
   return (

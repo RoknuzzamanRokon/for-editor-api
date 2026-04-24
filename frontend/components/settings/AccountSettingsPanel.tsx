@@ -4,6 +4,7 @@ import type { FormEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AVATAR_PRESETS, AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
 import { API_BASE } from "@/lib/apiBase";
+import { capitalizeProfileName, formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
 
 type ThemeName =
@@ -321,7 +322,7 @@ export default function AccountSettingsPanel({
 
   const syncLocalState = useCallback((payload: AccountSettingsResponse) => {
     setSettings(payload);
-    setUsername(payload.identity.username ?? "");
+    setUsername(capitalizeProfileName(payload.identity.username));
     setAvatarKey(payload.preferences.avatar_key);
     setSecurityAlertsEnabled(payload.preferences.security_alerts_enabled);
     setLoginNotificationsEnabled(
@@ -397,13 +398,14 @@ export default function AccountSettingsPanel({
     setError("");
     try {
       const token = getToken();
+      const nextUsername = capitalizeProfileName(username) || null;
       const response = await fetch(`${API_BASE}/api/v2/auth/settings/profile`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: username.trim() || null }),
+        body: JSON.stringify({ username: nextUsername }),
       });
       const body = await response.text();
       if (!response.ok) {
@@ -735,7 +737,10 @@ export default function AccountSettingsPanel({
                       <div className="space-y-3">
                         <InfoCard
                           label="Name"
-                          value={settings?.identity.username || "Not set"}
+                          value={formatProfileName(
+                            settings?.identity.username,
+                            "Not set",
+                          )}
                         />
                         <InfoCard
                           label="Email"
@@ -761,7 +766,10 @@ export default function AccountSettingsPanel({
                           Active Username
                         </p>
                         <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">
-                          {settings?.identity.username || "Not set"}
+                          {formatProfileName(
+                            settings?.identity.username,
+                            "Not set",
+                          )}
                         </p>
                         <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                           This name appears in the navbar and account views.
@@ -776,7 +784,9 @@ export default function AccountSettingsPanel({
                       <TextField
                         label="New Username"
                         value={username}
-                        onChange={setUsername}
+                        onChange={(next) =>
+                          setUsername(capitalizeProfileName(next))
+                        }
                         placeholder="Enter your username"
                       />
                       <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">

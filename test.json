@@ -1,0 +1,145 @@
+"Id""created_at""updated_at""ittid""supplier""hotel_id""country_code_bm""lat_bm""lon_bm""postal_bm""name_bm""local_name_bm""property_type_bm""state_bm""city_bm""address_a_bm""address_b_bm""star_rating_bm""total_bm""is_verified""verified_by""analysis""136028""2026-04-24 10:43:37""2026-04-24 10:43:37""TH00034633""hotelbeds""861307""120""148.5""148.5""36""140""80""16""7.2""30.4""34.2""0""20""780.8""0"	\N	"{""score_scale"": {""max_total_score"": 1000, ""review_threshold"": 800, ""auto_match_threshold"": 850}, ""supplier_data"": {""lat"": 13.0911, ""lon"": 101.005, ""city"": ""SI RACHA"", ""name"": ""Poon Sook Apartment"", ""ittid"": ""TH00034633"", ""photo"": ""http://photos.hotelbeds.com/giata/original/86/861307/861307a_hb_a_002.jpg"", ""state"": ""Thailand"", ""hotel_id"": ""861307"", ""supplier"": ""hotelbeds"", ""address_1"": ""262 11 14 Moo 12 Sriracha"", ""address_2"": null, ""local_name"": ""Poon Sook Apartment"", ""postal_code"": ""20110"", ""star_rating"": ""2"", ""country_code"": ""TH"", ""property_type"": ""Hotel""}, ""top_matches_5"": [{""lat"": 13.0903, ""lon"": 101.005, ""city"": ""Chonburi"", ""name"": ""Poon Sook Apartment"", ""ittid"": ""TH00017688"", ""photo"": ""https://pix8.agoda.net/hotelImages/1090391/-1/e6fdd694e8cc881d96bc24ca11ae61a5.jpg?ce=0&s=312x"", ""state"": ""Chon Buri"", ""hotel_id"": ""1090391"", ""supplier"": ""agoda"", ""address_1"": ""No. 11-14, Community Nong Prue"", ""address_2"": null, ""confidence"": ""low"", ""local_name"": ""Poon Sook Apartment"", ""distance_km"": 0.089, ""postal_code"": ""20230"", ""star_rating"": ""2"", ""country_code"": ""TH"", ""property_type"": ""Apartment/Flat"", ""similarity_score"": 780.8}, {""lat"": 13.1221, ""lon"": 100.973, ""city"": ""Chonburi"", ""name"": ""OYO 1119 Sasiprapa Apartment"", ""ittid"": ""TH00002392"", ""photo"": ""https://pix8.agoda.net/hotelImages/16367804/-1/7ba254b97eaa0f60ce961615be8abcba.jpg?ca=13&ce=1&s=312x"", ""state"": ""Chon Buri"", ""hotel_id"": ""16367804"", ""supplier"": ""agoda"", ""address_1"": ""35/18 M 1, Nongkham Sub-district, Sriracha District, Chonburi, 20230, Thailand"", ""address_2"": null, ""confidence"": ""low"", ""local_name"": ""OYO 1119 Sasiprapa Apartment"", ""distance_km"": 4.888, ""postal_code"": ""20230"", ""star_rating"": ""3"", ""country_code"": ""TH"", ""property_type"": ""Hotel"", ""similarity_score"": 677.9}, {""lat"": 13.0984, ""lon"": 100.973, ""city"": ""Chonburi"", ""name"": ""Baan Pak Sud Soi"", ""ittid"": ""TH00025823"", ""photo"": ""https://pix8.agoda.net/hotelImages/68600083/0/dde4744143d3fc607831a389debb7970.jpg?ce=2&s=312x"", ""state"": ""Chon Buri"", ""hotel_id"": ""68600083"", ""supplier"": ""agoda"", ""address_1"": ""214/86 Moo 5, Bueng, Sriracha, Choburi 20230 Thailand"", ""address_2"": null, ""confidence"": ""low"", ""local_name"": ""Baan Pak Sud Soi"", ""distance_km"": 3.5595, ""postal_code"": ""20230"", ""star_rating"": ""1"", ""country_code"": ""TH"", ""property_type"": ""Hotel"", ""similarity_score"": 645.3}, {""lat"": 13.0699, ""lon"": 101.054, ""city"": ""Chonburi"", ""name"": ""Sakura Resort Bowin (Room on Request)"", ""ittid"": ""TH00028821"", ""photo"": ""https://pix8.agoda.net/property/79925704/0/34799209c41ad6751ed805e344fa2ed8.png?ce=2&s=312x"", ""state"": ""Chon Buri"", ""hotel_id"": ""79925704"", ""supplier"": ""agoda"", ""address_1"": ""217/10 Moo 1, Bowin, Sriracha, Chonburi 20230"", ""address_2"": null, ""confidence"": ""low"", ""local_name"": ""Sakura Resort Bowin (Room on Request)"", ""distance_km"": 5.8072, ""postal_code"": ""20230"", ""star_rating"": ""2"", ""country_code"": ""TH"", ""property_type"": ""Hotel"", ""similarity_score"": 644.5}, {""lat"": 13.1275, ""lon"": 100.985, ""city"": ""Chonburi"", ""name"": ""OYO 440 Season 5 Residence"", ""ittid"": ""TH00004414"", ""photo"": ""https://pix8.agoda.net/hotelImages/10561624/-1/e34c740d31c44c8a509c1bbdc72f4b76.jpg?ca=11&ce=1&s=312x"", ""state"": ""Chon Buri"", ""hotel_id"": ""10561624"", ""supplier"": ""agoda"", ""address_1"": ""59/60, route 3702 (Motorway 7 Frontage Road), Chonburi"", ""address_2"": null, ""confidence"": ""low"", ""local_name"": ""OYO Season 5 Residence"", ""distance_km"": 4.5906, ""postal_code"": ""20110"", ""star_rating"": ""2"", ""country_code"": ""TH"", ""property_type"": ""Hotel"", ""similarity_score"": 632.7}]}"
+
+create a api for update ittid.
+/mapping/update-ittid
+
+
+where mapping table if a hotel information have like
+iddid = "TH540001"
+here this api can update this id. when update then mapping table
+from is_verified = 0 to is_verified = 1
+from verified_by = null to verified_by = "<user_name>"
+
+
+{
+    "score_scale": {
+        "max_total_score": 1000,
+        "review_threshold": 800,
+        "auto_match_threshold": 850
+    },
+    "supplier_data": {
+        "lat": 13.0911,
+        "lon": 101.005,
+        "city": "SI RACHA",
+        "name": "Poon Sook Apartment",
+        "ittid": "TH00034633",
+        "photo": "http://photos.hotelbeds.com/giata/original/86/861307/861307a_hb_a_002.jpg",
+        "state": "Thailand",
+        "hotel_id": "861307",
+        "supplier": "hotelbeds",
+        "address_1": "262 11 14 Moo 12 Sriracha",
+        "address_2": null,
+        "local_name": "Poon Sook Apartment",
+        "postal_code": "20110",
+        "star_rating": "2",
+        "country_code": "TH",
+        "property_type": "Hotel"
+    },
+    "top_matches_5": [
+        {
+            "lat": 13.0903,
+            "lon": 101.005,
+            "city": "Chonburi",
+            "name": "Poon Sook Apartment",
+            "ittid": "TH00017688",
+            "photo": "https://pix8.agoda.net/hotelImages/1090391/-1/e6fdd694e8cc881d96bc24ca11ae61a5.jpg?ce=0&s=312x",
+            "state": "Chon Buri",
+            "hotel_id": "1090391",
+            "supplier": "agoda",
+            "address_1": "No. 11-14, Community Nong Prue",
+            "address_2": null,
+            "confidence": "low",
+            "local_name": "Poon Sook Apartment",
+            "distance_km": 0.089,
+            "postal_code": "20230",
+            "star_rating": "2",
+            "country_code": "TH",
+            "property_type": "Apartment/Flat",
+            "similarity_score": 780.8
+        },
+        {
+            "lat": 13.1221,
+            "lon": 100.973,
+            "city": "Chonburi",
+            "name": "OYO 1119 Sasiprapa Apartment",
+            "ittid": "TH00002392",
+            "photo": "https://pix8.agoda.net/hotelImages/16367804/-1/7ba254b97eaa0f60ce961615be8abcba.jpg?ca=13&ce=1&s=312x",
+            "state": "Chon Buri",
+            "hotel_id": "16367804",
+            "supplier": "agoda",
+            "address_1": "35/18 M 1, Nongkham Sub-district, Sriracha District, Chonburi, 20230, Thailand",
+            "address_2": null,
+            "confidence": "low",
+            "local_name": "OYO 1119 Sasiprapa Apartment",
+            "distance_km": 4.888,
+            "postal_code": "20230",
+            "star_rating": "3",
+            "country_code": "TH",
+            "property_type": "Hotel",
+            "similarity_score": 677.9
+        },
+        {
+            "lat": 13.0984,
+            "lon": 100.973,
+            "city": "Chonburi",
+            "name": "Baan Pak Sud Soi",
+            "ittid": "TH00025823",
+            "photo": "https://pix8.agoda.net/hotelImages/68600083/0/dde4744143d3fc607831a389debb7970.jpg?ce=2&s=312x",
+            "state": "Chon Buri",
+            "hotel_id": "68600083",
+            "supplier": "agoda",
+            "address_1": "214/86 Moo 5, Bueng, Sriracha, Choburi 20230 Thailand",
+            "address_2": null,
+            "confidence": "low",
+            "local_name": "Baan Pak Sud Soi",
+            "distance_km": 3.5595,
+            "postal_code": "20230",
+            "star_rating": "1",
+            "country_code": "TH",
+            "property_type": "Hotel",
+            "similarity_score": 645.3
+        },
+        {
+            "lat": 13.0699,
+            "lon": 101.054,
+            "city": "Chonburi",
+            "name": "Sakura Resort Bowin (Room on Request)",
+            "ittid": "TH00028821",
+            "photo": "https://pix8.agoda.net/property/79925704/0/34799209c41ad6751ed805e344fa2ed8.png?ce=2&s=312x",
+            "state": "Chon Buri",
+            "hotel_id": "79925704",
+            "supplier": "agoda",
+            "address_1": "217/10 Moo 1, Bowin, Sriracha, Chonburi 20230",
+            "address_2": null,
+            "confidence": "low",
+            "local_name": "Sakura Resort Bowin (Room on Request)",
+            "distance_km": 5.8072,
+            "postal_code": "20230",
+            "star_rating": "2",
+            "country_code": "TH",
+            "property_type": "Hotel",
+            "similarity_score": 644.5
+        },
+        {
+            "lat": 13.1275,
+            "lon": 100.985,
+            "city": "Chonburi",
+            "name": "OYO 440 Season 5 Residence",
+            "ittid": "TH00004414",
+            "photo": "https://pix8.agoda.net/hotelImages/10561624/-1/e34c740d31c44c8a509c1bbdc72f4b76.jpg?ca=11&ce=1&s=312x",
+            "state": "Chon Buri",
+            "hotel_id": "10561624",
+            "supplier": "agoda",
+            "address_1": "59/60, route 3702 (Motorway 7 Frontage Road), Chonburi",
+            "address_2": null,
+            "confidence": "low",
+            "local_name": "OYO Season 5 Residence",
+            "distance_km": 4.5906,
+            "postal_code": "20110",
+            "star_rating": "2",
+            "country_code": "TH",
+            "property_type": "Hotel",
+            "similarity_score": 632.7
+        }
+    ]
+}

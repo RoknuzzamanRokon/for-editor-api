@@ -71,7 +71,7 @@ class AccountProfileUpdateRequest(BaseModel):
             return None
         if len(cleaned) < 3:
             raise ValueError("Username must be at least 3 characters long")
-        return cleaned
+        return cleaned[:1].upper() + cleaned[1:]
 
 
 class AccountPreferencesUpdateRequest(BaseModel):

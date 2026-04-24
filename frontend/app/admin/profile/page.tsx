@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { API_BASE } from "@/lib/apiBase";
+import { formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
 
 const AVATARS = [
@@ -79,11 +80,6 @@ function formatDate(value?: string | null, fallback = "Not available") {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
-}
-
-function capitalizeFirstLetter(value: string) {
-  if (!value) return value;
-  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function getApiIcon(action: string) {
@@ -472,9 +468,7 @@ export default function AdminProfilePage() {
 
   const displayName = useMemo(() => {
     if (!state.me) return "Admin User";
-    return capitalizeFirstLetter(
-      state.me.username?.trim() || state.me.email || "Admin User",
-    );
+    return formatProfileName(state.me.username, state.me.email || "Admin User");
   }, [state.me]);
 
   const handleAvatarSelect = (icon: string) => {
@@ -657,7 +651,7 @@ export default function AdminProfilePage() {
               <div className="mt-8">
                 <ProfileLine
                   label="Full Name / Username"
-                  value={state.me.username || "Not set"}
+                  value={formatProfileName(state.me.username, "Not set")}
                 />
                 <ProfileLine label="Email" value={state.me.email} mono />
                 <ProfileLine label="Role" value={formatRoleLabel(state.me.role)} />

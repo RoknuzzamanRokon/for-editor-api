@@ -43,7 +43,8 @@ def is_demo_expired(user: User) -> bool:
 
 
 def _ensure_unique_username(db: Session, username: str) -> str:
-    base = username.strip() or "demo_user"
+    trimmed = username.strip()
+    base = (trimmed[:1].upper() + trimmed[1:]) if trimmed else "Demo_user"
     candidate = base
     suffix = 1
     while db.query(User).filter(User.username == candidate).first():
@@ -103,6 +104,14 @@ def create_user(
 ) -> User:
     role = user_in.role or RoleEnum.general_user
     created_by_role = created_by_user.role if created_by_user else None
+    username = None
+    if user_in.username:
+        trimmed_username = user_in.username.strip()
+        username = (
+            trimmed_username[:1].upper() + trimmed_username[1:]
+            if trimmed_username
+            else None
+        )
 
     if created_by_role == RoleEnum.admin_user and role == RoleEnum.super_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin cannot create super_user")
@@ -110,14 +119,14 @@ def create_user(
     if get_user_by_email(db, user_in.email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
-    if user_in.username:
-        existing_username = db.query(User).filter(User.username == user_in.username).first()
+    if username:
+        existing_username = db.query(User).filter(User.username == username).first()
         if existing_username:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken")
 
     user = User(
         email=user_in.email,
-        username=user_in.username,
+        username=username,
         hashed_password=get_password_hash(user_in.password),
         role=role,
         is_active=True,

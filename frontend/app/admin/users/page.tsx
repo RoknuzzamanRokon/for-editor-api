@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { API_BASE } from "@/lib/apiBase";
+import { capitalizeProfileName, formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
 
 type UserItem = {
@@ -395,6 +396,12 @@ export default function AdminUsersPage() {
     [users],
   );
 
+  const allowedApiPermissions = useMemo(
+    () =>
+      selectedUserDetails?.api_permissions.filter((api) => api.allowed) ?? [],
+    [selectedUserDetails],
+  );
+
   const handleCreateUser = async () => {
     setCreateError("");
     setCreateSuccess("");
@@ -423,7 +430,7 @@ export default function AdminUsersPage() {
       };
 
       if (form.username.trim()) {
-        payload.username = form.username.trim();
+        payload.username = capitalizeProfileName(form.username);
       }
 
       const res = await fetch(`${API_BASE}/api/v2/users`, {
@@ -689,7 +696,7 @@ export default function AdminUsersPage() {
                           {user.email}
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-200">
-                          {user.username || "-"}
+                          {formatProfileName(user.username, "-")}
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-200">
                           {formatRoleLabel(user.role)}
@@ -768,7 +775,10 @@ export default function AdminUsersPage() {
                 <GlassInput
                   value={form.username}
                   onChange={(e) =>
-                    setForm((prev) => ({ ...prev, username: e.target.value }))
+                    setForm((prev) => ({
+                      ...prev,
+                      username: capitalizeProfileName(e.target.value),
+                    }))
                   }
                   placeholder="Username (optional)"
                   type="text"
@@ -793,7 +803,10 @@ export default function AdminUsersPage() {
                           Username
                         </p>
                         <p className="mt-1 truncate text-xl font-black tracking-tight text-slate-900 dark:text-white">
-                          {form.username.trim() || form.email.trim() || "New User"}
+                          {formatProfileName(
+                            form.username,
+                            form.email.trim() || "New User",
+                          )}
                         </p>
                       </div>
 
@@ -847,9 +860,6 @@ export default function AdminUsersPage() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white">User Details</h3>
-                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                    GET /api/v3/admin/check-users/{selectedUserDetails?.id ?? ""}
-                  </p>
                 </div>
                 <button
                   onClick={() => setShowDetails(false)}
@@ -871,11 +881,11 @@ export default function AdminUsersPage() {
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-[rgb(56,189,248)]/10 dark:from-primary/15 dark:to-[rgb(56,189,248)]/10" />
                   <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                        Username
-                      </p>
-                      <p className="mt-1 truncate text-xl font-black tracking-tight text-slate-900 dark:text-white">
-                        {selectedUserDetails.username || selectedUserDetails.email}
+                      <p className="mt-1 truncate text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+                        {formatProfileName(
+                          selectedUserDetails.username,
+                          selectedUserDetails.email,
+                        )}
                       </p>
                     </div>
                     <div className="shrink-0">
@@ -941,7 +951,13 @@ export default function AdminUsersPage() {
                       {[
                         { label: "ID", value: selectedUserDetails.id },
                         { label: "Email", value: selectedUserDetails.email },
-                        { label: "Username", value: selectedUserDetails.username || "-" },
+                        {
+                          label: "Username",
+                          value: formatProfileName(
+                            selectedUserDetails.username,
+                            "-",
+                          ),
+                        },
                         { label: "Role", value: formatRoleLabel(selectedUserDetails.role) },
                         { label: "Position", value: selectedUserDetails.position },
                         { label: "Status", value: selectedUserDetails.is_active ? "Active" : "Inactive" },
@@ -1013,7 +1029,7 @@ export default function AdminUsersPage() {
                   </div>
 
                   {/* All API Permissions */}
-                    <div className="px-5 py-4">
+                  <div className="px-5 py-4">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">All API Permissions</p>
                       <Link
@@ -1024,32 +1040,38 @@ export default function AdminUsersPage() {
                         Lookup User
                       </Link>
                     </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm">
-                        <thead>
-                          <tr className="border-b border-white/30 dark:border-white/10">
-                            <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Action</th>
-                            <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Allowed</th>
-                            <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Success Rate</th>
-                            <th className="pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Last Used</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/20 dark:divide-white/5">
-                          {selectedUserDetails.api_permissions.map((api) => (
-                            <tr key={api.action}>
-                              <td className="py-2.5 pr-4 font-medium text-slate-800 dark:text-slate-100">{api.label}</td>
-                              <td className="py-2.5 pr-4">
-                                <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${api.allowed ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"}`}>
-                                  {api.allowed ? "Yes" : "No"}
-                                </span>
-                              </td>
-                              <td className="py-2.5 pr-4 text-slate-600 dark:text-slate-300">{api.success_rate.toFixed(1)}%</td>
-                              <td className="py-2.5 text-slate-500 dark:text-slate-400">{formatDate(api.last_used_at)}</td>
+                    {allowedApiPermissions.length === 0 ? (
+                      <p className="text-sm text-slate-400 dark:text-slate-500">
+                        No allowed API permissions.
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                          <thead>
+                            <tr className="border-b border-white/30 dark:border-white/10">
+                              <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Action</th>
+                              <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Allowed</th>
+                              <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Success Rate</th>
+                              <th className="pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Last Used</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody className="divide-y divide-white/20 dark:divide-white/5">
+                            {allowedApiPermissions.map((api) => (
+                              <tr key={api.action}>
+                                <td className="py-2.5 pr-4 font-medium text-slate-800 dark:text-slate-100">{api.label}</td>
+                                <td className="py-2.5 pr-4">
+                                  <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                    Yes
+                                  </span>
+                                </td>
+                                <td className="py-2.5 pr-4 text-slate-600 dark:text-slate-300">{api.success_rate.toFixed(1)}%</td>
+                                <td className="py-2.5 text-slate-500 dark:text-slate-400">{formatDate(api.last_used_at)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
 
                 </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { API_BASE } from "@/lib/apiBase";
+import { formatProfileName } from "@/lib/profileName";
 const CHART_WIDTH = 1920;
 const CHART_HEIGHT = 240;
 const CHART_PADDING = { top: 16, right: 16, bottom: 34, left: 16 };
@@ -246,7 +247,7 @@ export default function DashboardPage() {
 
   const displayName = useMemo(() => {
     if (!overview) return "User";
-    return overview.user.username || overview.user.email;
+    return formatProfileName(overview.user.username, overview.user.email);
   }, [overview]);
 
   const performanceSeries = useMemo(
@@ -346,7 +347,7 @@ export default function DashboardPage() {
             </div>
 
             <h1 className="text-2xl font-black tracking-tight sm:text-3xl md:text-5xl">
-              Hi, {displayName.charAt(0).toUpperCase() + displayName.slice(1)}
+              Hi, {displayName}
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-white/80 md:text-base">
               Track request volume, API usage, conversion health, and recent

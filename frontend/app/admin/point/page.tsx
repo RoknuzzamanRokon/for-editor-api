@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { API_BASE } from "@/lib/apiBase";
+import { formatProfileName } from "@/lib/profileName";
 
 type GivingEntry = {
   id: number;
@@ -217,7 +218,9 @@ export default function AdminPointPage() {
                 >
                   <option value="">Select user...</option>
                   {users.map((u) => (
-                    <option key={u.id} value={u.id}>{u.username || u.email} (#{u.id})</option>
+                    <option key={u.id} value={u.id}>
+                      {formatProfileName(u.username, u.email)} (#{u.id})
+                    </option>
                   ))}
                 </select>
               </div>
@@ -300,9 +303,16 @@ export default function AdminPointPage() {
                       ) : requests.items.map((entry) => (
                         <tr key={entry.id} className="hover:bg-white/30 dark:hover:bg-white/5">
                           <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.id}</td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{entry.user_username || entry.user_email}</td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                            {formatProfileName(entry.user_username, entry.user_email)}
+                          </td>
                           <td className="px-4 py-3 font-black text-primary">{entry.amount}</td>
-                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{entry.created_by_username || entry.created_by_email}</td>
+                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                            {formatProfileName(
+                              entry.created_by_username,
+                              entry.created_by_email || "-",
+                            )}
+                          </td>
                           <td className="px-4 py-3">
                             <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${
                               entry.status === "pending"
@@ -337,7 +347,10 @@ export default function AdminPointPage() {
                               </div>
                             ) : (
                               <span className="text-xs text-slate-500 dark:text-slate-400">
-                                {entry.resolved_by_username || entry.resolved_by_email || "-"}
+                                {formatProfileName(
+                                  entry.resolved_by_username,
+                                  entry.resolved_by_email || "-",
+                                )}
                               </span>
                             )}
                           </td>
@@ -394,10 +407,17 @@ export default function AdminPointPage() {
                       ) : history.items.map((entry) => (
                         <tr key={entry.id} className="hover:bg-white/30 dark:hover:bg-white/5">
                           <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.id}</td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{entry.user_username || entry.user_email}</td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                            {formatProfileName(entry.user_username, entry.user_email)}
+                          </td>
                           <td className="px-4 py-3 font-black text-emerald-600 dark:text-emerald-400">+{entry.amount}</td>
                           <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{entry.note || "-"}</td>
-                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{entry.created_by_username || entry.created_by_email || "-"}</td>
+                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                            {formatProfileName(
+                              entry.created_by_username,
+                              entry.created_by_email || "-",
+                            )}
+                          </td>
                           <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{formatDate(entry.created_at)}</td>
                         </tr>
                       ))}

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { API_BASE } from "@/lib/apiBase";
+import { formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
 
 type ActionItem = {
@@ -590,28 +591,43 @@ export default function AdminApiPermissionsPage() {
               title="User Details"
               description="Identity and activity data for the selected user."
             >
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <InfoTile label="ID" value={details.id} />
-                <InfoTile label="Email" value={details.email} mono />
-                <InfoTile label="Username" value={details.username || "-"} />
-                <InfoTile label="Role" value={formatRoleLabel(details.role)} />
-                <InfoTile label="Position" value={details.position} />
-                <InfoTile
-                  label="Status"
-                  value={details.is_active ? "Active" : "Inactive"}
-                />
-                <InfoTile
-                  label="Created"
-                  value={formatDate(details.created_at)}
-                />
-                <InfoTile
-                  label="Last Login"
-                  value={formatDate(details.last_login)}
-                />
-                <InfoTile
-                  label="Last Active"
-                  value={formatDate(details.last_active_at)}
-                />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-white/40 bg-white/45 p-4 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <InfoTile label="ID" value={details.id} />
+                    <InfoTile label="Email" value={details.email} mono />
+                    <InfoTile
+                      label="Username"
+                      value={formatProfileName(details.username, "-")}
+                    />
+                    <InfoTile
+                      label="Role"
+                      value={formatRoleLabel(details.role)}
+                    />
+                    <InfoTile label="Position" value={details.position} />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/40 bg-white/45 p-4 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <InfoTile
+                      label="Status"
+                      value={details.is_active ? "Active" : "Inactive"}
+                    />
+                    <InfoTile
+                      label="Created"
+                      value={formatDate(details.created_at)}
+                    />
+                    <InfoTile
+                      label="Last Login"
+                      value={formatDate(details.last_login)}
+                    />
+                    <InfoTile
+                      label="Last Active"
+                      value={formatDate(details.last_active_at)}
+                    />
+                  </div>
+                </div>
               </div>
             </GlassSection>
 

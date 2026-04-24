@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
 import { API_BASE } from "@/lib/apiBase";
+import { formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
 import {
   clearAccountSettingsCache,
@@ -102,7 +103,10 @@ export default function AdminHeader({
     });
   };
 
-  const displayName = user?.username || user?.email || "Admin User";
+  const displayName = formatProfileName(
+    user?.username,
+    user?.email || "Admin User",
+  );
   const roleLabel = formatRoleLabel(user?.role || "admin_user");
 
   return (
