@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import EditableDocxPreview from "@/components/app-center/EditableDocxPreview";
+import ExcelWorkbookPreview from "@/components/app-center/ExcelWorkbookPreview";
 import PdfPageRemover from "@/components/PdfPageRemover";
 import { API_BASE } from "@/lib/apiBase";
 
@@ -78,10 +79,40 @@ type PreviewFile = {
   filename: string;
 };
 
+const DOCX_MIME_TYPES = [
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/msword",
+];
+
+const SPREADSHEET_MIME_TYPES = [
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel",
+];
+
+const extractFilenameFromContentDisposition = (value: string | null) => {
+  if (!value) return null;
+
+  const utfMatch = value.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+  if (utfMatch?.[1]) {
+    try {
+      return decodeURIComponent(utfMatch[1].trim().replace(/^"(.*)"$/, "$1"));
+    } catch {
+      return utfMatch[1].trim().replace(/^"(.*)"$/, "$1");
+    }
+  }
+
+  const plainMatch = value.match(/filename\s*=\s*("?)([^";]+)\1/i);
+  return plainMatch?.[2]?.trim() || null;
+};
+
 const isDocxFile = (mimeType: string, filename: string) =>
-  mimeType.includes("word") ||
-  mimeType.includes("officedocument") ||
+  DOCX_MIME_TYPES.some((type) => mimeType.includes(type)) ||
   filename.toLowerCase().endsWith(".docx");
+
+const isSpreadsheetFile = (mimeType: string, filename: string) =>
+  SPREADSHEET_MIME_TYPES.some((type) => mimeType.includes(type)) ||
+  filename.toLowerCase().endsWith(".xlsx") ||
+  filename.toLowerCase().endsWith(".xls");
 
 const PDF_PREVIEW_FRAME_CLASS =
   "h-[88vh] min-h-[546px] w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 sm:h-[1120px]";
@@ -260,6 +291,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const [history, setHistory] = useState<ConversionHistoryItem[]>([]);
   const [preview, setPreview] = useState<PreviewFile | null>(null);
   const [docxPreviewBlob, setDocxPreviewBlob] = useState<Blob | null>(null);
+  const [spreadsheetPreviewBlob, setSpreadsheetPreviewBlob] = useState<Blob | null>(null);
   const [docxHtml, setDocxHtml] = useState<string | null>(null);
   const [pdfPage, setPdfPage] = useState(1);
   const [pdfTotalPages, setPdfTotalPages] = useState(1);
@@ -331,6 +363,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       return nextPreview;
     });
     setDocxPreviewBlob(null);
+    setSpreadsheetPreviewBlob(null);
     setDocxHtml(null);
     setPdfPage(1);
     setPdfTotalPages(1);
@@ -354,12 +387,16 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
     }
 
     const blob = await res.blob();
+    const resolvedFilename =
+      extractFilenameFromContentDisposition(
+        res.headers.get("Content-Disposition"),
+      ) || fallbackFilename;
     const objectUrl = URL.createObjectURL(blob);
 
     const nextPreview = {
       url: objectUrl,
       mimeType: blob.type || "application/octet-stream",
-      filename: fallbackFilename,
+      filename: resolvedFilename,
     };
 
     replacePreview(nextPreview);
@@ -374,6 +411,8 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       } catch {
         setDocxHtml(null);
       }
+    } else if (isSpreadsheetFile(nextPreview.mimeType, nextPreview.filename)) {
+      setSpreadsheetPreviewBlob(blob);
     } else if (nextPreview.mimeType.includes("pdf")) {
       try {
         const { PDFDocument } = await import("pdf-lib");
@@ -992,6 +1031,12 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
             <EditableDocxPreview
               sourceBlob={docxPreviewBlob}
               html={docxHtml}
+            />
+          ) : isSpreadsheetFile(preview.mimeType, preview.filename) ? (
+            <ExcelWorkbookPreview
+              sourceBlob={spreadsheetPreviewBlob}
+              filename={preview.filename}
+              downloadUrl={preview.url}
             />
           ) : (
             <div className="rounded-2xl border border-dashed border-slate-300 p-8 dark:border-slate-700">
