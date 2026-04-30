@@ -74,8 +74,8 @@ export default function AdminAppCenterPage() {
         <div className="mx-auto w-full max-w-8xl">
           <section className="app-hero-card relative mb-6 overflow-hidden rounded-[13px] border border-slate-200/30 p-5 text-white shadow-xl sm:p-8 dark:border-slate-800/30">
            
-            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                <h1 className="mt-0 text-3xl font-black tracking-tight text-white md:text-4xl">
+            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-center">
+                <h1 className="mt-0 text-3xl font-black tracking-tight text-white md:text-4xl text-center">
                   App Center
                 </h1>
 
@@ -131,20 +131,45 @@ export default function AdminAppCenterPage() {
                     }
                   };
                   
+                  // Map action to short smart name
+                  const getShortName = (action: string) => {
+                    switch (action) {
+                      case 'pdf_to_docs':
+                        return 'PDF→Word';
+                      case 'pdf_to_excel':
+                        return 'PDF→Excel';
+                      case 'docx_to_pdf':
+                        return 'Word→PDF';
+                      case 'excel_to_pdf':
+                        return 'Excel→PDF';
+                      case 'image_to_pdf':
+                        return 'Image→PDF';
+                      case 'remove_background':
+                        return 'Remove BG';
+                      case 'pdf_page_remove':
+                        return 'Delete Pages';
+                      default:
+                        return item.label;
+                    }
+                  };
+                  
                   return (
-                    <div key={item.action} className="flex justify-center">
+                    <div key={item.action} className="flex flex-col items-center gap-2">
                       <Link
                         href={editHref}
                         prefetch
                         onMouseEnter={() => router.prefetch(editHref)}
                         onFocus={() => router.prefetch(editHref)}
-                        className="group relative flex h-24 w-24 items-center justify-center rounded-full border-2 border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary shadow-lg transition-all hover:scale-110 hover:shadow-xl dark:border-slate-800"
+                        className="group relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary shadow-[2px_6px_0px_rgba(255,255,255,0.9)] transition-all hover:scale-110 hover:shadow-[8px_4px_0px_rgba(255,255,255,1)] dark:border-slate-800 neo-shadow active-neo group-hover:bg-[#ffcc00]"
                         title={item.label}
                       >
-                        <span className="material-symbols-outlined text-3xl text-white">
+                        <span className="material-symbols-outlined text-5xl text-white">
                           {getIcon(item.action)}
                         </span>
                       </Link>
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {getShortName(item.action)}
+                      </span>
                     </div>
                   );
                 })}
