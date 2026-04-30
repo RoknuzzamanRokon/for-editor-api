@@ -72,7 +72,13 @@ export default function AdminAppCenterPage() {
   return (
       <section className="h-full min-h-full overflow-y-auto  px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="mx-auto w-full max-w-8xl">
-          <section className="app-hero-card relative mb-6 overflow-hidden rounded-[13px] border border-slate-200/30 p-5 text-white shadow-xl sm:p-8 dark:border-slate-800/30">
+          <section className="app-hero-card relative mb-6 overflow-hidden rounded-[13px] border-2 border-slate-200/30 p-5 text-white shadow-xl sm:p-8 dark:border-slate-800/30">
+            <div className="absolute inset-0 rounded-[13px] overflow-hidden pointer-events-none">
+              <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent top-0 left-0 animate-[borderLightTop_8s_linear_infinite]"></div>
+              <div className="absolute w-[2px] h-full bg-gradient-to-b from-transparent via-primary to-transparent top-0 right-0 animate-[borderLightRight_8s_linear_infinite_2s]"></div>
+              <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent bottom-0 right-0 animate-[borderLightBottom_8s_linear_infinite_4s]"></div>
+              <div className="absolute w-[2px] h-full bg-gradient-to-b from-transparent via-primary to-transparent bottom-0 left-0 animate-[borderLightLeft_8s_linear_infinite_6s]"></div>
+            </div>
            
             <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-center">
                 <h1 className="mt-0 text-3xl font-black tracking-tight text-white md:text-4xl text-center">
@@ -82,12 +88,6 @@ export default function AdminAppCenterPage() {
 
             </div>
           </section>
-
-          <div className="mb-5">
-            <div 
-              className="w-full rounded-xl border border-primary/10 bg-white px-1 py-0 text-sm outline-none transition focus:ring-2 focus:ring-primary/20 dark:bg-slate-900"
-            />
-          </div>
 
           {loading ? (
             <div className="mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
