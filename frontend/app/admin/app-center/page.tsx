@@ -70,7 +70,7 @@ export default function AdminAppCenterPage() {
   }, [actions, router]);
 
   return (
-      <section className="h-full min-h-full overflow-y-auto bg-background-light/50 dark:bg-slate-950/20 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+      <section className="h-full min-h-full overflow-y-auto  px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="mx-auto w-full max-w-8xl">
           <section className="app-hero-card relative mb-6 overflow-hidden rounded-[13px] border border-slate-200/30 bg-gradient-to-br from-slate-900/40 via-slate-800/40 to-primary/40 p-5 text-white shadow-xl sm:p-8 dark:border-slate-800/30">
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl dark:bg-white/10" />
