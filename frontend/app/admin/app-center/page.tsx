@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/apiBase";
+import { authFetch } from "@/lib/authFetch";
 
 type ActionItem = {
   action: string;
@@ -26,18 +27,8 @@ export default function AdminAppCenterPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      setError("No access token found.");
-      setLoading(false);
-      return;
-    }
-
-    fetch(`${API_BASE}/api/v3/permissions/my-api`, {
+    authFetch(`${API_BASE}/api/v3/permissions/my-api`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     })
       .then(async (res) => {
         const body = await res.text();

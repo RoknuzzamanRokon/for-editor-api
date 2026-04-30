@@ -5,8 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import EditableDocxPreview from "@/components/app-center/EditableDocxPreview";
 import ExcelWorkbookPreview from "@/components/app-center/ExcelWorkbookPreview";
+import RemoveBackgroundStudio from "@/components/app-center/RemoveBackgroundStudio";
 import PdfPageRemover from "@/components/PdfPageRemover";
 import { API_BASE } from "@/lib/apiBase";
+import { authFetch } from "@/lib/authFetch";
 
 const ACTION_TO_ROUTE: Record<string, string> = {
   pdf_to_docs: "/api/v3/conversions/pdf-to-word",
@@ -303,17 +305,12 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const title = formatTitleFromSlug(params.slug);
   const action = params.slug.replace(/-/g, "_");
   const isPdfPageRemove = action === "pdf_page_remove";
+  const isRemoveBackground = action === "remove_background";
   const convertRoute = useMemo(() => ACTION_TO_ROUTE[action] || "", [action]);
   const historyRoute = useMemo(
     () => ACTION_TO_HISTORY_ROUTE[action] || "/api/v3/conversions/history",
     [action],
   );
-
-  const getAccessToken = () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) throw new Error("No access token found");
-    return token;
-  };
 
   useEffect(() => {
     return () => {
@@ -373,12 +370,8 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
     downloadUrl: string,
     fallbackFilename: string,
   ) => {
-    const token = getAccessToken();
-    const res = await fetch(`${API_BASE}${downloadUrl}`, {
+    const res = await authFetch(`${API_BASE}${downloadUrl}`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
 
     if (!res.ok) {
@@ -429,14 +422,9 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
     conversionId: number,
     attempts = 30,
   ) => {
-    const token = getAccessToken();
-
     for (let attempt = 0; attempt < attempts; attempt += 1) {
-      const res = await fetch(`${API_BASE}/api/v3/conversions/${conversionId}`, {
+      const res = await authFetch(`${API_BASE}/api/v3/conversions/${conversionId}`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       const bodyText = await res.text();
@@ -491,15 +479,11 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       setSubmitting(true);
       setConversionStage("uploading");
       setConversionProgress(12);
-      const token = getAccessToken();
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch(`${API_BASE}${convertRoute}`, {
+      const res = await authFetch(`${API_BASE}${convertRoute}`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: formData,
       });
 
@@ -561,13 +545,8 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
     setError("");
     try {
       setLoadingHistory(true);
-      const token = getAccessToken();
-
-      const res = await fetch(`${API_BASE}${historyRoute}`, {
+      const res = await authFetch(`${API_BASE}${historyRoute}`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       const bodyText = await res.text();
@@ -587,12 +566,8 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
 
     setError("");
     try {
-      const token = getAccessToken();
-      const res = await fetch(`${API_BASE}${item.download_url}`, {
+      const res = await authFetch(`${API_BASE}${item.download_url}`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (!res.ok) {
@@ -619,12 +594,8 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const handleDelete = async (item: ConversionHistoryItem) => {
     setError("");
     try {
-      const token = getAccessToken();
-      const res = await fetch(`${API_BASE}/api/v3/conversions/${item.id}`, {
+      const res = await authFetch(`${API_BASE}/api/v3/conversions/${item.id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (!res.ok) {
@@ -713,255 +684,260 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
         ) : null}
 
         {!unsupported ? (
-          <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
-            <div className="space-y-8 xl:col-span-12">
-              {isPdfPageRemove ? (
-                <PdfPageRemover
-                  apiBase={API_BASE}
-                  apiEndpoint="/api/v3/conversions/remove-pages-from-pdf"
-                  includeAuth
-                  showRecentFiles={false}
-                />
-              ) : (
-                <>
-                  <SectionCard
-                    title="Request Builder"
-                    description="Choose a file and send it to the selected conversion endpoint."
-                  >
-                    <div className="flex flex-wrap items-end gap-3">
-                      <div className="min-w-0 flex-1 sm:min-w-[250px]">
-                        <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
-                          Upload file
-                        </label>
-                        <input
-                          type="file"
-                          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                          className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:font-semibold file:text-primary dark:border-slate-700 dark:bg-slate-900"
-                        />
-                      </div>
-
-                      <button
-                        onClick={handleConvert}
-                        disabled={!file || submitting}
-                        type="button"
-                        className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200
-                        ${
-                          file
-                            ? "bg-primary text-white hover:opacity-90"
-                            : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
-                        }
-                      `}
-                      >
-                        <span className="material-symbols-outlined text-base">
-                          bolt
-                        </span>
-                        {submitting ? "Converting..." : "Convert File"}
-                      </button>
+          isPdfPageRemove ? (
+            <PdfPageRemover
+              apiBase={API_BASE}
+              apiEndpoint="/api/v3/conversions/remove-pages-from-pdf"
+              includeAuth
+              showRecentFiles={false}
+            />
+          ) : isRemoveBackground ? (
+            <RemoveBackgroundStudio
+              apiBase={API_BASE}
+              apiEndpoint="/api/v3/conversions/remove-background"
+              historyEndpoint="/api/v3/conversions/remove-background/files/history"
+              includeAuth
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
+              <div className="space-y-8 xl:col-span-12">
+                <SectionCard
+                  title="Request Builder"
+                  description="Choose a file and send it to the selected conversion endpoint."
+                >
+                  <div className="flex flex-wrap items-end gap-3">
+                    <div className="min-w-0 flex-1 sm:min-w-[250px]">
+                      <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Upload file
+                      </label>
+                      <input
+                        type="file"
+                        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                        className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:font-semibold file:text-primary dark:border-slate-700 dark:bg-slate-900"
+                      />
                     </div>
 
-                    <p className="mt-2 text-xs text-slate-500">
-                      {file ? `Selected: ${file.name}` : "No file selected yet"}
-                    </p>
-                  </SectionCard>
-                  {submitting || result ? (
-                    <SectionCard
-                      title="Response Summary"
-                      description="Most recent conversion response from the backend."
+                    <button
+                      onClick={handleConvert}
+                      disabled={!file || submitting}
+                      type="button"
+                      className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200
+                      ${
+                        file
+                          ? "bg-primary text-white hover:opacity-90"
+                          : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
+                      }
+                    `}
                     >
-                      {submitting ? (
-                        <ConversionProgressPanel
-                          progress={conversionProgress}
-                          stage={conversionStage}
-                          filename={file?.name}
-                        />
-                      ) : (
-                        <div className="space-y-4">
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                              <p className="text-xs uppercase tracking-wider text-slate-500">
-                                Conversion ID
-                              </p>
-                              <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                                {result?.conversion_id}
-                              </p>
-                            </div>
+                      <span className="material-symbols-outlined text-base">
+                        bolt
+                      </span>
+                      {submitting ? "Converting..." : "Convert File"}
+                    </button>
+                  </div>
 
-                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                              <p className="text-xs uppercase tracking-wider text-slate-500">
-                                Status
-                              </p>
-                              <div className="mt-2">
-                                <StatusBadge status={result?.status || "processing"} />
-                              </div>
-                            </div>
+                  <p className="mt-2 text-xs text-slate-500">
+                    {file ? `Selected: ${file.name}` : "No file selected yet"}
+                  </p>
+                </SectionCard>
+                {submitting || result ? (
+                  <SectionCard
+                    title="Response Summary"
+                    description="Most recent conversion response from the backend."
+                  >
+                    {submitting ? (
+                      <ConversionProgressPanel
+                        progress={conversionProgress}
+                        stage={conversionStage}
+                        filename={file?.name}
+                      />
+                    ) : (
+                      <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                            <p className="text-xs uppercase tracking-wider text-slate-500">
+                              Conversion ID
+                            </p>
+                            <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                              {result?.conversion_id}
+                            </p>
+                          </div>
 
-                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                              <p className="text-xs uppercase tracking-wider text-slate-500">
-                                Points Charged
-                              </p>
-                              <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                                {result?.points_charged ?? "-"}
-                              </p>
-                            </div>
-
-                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                              <p className="text-xs uppercase tracking-wider text-slate-500">
-                                Remaining Balance
-                              </p>
-                              <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                                {result?.remaining_balance ?? "-"}
-                              </p>
+                          <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                            <p className="text-xs uppercase tracking-wider text-slate-500">
+                              Status
+                            </p>
+                            <div className="mt-2">
+                              <StatusBadge status={result?.status || "processing"} />
                             </div>
                           </div>
 
-                          {preview ? (
-                            <button
-                              type="button"
-                              onClick={() => setShowPreviewViewer(true)}
-                              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
-                            >
-                              <span className="material-symbols-outlined text-base">
-                                visibility
-                              </span>
-                              Open Preview
-                            </button>
-                          ) : null}
+                          <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                            <p className="text-xs uppercase tracking-wider text-slate-500">
+                              Points Charged
+                            </p>
+                            <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                              {result?.points_charged ?? "-"}
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                            <p className="text-xs uppercase tracking-wider text-slate-500">
+                              Remaining Balance
+                            </p>
+                            <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                              {result?.remaining_balance ?? "-"}
+                            </p>
+                          </div>
                         </div>
-                      )}
-                    </SectionCard>
-                  ) : null}
-                </>
-              )}
-            </div>
 
-            <div className="space-y-8 xl:col-span-12">
-              <SectionCard
-                title="Conversion History"
-                description="Browse previous converted files for this tool."
-                action={
-                <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      onClick={handleLoadHistory}
-                      disabled={loadingHistory}
-                      type="button"
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                    >
-                      <span className="material-symbols-outlined text-base">
-                        history
+                        {preview ? (
+                          <button
+                            type="button"
+                            onClick={() => setShowPreviewViewer(true)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
+                          >
+                            <span className="material-symbols-outlined text-base">
+                              visibility
+                            </span>
+                            Open Preview
+                          </button>
+                        ) : null}
+                      </div>
+                    )}
+                  </SectionCard>
+                ) : null}
+              </div>
+
+              <div className="space-y-8 xl:col-span-12">
+                <SectionCard
+                  title="Conversion History"
+                  description="Browse previous converted files for this tool."
+                  action={
+                  <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={handleLoadHistory}
+                        disabled={loadingHistory}
+                        type="button"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                      >
+                        <span className="material-symbols-outlined text-base">
+                          history
+                        </span>
+                        {loadingHistory ? "Loading..." : "Load History"}
+                      </button>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        {history.length} items
                       </span>
-                      {loadingHistory ? "Loading..." : "Load History"}
-                    </button>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                      {history.length} items
-                    </span>
-                  </div>
-                }
-              >
-                <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
-                  <div className="max-h-[440px] overflow-y-auto overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
-                        <tr>
-                          <th className="px-4 py-4 font-semibold">ID</th>
-                          <th className="px-4 py-4 font-semibold">Action</th>
-                          <th className="px-4 py-4 font-semibold">File</th>
-                          <th className="px-4 py-4 font-semibold">Status</th>
-                          <th className="px-4 py-4 font-semibold">Updated</th>
-                          <th className="px-4 py-4 font-semibold">Actions</th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {history.length === 0 ? (
+                    </div>
+                  }
+                >
+                  <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <div className="max-h-[440px] overflow-y-auto overflow-x-auto">
+                      <table className="w-full text-left text-sm">
+                        <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
                           <tr>
-                            <td
-                              colSpan={6}
-                              className="px-4 py-10 text-center text-sm text-slate-500"
-                            >
-                              No history loaded yet.
-                            </td>
+                            <th className="px-4 py-4 font-semibold">ID</th>
+                            <th className="px-4 py-4 font-semibold">Action</th>
+                            <th className="px-4 py-4 font-semibold">File</th>
+                            <th className="px-4 py-4 font-semibold">Status</th>
+                            <th className="px-4 py-4 font-semibold">Updated</th>
+                            <th className="px-4 py-4 font-semibold">Actions</th>
                           </tr>
-                        ) : (
-                          history.map((item) => (
-                            <tr
-                              key={item.id}
-                              className="transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                            >
-                              <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
-                                {item.id}
-                              </td>
-                              <td className="px-4 py-4">{item.action}</td>
-                              <td className="max-w-[220px] px-4 py-4">
-                                <div
-                                  className="truncate"
-                                  title={item.input_filename}
-                                >
-                                  {item.input_filename}
-                                </div>
-                              </td>
-                              <td className="px-4 py-4">
-                                <StatusBadge status={item.status} />
-                              </td>
-                              <td className="px-4 py-4 text-slate-500">
-                                {formatDate(item.updated_at)}
-                              </td>
-                              <td className="px-4 py-4">
-                                <div className="flex flex-wrap gap-2">
-                                  <button
-                                    type="button"
-                                    disabled={!item.download_url}
-                                    onClick={() => handleDownload(item)}
-                                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                                  >
-                                    Download
-                                  </button>
+                        </thead>
 
-                                  <button
-                                    type="button"
-                                    disabled={!item.download_url}
-                                    onClick={async () => {
-                                      if (!item.download_url) return;
-                                      try {
-                                        setError("");
-                                        await fetchPreviewFile(
-                                          item.download_url,
-                                          item.input_filename,
-                                        );
-                                        setShowPreviewViewer(true);
-                                      } catch (err: unknown) {
-                                        setError(
-                                          err instanceof Error
-                                            ? err.message
-                                            : "Preview loading failed",
-                                        );
-                                      }
-                                    }}
-                                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                                  >
-                                    Preview
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDelete(item)}
-                                    className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
-                                  >
-                                    Delete
-                                  </button>
-                                </div>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                          {history.length === 0 ? (
+                            <tr>
+                              <td
+                                colSpan={6}
+                                className="px-4 py-10 text-center text-sm text-slate-500"
+                              >
+                                No history loaded yet.
                               </td>
                             </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
+                          ) : (
+                            history.map((item) => (
+                              <tr
+                                key={item.id}
+                                className="transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                              >
+                                <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
+                                  {item.id}
+                                </td>
+                                <td className="px-4 py-4">{item.action}</td>
+                                <td className="max-w-[220px] px-4 py-4">
+                                  <div
+                                    className="truncate"
+                                    title={item.input_filename}
+                                  >
+                                    {item.input_filename}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                  <StatusBadge status={item.status} />
+                                </td>
+                                <td className="px-4 py-4 text-slate-500">
+                                  {formatDate(item.updated_at)}
+                                </td>
+                                <td className="px-4 py-4">
+                                  <div className="flex flex-wrap gap-2">
+                                    <button
+                                      type="button"
+                                      disabled={!item.download_url}
+                                      onClick={() => handleDownload(item)}
+                                      className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                                    >
+                                      Download
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      disabled={!item.download_url}
+                                      onClick={async () => {
+                                        if (!item.download_url) return;
+                                        try {
+                                          setError("");
+                                          await fetchPreviewFile(
+                                            item.download_url,
+                                            item.input_filename,
+                                          );
+                                          setShowPreviewViewer(true);
+                                        } catch (err: unknown) {
+                                          setError(
+                                            err instanceof Error
+                                              ? err.message
+                                              : "Preview loading failed",
+                                          );
+                                        }
+                                      }}
+                                      className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                                    >
+                                      Preview
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDelete(item)}
+                                      className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
-              </SectionCard>
+                </SectionCard>
+              </div>
             </div>
-          </div>
+          )
         ) : null}
-        {showPreviewViewer && preview ? (
+        {showPreviewViewer && preview && !isRemoveBackground ? (
           <SectionCard
             title="Preview Viewer"
             description="Inspect the converted file before downloading."

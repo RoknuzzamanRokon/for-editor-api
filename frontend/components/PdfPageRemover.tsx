@@ -1,7 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { authFetch } from '@/lib/authFetch'
 
 type PdfJsModule = typeof import('pdfjs-dist/legacy/build/pdf.mjs')
 
@@ -75,12 +76,6 @@ async function loadPdfJsModule() {
   return pdfJsModulePromise
 }
 
-function getAuthHeaders(includeAuth: boolean): Record<string, string> {
-  if (!includeAuth) return {}
-  const token = window.localStorage.getItem('access_token')
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
-
 export default function PdfPageRemover({
   apiBase = '',
   apiEndpoint = '/api/v1/conversions/remove-pages-from-pdf',
@@ -110,6 +105,15 @@ export default function PdfPageRemover({
     path.startsWith('http://') || path.startsWith('https://')
       ? path
       : `${apiBase}${path}`
+
+  const authorizedFetch = useCallback(
+    (input: RequestInfo | URL, init: RequestInit = {}) =>
+      authFetch(input, init, {
+        requireAuth: includeAuth,
+        apiBase,
+      }),
+    [apiBase, includeAuth],
+  )
 
   useEffect(() => {
     return () => {
@@ -155,9 +159,7 @@ export default function PdfPageRemover({
             ? filesEndpoint
             : `${apiBase}${filesEndpoint}`
 
-        const res = await fetch(requestUrl, {
-          headers: getAuthHeaders(includeAuth),
-        })
+        const res = await authorizedFetch(requestUrl)
         const data = await res.json()
         if (!cancelled && data.files) {
           setFiles(data.files)
@@ -174,7 +176,7 @@ export default function PdfPageRemover({
     return () => {
       cancelled = true
     }
-  }, [apiBase, filesEndpoint, includeAuth, showRecentFiles])
+  }, [apiBase, authorizedFetch, filesEndpoint, showRecentFiles])
 
   useEffect(() => {
     setSelectedPages([])
@@ -330,9 +332,7 @@ export default function PdfPageRemover({
     if (!showRecentFiles) return
 
     try {
-      const res = await fetch(buildUrl(filesEndpoint), {
-        headers: getAuthHeaders(includeAuth),
-      })
+      const res = await authorizedFetch(buildUrl(filesEndpoint))
       const data = await res.json()
       if (data.files) {
         setFiles(data.files)
@@ -443,9 +443,8 @@ export default function PdfPageRemover({
     formData.append('remove_blank', removeBlank ? 'true' : 'false')
 
     try {
-      const res = await fetch(buildUrl(apiEndpoint), {
+      const res = await authorizedFetch(buildUrl(apiEndpoint), {
         method: 'POST',
-        headers: getAuthHeaders(includeAuth),
         body: formData,
       })
 
@@ -463,9 +462,7 @@ export default function PdfPageRemover({
         return
       }
 
-      const downloadRes = await fetch(buildUrl(data.download_url), {
-        headers: getAuthHeaders(includeAuth),
-      })
+      const downloadRes = await authorizedFetch(buildUrl(data.download_url))
       if (!downloadRes.ok) {
         throw new Error('Unable to load processed PDF preview.')
       }

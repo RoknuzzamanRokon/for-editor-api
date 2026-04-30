@@ -6,6 +6,7 @@ import UserSidebar from "./UserSidebar";
 import UserHeader from "./UserHeader";
 import ExpiredDemoCard from "./ExpiredDemoCard";
 import { API_BASE } from "@/lib/apiBase";
+import { authFetch } from "@/lib/authFetch";
 
 interface UserData {
   role?: string;
@@ -22,13 +23,8 @@ export default function UserShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
-
       try {
-        const res = await fetch(`${API_BASE}/api/v2/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await authFetch(`${API_BASE}/api/v2/auth/me`);
         if (res.ok) {
           const data = await res.json();
           setUserData(data);
