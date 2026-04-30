@@ -108,6 +108,29 @@ export default function AdminAppCenterPage() {
               <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
                 {filteredActions.map((item) => {
                   const editHref = `/admin/app-center/edit/${toEditSlug(item.action)}`;
+                  
+                  // Map action to specific icon
+                  const getIcon = (action: string) => {
+                    switch (action) {
+                      case 'pdf_to_docs':
+                        return 'description';
+                      case 'pdf_to_excel':
+                        return 'table_chart';
+                      case 'docx_to_pdf':
+                        return 'picture_as_pdf';
+                      case 'excel_to_pdf':
+                        return 'grid_on';
+                      case 'image_to_pdf':
+                        return 'image';
+                      case 'remove_background':
+                        return 'auto_fix_high';
+                      case 'pdf_page_remove':
+                        return 'delete_sweep';
+                      default:
+                        return 'apps';
+                    }
+                  };
+                  
                   return (
                     <div key={item.action} className="flex justify-center">
                       <Link
@@ -119,7 +142,7 @@ export default function AdminAppCenterPage() {
                         title={item.label}
                       >
                         <span className="material-symbols-outlined text-3xl text-white">
-                          apps
+                          {getIcon(item.action)}
                         </span>
                       </Link>
                     </div>
