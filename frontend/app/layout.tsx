@@ -36,7 +36,7 @@ export default function RootLayout({
               (function () {
                 try {
                   var stored = localStorage.getItem('theme');
-                  var themes = ['light', 'ocean', 'sunset', 'forest'];
+                  var themes = ['ocean', 'sunset', 'forest'];
                   var theme = themes.indexOf(stored) !== -1 ? stored : 'sunset';
                   var root = document.documentElement;
                   if (window.location && (window.location.pathname === '/login' || window.location.pathname === '/register')) {

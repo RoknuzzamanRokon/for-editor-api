@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 
 const themes = [
-  { id: 'light', label: 'Light', color: '#f8fafc' },
   { id: 'ocean', label: 'Ocean', color: '#0c4a6e' },
   { id: 'sunset', label: 'Sunset', color: '#451a03' },
   { id: 'forest', label: 'Forest', color: '#052e16' },

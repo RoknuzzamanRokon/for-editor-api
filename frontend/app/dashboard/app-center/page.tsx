@@ -6,265 +6,182 @@ import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/apiBase";
 import { authFetch } from "@/lib/authFetch";
 
+type ActionItem = {
+  action: string;
+  label: string;
+};
+
 type MyApiEntry = {
   action: string;
   label: string;
-  route: string;
-  method: string;
   allowed: boolean;
-  points: number;
-  theme: string;
-  icon: string;
-  last_used_at: string | null;
-  success_rate: number;
-  description: string;
 };
+
+const toEditSlug = (action: string) => action.replace(/_/g, "-");
 
 export default function DashboardAppCenterPage() {
   const router = useRouter();
-  const [apis, setApis] = useState<MyApiEntry[]>([]);
+  const [actions, setActions] = useState<ActionItem[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [pinnedRoutes, setPinnedRoutes] = useState<string[]>([]);
 
   useEffect(() => {
     authFetch(`${API_BASE}/api/v3/permissions/my-api`, {
       method: "GET",
     })
       .then(async (res) => {
+        const body = await res.text();
         if (!res.ok) {
-          throw new Error("Failed to load API list");
+          throw new Error(body || "Failed to load actions");
         }
-        const data = (await res.json()) as { user_id: number; apis: MyApiEntry[] };
-        setApis(Array.isArray(data.apis) ? data.apis : []);
+        const parsed = JSON.parse(body) as { user_id: number; apis: MyApiEntry[] };
+        const activeOnly = Array.isArray(parsed.apis)
+          ? parsed.apis
+              .filter((item) => item.allowed)
+              .map((item) => ({
+                action: item.action,
+                label: item.label,
+              }))
+          : [];
+        setActions(activeOnly);
       })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "Failed to load API list");
+        setError(err instanceof Error ? err.message : "Failed to load actions");
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const allowedApis = useMemo(() => apis.filter((item) => item.allowed), [apis]);
-
-  const orderedEndpoints = useMemo(() => {
-    const pinOrder = new Map<string, number>(pinnedRoutes.map((route, index) => [route, index]));
-
-    return [...allowedApis].sort((a, b) => {
-      const aPinned = pinOrder.has(a.route);
-      const bPinned = pinOrder.has(b.route);
-
-      if (aPinned && bPinned) {
-        return (pinOrder.get(a.route) ?? 0) - (pinOrder.get(b.route) ?? 0);
-      }
-      if (aPinned) return -1;
-      if (bPinned) return 1;
-      return 0;
+  const filteredActions = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
+    if (!keyword) return actions;
+    return actions.filter((item) => {
+      return (
+        item.action.toLowerCase().includes(keyword) ||
+        item.label.toLowerCase().includes(keyword)
+      );
     });
-  }, [allowedApis, pinnedRoutes]);
-
-  const togglePin = (route: string) => {
-    setPinnedRoutes((prev) => {
-      if (prev.includes(route)) {
-        return prev.filter((item) => item !== route);
-      }
-      return [...prev, route];
-    });
-  };
-
-  const getThemeClasses = (theme: string) => {
-    switch (theme) {
-      case "emerald":
-      case "green":
-        return "bg-emerald-100 text-emerald-600";
-      case "amber":
-        return "bg-amber-100 text-amber-600";
-      case "slate":
-        return "bg-slate-200 text-slate-700";
-      case "blue":
-      default:
-        return "bg-blue-100 text-blue-600";
-    }
-  };
-
-  const toEditSlug = (action: string) => action.replace(/_/g, "-");
+  }, [actions, search]);
 
   useEffect(() => {
-    orderedEndpoints.slice(0, 32).forEach((item) => {
+    actions.slice(0, 24).forEach((item) => {
       router.prefetch(`/dashboard/app-center/edit/${toEditSlug(item.action)}`);
     });
-  }, [orderedEndpoints, router]);
+  }, [actions, router]);
 
   return (
-    <div className="w-full max-w-none space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
-      <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-5 text-white shadow-xl sm:p-8 dark:border-slate-800">
-        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
-              <span className="material-symbols-outlined text-sm">apps</span>
-              App Center
+      <section className="h-full min-h-full overflow-y-auto  px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+        <div className="mx-auto w-full max-w-8xl">
+          <section className="app-hero-card relative mb-6 overflow-hidden rounded-[13px] border-2 border-slate-200/30 p-5 text-white shadow-xl sm:p-8 dark:border-slate-800/30">
+            <div className="absolute inset-0 rounded-[13px] overflow-hidden pointer-events-none">
+              <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent top-0 left-0 animate-[borderLightTop_8s_linear_infinite]"></div>
+              <div className="absolute w-[2px] h-full bg-gradient-to-b from-transparent via-primary to-transparent top-0 right-0 animate-[borderLightRight_8s_linear_infinite_2s]"></div>
+              <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent bottom-0 right-0 animate-[borderLightBottom_8s_linear_infinite_4s]"></div>
+              <div className="absolute w-[2px] h-full bg-gradient-to-b from-transparent via-primary to-transparent bottom-0 left-0 animate-[borderLightLeft_8s_linear_infinite_6s]"></div>
             </div>
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">App Center</h1>
-            <p className="mt-2 max-w-3xl text-sm text-white/80 md:text-base">
-              Active conversion APIs from <span className="font-semibold text-white">/api/v3/permissions/my-api</span>, ready to launch, pin, and run through your daily workflow without digging through menus.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur">
-            Total: {allowedApis.length}
-          </div>
-        </div>
-      </section>
+           
+            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-center">
+                <h1 className="mt-0 text-3xl font-black tracking-tight text-white md:text-4xl text-center">
+                  App Center
+                </h1>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-primary/10 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <div className="rounded-lg bg-primary/20 p-2 text-primary">
-            <span className="material-symbols-outlined">info</span>
-          </div>
-          <div>
-            <p className="text-sm font-bold leading-tight">Usage Hint</p>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              Each conversion costs <span className="font-bold">3 points</span>.
-              Top up points in Billing to increase your limit.
-            </p>
-          </div>
-        </div>
-        <button className="rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white sm:py-1.5">
-          Top Up
-        </button>
-      </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        {["Category", "Status", "Method", "Sort"].map((item) => (
-          <button
-            key={item}
-            className="flex items-center gap-2 rounded-xl border border-transparent bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600 hover:border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-700"
-          >
-            {item}
-            <span className="material-symbols-outlined text-[18px]">
-              {item === "Sort" ? "sort" : "expand_more"}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {loading ? (
-          Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={index}
-              className="rounded-[13px] border border-slate-200/80 bg-white p-5 shadow-[0_24px_60px_rgba(15,23,42,0.10)] dark:border-slate-800 dark:bg-slate-950"
-            >
-              <div className="h-10 w-10 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />
-              <div className="mt-4 h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-              <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
-              <div className="mt-6 h-24 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
             </div>
-          ))
-        ) : error ? (
-          <div className="rounded-[13px] border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
-            {error}
-          </div>
-        ) : null}
+          </section>
 
-        {orderedEndpoints.map((item) => {
-          const { action, label, route, icon, method, allowed, points, last_used_at, success_rate, description } = item;
-          const iconClass = getThemeClasses(item.theme);
-          const pinIndex = pinnedRoutes.indexOf(route);
-          const pinned = pinIndex !== -1;
-          const editHref = `/dashboard/app-center/edit/${toEditSlug(action)}`;
-
-          return (
-            <div
-              key={route}
-              className="relative overflow-hidden rounded-[13px] border border-slate-200/80 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:shadow-[0_28px_70px_rgba(15,23,42,0.14)] dark:border-slate-800 dark:bg-slate-950"
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.16),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(14,165,233,0.10),transparent_28%)]" />
-              {pinned ? (
-                <div className="absolute right-0 top-0 rounded-bl-lg bg-primary px-3 py-1 text-[10px] font-bold text-white">
-                  PIN #{pinIndex + 1}
-                </div>
-              ) : null}
-
-              <div className="relative p-5">
-                <div className="mb-4 inline-flex rounded-2xl border border-white/40 bg-white/70 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${iconClass}`}>
-                    <span className="material-symbols-outlined text-[14px] align-middle">{icon}</span>
-                  </span>
-                </div>
-
-                <h3 className="mb-1 text-lg font-bold text-slate-900 dark:text-white">{label}</h3>
-                <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">{description}</p>
-
-                <div className="mb-4 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-primary/15 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
-                    {points} points
-                  </span>
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium ${
-                      allowed
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
-                        : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[14px]">
-                      {allowed ? "check_circle" : "cancel"}
-                    </span>
-                    {allowed ? "Allowed" : "Not allowed"}
-                  </span>
-                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-                    {method}
-                  </span>
-                </div>
-
-                <div className="mb-6 grid grid-cols-2 gap-2 text-[11px]">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
-                    <p className="text-slate-400">Last used</p>
-                    <p className="font-semibold text-slate-700 dark:text-slate-200">
-                      {last_used_at ? new Date(last_used_at).toLocaleString() : "Never"}
-                    </p>
+          {loading ? (
+            <div className="mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
+                {Array.from({ length: 10 }).map((_, index) => (
+                  <div key={index} className="flex justify-center">
+                    <div className="h-24 w-24 animate-pulse rounded-full border-2 border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
                   </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
-                    <p className="text-slate-400">Success rate</p>
-                    <p className="font-semibold text-slate-700 dark:text-slate-200">
-                      {success_rate.toFixed(1)}%
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Link
-                    href={editHref}
-                    prefetch
-                    onMouseEnter={() => router.prefetch(editHref)}
-                    onFocus={() => router.prefetch(editHref)}
-                    className="flex flex-1 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 py-2.5 text-xs font-bold text-slate-900 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                  >
-                    Try It
-                  </Link>
-
-                  <button
-                    onClick={() => togglePin(route)}
-                    className={`rounded-2xl border p-2 transition-colors ${
-                      pinned
-                        ? "border-primary/30 bg-primary/10 text-primary"
-                        : "border-slate-200 bg-slate-50 text-slate-400 hover:text-slate-600 dark:border-slate-700 dark:bg-slate-900"
-                    }`}
-                    title={pinned ? "Unpin" : "Pin"}
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">
-                      keep
-                    </span>
-                  </button>
-                </div>
-
-                <p className="mt-3 truncate text-[11px] text-slate-500 dark:text-slate-400">{route}</p>
+                ))}
               </div>
             </div>
-          );
-        })}
-      </div>
-    </div>
+          ) : error ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+              {error}
+            </div>
+          ) : (
+            <div className="mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 p-6 dark:border-slate-800">
+              <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
+                {filteredActions.map((item) => {
+                  const editHref = `/dashboard/app-center/edit/${toEditSlug(item.action)}`;
+                  
+                  // Map action to specific icon
+                  const getIcon = (action: string) => {
+                    switch (action) {
+                      case 'pdf_to_docs':
+                        return 'description';
+                      case 'pdf_to_excel':
+                        return 'table_chart';
+                      case 'docx_to_pdf':
+                        return 'picture_as_pdf';
+                      case 'excel_to_pdf':
+                        return 'grid_on';
+                      case 'image_to_pdf':
+                        return 'image';
+                      case 'remove_background':
+                        return 'auto_fix_high';
+                      case 'pdf_page_remove':
+                        return 'delete_sweep';
+                      default:
+                        return 'apps';
+                    }
+                  };
+                  
+                  // Map action to short smart name
+                  const getShortName = (action: string) => {
+                    switch (action) {
+                      case 'pdf_to_docs':
+                        return 'PDF→Word';
+                      case 'pdf_to_excel':
+                        return 'PDF→Excel';
+                      case 'docx_to_pdf':
+                        return 'Word→PDF';
+                      case 'excel_to_pdf':
+                        return 'Excel→PDF';
+                      case 'image_to_pdf':
+                        return 'Image→PDF';
+                      case 'remove_background':
+                        return 'Remove BG';
+                      case 'pdf_page_remove':
+                        return 'Delete Pages';
+                      default:
+                        return item.label;
+                    }
+                  };
+                  
+                  return (
+                    <div key={item.action} className="flex flex-col items-center gap-2">
+                      <Link
+                        href={editHref}
+                        prefetch
+                        onMouseEnter={() => router.prefetch(editHref)}
+                        onFocus={() => router.prefetch(editHref)}
+                        className="group relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary shadow-[6px_6px_0px_rgba(255,255,255,0.9)] transition-all hover:scale-110 hover:shadow-[8px_8px_0px_rgba(255,255,255,1)] dark:border-slate-800 neo-shadow active-neo group-hover:bg-[#ffcc00]"
+                        title={item.label}
+                      >
+                        <span className="material-symbols-outlined text-5xl text-white">
+                          {getIcon(item.action)}
+                        </span>
+                      </Link>
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {getShortName(item.action)}
+                      </span>
+                    </div>
+                  );
+                })}
+                {filteredActions.length === 0 ? (
+                  <div className="col-span-full rounded-xl border border-primary/10 bg-primary/5 p-5 text-center text-sm text-slate-500">
+                    No actions found.
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
   );
 }

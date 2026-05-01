@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
-type Theme = 'light' | 'ocean' | 'sunset' | 'forest'
+type Theme = 'ocean' | 'sunset' | 'forest'
 
 interface ThemeContextType {
   theme: Theme
@@ -11,7 +11,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-const THEMES: Theme[] = ['light', 'ocean', 'sunset', 'forest']
+const THEMES: Theme[] = ['ocean', 'sunset', 'forest']
 
 function isTheme(value: string | null | undefined): value is Theme {
   return value != null && THEMES.includes(value as Theme)
@@ -59,9 +59,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark')
     document.documentElement.classList.add(theme)
-    if (theme !== 'light') {
-      document.documentElement.classList.add('dark')
-    }
+    document.documentElement.classList.add('dark')
     localStorage.setItem('theme', theme)
   }, [theme])
 
