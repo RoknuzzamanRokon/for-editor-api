@@ -88,7 +88,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const defaultRouteForRole = (role?: string | null) =>
-    role === "general_user" || role === "demo_user" ? "/dashboard" : "/admin";
+    role === "general_user" || role === "demo_user" ? "/dashboard/app-center" : "/admin/app-center";
 
   useEffect(() => {
     const prevHtmlOverflow = document.documentElement.style.overflow;
