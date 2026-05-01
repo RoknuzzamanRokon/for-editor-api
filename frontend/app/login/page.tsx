@@ -135,7 +135,7 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const loginRes = await fetch(`${API_BASE}/api/v2/auth/login`, {
+      const loginRes = await fetch("https://convaterpro.innovatedemo.com/api/v2/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -151,6 +151,11 @@ function LoginForm() {
       if (loginData.refresh_token) {
         localStorage.setItem("refresh_token", loginData.refresh_token);
       }
+      
+      // Store role from login response
+      if (loginData.role) {
+        localStorage.setItem("user_role", loginData.role);
+      }
 
       // Release login route scroll locks before navigating into app shells.
       document.documentElement.classList.remove("login-fullscreen");
@@ -160,40 +165,9 @@ function LoginForm() {
       if (next) {
         router.replace(next);
       } else {
-        let target = defaultRouteForRole(localStorage.getItem("user_role"));
-
-        try {
-          const meRes = await fetch(`${API_BASE}/api/v2/auth/me`, {
-            headers: { Authorization: `Bearer ${loginData.access_token}` },
-          });
-
-          if (meRes.ok) {
-            const me = await meRes.json();
-            if (me?.role) {
-              localStorage.setItem("user_role", me.role);
-              target = defaultRouteForRole(me.role);
-            }
-          }
-        } catch {
-          // Keep cached fallback target if /me is temporarily unavailable.
-        }
-
+        const target = defaultRouteForRole(loginData.role);
         router.replace(target);
       }
-
-      // Refresh role in background for future routing decisions.
-      fetch(`${API_BASE}/api/v2/auth/me`, {
-        headers: { Authorization: `Bearer ${loginData.access_token}` },
-      })
-        .then((res) => (res.ok ? res.json() : null))
-        .then((me) => {
-          if (me?.role) {
-            localStorage.setItem("user_role", me.role);
-          }
-        })
-        .catch(() => {
-          // Ignore role refresh failures here; guards will handle auth later.
-        });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {

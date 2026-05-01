@@ -19,18 +19,6 @@ export default function PDFViewer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfDocRef = useRef<any>(null);
 
-  const onFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile && selectedFile.type === "application/pdf") {
-      setFile(selectedFile);
-      setPageNumber(1);
-      setError("");
-      loadPDF(selectedFile);
-    } else {
-      setError("Please select a valid PDF file");
-    }
-  }, []);
-
   const loadPDF = useCallback(async (file: File) => {
     setLoading(true);
     try {
@@ -46,6 +34,18 @@ export default function PDFViewer() {
       setLoading(false);
     }
   }, []);
+
+  const onFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile && selectedFile.type === "application/pdf") {
+      setFile(selectedFile);
+      setPageNumber(1);
+      setError("");
+      loadPDF(selectedFile);
+    } else {
+      setError("Please select a valid PDF file");
+    }
+  }, [loadPDF]);
 
   const renderPage = useCallback(async (pageNum: number) => {
     if (!pdfDocRef.current || !canvasRef.current) return;

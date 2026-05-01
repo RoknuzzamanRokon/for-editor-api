@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { authFetch } from '@/lib/authFetch'
 
-type PdfJsModule = typeof import('pdfjs-dist/legacy/build/pdf.mjs')
+type PdfJsModule = typeof import('pdfjs-dist')
 
 interface FileInfo {
   filename: string
@@ -65,9 +65,9 @@ let pdfJsModulePromise: Promise<PdfJsModule> | null = null
 
 async function loadPdfJsModule() {
   if (!pdfJsModulePromise) {
-    pdfJsModulePromise = import('pdfjs-dist/legacy/build/pdf.mjs').then(
+    pdfJsModulePromise = import('pdfjs-dist').then(
       (module) => {
-        module.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
+        module.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`
         return module
       },
     )
@@ -366,7 +366,7 @@ export default function PdfPageRemover({
 
     canvas.width = viewport.width
     canvas.height = viewport.height
-    await page.render({ canvasContext: context, canvas, viewport }).promise
+    await page.render({ canvasContext: context, viewport }).promise
     return canvas.toDataURL('image/png', 1)
   }
 

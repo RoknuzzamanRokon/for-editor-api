@@ -105,6 +105,9 @@ export default function DashboardAppCenterPage() {
             </div>
           ) : (
             <div className="mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 p-6 dark:border-slate-800 ">
+              <h2 className="mb-6 text-xl font-bold text-slate-800 dark:text-slate-200">
+                Editor Panel
+              </h2>
               <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
                 {filteredActions.map((item) => {
                   const editHref = `/dashboard/app-center/edit/${toEditSlug(item.action)}`;
@@ -181,6 +184,45 @@ export default function DashboardAppCenterPage() {
               </div>
             </div>
           )}
+
+          {/* Viewer Panel Card */}
+          <div className="mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 p-6 dark:border-slate-800 mt-6">
+            <h2 className="mb-6 text-xl font-bold text-slate-800 dark:text-slate-200">
+              Viewer Panel
+            </h2>
+            <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
+              {[
+                { action: 'pdf_reader', label: 'PDF Reader', icon: 'picture_as_pdf' },
+                { action: 'docs_reader', label: 'Docs Reader', icon: 'description' },
+                { action: 'csv_reader', label: 'CSV Reader', icon: 'table_view' },
+                { action: 'excel_reader', label: 'Excel Reader', icon: 'grid_on' },
+                { action: 'markdown_reader', label: 'Markdown Reader', icon: 'code' },
+                { action: 'json_reader', label: 'JSON Reader', icon: 'data_object' },
+              ].map((item) => {
+                const viewHref = `/dashboard/app-center/view/${item.action}`;
+                
+                return (
+                  <div key={item.action} className="flex flex-col items-center gap-2">
+                    <Link
+                      href={viewHref}
+                      prefetch
+                      onMouseEnter={() => router.prefetch(viewHref)}
+                      onFocus={() => router.prefetch(viewHref)}
+                      className="group relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-slate-200 from-slate-900 via-slate-800 to-primary shadow-[2px_2px_0px_rgba(255,255,30,0.9)] transition-all hover:scale-110 hover:shadow-[4px_2px_0px_rgba(255,255,255,1)] dark:border-slate-800 neo-shadow active-neo group-hover:bg-[#ffcc00]"
+                      title={item.label}
+                    >
+                      <span className="material-symbols-outlined text-5xl text-primary">
+                        {item.icon}
+                      </span>
+                    </Link>
+                    <span className="text-xs pt-4 font-bold text-slate-700 dark:text-slate-300">
+                      {item.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </section>
   );

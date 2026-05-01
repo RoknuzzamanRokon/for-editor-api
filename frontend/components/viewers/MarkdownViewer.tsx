@@ -105,12 +105,11 @@ export default function MarkdownViewer() {
               </div>
             ) : (
               <div className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-lg">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  className="prose prose-slate max-w-none text-black prose-headings:text-black prose-a:text-blue-600 prose-strong:text-black prose-code:text-black prose-pre:bg-slate-100 prose-pre:text-black"
-                >
-                  {content}
-                </ReactMarkdown>
+                <div className="prose prose-slate max-w-none text-black prose-headings:text-black prose-a:text-blue-600 prose-strong:text-black prose-code:text-black prose-pre:bg-slate-100 prose-pre:text-black">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {content}
+                  </ReactMarkdown>
+                </div>
               </div>
             )}
           </div>

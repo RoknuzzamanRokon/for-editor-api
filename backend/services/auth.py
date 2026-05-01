@@ -41,7 +41,6 @@ def authenticate_user(db: Session, email: str, password: str) -> User:
 def create_token_pair(db: Session, user: User) -> tuple[str, str]:
     user.last_login = datetime.utcnow()
     db.commit()
-    db.refresh(user)
 
     access_token = create_access_token(subject=str(user.id))
     refresh_token, token_jti = create_refresh_token_with_jti(subject=str(user.id))

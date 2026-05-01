@@ -94,7 +94,11 @@ API_META: dict[str, dict[str, str]] = {
 def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenPair:
     user = auth_service.authenticate_user(db, payload.email, payload.password)
     access_token, refresh_token = auth_service.create_token_pair(db, user)
-    return TokenPair(access_token=access_token, refresh_token=refresh_token)
+    return TokenPair(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        role=user.role
+    )
 
 
 @router.post("/register", response_model=UserOut)
