@@ -105,6 +105,9 @@ export default function AdminAppCenterPage() {
             </div>
           ) : (
             <div className="mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 p-6 dark:border-slate-800 ">
+              <h2 className="mb-6 text-xl font-bold text-slate-800 dark:text-slate-200">
+                Editor Panel
+              </h2>
               <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
                 {filteredActions.map((item) => {
                   const editHref = `/admin/app-center/edit/${toEditSlug(item.action)}`;
@@ -160,14 +163,14 @@ export default function AdminAppCenterPage() {
                         prefetch
                         onMouseEnter={() => router.prefetch(editHref)}
                         onFocus={() => router.prefetch(editHref)}
-                        className="group relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-slate-200  from-slate-900 via-slate-800 to-primary shadow-[2px_6px_0px_rgba(255,255,255,0.9)] transition-all hover:scale-110 hover:shadow-[8px_4px_0px_rgba(255,255,255,1)] dark:border-slate-800 neo-shadow active-neo group-hover:bg-[#ffcc00]"
+                        className="group relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-slate-200  from-slate-900 via-slate-800 to-primary shadow-[2px_2px_0px_rgba(255,255,30,0.9)] transition-all hover:scale-110 hover:shadow-[4px_2px_0px_rgba(255,255,255,1)] dark:border-slate-800 neo-shadow active-neo group-hover:bg-[#ffcc00]"
                         title={item.label}
                       >
-                        <span className="material-symbols-outlined text-5xl text-white">
+                        <span className="material-symbols-outlined text-5xl text-primary">
                           {getIcon(item.action)}
                         </span>
                       </Link>
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <span className="text-xs pt-4 font-bold text-slate-700 dark:text-slate-300">
                         {getShortName(item.action)}
                       </span>
                     </div>
