@@ -8,6 +8,7 @@ from models.settings import (
     AccountPreferencesUpdateRequest,
     AccountSettingsResponse,
     VALID_AVATARS,
+    VALID_FONTS,
     VALID_THEMES,
 )
 
@@ -21,6 +22,11 @@ def _normalize_preference_values(db: Session, preference: UserPreference) -> Use
 
     if preference.avatar_key not in VALID_AVATARS:
         preference.avatar_key = "avatar_1"
+        changed = True
+
+    # Ensure font_family has a valid value
+    if not hasattr(preference, 'font_family') or preference.font_family not in VALID_FONTS:
+        preference.font_family = "dm_sans"
         changed = True
 
     if changed:
@@ -52,6 +58,7 @@ def build_account_settings_response(db: Session, user: User) -> AccountSettingsR
         identity=user,
         preferences=AccountPreferences(
             theme=preference.theme,
+            font_family=preference.font_family,
             avatar_key=preference.avatar_key,
             security_alerts_enabled=preference.security_alerts_enabled,
             login_notifications_enabled=preference.login_notifications_enabled,

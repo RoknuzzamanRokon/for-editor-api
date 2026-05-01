@@ -84,6 +84,7 @@ class UserPreference(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     theme = Column(String(32), nullable=False, default="sunset", server_default="sunset")
+    font_family = Column(String(64), nullable=False, default="dm_sans", server_default="dm_sans")
     avatar_key = Column(String(32), nullable=False, default="avatar_1", server_default="avatar_1")
     security_alerts_enabled = Column(Boolean, nullable=False, default=True, server_default="1")
     login_notifications_enabled = Column(Boolean, nullable=False, default=True, server_default="1")

@@ -74,10 +74,10 @@ export default function AdminAppCenterPage() {
         <div className="mx-auto w-full max-w-8xl">
           <section className="app-hero-card relative mb-6 overflow-hidden rounded-[13px] border-2 border-slate-200/30 p-5 text-white shadow-xl sm:p-8 dark:border-slate-800/30">
             <div className="absolute inset-0 rounded-[13px] overflow-hidden pointer-events-none">
-              <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent top-0 left-0 animate-[borderLightTop_8s_linear_infinite]"></div>
+              {/* <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent top-0 left-0 animate-[borderLightTop_8s_linear_infinite]"></div> */}
               <div className="absolute w-[2px] h-full bg-gradient-to-b from-transparent via-primary to-transparent top-0 right-0 animate-[borderLightRight_8s_linear_infinite_2s]"></div>
               <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent bottom-0 right-0 animate-[borderLightBottom_8s_linear_infinite_4s]"></div>
-              <div className="absolute w-[2px] h-full bg-gradient-to-b from-transparent via-primary to-transparent bottom-0 left-0 animate-[borderLightLeft_8s_linear_infinite_6s]"></div>
+              {/* <div className="absolute w-[2px] h-full bg-gradient-to-b from-transparent via-primary to-transparent bottom-0 left-0 animate-[borderLightLeft_8s_linear_infinite_6s]"></div> */}
             </div>
            
             <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-center">
@@ -160,7 +160,7 @@ export default function AdminAppCenterPage() {
                         prefetch
                         onMouseEnter={() => router.prefetch(editHref)}
                         onFocus={() => router.prefetch(editHref)}
-                        className="group relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary shadow-[2px_6px_0px_rgba(255,255,255,0.9)] transition-all hover:scale-110 hover:shadow-[8px_4px_0px_rgba(255,255,255,1)] dark:border-slate-800 neo-shadow active-neo group-hover:bg-[#ffcc00]"
+                        className="group relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-slate-200  from-slate-900 via-slate-800 to-primary shadow-[2px_6px_0px_rgba(255,255,255,0.9)] transition-all hover:scale-110 hover:shadow-[8px_4px_0px_rgba(255,255,255,1)] dark:border-slate-800 neo-shadow active-neo group-hover:bg-[#ffcc00]"
                         title={item.label}
                       >
                         <span className="material-symbols-outlined text-5xl text-white">

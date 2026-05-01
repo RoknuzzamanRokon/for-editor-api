@@ -3,9 +3,11 @@
 import type { FormEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AVATAR_PRESETS, AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
+import { FONT_LIST, type FontFamily } from "@/lib/fonts";
 import { API_BASE } from "@/lib/apiBase";
 import { capitalizeProfileName, formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
+import { useTheme } from "@/contexts/ThemeContext";
 
 type ThemeName =
   | "light"
@@ -24,6 +26,7 @@ type AccountSettingsResponse = {
   };
   preferences: {
     theme: ThemeName;
+    font_family: FontFamily;
     avatar_key: AvatarKey;
     security_alerts_enabled: boolean;
     login_notifications_enabled: boolean;
@@ -290,7 +293,8 @@ export default function AccountSettingsPanel({
 }: {
   area: "admin" | "dashboard";
 }) {
-  const [openPanel, setOpenPanel] = useState<"profile" | "password" | "avatar" | null>(null);
+  const { setFontFamily } = useTheme();
+  const [openPanel, setOpenPanel] = useState<"profile" | "password" | "avatar" | "font" | null>(null);
   const [settings, setSettings] = useState<AccountSettingsResponse | null>(
     null,
   );
@@ -300,6 +304,7 @@ export default function AccountSettingsPanel({
   const [privacyNotice, setPrivacyNotice] = useState("");
   const [passwordNotice, setPasswordNotice] = useState("");
   const [username, setUsername] = useState("");
+  const [selectedFont, setSelectedFont] = useState<FontFamily>("dm_sans");
   const [avatarKey, setAvatarKey] = useState<AvatarKey>("avatar_1");
   const [securityAlertsEnabled, setSecurityAlertsEnabled] = useState(true);
   const [loginNotificationsEnabled, setLoginNotificationsEnabled] =
@@ -309,10 +314,12 @@ export default function AccountSettingsPanel({
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
+  const [savingFont, setSavingFont] = useState(false);
   const [savingAvatar, setSavingAvatar] = useState(false);
   const [savingPrivacy, setSavingPrivacy] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [avatarNotice, setAvatarNotice] = useState("");
+  const [fontNotice, setFontNotice] = useState("");
 
   const title = area === "admin" ? "Admin Settings" : "Account Settings";
   const subtitle =
@@ -323,18 +330,23 @@ export default function AccountSettingsPanel({
   const syncLocalState = useCallback((payload: AccountSettingsResponse) => {
     setSettings(payload);
     setUsername(capitalizeProfileName(payload.identity.username));
+    setSelectedFont(payload.preferences.font_family);
     setAvatarKey(payload.preferences.avatar_key);
     setSecurityAlertsEnabled(payload.preferences.security_alerts_enabled);
     setLoginNotificationsEnabled(
       payload.preferences.login_notifications_enabled,
     );
     setProfilePrivate(payload.preferences.profile_private);
+    
+    // Update font in context
+    setFontFamily(payload.preferences.font_family);
+    
     window.dispatchEvent(
       new CustomEvent("accountsettingschange", {
         detail: payload,
       }),
     );
-  }, []);
+  }, [setFontFamily]);
 
   const getToken = useCallback(() => {
     const token = window.localStorage.getItem("access_token");
@@ -382,6 +394,7 @@ export default function AccountSettingsPanel({
       (settings?.preferences.login_notifications_enabled ?? true) ||
     profilePrivate !== (settings?.preferences.profile_private ?? false);
   const avatarDirty = avatarKey !== (settings?.preferences.avatar_key ?? "avatar_1");
+  const fontDirty = selectedFont !== (settings?.preferences.font_family ?? "dm_sans");
   const openPanelAnimationClass =
     openPanel === "profile"
       ? "settings-panel-enter-left"
@@ -389,7 +402,9 @@ export default function AccountSettingsPanel({
         ? "settings-panel-enter-center"
         : openPanel === "avatar"
           ? "settings-panel-enter-right"
-          : "";
+          : openPanel === "font"
+            ? "settings-panel-enter-left"
+            : "";
 
   const updateProfile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -498,6 +513,40 @@ export default function AccountSettingsPanel({
       setError(err instanceof Error ? err.message : "Failed to update avatar");
     } finally {
       setSavingAvatar(false);
+    }
+  };
+
+  const updateFont = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSavingFont(true);
+    setFontNotice("");
+    setError("");
+    try {
+      const token = getToken();
+      const response = await fetch(
+        `${API_BASE}/api/v2/auth/settings/preferences`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ font_family: selectedFont }),
+        },
+      );
+      const body = await response.text();
+      if (!response.ok) {
+        throw new Error(body || "Failed to update font");
+      }
+      const parsed = JSON.parse(body) as AccountSettingsResponse;
+      syncLocalState(parsed);
+      setFontNotice("Font updated successfully.");
+      setTimeout(() => setFontNotice(""), 3000);
+      setOpenPanel(null);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to update font");
+    } finally {
+      setSavingFont(false);
     }
   };
 
@@ -625,7 +674,7 @@ export default function AccountSettingsPanel({
         </div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <ActionLauncherCard
           title="Profile Card"
           description="Open profile details and privacy controls."
@@ -655,6 +704,15 @@ export default function AccountSettingsPanel({
           active={openPanel === "avatar"}
           onClick={() =>
             setOpenPanel((current) => (current === "avatar" ? null : "avatar"))
+          }
+        />
+        <ActionLauncherCard
+          title="Font Style"
+          description="Change the website font family and typography."
+          icon="font_download"
+          active={openPanel === "font"}
+          onClick={() =>
+            setOpenPanel((current) => (current === "font" ? null : "font"))
           }
         />
       </div>
@@ -716,6 +774,74 @@ export default function AccountSettingsPanel({
                     label="Save Avatar"
                     saving={savingAvatar}
                     disabled={!avatarDirty}
+                  />
+                </div>
+              </form>
+            </SectionCard>
+          ) : null}
+
+          {openPanel === "font" ? (
+            <SectionCard
+              title="Font Style"
+              description="Choose the font family used across the entire website."
+            >
+              <form className="space-y-5" onSubmit={updateFont}>
+                <div className="flex items-center gap-4 rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-800/30">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <span className="material-symbols-outlined text-3xl">font_download</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                      Selected Font: {FONT_LIST.find(f => f.key === selectedFont)?.label}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      Changes apply to all text across the website immediately.
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {FONT_LIST.map((font) => (
+                    <button
+                      key={font.key}
+                      type="button"
+                      onClick={() => setSelectedFont(font.key)}
+                      className={cn(
+                        "rounded-xl border p-4 text-left transition-all",
+                        selectedFont === font.key
+                          ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
+                          : "border-slate-200/80 bg-slate-50/50 hover:border-primary/30 hover:bg-primary/5 dark:border-slate-800/80 dark:bg-slate-800/30",
+                      )}
+                      style={{ fontFamily: `var(${font.variable})` }}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                            {font.label}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            {font.description}
+                          </p>
+                          <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                            The quick brown fox jumps
+                          </p>
+                        </div>
+                        {selectedFont === font.key && (
+                          <span className="material-symbols-outlined text-primary">check_circle</span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {fontNotice && (
+                  <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
+                    {fontNotice}
+                  </p>
+                )}
+                <div className="flex justify-end">
+                  <SaveButton
+                    label="Save Font"
+                    saving={savingFont}
+                    disabled={!fontDirty}
                   />
                 </div>
               </form>

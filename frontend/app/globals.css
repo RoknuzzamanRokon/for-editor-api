@@ -13,6 +13,190 @@
   --login-ui-scale: 1;
   --font-sans: var(--font-dm-sans), "DM Sans", system-ui, -apple-system, sans-serif;
   --font-code: var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-oswald: var(--font-oswald), "Oswald", sans-serif;
+  --font-inter: var(--font-inter), "Inter", sans-serif;
+  --font-roboto: var(--font-roboto), "Roboto", sans-serif;
+  --font-open-sans: var(--font-open-sans), "Open Sans", sans-serif;
+  --font-lato: var(--font-lato), "Lato", sans-serif;
+  --font-montserrat: var(--font-montserrat), "Montserrat", sans-serif;
+  --font-poppins: var(--font-poppins), "Poppins", sans-serif;
+  --font-raleway: var(--font-raleway), "Raleway", sans-serif;
+  --font-source-sans: var(--font-source-sans), "Source Sans 3", sans-serif;
+  --font-noto-serif: var(--font-noto-serif), "Noto Serif", serif;
+}
+
+/* Dynamic font family based on data-font attribute */
+html[data-font="dm_sans"],
+html[data-font="dm_sans"] body {
+  font-family: var(--font-dm-sans), "DM Sans", system-ui, -apple-system, sans-serif;
+}
+
+html[data-font="inter"],
+html[data-font="inter"] body {
+  font-family: var(--font-inter), "Inter", sans-serif;
+}
+
+html[data-font="roboto"],
+html[data-font="roboto"] body {
+  font-family: var(--font-roboto), "Roboto", sans-serif;
+}
+
+html[data-font="open_sans"],
+html[data-font="open_sans"] body {
+  font-family: var(--font-open-sans), "Open Sans", sans-serif;
+}
+
+html[data-font="lato"],
+html[data-font="lato"] body {
+  font-family: var(--font-lato), "Lato", sans-serif;
+}
+
+html[data-font="montserrat"],
+html[data-font="montserrat"] body {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+}
+
+html[data-font="oswald"],
+html[data-font="oswald"] body {
+  font-family: var(--font-oswald), "Oswald", sans-serif;
+}
+
+html[data-font="poppins"],
+html[data-font="poppins"] body {
+  font-family: var(--font-poppins), "Poppins", sans-serif;
+}
+
+html[data-font="raleway"],
+html[data-font="raleway"] body {
+  font-family: var(--font-raleway), "Raleway", sans-serif;
+}
+
+html[data-font="source_sans"],
+html[data-font="source_sans"] body {
+  font-family: var(--font-source-sans), "Source Sans 3", sans-serif;
+}
+
+html[data-font="noto_serif"],
+html[data-font="noto_serif"] body {
+  font-family: var(--font-noto-serif), "Noto Serif", serif;
+}
+
+/* Oswald font utility classes */
+.font-oswald {
+  font-family: var(--font-oswald);
+  font-optical-sizing: auto;
+}
+
+.oswald-extralight {
+  font-family: var(--font-oswald);
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.oswald-light {
+  font-family: var(--font-oswald);
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.oswald-regular {
+  font-family: var(--font-oswald);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.oswald-medium {
+  font-family: var(--font-oswald);
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.oswald-semibold {
+  font-family: var(--font-oswald);
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.oswald-bold {
+  font-family: var(--font-oswald);
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Noto Serif font utility classes */
+.font-noto-serif {
+  font-family: var(--font-noto-serif);
+  font-optical-sizing: auto;
+}
+
+.noto-serif-thin {
+  font-family: var(--font-noto-serif);
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.noto-serif-light {
+  font-family: var(--font-noto-serif);
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.noto-serif-regular {
+  font-family: var(--font-noto-serif);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.noto-serif-medium {
+  font-family: var(--font-noto-serif);
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.noto-serif-semibold {
+  font-family: var(--font-noto-serif);
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.noto-serif-bold {
+  font-family: var(--font-noto-serif);
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.noto-serif-extrabold {
+  font-family: var(--font-noto-serif);
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.noto-serif-black {
+  font-family: var(--font-noto-serif);
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
 }
 
 .ocean {
