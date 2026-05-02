@@ -198,6 +198,7 @@ export default function AdminAppCenterPage() {
                 { action: 'excel_reader', label: 'Excel Reader', icon: 'grid_on' },
                 { action: 'markdown_reader', label: 'Markdown Reader', icon: 'code' },
                 { action: 'json_reader', label: 'JSON Reader', icon: 'data_object' },
+                { action: 'xml_reader', label: 'XML Reader', icon: 'code_blocks' },
               ].map((item) => {
                 const viewHref = `/admin/app-center/view/${item.action}`;
                 

@@ -76,6 +76,18 @@ const JSONViewer = dynamic(() => import("@/components/viewers/JSONViewer"), {
   ),
 });
 
+const XMLViewer = dynamic(() => import("@/components/viewers/XMLViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center">
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Loading viewer...</p>
+      </div>
+    </div>
+  ),
+});
+
 export default function ViewerPage() {
   const params = useParams();
   const viewer = params.viewer as string;
@@ -87,6 +99,7 @@ export default function ViewerPage() {
     excel_reader: "Excel Reader",
     markdown_reader: "Markdown Reader",
     json_reader: "JSON Reader",
+    xml_reader: "XML Reader",
   };
 
   const viewerIcons: Record<string, string> = {
@@ -96,6 +109,7 @@ export default function ViewerPage() {
     excel_reader: "grid_on",
     markdown_reader: "code",
     json_reader: "data_object",
+    xml_reader: "code_blocks",
   };
 
   const name = viewerNames[viewer] || "Viewer";
@@ -252,6 +266,32 @@ export default function ViewerPage() {
         </div>
         <div className="flex-1 overflow-hidden">
           <JSONViewer />
+        </div>
+      </section>
+    );
+  }
+
+  // XML Reader implementation
+  if (viewer === "xml_reader") {
+    return (
+      <section className="flex h-full flex-col overflow-hidden">
+        <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/admin/app-center"
+              className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              Back to App Center
+            </Link>
+            <h1 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+              {name}
+            </h1>
+            <div className="w-32"></div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <XMLViewer />
         </div>
       </section>
     );
