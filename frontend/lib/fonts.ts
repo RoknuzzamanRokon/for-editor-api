@@ -6,10 +6,8 @@ export type FontFamily =
   | "lato"
   | "montserrat"
   | "oswald"
-  | "poppins"
   | "raleway"
-  | "source_sans"
-  | "noto_serif";
+  | "source_sans";
 
 export interface FontConfig {
   key: FontFamily;
@@ -101,17 +99,6 @@ export const FONT_CONFIGS: Record<FontFamily, FontConfig> = {
     description: "Bold and condensed display font",
     category: "display",
   },
-  poppins: {
-    key: "poppins",
-    label: "Poppins",
-    displayName: "Poppins",
-    googleFontName: "Poppins",
-    weights: ["400", "500", "600", "700"],
-    variable: "--font-poppins",
-    cssClass: "font-poppins",
-    description: "Geometric and playful",
-    category: "modern",
-  },
   raleway: {
     key: "raleway",
     label: "Raleway",
@@ -133,17 +120,6 @@ export const FONT_CONFIGS: Record<FontFamily, FontConfig> = {
     cssClass: "font-source-sans",
     description: "Adobe's professional font",
     category: "sans-serif",
-  },
-  noto_serif: {
-    key: "noto_serif",
-    label: "Noto Serif",
-    displayName: "Noto Serif",
-    googleFontName: "Noto_Serif",
-    weights: ["400", "500", "600", "700"],
-    variable: "--font-noto-serif",
-    cssClass: "font-noto-serif",
-    description: "Classic serif for elegant reading",
-    category: "serif",
   },
 };
 

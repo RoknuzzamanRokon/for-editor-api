@@ -404,7 +404,7 @@ export default function RegisterPage() {
                         <span>Email verified</span>
                       </div>
                     )}
-                    <p className="text-xs text-foreground/60">We'll send a verification code to your email</p>
+                    <p className="text-xs text-foreground/60">We&apos;ll send a verification code to your email</p>
                   </div>
                 )}
 

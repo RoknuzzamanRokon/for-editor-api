@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { DM_Sans, Inter, Roboto, Open_Sans, Lato, Montserrat, Oswald, Poppins, Raleway, Source_Sans_3, Noto_Serif, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, Inter, Roboto, Open_Sans, Lato, Montserrat, Oswald, Raleway, Source_Sans_3, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import RouteHtmlState from "@/components/RouteHtmlState";
 
@@ -50,13 +50,6 @@ const oswald = Oswald({
   display: "swap",
 });
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  variable: "--font-poppins",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
 const raleway = Raleway({
   subsets: ["latin"],
   variable: "--font-raleway",
@@ -66,13 +59,6 @@ const raleway = Raleway({
 const sourceSans = Source_Sans_3({
   subsets: ["latin"],
   variable: "--font-source-sans",
-  display: "swap",
-});
-
-const notoSerif = Noto_Serif({
-  subsets: ["latin"],
-  variable: "--font-noto-serif",
-  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -93,7 +79,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn(dmSans.variable, inter.variable, roboto.variable, openSans.variable, lato.variable, montserrat.variable, oswald.variable, poppins.variable, raleway.variable, sourceSans.variable, notoSerif.variable, jetbrains.variable, "font-sans", "sunset")} data-theme="sunset" data-font="dm_sans">
+    <html lang="en" suppressHydrationWarning className={cn(dmSans.variable, inter.variable, roboto.variable, openSans.variable, lato.variable, montserrat.variable, oswald.variable, raleway.variable, sourceSans.variable, jetbrains.variable, "font-sans", "sunset")} data-theme="sunset" data-font="dm_sans">
       <head>
         <script
           dangerouslySetInnerHTML={{

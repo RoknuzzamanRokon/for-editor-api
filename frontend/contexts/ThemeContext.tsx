@@ -21,7 +21,7 @@ function isTheme(value: string | null | undefined): value is Theme {
 }
 
 function isFontFamily(value: string | null | undefined): value is FontFamily {
-  const validFonts = ['dm_sans', 'inter', 'roboto', 'open_sans', 'lato', 'montserrat', 'oswald', 'poppins', 'raleway', 'source_sans', 'noto_serif']
+  const validFonts = ['dm_sans', 'inter', 'roboto', 'open_sans', 'lato', 'montserrat', 'oswald', 'raleway', 'source_sans']
   return value != null && validFonts.includes(value)
 }
 
