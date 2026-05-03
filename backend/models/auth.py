@@ -9,14 +9,13 @@ from models.settings import AccountPreferences
 
 
 class LoginRequest(BaseModel):
-    email: str  # Changed from EmailStr to allow local emails
+    email: str
     password: str = Field(min_length=6)
-    
-    @field_validator('email')
+
+    @field_validator("email")
     @classmethod
     def validate_email(cls, v: str) -> str:
-        """Validate email format (lenient for local development)"""
-        if not v or '@' not in v:
+        if not v or "@" not in v:
             raise ValueError("Invalid email format")
         return v
 
@@ -65,7 +64,7 @@ class UserCreate(BaseModel):
 
 class UserOut(BaseModel):
     id: int
-    email: str  # Changed from EmailStr to allow local emails like admin@local
+    email: str
     username: Optional[str] = None
     role: RoleEnum
     is_active: bool
@@ -73,12 +72,11 @@ class UserOut(BaseModel):
     demo_expires_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
-    
-    @field_validator('email')
+
+    @field_validator("email")
     @classmethod
     def validate_email(cls, v: str) -> str:
-        """Validate email format (lenient for local development)"""
-        if not v or '@' not in v:
+        if not v or "@" not in v:
             raise ValueError("Invalid email format")
         return v
 
@@ -98,6 +96,28 @@ class UserDeleteResponse(BaseModel):
     id: int
     success: bool = True
     message: str
+
+
+class VerificationPendingResponse(BaseModel):
+    message: str
+    email: str
+    expires_in_minutes: int
+
+
+class EmailVerificationRequest(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=5, max_length=5, pattern="^[A-Z0-9]{5}$")
+
+
+class UpdateRegistrationDataRequest(BaseModel):
+    email: EmailStr
+    username: str
+    password: str = Field(min_length=6)
+    selected_actions: list[str] = Field(min_length=1, max_length=3)
+
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
 
 
 class UserCreatorSummary(BaseModel):

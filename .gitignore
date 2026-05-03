@@ -16,3 +16,6 @@ backend/deploy_backend.pid
 backend/deploy_frontend.pid
 
 backend/Pipfile.lock
+
+
+specs/

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import case, func
 from sqlalchemy.orm import Session
 
@@ -10,13 +10,17 @@ from db.session import get_db
 from models.auth import (
     AccessTokenResponse,
     DemoRegisterRequest,
+    EmailVerificationRequest,
     LoginRequest,
     MeResponse,
+    ResendVerificationRequest,
     TokenPair,
     TokenRefreshRequest,
+    UpdateRegistrationDataRequest,
     UserCreatorSummary,
     UserOut,
     UserPointSummary,
+    VerificationPendingResponse,
 )
 from models.permissions import MyApiEntry
 from models.settings import (
@@ -29,6 +33,7 @@ from models.settings import (
 from services import auth as auth_service
 from services import settings as settings_service
 from services import users as users_service
+from services import verification as verification_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -101,9 +106,192 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenPair:
     )
 
 
-@router.post("/register", response_model=UserOut)
-def register_demo_user(payload: DemoRegisterRequest, db: Session = Depends(get_db)) -> UserOut:
-    return users_service.create_demo_self_registered_user(db, payload)
+@router.post("/register", response_model=VerificationPendingResponse)
+def register_demo_user(payload: DemoRegisterRequest, db: Session = Depends(get_db)) -> VerificationPendingResponse:
+    # Check if user already exists — block before sending any email
+    existing_user = users_service.get_user_by_email(db, payload.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="An account with this email already exists. Please sign in instead."
+        )
+
+    try:
+        verification_service.create_verification_session(
+            db=db,
+            email=payload.email,
+            registration_data=payload
+        )
+        return VerificationPendingResponse(
+            message="Verification code sent to your email",
+            email=payload.email,
+            expires_in_minutes=10
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create verification session: {str(e)}"
+        )
+
+
+@router.post("/verify-email", response_model=TokenPair)
+def verify_email(payload: EmailVerificationRequest, db: Session = Depends(get_db)) -> TokenPair:
+    """
+    Verify email address with verification code and complete registration.
+    
+    This endpoint:
+    1. Validates the verification code
+    2. Creates the user account
+    3. Returns authentication tokens
+    
+    Args:
+        payload: Email and verification code
+        db: Database session
+        
+    Returns:
+        TokenPair: Access and refresh tokens for the newly created user
+        
+    Raises:
+        HTTPException: If verification fails or user creation fails
+    """
+    # Validate verification code
+    is_valid, error_message, session = verification_service.validate_verification_code(
+        db=db,
+        email=payload.email,
+        code=payload.code.upper()  # Normalize to uppercase
+    )
+    
+    if not is_valid:
+        # Increment failed attempts if session exists
+        if session:
+            verification_service.increment_failed_attempts(db, session)
+        
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_message
+        )
+    
+    # Complete registration and create user
+    try:
+        user = verification_service.complete_registration(db, session)
+        
+        # Generate tokens for the new user
+        access_token, refresh_token = auth_service.create_token_pair(db, user)
+        
+        return TokenPair(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            role=user.role
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to complete registration: {str(e)}"
+        )
+
+
+@router.post("/update-registration-data", response_model=dict)
+def update_registration_data(
+    payload: UpdateRegistrationDataRequest,
+    db: Session = Depends(get_db)
+) -> dict:
+    from db.models import EmailVerificationSession
+    from datetime import datetime
+
+    session = db.query(EmailVerificationSession).filter(
+        EmailVerificationSession.email == payload.email,
+        EmailVerificationSession.is_used == False,
+        EmailVerificationSession.expires_at > datetime.utcnow()
+    ).order_by(EmailVerificationSession.created_at.desc()).first()
+
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No pending verification session found. Please restart registration."
+        )
+
+    # Overwrite stored registration data with the real values
+    data = dict(session.registration_data_json)
+    data["username"] = payload.username
+    data["password"] = payload.password
+    data["selected_actions"] = payload.selected_actions
+    session.registration_data_json = data
+
+    db.commit()
+
+    return {"message": "Registration data updated successfully"}
+
+
+@router.post("/resend-verification", response_model=VerificationPendingResponse)
+def resend_verification(payload: ResendVerificationRequest, db: Session = Depends(get_db)) -> VerificationPendingResponse:
+    """
+    Resend verification code to email address.
+    
+    This endpoint:
+    1. Checks if there's a pending verification session
+    2. Creates a new verification session (invalidates old one)
+    3. Sends new verification email
+    
+    Args:
+        payload: Email address to resend verification to
+        db: Database session
+        
+    Returns:
+        VerificationPendingResponse: Confirmation that code was sent
+        
+    Raises:
+        HTTPException: If email sending fails or user already exists
+    """
+    # Check if user already exists
+    existing_user = users_service.get_user_by_email(db, payload.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
+    
+    # Look for existing pending session to get registration data
+    from db.models import EmailVerificationSession
+    from datetime import datetime
+    
+    existing_session = db.query(EmailVerificationSession).filter(
+        EmailVerificationSession.email == payload.email,
+        EmailVerificationSession.expires_at > datetime.utcnow()
+    ).order_by(EmailVerificationSession.created_at.desc()).first()
+    
+    if not existing_session:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No pending registration found for this email"
+        )
+    
+    # Recreate registration data from stored JSON
+    registration_data = DemoRegisterRequest(**existing_session.registration_data_json)
+    
+    # Create new verification session (this invalidates the old one)
+    try:
+        session = verification_service.create_verification_session(
+            db=db,
+            email=payload.email,
+            registration_data=registration_data
+        )
+        
+        return VerificationPendingResponse(
+            message="New verification code sent to your email",
+            email=payload.email,
+            expires_in_minutes=10
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to resend verification code: {str(e)}"
+        )
 
 
 @router.post("/refresh", response_model=AccessTokenResponse)

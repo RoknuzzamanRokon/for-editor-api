@@ -7,6 +7,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     String,
     UniqueConstraint,
@@ -182,3 +183,19 @@ class Conversion(Base):
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
     owner = relationship("User", back_populates="conversions", foreign_keys=[owner_user_id])
+
+
+class EmailVerificationSession(Base):
+    __tablename__ = "email_verification_sessions"
+    __table_args__ = (
+        Index('ix_email_active', 'email', 'is_used', 'expires_at'),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), nullable=False, index=True)
+    verification_code = Column(String(5), nullable=False, index=True)
+    registration_data_json = Column(JSON, nullable=False)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    is_used = Column(Boolean, nullable=False, default=False)
+    failed_attempts = Column(Integer, nullable=False, default=0)

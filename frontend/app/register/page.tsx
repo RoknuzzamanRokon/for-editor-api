@@ -88,10 +88,12 @@ export default function RegisterPage() {
   ];
 
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [selectedActions, setSelectedActions] = useState<string[]>([]);
   const [understood, setUnderstood] = useState(false);
   const [error, setError] = useState("");
@@ -99,24 +101,19 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleStepOneNext = async () => {
     setError("");
-    setSuccess("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    if (!email.trim()) {
+      setError("Enter your email");
       return;
     }
 
-    if (selectedActions.length === 0) {
-      setError("Select at least 1 API");
-      return;
-    }
-
+    // Send verification code immediately
     setLoading(true);
-
     try {
       const response = await fetch(`${API_BASE}/api/v2/auth/register`, {
         method: "POST",
@@ -125,14 +122,14 @@ export default function RegisterPage() {
         },
         body: JSON.stringify({
           email,
-          password,
-          selected_actions: selectedActions,
+          password: "temp123456", // Temporary password
+          username: username || undefined,
+          selected_actions: ["pdf_to_docs"], // Temporary selection
         }),
       });
 
       if (!response.ok) {
-        let errorMessage = "Registration failed";
-        
+        let errorMessage = "Failed to send verification code";
         try {
           const body = await response.json();
           errorMessage = body.detail || errorMessage;
@@ -140,15 +137,169 @@ export default function RegisterPage() {
           const body = await response.text();
           errorMessage = body || errorMessage;
         }
-
-        if (response.status === 401 || response.status === 403) {
-          throw new Error("Self-registration is not enabled yet. Please contact your admin or sign in with an existing account.");
-        }
-
         throw new Error(errorMessage);
       }
 
-      setSuccess("Account created successfully. Redirecting to login...");
+      setSuccess("Verification code sent to your email");
+      setShowVerificationModal(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to send verification code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = () => {
+    setError("");
+    if (!verificationCode.trim() || verificationCode.length !== 5) {
+      setError("Enter the 5-character verification code");
+      return;
+    }
+    
+    // Mark email as verified and close modal
+    setEmailVerified(true);
+    setShowVerificationModal(false);
+    setSuccess("Email verified successfully!");
+    setTimeout(() => {
+      setSuccess("");
+      setStep(2);
+    }, 1000);
+  };
+
+  const handleStepTwoNext = () => {
+    setError("");
+    if (!username.trim()) {
+      setError("Enter a username");
+      return;
+    }
+    if (!password || !confirmPassword) {
+      setError("Enter your password and confirm password");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    setStep(3);
+  };
+
+  const handleStepThreeNext = () => {
+    setError("");
+    if (selectedActions.length === 0) {
+      setError("Select at least 1 API");
+      return;
+    }
+    setStep(4);
+  };
+
+  const handleResendCode = async () => {
+    setError("");
+    setResendLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/v2/auth/resend-verification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = "Failed to resend code";
+        try {
+          const body = await response.json();
+          errorMessage = body.detail || errorMessage;
+        } catch {
+          const body = await response.text();
+          errorMessage = body || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      setSuccess("New verification code sent to your email");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to resend code");
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!understood) {
+      setError("Please accept the terms to continue");
+      return;
+    }
+
+    if (!emailVerified) {
+      setError("Please verify your email first");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // First, update the registration data with actual username, password, and selected actions
+      const updateResponse = await fetch(`${API_BASE}/api/v2/auth/update-registration-data`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          username,
+          password,
+          selected_actions: selectedActions,
+        }),
+      });
+
+      if (!updateResponse.ok) {
+        let errorMessage = "Failed to update registration data";
+        try {
+          const body = await updateResponse.json();
+          errorMessage = body.detail || errorMessage;
+        } catch {
+          const body = await updateResponse.text();
+          errorMessage = body || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Now complete registration with verified email
+      const verifyResponse = await fetch(`${API_BASE}/api/v2/auth/verify-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          code: verificationCode.toUpperCase(),
+        }),
+      });
+
+      if (!verifyResponse.ok) {
+        let errorMessage = "Verification failed";
+        try {
+          const body = await verifyResponse.json();
+          errorMessage = body.detail || errorMessage;
+        } catch {
+          const body = await verifyResponse.text();
+          errorMessage = body || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const tokens = await verifyResponse.json();
+      
+      setSuccess("Account created successfully! Redirecting to login...");
       sessionStorage.setItem(
         "register_prefill",
         JSON.stringify({
@@ -156,7 +307,7 @@ export default function RegisterPage() {
           password,
         }),
       );
-      window.setTimeout(() => router.push("/login?prefill=register"), 1000);
+      window.setTimeout(() => router.push("/login?prefill=register"), 1500);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -176,32 +327,6 @@ export default function RegisterPage() {
       }
       return [...current, action];
     });
-  };
-
-  const handleStepOneNext = () => {
-    setError("");
-    if (!email.trim()) {
-      setError("Enter your email");
-      return;
-    }
-    if (!password || !confirmPassword) {
-      setError("Enter your password and confirm password");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-    setStep(2);
-  };
-
-  const handleStepTwoNext = () => {
-    setError("");
-    if (selectedActions.length === 0) {
-      setError("Select at least 1 API");
-      return;
-    }
-    setStep(3);
   };
 
   const selectedLabels = apiOptions
@@ -247,15 +372,16 @@ export default function RegisterPage() {
 
               <h1 className="text-2xl font-semibold text-foreground">Create account</h1>
               <div className="mt-2 flex items-center gap-2 text-xs text-foreground/60">
-                <span className={`rounded-full px-2 py-1 ${step === 1 ? "bg-primary/15 text-primary" : "bg-background text-foreground/60"}`}>1</span>
-                <span className={`rounded-full px-2 py-1 ${step === 2 ? "bg-primary/15 text-primary" : "bg-background text-foreground/60"}`}>2</span>
-                <span className={`rounded-full px-2 py-1 ${step === 3 ? "bg-primary/15 text-primary" : "bg-background text-foreground/60"}`}>3</span>
+                <span className={`rounded-full px-2 py-1 ${step === 1 ? "bg-primary/15 text-primary" : step > 1 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>1</span>
+                <span className={`rounded-full px-2 py-1 ${step === 2 ? "bg-primary/15 text-primary" : step > 2 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>2</span>
+                <span className={`rounded-full px-2 py-1 ${step === 3 ? "bg-primary/15 text-primary" : step > 3 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>3</span>
+                <span className={`rounded-full px-2 py-1 ${step === 4 ? "bg-primary/15 text-primary" : step > 4 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>4</span>
               </div>
 
               <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
                 {step === 1 && (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5 sm:col-span-2">
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground">Email address</label>
                       <div className="relative">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -268,8 +394,32 @@ export default function RegisterPage() {
                           required
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
+                          disabled={emailVerified}
                         />
                       </div>
+                    </div>
+                    {emailVerified && (
+                      <div className="flex items-center gap-2 text-sm text-emerald-600">
+                        <span>✓</span>
+                        <span>Email verified</span>
+                      </div>
+                    )}
+                    <p className="text-xs text-foreground/60">We'll send a verification code to your email</p>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground">Username</label>
+                      <input
+                        className="block w-full rounded-xl border border-border bg-background py-2.5 px-3 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+                        type="text"
+                        placeholder="Choose a username"
+                        required
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                      />
                     </div>
 
                     <div className="space-y-1.5">
@@ -324,7 +474,7 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                {step === 2 && (
+                {step === 3 && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-3">
                       <label className="text-sm font-medium text-foreground">Choose up to 3 APIs</label>
@@ -350,7 +500,7 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                {step === 3 && (
+                {step === 4 && (
                   <div className="space-y-4">
                     <div className="rounded-2xl border border-border bg-background/80 p-4">
                       <p className="text-sm font-semibold text-foreground">Terms and conditions</p>
@@ -399,7 +549,7 @@ export default function RegisterPage() {
                       type="button"
                       onClick={() => {
                         setError("");
-                        setStep(step === 3 ? 2 : 1);
+                        setStep((step - 1) as 1 | 2 | 3 | 4);
                       }}
                       className="w-full rounded-xl border border-border bg-background py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary/50"
                     >
@@ -411,9 +561,10 @@ export default function RegisterPage() {
                     <button
                       type="button"
                       onClick={handleStepOneNext}
-                      className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90"
+                      disabled={loading || emailVerified}
+                      className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90 disabled:opacity-70"
                     >
-                      Next
+                      {loading ? "Sending code..." : emailVerified ? "Email verified" : "Send verification code"}
                     </button>
                   )}
 
@@ -428,6 +579,16 @@ export default function RegisterPage() {
                   )}
 
                   {step === 3 && (
+                    <button
+                      type="button"
+                      onClick={handleStepThreeNext}
+                      className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90"
+                    >
+                      Next
+                    </button>
+                  )}
+
+                  {step === 4 && (
                     <button
                       type="submit"
                       disabled={loading || !understood}
@@ -478,6 +639,69 @@ export default function RegisterPage() {
             </div>
           </div>
         </div>
+
+        {/* Verification Modal */}
+        {showVerificationModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                  <MailIcon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Verify your email</h3>
+                  <p className="text-xs text-foreground/60">Code sent to {email}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Verification Code</label>
+                  <input
+                    className="block w-full rounded-xl border border-border bg-background py-3 px-3 text-center text-xl font-mono tracking-widest text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+                    type="text"
+                    placeholder="XXXXX"
+                    maxLength={5}
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value.toUpperCase())}
+                    autoFocus
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-700">
+                    <div className="flex items-center gap-2">
+                      <span className="text-rose-500">⚠</span>
+                      <span>{error}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={handleResendCode}
+                    disabled={resendLoading}
+                    className="flex-1 rounded-xl border border-border bg-background py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary/50 disabled:opacity-50"
+                  >
+                    {resendLoading ? "Sending..." : "Resend code"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleVerifyCode}
+                    className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90"
+                  >
+                    Verify
+                  </button>
+                </div>
+
+                <p className="text-center text-xs text-foreground/60">
+                  Code expires in 10 minutes
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
