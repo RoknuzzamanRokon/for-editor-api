@@ -79,7 +79,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn(dmSans.variable, inter.variable, roboto.variable, openSans.variable, lato.variable, montserrat.variable, oswald.variable, raleway.variable, sourceSans.variable, jetbrains.variable, "font-sans", "sunset")} data-theme="sunset" data-font="dm_sans">
+    <html lang="en" suppressHydrationWarning className={cn(dmSans.variable, inter.variable, roboto.variable, openSans.variable, lato.variable, montserrat.variable, oswald.variable, raleway.variable, sourceSans.variable, jetbrains.variable, "font-sans", "sunset")} data-theme="sunset" data-font="dm_sans" data-font-size="medium">
       <head>
         <script
           dangerouslySetInnerHTML={{

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { API_BASE } from "@/lib/apiBase";
-import { formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
 
 type ActionItem = {
@@ -82,19 +81,15 @@ function GlassSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-      <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
-
-      <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+    <section className="relative overflow-hidden rounded-[13px] border border-border bg-transparent backdrop-blur-sm [box-shadow:4px_4px_0px_0px_var(--border)]">
+      <div className="relative border-b border-border px-6 py-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+            <h3 className="text-lg font-bold text-foreground">
               {title}
             </h3>
             {description ? (
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm text-foreground/60">
                 {description}
               </p>
             ) : null}
@@ -102,7 +97,6 @@ function GlassSection({
           {action ? <div>{action}</div> : null}
         </div>
       </div>
-
       <div className="relative p-6">{children}</div>
     </section>
   );
@@ -120,24 +114,19 @@ function GlassStatCard({
   subtext?: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-[28px] border border-white/40 bg-white/55 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-white/5">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/15 blur-3xl" />
-
+    <div className="relative overflow-hidden rounded-[28px] border border-border bg-transparent p-5 transition duration-300 hover:-translate-y-1 [box-shadow:4px_4px_0px_0px_var(--border)]">
       <div className="relative">
-        <div className="mb-4 inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+        <div className="mb-4 inline-flex rounded-2xl border border-border bg-transparent p-3 text-primary">
           <span className="material-symbols-outlined">{icon}</span>
         </div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-foreground/60">
           {title}
         </p>
-        <p className="mt-2 text-xl font-black tracking-tight text-slate-900 dark:text-white">
+        <p className="mt-2 text-xl font-black tracking-tight text-foreground">
           {value}
         </p>
         {subtext ? (
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            {subtext}
-          </p>
+          <p className="mt-1 text-xs text-foreground/60">{subtext}</p>
         ) : null}
       </div>
     </div>
@@ -148,9 +137,7 @@ function GlassInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition placeholder:text-slate-400 focus:border-primary/30 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-slate-500 ${
-        props.className ?? ""
-      }`}
+      className={`w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 ${props.className ?? ""}`}
     />
   );
 }
@@ -159,9 +146,7 @@ function GlassSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/30 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white ${
-        props.className ?? ""
-      }`}
+      className={`w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/10 ${props.className ?? ""}`}
     />
   );
 }
@@ -176,20 +161,13 @@ function InfoTile({
   mono?: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/55 px-4 py-3.5 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent" />
-      <div className="relative">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-          {label}
-        </p>
-        <p
-          className={`mt-1 text-sm font-semibold text-slate-900 dark:text-white ${
-            mono ? "break-all font-mono text-[13px]" : ""
-          }`}
-        >
-          {value}
-        </p>
-      </div>
+    <div className="px-1 py-2">
+      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-foreground/60">
+        {label}
+      </p>
+      <p className={`mt-1 text-sm font-semibold text-foreground ${mono ? "break-all font-mono text-[13px]" : ""}`}>
+        {value}
+      </p>
     </div>
   );
 }
@@ -487,6 +465,7 @@ export default function AdminApiPermissionsPage() {
           </div>
         ) : null}
 
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <GlassSection
           title="Lookup User"
           description="Enter a user ID and load their permission profile."
@@ -526,8 +505,8 @@ export default function AdminApiPermissionsPage() {
               type="number"
             />
 
-            <div className="rounded-2xl border border-white/40 bg-white/55 px-4 py-3 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="rounded-2xl border border-border bg-transparent px-4 py-3">
+              <p className="text-xs text-foreground/60">
                 Tip: after loading a user, you can search permissions, filter by
                 allowed state, and toggle access directly from the table below.
               </p>
@@ -550,40 +529,30 @@ export default function AdminApiPermissionsPage() {
           }
         >
           {loadingActions ? (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="flex flex-col gap-2">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="rounded-2xl border border-white/40 bg-white/50 p-4 backdrop-blur-lg dark:border-white/10 dark:bg-white/5"
-                >
-                  <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                  <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
-                  <div className="mt-4 h-10 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
+                <div key={index} className="rounded-2xl border border-border bg-transparent p-4">
+                  <div className="h-4 w-32 animate-pulse rounded bg-foreground/10" />
+                  <div className="mt-2 h-3 w-24 animate-pulse rounded bg-foreground/10" />
                 </div>
               ))}
             </div>
           ) : filteredActions.length === 0 ? (
-            <div className="rounded-2xl border border-white/40 bg-white/50 p-6 text-sm text-slate-500 backdrop-blur-lg dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
+            <div className="rounded-2xl border border-border bg-transparent p-6 text-sm text-foreground/60">
               No actions found.
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="flex flex-col gap-2">
               {filteredActions.map((item) => (
-                <div
-                  key={item.action}
-                  className="rounded-2xl border border-white/40 bg-white/55 p-4 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5"
-                >
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">
-                    {item.label}
-                  </p>
-                  <p className="mt-1 break-all text-xs text-slate-500 dark:text-slate-400">
-                    {item.action}
-                  </p>
+                <div key={item.action} className="flex items-center justify-between px-4 py-3">
+                  <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                  <p className="text-xs text-foreground/50">{item.action}</p>
                 </div>
               ))}
             </div>
           )}
         </GlassSection>
+        </div>
 
         {details ? (
           <>
@@ -591,43 +560,16 @@ export default function AdminApiPermissionsPage() {
               title="User Details"
               description="Identity and activity data for the selected user."
             >
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="rounded-2xl border border-white/40 bg-white/45 p-4 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <InfoTile label="ID" value={details.id} />
-                    <InfoTile label="Email" value={details.email} mono />
-                    <InfoTile
-                      label="Username"
-                      value={formatProfileName(details.username, "-")}
-                    />
-                    <InfoTile
-                      label="Role"
-                      value={formatRoleLabel(details.role)}
-                    />
-                    <InfoTile label="Position" value={details.position} />
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-white/40 bg-white/45 p-4 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <InfoTile
-                      label="Status"
-                      value={details.is_active ? "Active" : "Inactive"}
-                    />
-                    <InfoTile
-                      label="Created"
-                      value={formatDate(details.created_at)}
-                    />
-                    <InfoTile
-                      label="Last Login"
-                      value={formatDate(details.last_login)}
-                    />
-                    <InfoTile
-                      label="Last Active"
-                      value={formatDate(details.last_active_at)}
-                    />
-                  </div>
-                </div>
+              <div className="grid grid-cols-2 gap-4">
+                <InfoTile label="ID" value={details.id} />
+                <InfoTile label="Email" value={details.email} mono />
+                <InfoTile label="Username" value={details.username ?? "-"} />
+                <InfoTile label="Role" value={formatRoleLabel(details.role)} />
+                <InfoTile label="Position" value={details.position} />
+                <InfoTile label="Status" value={details.is_active ? "Active" : "Inactive"} />
+                <InfoTile label="Created" value={formatDate(details.created_at)} />
+                <InfoTile label="Last Login" value={formatDate(details.last_login)} />
+                <InfoTile label="Last Active" value={formatDate(details.last_active_at)} />
               </div>
             </GlassSection>
 
@@ -636,18 +578,12 @@ export default function AdminApiPermissionsPage() {
                 title="Points Summary"
                 description="Wallet and points activity."
               >
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-2 gap-4">
                   <InfoTile label="Balance" value={details.points.balance} />
                   <InfoTile label="Topup" value={details.points.total_topup} />
                   <InfoTile label="Spent" value={details.points.total_spent} />
-                  <InfoTile
-                    label="Refunded"
-                    value={details.points.total_refunded}
-                  />
-                  <InfoTile
-                    label="Last Activity"
-                    value={formatDate(details.points.last_points_activity_at)}
-                  />
+                  <InfoTile label="Refunded" value={details.points.total_refunded} />
+                  <InfoTile label="Last Activity" value={formatDate(details.points.last_points_activity_at)} />
                 </div>
               </GlassSection>
 
@@ -655,21 +591,12 @@ export default function AdminApiPermissionsPage() {
                 title="Conversion Summary"
                 description="Usage and conversion health."
               >
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-2 gap-4">
                   <InfoTile label="Total" value={details.conversions.total} />
-                  <InfoTile
-                    label="Success"
-                    value={details.conversions.success}
-                  />
+                  <InfoTile label="Success" value={details.conversions.success} />
                   <InfoTile label="Failed" value={details.conversions.failed} />
-                  <InfoTile
-                    label="Processing"
-                    value={details.conversions.processing}
-                  />
-                  <InfoTile
-                    label="Last Conversion"
-                    value={formatDate(details.conversions.last_conversion_at)}
-                  />
+                  <InfoTile label="Processing" value={details.conversions.processing} />
+                  <InfoTile label="Last Conversion" value={formatDate(details.conversions.last_conversion_at)} />
                 </div>
               </GlassSection>
             </div>
@@ -705,21 +632,21 @@ export default function AdminApiPermissionsPage() {
               }
             >
               <div className="mb-4 flex flex-wrap gap-2">
-                <span className="rounded-full border border-white/40 bg-white/60 px-3 py-1 text-xs font-semibold text-slate-700 backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-200">
+                <span className="rounded-full border border-border bg-transparent px-3 py-1 text-xs font-semibold text-foreground">
                   Total: {permissionStats.total}
                 </span>
-                <span className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-300">
+                <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
                   Allowed: {permissionStats.allowed}
                 </span>
-                <span className="rounded-full border border-rose-200 bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/15 dark:text-rose-300">
+                <span className="rounded-full border border-rose-500/40 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-400">
                   Blocked: {permissionStats.blocked}
                 </span>
               </div>
 
-              <div className="overflow-hidden rounded-[24px] border border-white/40 bg-white/45 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+              <div className="overflow-hidden rounded-[24px] bg-transparent">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
-                    <thead className="bg-white/50 text-xs uppercase tracking-[0.16em] text-slate-500 backdrop-blur-md dark:bg-white/5 dark:text-slate-400">
+                    <thead className="border-b border-border text-xs uppercase tracking-[0.16em] text-foreground/60">
                       <tr>
                         <th className="px-4 py-4">API</th>
                         <th className="px-4 py-4">Allowed</th>
@@ -729,78 +656,50 @@ export default function AdminApiPermissionsPage() {
                         <th className="px-4 py-4 text-right">Action</th>
                       </tr>
                     </thead>
-
-                    <tbody className="divide-y divide-white/30 dark:divide-white/10">
+                    <tbody className="divide-y divide-transparent">
                       {filteredPermissions.length === 0 ? (
                         <tr>
-                          <td
-                            colSpan={6}
-                            className="px-4 py-8 text-sm text-slate-500 dark:text-slate-400"
-                          >
+                          <td colSpan={6} className="px-4 py-8 text-sm text-foreground/60">
                             No permissions match your current filters.
                           </td>
                         </tr>
                       ) : (
                         filteredPermissions.map((item) => (
-                          <tr
-                            key={item.action}
-                            className="transition hover:bg-white/30 dark:hover:bg-white/5"
-                          >
+                          <tr key={item.action} className="transition hover:bg-card/40">
                             <td className="px-4 py-4 text-sm">
-                              <p className="font-semibold text-slate-900 dark:text-white">
+                              <p className="font-semibold text-foreground">
                                 {actionLookup.get(item.action) || item.label}
                               </p>
-                              <p className="mt-1 break-all text-xs text-slate-500 dark:text-slate-400">
+                              <p className="mt-1 break-all text-xs text-foreground/60">
                                 {item.action}
                               </p>
-                              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                              <p className="mt-1 text-xs text-foreground/40">
                                 {item.method} {item.route}
                               </p>
                             </td>
-
                             <td className="px-4 py-4 text-sm">
-                              <span
-                                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(
-                                  item.allowed,
-                                )}`}
-                              >
+                              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(item.allowed)}`}>
                                 {item.allowed ? "Yes" : "No"}
                               </span>
                             </td>
-
-                            <td className="px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
-                              {item.points}
-                            </td>
-
-                            <td className="px-4 py-4 text-sm text-slate-700 dark:text-slate-200">
-                              {item.success_rate.toFixed(1)}%
-                            </td>
-
-                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">
-                              {formatDate(item.last_used_at)}
-                            </td>
-
+                            <td className="px-4 py-4 text-sm text-foreground/80">{item.points}</td>
+                            <td className="px-4 py-4 text-sm text-foreground/80">{item.success_rate.toFixed(1)}%</td>
+                            <td className="px-4 py-4 text-sm text-foreground/70">{formatDate(item.last_used_at)}</td>
                             <td className="px-4 py-4 text-right">
                               <button
-                                onClick={() =>
-                                  void handleTogglePermission(item)
-                                }
+                                onClick={() => void handleTogglePermission(item)}
                                 disabled={savingAction === item.action}
-                                className={`inline-flex items-center gap-2 rounded-2xl border border-primary/20 px-4 py-2 text-xs font-bold text-primary shadow-sm backdrop-blur-md transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                                className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${
                                   item.allowed
-                                    ? "bg-primary/10 shadow-[0_10px_24px_rgba(59,130,246,0.14)] hover:bg-primary/15 hover:shadow-[0_14px_30px_rgba(59,130,246,0.18)]"
-                                    : "bg-gradient-to-r from-primary/12 via-white/60 to-primary/6 shadow-[0_10px_24px_rgba(59,130,246,0.12)] hover:from-primary/18 hover:via-white/75 hover:to-primary/10 hover:shadow-[0_14px_30px_rgba(59,130,246,0.16)] dark:via-white/10"
+                                    ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
+                                    : "bg-rose-500/20 text-rose-400 hover:bg-rose-500/30"
                                 }`}
                                 type="button"
                               >
                                 <span className="material-symbols-outlined text-sm">
                                   {item.allowed ? "toggle_off" : "toggle_on"}
                                 </span>
-                                {savingAction === item.action
-                                  ? "Saving..."
-                                  : item.allowed
-                                    ? "Disable"
-                                    : "Enable"}
+                                {savingAction === item.action ? "Saving..." : item.allowed ? "Disable" : "Enable"}
                               </button>
                             </td>
                           </tr>

@@ -59,26 +59,18 @@ function SectionCard({
   return (
     <section
       className={cn(
-        "group relative overflow-hidden rounded-[13px] border border-slate-200/80 bg-white/80 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80",
-        hoverable &&
-          "transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/20 dark:hover:shadow-slate-900/30",
+        "group relative overflow-hidden rounded-[13px] border border-border bg-transparent backdrop-blur-sm",
+        hoverable && "transition-all duration-300",
       )}
     >
-      <div
-        className={cn(
-          "absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-slate-800/40",
-          hoverable
-            ? "opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            : "opacity-100",
-        )}
-      />
+      <div className="absolute inset-0 pointer-events-none" />
       <div className="relative p-6">
-        <div className="flex flex-col gap-3 border-b border-slate-200/60 pb-5 dark:border-slate-800/60 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h2 className="text-xl font-bold tracking-tight text-foreground">
               {title}
             </h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-foreground/60">
               {description}
             </p>
           </div>
@@ -252,35 +244,35 @@ function ActionLauncherCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "group rounded-2xl border p-5 text-left transition-all duration-300",
+        "group relative overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300",
         active
-          ? "border-primary bg-primary/10 shadow-lg shadow-primary/15"
-          : "border-slate-200/80 bg-white/80 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg dark:border-slate-800/80 dark:bg-slate-900/80",
+          ? "border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary text-white shadow-xl dark:border-slate-800"
+          : "border-border bg-transparent hover:bg-card/40 hover:[box-shadow:4px_4px_0px_0px_var(--border)]",
       )}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      {active && (
+        <>
+          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-8 left-0 h-20 w-20 rounded-full bg-primary-foreground/10 blur-2xl" />
+        </>
+      )}
+      <div className="flex items-start justify-between gap-4 pl-4">
         <div>
-          <div
-            className={cn(
-              "mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-lg",
-              active ? "bg-primary" : "bg-slate-900 dark:bg-slate-700",
-            )}
-          >
+          <div className={cn(
+            "mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border shadow-lg",
+            active ? "border-white/20 bg-white/15 text-white" : "border-border bg-card text-foreground"
+          )}>
             <span className="material-symbols-outlined">{icon}</span>
           </div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+          <h3 className={cn("text-base font-bold", active ? "text-white" : "text-foreground")}>
             {title}
           </h3>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className={cn("mt-1 text-sm", active ? "text-white/70" : "text-foreground/60")}>
             {description}
           </p>
         </div>
-        <span
-          className={cn(
-            "material-symbols-outlined text-lg transition-transform duration-300",
-            active ? "rotate-90 text-primary" : "text-slate-400",
-          )}
-        >
+        <span className={cn("material-symbols-outlined text-lg", active ? "text-white/60" : "text-foreground/40")}>
           chevron_right
         </span>
       </div>
@@ -293,8 +285,8 @@ export default function AccountSettingsPanel({
 }: {
   area: "admin" | "dashboard";
 }) {
-  const { setFontFamily } = useTheme();
-  const [openPanel, setOpenPanel] = useState<"profile" | "password" | "avatar" | "font" | null>(null);
+  const { setFontFamily, setFontSize } = useTheme();
+  const [openPanel, setOpenPanel] = useState<"profile" | "password" | "avatar" | "font" | "fontsize" | null>(null);
   const [settings, setSettings] = useState<AccountSettingsResponse | null>(
     null,
   );
@@ -305,6 +297,9 @@ export default function AccountSettingsPanel({
   const [passwordNotice, setPasswordNotice] = useState("");
   const [username, setUsername] = useState("");
   const [selectedFont, setSelectedFont] = useState<FontFamily>("dm_sans");
+  const [selectedFontSize, setSelectedFontSize] = useState<"small" | "medium" | "large" | "xlarge">("medium");
+  const [savingFontSize, setSavingFontSize] = useState(false);
+  const [fontSizeNotice, setFontSizeNotice] = useState("");
   const [avatarKey, setAvatarKey] = useState<AvatarKey>("avatar_1");
   const [securityAlertsEnabled, setSecurityAlertsEnabled] = useState(true);
   const [loginNotificationsEnabled, setLoginNotificationsEnabled] =
@@ -331,6 +326,7 @@ export default function AccountSettingsPanel({
     setSettings(payload);
     setUsername(capitalizeProfileName(payload.identity.username));
     setSelectedFont(payload.preferences.font_family);
+    setSelectedFontSize((payload.preferences as any).font_size ?? "medium");
     setAvatarKey(payload.preferences.avatar_key);
     setSecurityAlertsEnabled(payload.preferences.security_alerts_enabled);
     setLoginNotificationsEnabled(
@@ -340,6 +336,7 @@ export default function AccountSettingsPanel({
     
     // Update font in context
     setFontFamily(payload.preferences.font_family);
+    setFontSize((payload.preferences as any).font_size ?? "medium");
     
     window.dispatchEvent(
       new CustomEvent("accountsettingschange", {
@@ -395,6 +392,7 @@ export default function AccountSettingsPanel({
     profilePrivate !== (settings?.preferences.profile_private ?? false);
   const avatarDirty = avatarKey !== (settings?.preferences.avatar_key ?? "avatar_1");
   const fontDirty = selectedFont !== (settings?.preferences.font_family ?? "dm_sans");
+  const fontSizeDirty = selectedFontSize !== ((settings?.preferences as any)?.font_size ?? "medium");
   const openPanelAnimationClass =
     openPanel === "profile"
       ? "settings-panel-enter-left"
@@ -550,6 +548,35 @@ export default function AccountSettingsPanel({
     }
   };
 
+  const updateFontSize = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSavingFontSize(true);
+    setFontSizeNotice("");
+    setError("");
+    try {
+      const token = getToken();
+      const response = await fetch(`${API_BASE}/api/v2/auth/settings/preferences`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ font_size: selectedFontSize }),
+      });
+      const body = await response.text();
+      if (!response.ok) throw new Error(body || "Failed to update font size");
+      const parsed = JSON.parse(body) as AccountSettingsResponse;
+      syncLocalState(parsed);
+      setFontSizeNotice("Font size updated.");
+      setTimeout(() => setFontSizeNotice(""), 3000);
+      setOpenPanel(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update font size");
+    } finally {
+      setSavingFontSize(false);
+    }
+  };
+
   const updatePassword = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setPasswordNotice("");
@@ -674,7 +701,7 @@ export default function AccountSettingsPanel({
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <ActionLauncherCard
           title="Profile Card"
           description="Open profile details and privacy controls."
@@ -713,6 +740,15 @@ export default function AccountSettingsPanel({
           active={openPanel === "font"}
           onClick={() =>
             setOpenPanel((current) => (current === "font" ? null : "font"))
+          }
+        />
+        <ActionLauncherCard
+          title="Font Size"
+          description="Adjust the text size used across the entire website."
+          icon="format_size"
+          active={openPanel === "fontsize"}
+          onClick={() =>
+            setOpenPanel((current) => (current === "fontsize" ? null : "fontsize"))
           }
         />
       </div>
@@ -842,6 +878,81 @@ export default function AccountSettingsPanel({
                     label="Save Font"
                     saving={savingFont}
                     disabled={!fontDirty}
+                  />
+                </div>
+              </form>
+            </SectionCard>
+          ) : null}
+
+          {openPanel === "fontsize" ? (
+            <SectionCard
+              title="Font Size"
+              description="Adjust the text size used across the entire website."
+            >
+              <form className="space-y-5" onSubmit={updateFontSize}>
+                <div className="flex items-center gap-4 rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-800/30">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <span className="material-symbols-outlined text-3xl">format_size</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                      Selected Size: {selectedFontSize.charAt(0).toUpperCase() + selectedFontSize.slice(1)}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      Changes apply to all text across the website immediately.
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {(["small", "medium", "large", "xlarge"] as const).map((size) => {
+                    const labels: Record<string, { label: string; preview: string; desc: string }> = {
+                      small:  { label: "Small",   preview: "Aa", desc: "13px — Compact" },
+                      medium: { label: "Medium",  preview: "Aa", desc: "15px — Default" },
+                      large:  { label: "Large",   preview: "Aa", desc: "17px — Comfortable" },
+                      xlarge: { label: "X-Large", preview: "Aa", desc: "19px — Accessible" },
+                    };
+                    const previewSize: Record<string, string> = {
+                      small: "text-sm", medium: "text-base", large: "text-lg", xlarge: "text-xl",
+                    };
+                    const info = labels[size];
+                    return (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => setSelectedFontSize(size)}
+                        className={cn(
+                          "rounded-xl border p-4 text-center transition-all",
+                          selectedFontSize === size
+                            ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
+                            : "border-slate-200/80 bg-slate-50/50 hover:border-primary/30 hover:bg-primary/5 dark:border-slate-800/80 dark:bg-slate-800/30",
+                        )}
+                      >
+                        <p className={cn("font-bold text-slate-900 dark:text-white", previewSize[size])}>
+                          {info.preview}
+                        </p>
+                        <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-white">
+                          {info.label}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          {info.desc}
+                        </p>
+                        {selectedFontSize === size && (
+                          <span className="material-symbols-outlined mt-2 block text-base text-primary">check_circle</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                {fontSizeNotice && (
+                  <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">
+                    {fontSizeNotice}
+                  </p>
+                )}
+                <div className="flex justify-end">
+                  <SaveButton
+                    label="Save Size"
+                    saving={savingFontSize}
+                    disabled={!fontSizeDirty}
                   />
                 </div>
               </form>

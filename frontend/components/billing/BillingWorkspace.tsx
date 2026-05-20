@@ -147,6 +147,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
   const [activitySummary, setActivitySummary] = useState<PointActivitySummaryResponse | null>(null);
   const [requests, setRequests] = useState<TopupRequestList | null>(null);
   const [requestLoading, setRequestLoading] = useState(false);
+  const [showTopupModal, setShowTopupModal] = useState(false);
   const [cancelRequestId, setCancelRequestId] = useState<number | null>(null);
   const [requestError, setRequestError] = useState("");
   const [requestSuccess, setRequestSuccess] = useState("");
@@ -442,164 +443,130 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
           label="Available Points"
           value={points.available_points}
           icon="account_balance_wallet"
-          caption="Current balance ready for conversions and account activity."
+          caption="Current balance ready for conversions."
         />
         <MetricCard
           label="Pending Requests"
           value={pendingRequests}
           icon="pending_actions"
-          caption="Requests still waiting for an assigned admin or super admin response."
+          caption="Requests waiting for admin response."
         />
         <MetricCard
           label="Last Login"
           value={formatDate(me.last_login)}
           icon="schedule"
-          caption="Most recent successful login recorded for this account."
+          caption="Most recent successful login."
         />
       </section>
 
-      <section className="relative overflow-hidden rounded-[13px] border border-slate-200/80 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.10)] dark:border-slate-800 dark:bg-slate-950">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.16),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(14,165,233,0.10),transparent_28%)]" />
-        <div className="relative grid grid-cols-1 xl:grid-cols-[360px_1fr]">
-          <div className="relative overflow-hidden border-b border-slate-200/80 bg-slate-950 px-6 py-7 text-white dark:border-slate-800 xl:border-b-0 xl:border-r">
-            <div className="absolute -right-16 top-8 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
-            <div className="absolute -left-10 bottom-0 h-32 w-32 rounded-full bg-cyan-400/10 blur-3xl" />
-            <div className="relative">
-              <div className="inline-flex rounded-2xl border border-white/15 bg-white/10 p-3 text-white shadow-sm backdrop-blur-md">
-                <span className="material-symbols-outlined">outgoing_mail</span>
-              </div>
-              <h2 className="mt-5 text-2xl font-black tracking-tight">
-                Create Topup Request
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-white/75">
-                {requestHint}
-              </p>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <section className="relative overflow-hidden rounded-[13px] border bg-transparent">
+        <div className="flex items-center justify-center p-10">
+          <button
+            type="button"
+            onClick={() => setShowTopupModal(true)}
+            className="group relative flex h-64 w-64 flex-col items-center justify-center rounded-full border-2 border-primary bg-primary/10 transition-all duration-300 hover:bg-primary/20 active:scale-95"
+          >
+            <span className="material-symbols-outlined text-8xl text-primary">add</span>
+            <span className="mt-2 text-sm font-bold uppercase tracking-widest text-primary">Top Up</span>
+          </button>
+        </div>
 
-              <div className="mt-6 space-y-3">
-                <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/55">
-                    Point Status
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-white">{points.point_status}</p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/55">
-                    Total Requests
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-white">{requests?.total ?? 0}</p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/55">
-                    Creator Route
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-white/90">
-                    {me.created_by ? `#${me.created_by.id} ${me.created_by.email}` : "Not recorded"}
-                  </p>
-                </div>
-              </div>
-
-              {me.created_by ? (
+        {/* Modal */}
+        {showTopupModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-foreground">Topup Request</h3>
                 <button
                   type="button"
-                  onClick={handlePrefillCreator}
-                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white transition hover:border-white/30 hover:bg-white/15"
+                  onClick={() => setShowTopupModal(false)}
+                  className="rounded-lg p-1 text-foreground/50 hover:text-foreground"
                 >
-                  <span className="material-symbols-outlined text-sm">north_east</span>
-                  Request Creator #{me.created_by.id}
+                  <span className="material-symbols-outlined">close</span>
                 </button>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="relative p-6">
-            {requestError ? (
-              <div className="rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
-                {requestError}
               </div>
-            ) : null}
-            {requestSuccess ? (
-              <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300">
-                {requestSuccess}
-              </div>
-            ) : null}
 
-            <div className={`${requestError || requestSuccess ? "mt-5" : ""}`}>
-              <div className="grid grid-cols-1 gap-4">
-                <label className="space-y-2">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                    Target Admin ID
-                  </span>
+              {requestError && (
+                <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+                  {requestError}
+                </div>
+              )}
+              {requestSuccess && (
+                <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+                  {requestSuccess}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <label className="block space-y-1.5">
+                  <span className="text-xs font-bold uppercase tracking-widest text-foreground/60">Target Admin ID</span>
                   <input
                     type="number"
                     min={1}
                     value={form.requested_admin_user_id}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, requested_admin_user_id: e.target.value }))
-                    }
+                    onChange={(e) => setForm((prev) => ({ ...prev, requested_admin_user_id: e.target.value }))}
                     placeholder="Target admin / super admin ID"
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    className="w-full rounded-xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
                   />
                 </label>
-                <label className="space-y-2">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                    Requested Points
-                  </span>
+                <label className="block space-y-1.5">
+                  <span className="text-xs font-bold uppercase tracking-widest text-foreground/60">Requested Points</span>
                   <input
                     type="number"
                     min={1}
                     value={form.amount}
                     onChange={(e) => setForm((prev) => ({ ...prev, amount: e.target.value }))}
                     placeholder="Requested point amount"
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    className="w-full rounded-xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
                   />
                 </label>
-                <label className="space-y-2">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                    Request Note
-                  </span>
+                <label className="block space-y-1.5">
+                  <span className="text-xs font-bold uppercase tracking-widest text-foreground/60">Request Note</span>
                   <input
                     type="text"
                     value={form.note}
                     onChange={(e) => setForm((prev) => ({ ...prev, note: e.target.value }))}
                     placeholder="Reason or project note"
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    className="w-full rounded-xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
                   />
                 </label>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400">
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-900">
-                  Audience: admin or super admin
-                </span>
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-900">
-                  Status: {points.point_status}
-                </span>
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-900">
-                  Pending: {pendingRequests}
-                </span>
-              </div>
-
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-                <p className="max-w-xl text-sm text-slate-500 dark:text-slate-400">
-                  Submit a request when your current balance is not enough for upcoming conversions or team usage.
-                </p>
+              {me.created_by ? (
                 <button
                   type="button"
-                  onClick={handleCreateRequest}
-                  disabled={requestLoading}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => { handlePrefillCreator(); }}
+                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-bold text-foreground/70 transition hover:text-foreground"
                 >
-                  <span className="material-symbols-outlined text-base">send</span>
-                  {requestLoading ? "Submitting..." : "Submit Topup Request"}
+                  <span className="material-symbols-outlined text-sm">north_east</span>
+                  Prefill Creator #{me.created_by.id}
+                </button>
+              ) : null}
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowTopupModal(false)}
+                  className="flex-1 rounded-xl border border-border py-2.5 text-sm font-semibold text-foreground transition hover:bg-card/60"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => { await handleCreateRequest(); if (!requestError) setShowTopupModal(false); }}
+                  disabled={requestLoading}
+                  className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {requestLoading ? "Submitting..." : "Submit Request"}
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
 
-      <section className="grid grid-cols-1 gap-6">
-        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+      <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
           <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
@@ -670,18 +637,17 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
             </div>
           </div>
         </section>
+      </div>
 
-        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
-          <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+      <section className="relative overflow-hidden rounded-[13px] border border-border bg-transparent [box-shadow:4px_4px_0px_0px_var(--border)]">
+          <div className="relative border-b border-border px-6 py-5">
             <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+              <div className="inline-flex rounded-2xl border border-border p-3 text-primary">
                 <span className="material-symbols-outlined">history</span>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Point Activity</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Every charge, refund, and balance change tied to this account.</p>
+                <h2 className="text-lg font-bold text-foreground">Point Activity</h2>
+                <p className="text-xs text-foreground/60">Every charge, refund, and balance change tied to this account.</p>
               </div>
             </div>
           </div>
@@ -788,7 +754,6 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
             
           </div>
         </section>
-      </section>
     </div>
   );
 }

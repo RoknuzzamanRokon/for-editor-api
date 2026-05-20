@@ -9,6 +9,7 @@ from models.settings import (
     AccountSettingsResponse,
     VALID_AVATARS,
     VALID_FONTS,
+    VALID_FONT_SIZES,
     VALID_THEMES,
 )
 
@@ -27,6 +28,11 @@ def _normalize_preference_values(db: Session, preference: UserPreference) -> Use
     # Ensure font_family has a valid value
     if not hasattr(preference, 'font_family') or preference.font_family not in VALID_FONTS:
         preference.font_family = "dm_sans"
+        changed = True
+
+    # Ensure font_size has a valid value
+    if not hasattr(preference, 'font_size') or preference.font_size not in VALID_FONT_SIZES:
+        preference.font_size = "medium"
         changed = True
 
     if changed:
@@ -59,6 +65,7 @@ def build_account_settings_response(db: Session, user: User) -> AccountSettingsR
         preferences=AccountPreferences(
             theme=preference.theme,
             font_family=preference.font_family,
+            font_size=getattr(preference, 'font_size', 'medium'),
             avatar_key=preference.avatar_key,
             security_alerts_enabled=preference.security_alerts_enabled,
             login_notifications_enabled=preference.login_notifications_enabled,

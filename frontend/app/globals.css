@@ -69,6 +69,12 @@ html[data-font="source_sans"] body {
   font-family: var(--font-source-sans), "Source Sans 3", sans-serif;
 }
 
+/* Dynamic font size based on data-font-size attribute */
+html[data-font-size="small"] { font-size: 13px; }
+html[data-font-size="medium"] { font-size: 15px; }
+html[data-font-size="large"] { font-size: 17px; }
+html[data-font-size="xlarge"] { font-size: 19px; }
+
 /* Oswald font utility classes */
 .font-oswald {
   font-family: var(--font-oswald);
