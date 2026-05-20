@@ -19,3 +19,16 @@ backend/Pipfile.lock
 
 
 specs/
+
+
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
+
+
+
