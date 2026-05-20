@@ -14,7 +14,7 @@ backend/static/*
 backend/log/
 backend/deploy_backend.pid
 backend/deploy_frontend.pid
-
+backend/venv/
 backend/Pipfile.lock
 
 
