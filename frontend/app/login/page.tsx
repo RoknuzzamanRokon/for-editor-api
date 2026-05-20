@@ -7,7 +7,12 @@ import { API_BASE } from "@/lib/apiBase";
 
 function SparklesIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Zm6 12 1 2.5L21.5 18 19 19l-1 2.5L17 19l-2.5-1 2.5-.5 1-2.5ZM6 14l1.2 3L10 18.2 7.2 19 6 22l-1.2-3L2 18.2 4.8 17 6 14Z"
         fill="currentColor"
@@ -18,30 +23,64 @@ function SparklesIcon({ className = "" }: { className?: string }) {
 
 function MailIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M4 6.75h16a1.25 1.25 0 0 1 1.25 1.25v8A2.75 2.75 0 0 1 18.5 18.75h-13A2.75 2.75 0 0 1 2.75 16V8A1.25 1.25 0 0 1 4 6.75Z"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinejoin="round"
       />
-      <path d="m4 8 8 5 8-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="m4 8 8 5 8-5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
 function LockIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="4.75" y="10.75" width="14.5" height="9.5" rx="2.25" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M8.5 10.75V8.5a3.5 3.5 0 1 1 7 0v2.25" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <rect
+        x="4.75"
+        y="10.75"
+        width="14.5"
+        height="9.5"
+        rx="2.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M8.5 10.75V8.5a3.5 3.5 0 1 1 7 0v2.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 function EyeIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M2.75 12s3.25-5.25 9.25-5.25S21.25 12 21.25 12 18 17.25 12 17.25 2.75 12 2.75 12Z"
         stroke="currentColor"
@@ -49,14 +88,25 @@ function EyeIcon({ className = "" }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="12" cy="12" r="2.75" stroke="currentColor" strokeWidth="1.8" />
+      <circle
+        cx="12"
+        cy="12"
+        r="2.75"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
     </svg>
   );
 }
 
 function EyeOffIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M10.6 6.9A10.1 10.1 0 0 1 12 6.75C18 6.75 21.25 12 21.25 12a17.2 17.2 0 0 1-2.53 3.17"
         stroke="currentColor"
@@ -71,7 +121,12 @@ function EyeOffIcon({ className = "" }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M3.75 3.75 20.25 20.25" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M3.75 3.75 20.25 20.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -88,7 +143,9 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const defaultRouteForRole = (role?: string | null) =>
-    role === "general_user" || role === "demo_user" ? "/dashboard/app-center" : "/admin/app-center";
+    role === "general_user" || role === "demo_user"
+      ? "/dashboard/app-center"
+      : "/admin/app-center";
 
   useEffect(() => {
     const prevHtmlOverflow = document.documentElement.style.overflow;
@@ -115,7 +172,10 @@ function LoginForm() {
     }
 
     try {
-      const parsed = JSON.parse(stored) as { email?: string; password?: string };
+      const parsed = JSON.parse(stored) as {
+        email?: string;
+        password?: string;
+      };
       if (parsed.email) {
         setEmail(parsed.email);
       }
@@ -135,7 +195,7 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const loginRes = await fetch("https://convaterpro.innovatedemo.com/api/v2/auth/login", {
+      const loginRes = await fetch(`${API_BASE}/api/v2/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -151,7 +211,7 @@ function LoginForm() {
       if (loginData.refresh_token) {
         localStorage.setItem("refresh_token", loginData.refresh_token);
       }
-      
+
       // Store role from login response
       if (loginData.role) {
         localStorage.setItem("user_role", loginData.role);
@@ -191,12 +251,17 @@ function LoginForm() {
         {/* Navbar */}
         <nav className="fixed left-0 right-0 top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-card/70 px-6 backdrop-blur-md dark:bg-[rgba(11,17,32,0.82)]">
           <a href="/" className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-2xl text-primary">sync_alt</span>
+            <span className="material-symbols-outlined text-2xl text-primary">
+              sync_alt
+            </span>
             <span className="text-lg font-extrabold tracking-tight text-foreground">
               ConvertPro <span className="text-primary">API</span>
             </span>
           </a>
-          <a href="/" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">
+          <a
+            href="/"
+            className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90"
+          >
             Home
           </a>
         </nav>
@@ -205,147 +270,160 @@ function LoginForm() {
           {/* Liquid glass card */}
           <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl dark:bg-[rgba(17,24,39,0.74)]">
             <div className="p-8">
-          {/* Brand header */}
-          <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
-              <SparklesIcon className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold tracking-tight text-foreground">Converter Tools</h2>
-              <p className="text-xs text-foreground/60">Professional Suite</p>
-            </div>
-          </div>
-
-          <h1 className="text-2xl font-semibold text-foreground">Welcome back</h1>
-          <p className="mt-1 text-sm text-foreground/70">
-            Sign in to access your dashboard
-          </p>
-
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
-            {/* Email field */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Email address</label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <MailIcon className="h-4 w-4 text-foreground/60" />
+              {/* Brand header */}
+              <div className="mb-8 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
+                  <SparklesIcon className="h-6 w-6 text-white" />
                 </div>
-                <input
-                  className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Password field */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-foreground">Password</label>
-                <button
-                  type="button"
-                  className="text-xs font-medium text-primary transition-colors hover:text-primary/80"
-                >
-                  Forgot password?
-                </button>
-              </div>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <LockIcon className="h-4 w-4 text-foreground/60" />
+                <div>
+                  <h2 className="text-xl font-bold tracking-tight text-foreground">
+                    Converter Tools
+                  </h2>
+                  <p className="text-xs text-foreground/60">
+                    Professional Suite
+                  </p>
                 </div>
-                <input
-                  className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              </div>
+
+              <h1 className="text-2xl font-semibold text-foreground">
+                Welcome back
+              </h1>
+              <p className="mt-1 text-sm text-foreground/70">
+                Sign in to access your dashboard
+              </p>
+
+              <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+                {/* Email field */}
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">
+                    Email address
+                  </label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <MailIcon className="h-4 w-4 text-foreground/60" />
+                    </div>
+                    <input
+                      className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+                      type="email"
+                      placeholder="you@example.com"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Password field */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-foreground">
+                      Password
+                    </label>
+                    <button
+                      type="button"
+                      className="text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <LockIcon className="h-4 w-4 text-foreground/60" />
+                    </div>
+                    <input
+                      className="block w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground/60 transition-colors hover:text-foreground"
+                    >
+                      {showPassword ? (
+                        <EyeOffIcon className="h-4 w-4" />
+                      ) : (
+                        <EyeIcon className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Remember me */}
+                <div className="flex items-center">
+                  <input
+                    id="remember"
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20"
+                  />
+                  <label
+                    htmlFor="remember"
+                    className="ml-2 block text-sm text-foreground/70"
+                  >
+                    Remember me
+                  </label>
+                </div>
+
+                {/* Error message */}
+                {error && (
+                  <div className="rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-700 backdrop-blur-sm animate-in slide-in-from-top-2 duration-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-rose-500">⚠</span>
+                      <span>{error}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Submit button */}
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground/60 transition-colors hover:text-foreground"
+                  type="submit"
+                  disabled={loading}
+                  className="relative w-full overflow-hidden rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {showPassword ? (
-                    <EyeOffIcon className="h-4 w-4" />
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Signing in...
+                    </span>
                   ) : (
-                    <EyeIcon className="h-4 w-4" />
+                    "Sign in"
                   )}
                 </button>
+              </form>
+
+              {/* Footer */}
+              <div className="mt-6 text-center">
+                <p className="text-xs text-foreground/70">
+                  Don&apos;t have an account?{" "}
+                  <a
+                    href="/register"
+                    className="font-medium text-primary transition-colors hover:text-primary/80"
+                  >
+                    Create one
+                  </a>
+                </p>
+                <p className="mt-4 text-xs text-foreground/50">
+                  Secure login • All data encrypted
+                </p>
               </div>
-            </div>
-
-            {/* Remember me */}
-            <div className="flex items-center">
-              <input
-                id="remember"
-                type="checkbox"
-                className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20"
-              />
-              <label htmlFor="remember" className="ml-2 block text-sm text-foreground/70">
-                Remember me
-              </label>
-            </div>
-
-            {/* Error message */}
-            {error && (
-              <div className="rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-700 backdrop-blur-sm animate-in slide-in-from-top-2 duration-200">
-                <div className="flex items-center gap-2">
-                  <span className="text-rose-500">⚠</span>
-                  <span>{error}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="relative w-full overflow-hidden rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Signing in...
-                </span>
-              ) : (
-                "Sign in"
-              )}
-            </button>
-          </form>
-
-          {/* Footer */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-foreground/70">
-              Don&apos;t have an account?{" "}
-              <a
-                href="/register"
-                className="font-medium text-primary transition-colors hover:text-primary/80"
-              >
-                Create one
-              </a>
-            </p>
-            <p className="mt-4 text-xs text-foreground/50">
-              Secure login • All data encrypted
-            </p>
-          </div>
             </div>
           </div>
         </div>
