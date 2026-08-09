@@ -2,7 +2,7 @@ import os
 import tempfile
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, Request, Response, UploadFile, status
 from fastapi.responses import FileResponse
@@ -820,43 +820,57 @@ async def upload_excel_for_pdf(
 async def upload_image_for_pdf(
     request: Request,
     response: Response,
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     action = "image_to_pdf"
     charge_result = None
     conversion: Optional[Conversion] = None
-    temp_image_path: Optional[str] = None
+    temp_image_paths: List[str] = []
 
     try:
-        is_valid, error_message = await image_to_pdf_file_manager.validate_image_file(file)
-        if not is_valid:
-            raise HTTPException(status_code=400, detail=error_message)
+        if not files:
+            raise HTTPException(status_code=400, detail="At least one image file is required")
 
-        content = await file.read()
-        await file.seek(0)
+        contents: List[bytes] = []
+        for image_file in files:
+            is_valid, error_message = await image_to_pdf_file_manager.validate_image_file(image_file)
+            if not is_valid:
+                raise HTTPException(status_code=400, detail=error_message)
+
+            content = await image_file.read()
+            await image_file.seek(0)
+            contents.append(content)
+
+        total_size = sum(len(content) for content in contents)
         early_response, charge_result = _enforce_access(
-            db, current_user, action, request, file, response, len(content)
+            db, current_user, action, request, files[0], response, total_size
         )
         if early_response:
             return early_response
 
         _, output_path = _new_private_output(image_to_pdf_file_manager, ".pdf")
+
+        input_filename = files[0].filename or "upload.png"
+        if len(files) > 1:
+            input_filename = f"{input_filename} (+{len(files) - 1} more)"
+
         conversion = _create_conversion_row(
             db,
             current_user,
             action,
-            file.filename or "upload.png",
+            input_filename,
             charge_result.request_id,
         )
 
-        suffix = os.path.splitext(file.filename or "")[1].lower() or ".png"
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_image:
-            temp_image.write(content)
-            temp_image_path = temp_image.name
+        for image_file, content in zip(files, contents):
+            suffix = os.path.splitext(image_file.filename or "")[1].lower() or ".png"
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_image:
+                temp_image.write(content)
+                temp_image_paths.append(temp_image.name)
 
-        success, error_msg = image_to_pdf_converter.convert_image_to_pdf(temp_image_path, output_path)
+        success, error_msg = image_to_pdf_converter.convert_images_to_pdf(temp_image_paths, output_path)
         if not success:
             if current_user.role != RoleEnum.super_user:
                 refund_points(db, current_user.id, action, charge_result.request_id)
@@ -905,8 +919,9 @@ async def upload_image_for_pdf(
             db.commit()
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(exc)}")
     finally:
-        if temp_image_path and os.path.exists(temp_image_path):
-            os.unlink(temp_image_path)
+        for temp_image_path in temp_image_paths:
+            if temp_image_path and os.path.exists(temp_image_path):
+                os.unlink(temp_image_path)
 
 
 @router.post("/remove-pages-from-pdf", response_model=ConversionCreateResponse)

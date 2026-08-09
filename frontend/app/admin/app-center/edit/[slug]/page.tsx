@@ -286,6 +286,7 @@ function SectionCard({
 
 export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const [file, setFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState("");
@@ -306,6 +307,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const action = params.slug.replace(/-/g, "_");
   const isPdfPageRemove = action === "pdf_page_remove";
   const isRemoveBackground = action === "remove_background";
+  const isImageToPdf = action === "image_to_pdf";
   const convertRoute = useMemo(() => ACTION_TO_ROUTE[action] || "", [action]);
   const historyRoute = useMemo(
     () => ACTION_TO_HISTORY_ROUTE[action] || "/api/v3/conversions/history",
@@ -469,8 +471,12 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       return;
     }
 
-    if (!file) {
-      setError("Please choose a file first");
+    if (isImageToPdf ? imageFiles.length === 0 : !file) {
+      setError(
+        isImageToPdf
+          ? "Please choose at least one image"
+          : "Please choose a file first",
+      );
       setConversionStage("error");
       return;
     }
@@ -480,7 +486,11 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       setConversionStage("uploading");
       setConversionProgress(12);
       const formData = new FormData();
-      formData.append("file", file);
+      if (isImageToPdf) {
+        imageFiles.forEach((imageFile) => formData.append("files", imageFile));
+      } else if (file) {
+        formData.append("file", file);
+      }
 
       const res = await authFetch(`${API_BASE}${convertRoute}`, {
         method: "POST",
@@ -501,7 +511,9 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
           ? {
               conversion_id: parsed.conversion_id,
               action,
-              input_filename: file.name,
+              input_filename: isImageToPdf
+                ? `${imageFiles.length} image${imageFiles.length === 1 ? "" : "s"}`
+                : file?.name || "upload",
               status: "completed",
               error_message: null,
               points_charged: parsed.points_charged,
@@ -708,22 +720,41 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-0 flex-1 sm:min-w-[250px]">
                       <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
-                        Upload file
+                        {isImageToPdf ? "Upload images" : "Upload file"}
                       </label>
                       <input
                         type="file"
-                        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                        multiple={isImageToPdf}
+                        accept={
+                          isImageToPdf
+                            ? "image/png,image/jpeg,image/webp"
+                            : undefined
+                        }
+                        onChange={(e) => {
+                          if (isImageToPdf) {
+                            setImageFiles((prev) => [
+                              ...prev,
+                              ...Array.from(e.target.files ?? []),
+                            ]);
+                          } else {
+                            setFile(e.target.files?.[0] ?? null);
+                          }
+                          e.target.value = "";
+                        }}
                         className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:font-semibold file:text-primary dark:border-slate-700 dark:bg-slate-900"
                       />
                     </div>
 
                     <button
                       onClick={handleConvert}
-                      disabled={!file || submitting}
+                      disabled={
+                        (isImageToPdf ? imageFiles.length === 0 : !file) ||
+                        submitting
+                      }
                       type="button"
                       className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200
                       ${
-                        file
+                        (isImageToPdf ? imageFiles.length > 0 : !!file)
                           ? "bg-primary text-white hover:opacity-90"
                           : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
                       }
@@ -732,13 +763,71 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                       <span className="material-symbols-outlined text-base">
                         bolt
                       </span>
-                      {submitting ? "Converting..." : "Convert File"}
+                      {submitting
+                        ? "Converting..."
+                        : isImageToPdf
+                          ? "Convert to PDF"
+                          : "Convert File"}
                     </button>
                   </div>
 
-                  <p className="mt-2 text-xs text-slate-500">
-                    {file ? `Selected: ${file.name}` : "No file selected yet"}
-                  </p>
+                  {isImageToPdf ? (
+                    imageFiles.length > 0 ? (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-xs font-semibold text-slate-500">
+                          {imageFiles.length} image
+                          {imageFiles.length === 1 ? "" : "s"} selected —
+                          pages will follow this order.
+                        </p>
+                        <ul className="flex flex-wrap gap-2">
+                          {imageFiles.map((imageFile, index) => (
+                            <li
+                              key={`${imageFile.name}-${imageFile.lastModified}-${index}`}
+                              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
+                            >
+                              <span className="font-semibold text-slate-400">
+                                {index + 1}.
+                              </span>
+                              <span
+                                className="max-w-[160px] truncate"
+                                title={imageFile.name}
+                              >
+                                {imageFile.name}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setImageFiles((prev) =>
+                                    prev.filter((_, i) => i !== index),
+                                  )
+                                }
+                                className="material-symbols-outlined text-sm text-slate-400 transition hover:text-rose-500"
+                                aria-label={`Remove ${imageFile.name}`}
+                              >
+                                close
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                        <button
+                          type="button"
+                          onClick={() => setImageFiles([])}
+                          className="text-xs font-semibold text-rose-500 hover:underline"
+                        >
+                          Clear all
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-xs text-slate-500">
+                        No images selected yet. Select multiple images to
+                        build a multi-page PDF.
+                      </p>
+                    )
+                  ) : (
+                    <p className="mt-2 text-xs text-slate-500">
+                      {file ? `Selected: ${file.name}` : "No file selected yet"}
+                    </p>
+                  )}
                 </SectionCard>
                 {submitting || result ? (
                   <SectionCard
@@ -749,7 +838,13 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                       <ConversionProgressPanel
                         progress={conversionProgress}
                         stage={conversionStage}
-                        filename={file?.name}
+                        filename={
+                          isImageToPdf
+                            ? imageFiles.length
+                              ? `${imageFiles.length} image${imageFiles.length === 1 ? "" : "s"}`
+                              : undefined
+                            : file?.name
+                        }
                       />
                     ) : (
                       <div className="space-y-4">
