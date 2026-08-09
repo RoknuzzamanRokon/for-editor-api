@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import EditableDocxPreview from "@/components/app-center/EditableDocxPreview";
 import ExcelWorkbookPreview from "@/components/app-center/ExcelWorkbookPreview";
@@ -115,6 +115,12 @@ const isSpreadsheetFile = (mimeType: string, filename: string) =>
   SPREADSHEET_MIME_TYPES.some((type) => mimeType.includes(type)) ||
   filename.toLowerCase().endsWith(".xlsx") ||
   filename.toLowerCase().endsWith(".xls");
+
+const IMAGE_UPLOAD_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
+
+const isAcceptedImageFile = (file: File) =>
+  file.type.startsWith("image/") ||
+  IMAGE_UPLOAD_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext));
 
 const PDF_PREVIEW_FRAME_CLASS =
   "h-[88vh] min-h-[546px] w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 sm:h-[1120px]";
@@ -287,6 +293,9 @@ function SectionCard({
 export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
   const [file, setFile] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+  const [isImageDragActive, setIsImageDragActive] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState("");
@@ -319,6 +328,14 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
       if (preview?.url) URL.revokeObjectURL(preview.url);
     };
   }, [preview]);
+
+  useEffect(() => {
+    const urls = imageFiles.map((imageFile) => URL.createObjectURL(imageFile));
+    setImagePreviewUrls(urls);
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [imageFiles]);
 
   useEffect(() => {
     if (!submitting) return;
@@ -714,115 +731,201 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
             <div className="space-y-8 xl:col-span-12">
               <SectionCard
                 title="Request Builder"
-                description="Choose a file and send it to the selected conversion endpoint."
+                description={
+                  isImageToPdf
+                    ? "Add one or more photos — they'll be combined into a single PDF in the order shown."
+                    : "Choose a file and send it to the selected conversion endpoint."
+                }
               >
-                <div className="flex flex-wrap items-end gap-3">
-                  <div className="min-w-0 flex-1 sm:min-w-[250px]">
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
-                      {isImageToPdf ? "Upload images" : "Upload file"}
-                    </label>
-                    <input
-                      type="file"
-                      multiple={isImageToPdf}
-                      accept={
-                        isImageToPdf ? "image/png,image/jpeg,image/webp" : undefined
-                      }
-                      onChange={(e) => {
-                        if (isImageToPdf) {
-                          setImageFiles((prev) => [
-                            ...prev,
-                            ...Array.from(e.target.files ?? []),
-                          ]);
-                        } else {
-                          setFile(e.target.files?.[0] ?? null);
-                        }
-                        e.target.value = "";
-                      }}
-                      className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:font-semibold file:text-primary dark:border-slate-700 dark:bg-slate-900"
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleConvert}
-                    disabled={
-                      (isImageToPdf ? imageFiles.length === 0 : !file) || submitting
-                    }
-                    type="button"
-                    className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200
-                    ${
-                      (isImageToPdf ? imageFiles.length > 0 : !!file)
-                        ? "bg-primary text-white hover:opacity-90"
-                        : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
-                    }
-                  `}
-                  >
-                    <span className="material-symbols-outlined text-base">
-                      bolt
-                    </span>
-                    {submitting
-                      ? "Converting..."
-                      : isImageToPdf
-                        ? "Convert to PDF"
-                        : "Convert File"}
-                  </button>
-                </div>
-
                 {isImageToPdf ? (
-                  imageFiles.length > 0 ? (
-                    <div className="mt-3 space-y-2">
-                      <p className="text-xs font-semibold text-slate-500">
-                        {imageFiles.length} image
-                        {imageFiles.length === 1 ? "" : "s"} selected — pages
-                        will follow this order.
-                      </p>
-                      <ul className="flex flex-wrap gap-2">
-                        {imageFiles.map((imageFile, index) => (
-                          <li
-                            key={`${imageFile.name}-${imageFile.lastModified}-${index}`}
-                            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
-                          >
-                            <span className="font-semibold text-slate-400">
-                              {index + 1}.
+                  <div className="space-y-4">
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsImageDragActive(true);
+                      }}
+                      onDragLeave={() => setIsImageDragActive(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsImageDragActive(false);
+                        const dropped = Array.from(
+                          e.dataTransfer.files ?? [],
+                        ).filter(isAcceptedImageFile);
+                        if (dropped.length) {
+                          setImageFiles((prev) => [...prev, ...dropped]);
+                        }
+                      }}
+                      className={`rounded-2xl border-2 border-dashed p-4 transition-colors ${
+                        isImageDragActive
+                          ? "border-primary bg-primary/5"
+                          : "border-slate-200 dark:border-slate-700"
+                      }`}
+                    >
+                      {imageFiles.length === 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => imageInputRef.current?.click()}
+                          className="flex w-full flex-col items-center justify-center gap-3 rounded-xl py-14 text-center transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                        >
+                          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <span className="material-symbols-outlined text-3xl">
+                              add_photo_alternate
                             </span>
-                            <span
-                              className="max-w-[160px] truncate"
-                              title={imageFile.name}
-                            >
-                              {imageFile.name}
-                            </span>
+                          </span>
+                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            Click to select photos, or drag &amp; drop them
+                            here
+                          </span>
+                          <span className="text-xs text-slate-400">
+                            PNG, JPG, JPEG, or WEBP — up to 50MB each
+                          </span>
+                        </button>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                              {imageFiles.length} photo
+                              {imageFiles.length === 1 ? "" : "s"} selected ·
+                              pages follow this order
+                            </p>
                             <button
                               type="button"
-                              onClick={() =>
-                                setImageFiles((prev) =>
-                                  prev.filter((_, i) => i !== index),
-                                )
-                              }
-                              className="material-symbols-outlined text-sm text-slate-400 transition hover:text-rose-500"
-                              aria-label={`Remove ${imageFile.name}`}
+                              onClick={() => setImageFiles([])}
+                              className="text-xs font-semibold text-rose-500 hover:underline"
                             >
-                              close
+                              Clear all
                             </button>
-                          </li>
-                        ))}
-                      </ul>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                            {imageFiles.map((imageFile, index) => (
+                              <div
+                                key={`${imageFile.name}-${imageFile.lastModified}-${index}`}
+                                className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50"
+                              >
+                                {imagePreviewUrls[index] ? (
+                                  <Image
+                                    src={imagePreviewUrls[index]}
+                                    alt={imageFile.name}
+                                    fill
+                                    unoptimized
+                                    className="object-cover"
+                                  />
+                                ) : null}
+                                <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-[11px] font-bold text-white">
+                                  {index + 1}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setImageFiles((prev) =>
+                                      prev.filter((_, i) => i !== index),
+                                    )
+                                  }
+                                  className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100 hover:bg-rose-500"
+                                  aria-label={`Remove ${imageFile.name}`}
+                                >
+                                  <span className="material-symbols-outlined text-sm">
+                                    close
+                                  </span>
+                                </button>
+                                <p className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-1.5 py-1 text-[10px] text-white">
+                                  {imageFile.name}
+                                </p>
+                              </div>
+                            ))}
+
+                            <button
+                              type="button"
+                              onClick={() => imageInputRef.current?.click()}
+                              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-300 text-slate-400 transition hover:border-primary hover:text-primary dark:border-slate-600"
+                            >
+                              <span className="material-symbols-outlined text-2xl">
+                                add
+                              </span>
+                              <span className="text-xs font-semibold">
+                                Add more
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      <input
+                        ref={imageInputRef}
+                        type="file"
+                        multiple
+                        accept="image/png,image/jpeg,image/webp"
+                        onChange={(e) => {
+                          const picked = Array.from(
+                            e.target.files ?? [],
+                          ).filter(isAcceptedImageFile);
+                          setImageFiles((prev) => [...prev, ...picked]);
+                          e.target.value = "";
+                        }}
+                        className="hidden"
+                      />
+                    </div>
+
+                    <button
+                      onClick={handleConvert}
+                      disabled={imageFiles.length === 0 || submitting}
+                      type="button"
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200 sm:w-auto
+                      ${
+                        imageFiles.length > 0
+                          ? "bg-primary text-white hover:opacity-90"
+                          : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
+                      }
+                    `}
+                    >
+                      <span className="material-symbols-outlined text-base">
+                        bolt
+                      </span>
+                      {submitting
+                        ? "Converting..."
+                        : imageFiles.length > 0
+                          ? `Convert ${imageFiles.length} Photo${imageFiles.length === 1 ? "" : "s"} to PDF`
+                          : "Convert to PDF"}
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="min-w-0 flex-1 sm:min-w-[250px]">
+                        <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                          Upload file
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                          className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:font-semibold file:text-primary dark:border-slate-700 dark:bg-slate-900"
+                        />
+                      </div>
+
                       <button
+                        onClick={handleConvert}
+                        disabled={!file || submitting}
                         type="button"
-                        onClick={() => setImageFiles([])}
-                        className="text-xs font-semibold text-rose-500 hover:underline"
+                        className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200
+                        ${
+                          file
+                            ? "bg-primary text-white hover:opacity-90"
+                            : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
+                        }
+                      `}
                       >
-                        Clear all
+                        <span className="material-symbols-outlined text-base">
+                          bolt
+                        </span>
+                        {submitting ? "Converting..." : "Convert File"}
                       </button>
                     </div>
-                  ) : (
+
                     <p className="mt-2 text-xs text-slate-500">
-                      No images selected yet. Select multiple images to build
-                      a multi-page PDF.
+                      {file ? `Selected: ${file.name}` : "No file selected yet"}
                     </p>
-                  )
-                ) : (
-                  <p className="mt-2 text-xs text-slate-500">
-                    {file ? `Selected: ${file.name}` : "No file selected yet"}
-                  </p>
+                  </>
                 )}
               </SectionCard>
 

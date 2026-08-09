@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from db.models import RoleEnum
 
-ThemeName = Literal["ocean", "sunset", "forest"]
+ThemeName = Literal["ocean", "sunset", "forest", "paper"]
 FontFamily = Literal["dm_sans", "inter", "roboto", "open_sans", "lato", "montserrat", "oswald", "raleway", "source_sans"]
 FontSize = Literal["small", "medium", "large", "xlarge"]
 AvatarKey = Literal[
@@ -21,7 +21,7 @@ AvatarKey = Literal[
     "avatar_10",
 ]
 
-VALID_THEMES = {"ocean", "sunset", "forest"}
+VALID_THEMES = {"ocean", "sunset", "forest", "paper"}
 VALID_FONTS = {"dm_sans", "inter", "roboto", "open_sans", "lato", "montserrat", "oswald", "raleway", "source_sans"}
 VALID_FONT_SIZES = {"small", "medium", "large", "xlarge"}
 VALID_AVATARS = {

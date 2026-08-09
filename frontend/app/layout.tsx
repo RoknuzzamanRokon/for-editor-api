@@ -87,7 +87,8 @@ export default function RootLayout({
               (function () {
                 try {
                   var stored = localStorage.getItem('theme');
-                  var themes = ['ocean', 'sunset', 'forest'];
+                  var themes = ['ocean', 'sunset', 'forest', 'paper'];
+                  var lightThemes = ['light', 'paper'];
                   var theme = themes.indexOf(stored) !== -1 ? stored : 'sunset';
                   var root = document.documentElement;
                   if (window.location && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
@@ -96,9 +97,9 @@ export default function RootLayout({
                     if (document.body) document.body.style.overflow = 'hidden';
                   }
                   var applyTheme = function (nextTheme) {
-                    root.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'midnight', 'livedark');
+                    root.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'paper', 'midnight', 'livedark');
                     root.classList.add(nextTheme);
-                    if (nextTheme !== 'light') {
+                    if (lightThemes.indexOf(nextTheme) === -1) {
                       root.classList.add('dark');
                     }
                   };

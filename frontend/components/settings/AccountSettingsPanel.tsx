@@ -10,10 +10,10 @@ import { formatRoleLabel } from "@/lib/roleLabel";
 import { useTheme } from "@/contexts/ThemeContext";
 
 type ThemeName =
-  | "light"
   | "ocean"
   | "sunset"
-  | "forest";
+  | "forest"
+  | "paper";
 
 type AccountSettingsResponse = {
   identity: {
