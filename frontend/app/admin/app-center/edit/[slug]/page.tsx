@@ -7,6 +7,7 @@ import EditableDocxPreview from "@/components/app-center/EditableDocxPreview";
 import ExcelWorkbookPreview from "@/components/app-center/ExcelWorkbookPreview";
 import RemoveBackgroundStudio from "@/components/app-center/RemoveBackgroundStudio";
 import PdfPageRemover from "@/components/PdfPageRemover";
+import PdfPageOrganizer from "@/components/PdfPageOrganizer";
 import { API_BASE } from "@/lib/apiBase";
 import { authFetch } from "@/lib/authFetch";
 
@@ -18,6 +19,21 @@ const ACTION_TO_ROUTE: Record<string, string> = {
   image_to_pdf: "/api/v3/conversions/image-to-pdf",
   remove_background: "/api/v3/conversions/remove-background",
   pdf_page_remove: "/api/v3/conversions/remove-pages-from-pdf",
+  merge_pdf: "/api/v3/conversions/merge-pdf",
+  split_pdf: "/api/v3/conversions/split-pdf",
+  rotate_pdf: "/api/v3/conversions/rotate-pdf",
+  protect_pdf: "/api/v3/conversions/protect-pdf",
+  unlock_pdf: "/api/v3/conversions/unlock-pdf",
+  watermark_pdf: "/api/v3/conversions/watermark-pdf",
+  pdf_page_numbers: "/api/v3/conversions/pdf-page-numbers",
+  pdf_to_text: "/api/v3/conversions/pdf-to-text",
+  text_to_pdf: "/api/v3/conversions/text-to-pdf",
+  pptx_to_pdf: "/api/v3/conversions/pptx-to-pdf",
+  pdf_to_image: "/api/v3/conversions/pdf-to-image",
+  image_format_convert: "/api/v3/conversions/image-format-convert",
+  compress_pdf: "/api/v3/conversions/compress-pdf",
+  pdf_organize: "/api/v3/conversions/pdf-organize",
+  pdf_to_pptx: "/api/v3/conversions/pdf-to-pptx",
 };
 
 const ACTION_TO_HISTORY_ROUTE: Record<string, string> = {
@@ -28,6 +44,66 @@ const ACTION_TO_HISTORY_ROUTE: Record<string, string> = {
   image_to_pdf: "/api/v3/conversions/image-to-pdf/files/history",
   remove_background: "/api/v3/conversions/remove-background/files/history",
   pdf_page_remove: "/api/v3/conversions/remove-pages-from-pdf/files/history",
+  merge_pdf: "/api/v3/conversions/merge-pdf/files/history",
+  split_pdf: "/api/v3/conversions/split-pdf/files/history",
+  rotate_pdf: "/api/v3/conversions/rotate-pdf/files/history",
+  protect_pdf: "/api/v3/conversions/protect-pdf/files/history",
+  unlock_pdf: "/api/v3/conversions/unlock-pdf/files/history",
+  watermark_pdf: "/api/v3/conversions/watermark-pdf/files/history",
+  pdf_page_numbers: "/api/v3/conversions/pdf-page-numbers/files/history",
+  pdf_to_text: "/api/v3/conversions/pdf-to-text/files/history",
+  text_to_pdf: "/api/v3/conversions/text-to-pdf/files/history",
+  pptx_to_pdf: "/api/v3/conversions/pptx-to-pdf/files/history",
+  pdf_to_image: "/api/v3/conversions/pdf-to-image/files/history",
+  image_format_convert: "/api/v3/conversions/image-format-convert/files/history",
+  compress_pdf: "/api/v3/conversions/compress-pdf/files/history",
+  pdf_organize: "/api/v3/conversions/pdf-organize/files/history",
+  pdf_to_pptx: "/api/v3/conversions/pdf-to-pptx/files/history",
+};
+
+type ExtraFieldConfig = {
+  name: string;
+  label: string;
+  type: "text" | "password" | "select";
+  placeholder?: string;
+  required?: boolean;
+  helperText?: string;
+  options?: { value: string; label: string }[];
+};
+
+const ACTION_EXTRA_FIELD: Record<string, ExtraFieldConfig | undefined> = {
+  protect_pdf: {
+    name: "password",
+    label: "Set a Password",
+    type: "password",
+    placeholder: "Enter a password to lock this PDF",
+    required: true,
+  },
+  unlock_pdf: {
+    name: "password",
+    label: "Current Password",
+    type: "password",
+    placeholder: "Enter the PDF's current password",
+    helperText: "Leave blank if the PDF isn't password protected.",
+  },
+  watermark_pdf: {
+    name: "watermark_text",
+    label: "Watermark Text",
+    type: "text",
+    placeholder: "e.g. CONFIDENTIAL",
+    required: true,
+  },
+  image_format_convert: {
+    name: "target_format",
+    label: "Convert To",
+    type: "select",
+    required: true,
+    options: [
+      { value: "png", label: "PNG" },
+      { value: "jpg", label: "JPG" },
+      { value: "webp", label: "WEBP" },
+    ],
+  },
 };
 
 type EditPageProps = {
@@ -296,6 +372,9 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [isImageDragActive, setIsImageDragActive] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const [mergeFiles, setMergeFiles] = useState<File[]>([]);
+  const mergeInputRef = useRef<HTMLInputElement | null>(null);
+  const [extraFieldValue, setExtraFieldValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState("");
@@ -317,11 +396,20 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const isPdfPageRemove = action === "pdf_page_remove";
   const isRemoveBackground = action === "remove_background";
   const isImageToPdf = action === "image_to_pdf";
+  const isMergePdf = action === "merge_pdf";
+  const isPdfOrganize = action === "pdf_organize";
   const convertRoute = useMemo(() => ACTION_TO_ROUTE[action] || "", [action]);
   const historyRoute = useMemo(
     () => ACTION_TO_HISTORY_ROUTE[action] || "/api/v3/conversions/history",
     [action],
   );
+  const extraField = ACTION_EXTRA_FIELD[action];
+
+  useEffect(() => {
+    setExtraFieldValue(extraField?.type === "select" ? extraField.options?.[0]?.value ?? "" : "");
+    // extraField is derived from action, so depending on action alone is correct
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [action]);
 
   useEffect(() => {
     return () => {
@@ -488,12 +576,20 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       return;
     }
 
-    if (isImageToPdf ? imageFiles.length === 0 : !file) {
+    if (isImageToPdf ? imageFiles.length === 0 : isMergePdf ? mergeFiles.length < 2 : !file) {
       setError(
         isImageToPdf
           ? "Please choose at least one image"
-          : "Please choose a file first",
+          : isMergePdf
+            ? "Please choose at least two PDF files to merge"
+            : "Please choose a file first",
       );
+      setConversionStage("error");
+      return;
+    }
+
+    if (extraField?.required && !extraFieldValue.trim()) {
+      setError(`${extraField.label} is required`);
       setConversionStage("error");
       return;
     }
@@ -505,8 +601,13 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       const formData = new FormData();
       if (isImageToPdf) {
         imageFiles.forEach((imageFile) => formData.append("files", imageFile));
+      } else if (isMergePdf) {
+        mergeFiles.forEach((mergeFile) => formData.append("files", mergeFile));
       } else if (file) {
         formData.append("file", file);
+      }
+      if (extraField && (extraFieldValue || extraField.required)) {
+        formData.append(extraField.name, extraFieldValue);
       }
 
       const res = await authFetch(`${API_BASE}${convertRoute}`, {
@@ -530,7 +631,9 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
               action,
               input_filename: isImageToPdf
                 ? `${imageFiles.length} image${imageFiles.length === 1 ? "" : "s"}`
-                : file?.name || "upload",
+                : isMergePdf
+                  ? `${mergeFiles.length} PDFs merged`
+                  : file?.name || "upload",
               status: "completed",
               error_message: null,
               points_charged: parsed.points_charged,
@@ -727,6 +830,12 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
               historyEndpoint="/api/v3/conversions/remove-background/files/history"
               includeAuth
             />
+          ) : isPdfOrganize ? (
+            <PdfPageOrganizer
+              apiBase={API_BASE}
+              apiEndpoint="/api/v3/conversions/pdf-organize"
+              includeAuth
+            />
           ) : (
             <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
               <div className="space-y-8 xl:col-span-12">
@@ -735,7 +844,9 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                   description={
                     isImageToPdf
                       ? "Add one or more photos — they'll be combined into a single PDF in the order shown."
-                      : "Choose a file and send it to the selected conversion endpoint."
+                      : isMergePdf
+                        ? "Add two or more PDFs — they'll be combined into one file in the order shown."
+                        : "Choose a file and send it to the selected conversion endpoint."
                   }
                 >
                   {isImageToPdf ? (
@@ -890,6 +1001,149 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                             : "Convert to PDF"}
                       </button>
                     </div>
+                  ) : isMergePdf ? (
+                    <div className="space-y-4">
+                      {mergeFiles.length === 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => mergeInputRef.current?.click()}
+                          className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 py-14 text-center transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/40"
+                        >
+                          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <span className="material-symbols-outlined text-3xl">
+                              picture_as_pdf
+                            </span>
+                          </span>
+                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            Click to select two or more PDFs
+                          </span>
+                          <span className="text-xs text-slate-400">
+                            They&apos;ll be combined in the order you add them below
+                          </span>
+                        </button>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                              {mergeFiles.length} PDF{mergeFiles.length === 1 ? "" : "s"} selected · merges in this order
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setMergeFiles([])}
+                              className="text-xs font-semibold text-rose-500 hover:underline"
+                            >
+                              Clear all
+                            </button>
+                          </div>
+
+                          <ul className="space-y-2">
+                            {mergeFiles.map((mergeFile, index) => (
+                              <li
+                                key={`${mergeFile.name}-${mergeFile.lastModified}-${index}`}
+                                className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800/60"
+                              >
+                                <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                                  {index + 1}
+                                </span>
+                                <span className="material-symbols-outlined text-base text-slate-400">
+                                  picture_as_pdf
+                                </span>
+                                <span
+                                  className="min-w-0 flex-1 truncate text-slate-700 dark:text-slate-200"
+                                  title={mergeFile.name}
+                                >
+                                  {mergeFile.name}
+                                </span>
+                                <button
+                                  type="button"
+                                  disabled={index === 0}
+                                  onClick={() =>
+                                    setMergeFiles((prev) => {
+                                      const next = [...prev];
+                                      [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                                      return next;
+                                    })
+                                  }
+                                  className="material-symbols-outlined text-base text-slate-400 transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                                  aria-label={`Move ${mergeFile.name} up`}
+                                >
+                                  arrow_upward
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={index === mergeFiles.length - 1}
+                                  onClick={() =>
+                                    setMergeFiles((prev) => {
+                                      const next = [...prev];
+                                      [next[index], next[index + 1]] = [next[index + 1], next[index]];
+                                      return next;
+                                    })
+                                  }
+                                  className="material-symbols-outlined text-base text-slate-400 transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                                  aria-label={`Move ${mergeFile.name} down`}
+                                >
+                                  arrow_downward
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setMergeFiles((prev) => prev.filter((_, i) => i !== index))
+                                  }
+                                  className="material-symbols-outlined text-base text-slate-400 transition hover:text-rose-500"
+                                  aria-label={`Remove ${mergeFile.name}`}
+                                >
+                                  close
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+
+                          <button
+                            type="button"
+                            onClick={() => mergeInputRef.current?.click()}
+                            className="inline-flex items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 px-4 py-2 text-sm font-semibold text-slate-500 transition hover:border-primary hover:text-primary dark:border-slate-600"
+                          >
+                            <span className="material-symbols-outlined text-base">add</span>
+                            Add more PDFs
+                          </button>
+                        </div>
+                      )}
+
+                      <input
+                        ref={mergeInputRef}
+                        type="file"
+                        multiple
+                        accept="application/pdf,.pdf"
+                        onChange={(e) => {
+                          const picked = Array.from(e.target.files ?? []).filter(
+                            (f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"),
+                          );
+                          setMergeFiles((prev) => [...prev, ...picked]);
+                          e.target.value = "";
+                        }}
+                        className="hidden"
+                      />
+
+                      <button
+                        onClick={handleConvert}
+                        disabled={mergeFiles.length < 2 || submitting}
+                        type="button"
+                        className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200 sm:w-auto
+                        ${
+                          mergeFiles.length >= 2
+                            ? "bg-primary text-white hover:opacity-90"
+                            : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
+                        }
+                      `}
+                      >
+                        <span className="material-symbols-outlined text-base">bolt</span>
+                        {submitting
+                          ? "Merging..."
+                          : mergeFiles.length >= 2
+                            ? `Merge ${mergeFiles.length} PDFs`
+                            : "Merge PDFs"}
+                      </button>
+                    </div>
                   ) : (
                     <>
                       <div className="flex flex-wrap items-end gap-3">
@@ -906,9 +1160,47 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                           />
                         </div>
 
+                        {extraField ? (
+                          <div className="min-w-0 flex-1 sm:min-w-[220px]">
+                            <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                              {extraField.label}
+                            </label>
+                            {extraField.type === "select" ? (
+                              <select
+                                value={extraFieldValue}
+                                onChange={(e) => setExtraFieldValue(e.target.value)}
+                                className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
+                              >
+                                {extraField.options?.map((opt) => (
+                                  <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : (
+                              <input
+                                type={extraField.type}
+                                value={extraFieldValue}
+                                onChange={(e) => setExtraFieldValue(e.target.value)}
+                                placeholder={extraField.placeholder}
+                                className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
+                              />
+                            )}
+                            {extraField.helperText ? (
+                              <p className="mt-1 text-xs text-slate-500">
+                                {extraField.helperText}
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : null}
+
                         <button
                           onClick={handleConvert}
-                          disabled={!file || submitting}
+                          disabled={
+                            !file ||
+                            submitting ||
+                            !!(extraField?.required && !extraFieldValue.trim())
+                          }
                           type="button"
                           className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200
                           ${
@@ -947,7 +1239,11 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                             ? imageFiles.length
                               ? `${imageFiles.length} image${imageFiles.length === 1 ? "" : "s"}`
                               : undefined
-                            : file?.name
+                            : isMergePdf
+                              ? mergeFiles.length
+                                ? `${mergeFiles.length} PDF${mergeFiles.length === 1 ? "" : "s"}`
+                                : undefined
+                              : file?.name
                         }
                       />
                     ) : (

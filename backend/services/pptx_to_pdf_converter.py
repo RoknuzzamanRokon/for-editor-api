@@ -1,0 +1,96 @@
+"""
+PPTX to PDF Converter Service for converting PowerPoint presentations to PDF files
+"""
+import os
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
+from typing import Optional, Tuple
+
+
+class PPTXToPDFConverterService:
+    """Service for converting PPTX files to PDF format using LibreOffice headless mode"""
+
+    DEFAULT_TIMEOUT = 60
+
+    def __init__(self, timeout: int = DEFAULT_TIMEOUT):
+        self.timeout = timeout
+
+    def convert_pptx_to_pdf(self, pptx_path: str, output_path: str) -> Tuple[bool, Optional[str]]:
+        """
+        Convert PPTX file to PDF.
+
+        Returns:
+            Tuple of (success: bool, error_message: Optional[str])
+        """
+        try:
+            if not os.path.exists(pptx_path):
+                return False, f"PPTX file not found: {pptx_path}"
+
+            if not os.path.isfile(pptx_path):
+                return False, f"Path is not a file: {pptx_path}"
+
+            if os.path.getsize(pptx_path) == 0:
+                return False, "PPTX file is empty"
+
+            # LibreOffice CLI binary can be soffice or libreoffice depending on distro
+            binary = shutil.which("soffice") or shutil.which("libreoffice")
+            if not binary:
+                return False, "LibreOffice is not installed on the server"
+
+            output_dir = Path(output_path).parent
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+            target_name = Path(output_path).name
+            target_stem = Path(target_name).stem
+
+            # LibreOffice writes output as <input_stem>.pdf in output dir.
+            with tempfile.TemporaryDirectory() as temp_out_dir:
+                cmd = [
+                    binary,
+                    "--headless",
+                    "--convert-to",
+                    "pdf",
+                    "--outdir",
+                    temp_out_dir,
+                    pptx_path,
+                ]
+
+                try:
+                    completed = subprocess.run(
+                        cmd,
+                        capture_output=True,
+                        text=True,
+                        timeout=self.timeout,
+                        check=False,
+                    )
+                except subprocess.TimeoutExpired:
+                    return False, "Conversion timed out - PPTX is too large or complex"
+
+                if completed.returncode != 0:
+                    stderr = (completed.stderr or "").strip()
+                    stdout = (completed.stdout or "").strip()
+                    detail = stderr or stdout or "Unknown conversion error"
+                    return False, f"Conversion failed: {detail}"
+
+                generated_pdf = Path(temp_out_dir) / f"{Path(pptx_path).stem}.pdf"
+                if not generated_pdf.exists():
+                    return False, "Failed to generate PDF output"
+
+                final_path = output_dir / f"{target_stem}.pdf"
+                # Cross-device safe move (e.g., /tmp -> project storage on another mount)
+                shutil.move(str(generated_pdf), str(final_path))
+
+            if not os.path.exists(output_path):
+                return False, "Failed to move generated PDF file"
+
+            if os.path.getsize(output_path) == 0:
+                return False, "Generated PDF is empty"
+
+            return True, None
+
+        except PermissionError as e:
+            return False, f"Permission denied: {str(e)}"
+        except Exception as e:
+            return False, f"Unexpected error during conversion: {str(e)}"

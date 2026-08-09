@@ -129,11 +129,41 @@ export default function DashboardAppCenterPage() {
                         return 'auto_fix_high';
                       case 'pdf_page_remove':
                         return 'delete_sweep';
+                      case 'merge_pdf':
+                        return 'merge';
+                      case 'split_pdf':
+                        return 'call_split';
+                      case 'rotate_pdf':
+                        return 'rotate_right';
+                      case 'protect_pdf':
+                        return 'lock';
+                      case 'unlock_pdf':
+                        return 'lock_open';
+                      case 'watermark_pdf':
+                        return 'branding_watermark';
+                      case 'pdf_page_numbers':
+                        return 'format_list_numbered';
+                      case 'pdf_to_text':
+                        return 'text_snippet';
+                      case 'text_to_pdf':
+                        return 'note_add';
+                      case 'pptx_to_pdf':
+                        return 'slideshow';
+                      case 'pdf_to_image':
+                        return 'photo_library';
+                      case 'image_format_convert':
+                        return 'sync_alt';
+                      case 'compress_pdf':
+                        return 'compress';
+                      case 'pdf_organize':
+                        return 'reorder';
+                      case 'pdf_to_pptx':
+                        return 'co_present';
                       default:
                         return 'apps';
                     }
                   };
-                  
+
                   // Map action to short smart name
                   const getShortName = (action: string) => {
                     switch (action) {
@@ -151,6 +181,36 @@ export default function DashboardAppCenterPage() {
                         return 'Remove BG';
                       case 'pdf_page_remove':
                         return 'Delete Pages';
+                      case 'merge_pdf':
+                        return 'Merge PDF';
+                      case 'split_pdf':
+                        return 'Split PDF';
+                      case 'rotate_pdf':
+                        return 'Rotate PDF';
+                      case 'protect_pdf':
+                        return 'Protect PDF';
+                      case 'unlock_pdf':
+                        return 'Unlock PDF';
+                      case 'watermark_pdf':
+                        return 'Watermark';
+                      case 'pdf_page_numbers':
+                        return 'Page Numbers';
+                      case 'pdf_to_text':
+                        return 'PDF→Text';
+                      case 'text_to_pdf':
+                        return 'Text→PDF';
+                      case 'pptx_to_pdf':
+                        return 'PPT→PDF';
+                      case 'pdf_to_image':
+                        return 'PDF→Image';
+                      case 'image_format_convert':
+                        return 'Image Convert';
+                      case 'compress_pdf':
+                        return 'Compress PDF';
+                      case 'pdf_organize':
+                        return 'Organize Pages';
+                      case 'pdf_to_pptx':
+                        return 'PDF→PPT';
                       default:
                         return item.label;
                     }

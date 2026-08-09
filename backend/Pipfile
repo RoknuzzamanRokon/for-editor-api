@@ -23,10 +23,12 @@ bcrypt = ">=4.0.0"
 passlib = {extras = ["bcrypt"], version = "*"}
 pydantic = {extras = ["email"], version = "*"}
 alembic = "*"
+reportlab = "*"
+pymupdf = "*"
+python-pptx = "*"
 
 [dev-packages]
 pytest = "*"
-reportlab = "*"
 httpx = "*"
 
 [requires]

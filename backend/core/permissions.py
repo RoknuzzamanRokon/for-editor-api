@@ -16,6 +16,21 @@ ALLOWED_ACTIONS: Dict[str, str] = {
     "image_to_pdf": "Image to PDF",
     "remove_background": "Remove Background",
     "pdf_page_remove": "Remove Pages from PDF",
+    "merge_pdf": "Merge PDF",
+    "split_pdf": "Split PDF",
+    "rotate_pdf": "Rotate PDF",
+    "protect_pdf": "Protect PDF",
+    "unlock_pdf": "Unlock PDF",
+    "watermark_pdf": "Watermark PDF",
+    "pdf_page_numbers": "Add Page Numbers",
+    "pdf_to_text": "PDF to Text",
+    "text_to_pdf": "Text to PDF",
+    "pptx_to_pdf": "PowerPoint to PDF",
+    "pdf_to_image": "PDF to Image",
+    "image_format_convert": "Image Format Converter",
+    "compress_pdf": "Compress PDF",
+    "pdf_organize": "Reorganize PDF Pages",
+    "pdf_to_pptx": "PDF to PowerPoint",
 }
 
 

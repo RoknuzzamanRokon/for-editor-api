@@ -187,6 +187,55 @@ class FileManagerService:
 
         return True, None
     
+    async def validate_pptx_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate uploaded PowerPoint file (type and size)
+
+        Supported types: .pptx
+        """
+        if not file.filename or not file.filename.lower().endswith('.pptx'):
+            return False, "Only PPTX files are accepted"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        # PPTX files are zip-based (OOXML) and share the PK zip signature.
+        if not content.startswith(self.DOCX_MAGIC_NUMBER):
+            return False, "Only PPTX files are accepted"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        return True, None
+
+    async def validate_text_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate uploaded plain text file (type and size)
+
+        Supported types: .txt
+        """
+        if not file.filename or not file.filename.lower().endswith('.txt'):
+            return False, "Only TXT files are accepted"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        try:
+            content.decode('utf-8')
+        except UnicodeDecodeError:
+            return False, "Only UTF-8 encoded text files are accepted"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        return True, None
+
     def generate_unique_filename(self, original_filename: str, output_extension: str = ".xlsx") -> str:
         """
         Generate a unique filename with timestamp and UUID
