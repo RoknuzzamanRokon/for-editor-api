@@ -98,6 +98,16 @@ class UserDeleteResponse(BaseModel):
     message: str
 
 
+class AdminResetPasswordRequest(BaseModel):
+    new_password: str = Field(min_length=8)
+
+
+class AdminResetPasswordResponse(BaseModel):
+    id: int
+    success: bool = True
+    message: str
+
+
 class VerificationPendingResponse(BaseModel):
     message: str
     email: str

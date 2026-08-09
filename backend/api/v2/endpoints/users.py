@@ -4,7 +4,15 @@ from sqlalchemy.orm import Session
 from core.deps import require_role
 from db.models import RoleEnum, User
 from db.session import get_db
-from models.auth import UserCreate, UserDeleteResponse, UserDisableResponse, UserOut, UserRoleUpdate
+from models.auth import (
+    AdminResetPasswordRequest,
+    AdminResetPasswordResponse,
+    UserCreate,
+    UserDeleteResponse,
+    UserDisableResponse,
+    UserOut,
+    UserRoleUpdate,
+)
 from services import users as user_service
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -54,3 +62,14 @@ def delete_user(
 ) -> UserDeleteResponse:
     user_service.delete_user(db, user_id, current_user)
     return UserDeleteResponse(id=user_id, message="User deleted successfully")
+
+
+@router.patch("/{user_id}/reset-password", response_model=AdminResetPasswordResponse)
+def reset_user_password(
+    user_id: int,
+    payload: AdminResetPasswordRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user)),
+) -> AdminResetPasswordResponse:
+    user_service.reset_user_password(db, user_id, payload.new_password)
+    return AdminResetPasswordResponse(id=user_id, message="Password reset successfully")

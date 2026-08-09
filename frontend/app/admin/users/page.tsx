@@ -318,6 +318,11 @@ export default function AdminUsersPage() {
   const [detailsError, setDetailsError] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
+  const [resetPasswordError, setResetPasswordError] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [selectedUserDetails, setSelectedUserDetails] =
     useState<UserDetails | null>(null);
   const [form, setForm] = useState({
@@ -545,10 +550,70 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleOpenResetPassword = () => {
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setResetPasswordError("");
+    setShowResetPassword(true);
+  };
+
+  const handleResetPassword = async () => {
+    if (!selectedUserDetails) return;
+
+    if (newPassword.length < 8) {
+      setResetPasswordError("Password must be at least 8 characters long.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setResetPasswordError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setResetPasswordLoading(true);
+      setResetPasswordError("");
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("No access token found.");
+      }
+
+      const res = await fetch(
+        `${API_BASE}/api/v2/users/${selectedUserDetails.id}/reset-password`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ new_password: newPassword }),
+        },
+      );
+
+      const body = await res.text();
+      if (!res.ok) {
+        throw new Error(body || "Failed to reset password");
+      }
+
+      setShowResetPassword(false);
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setCreateSuccess(`Password reset for ${selectedUserDetails.email}.`);
+    } catch (err: unknown) {
+      setResetPasswordError(
+        err instanceof Error ? err.message : "Failed to reset password",
+      );
+    } finally {
+      setResetPasswordLoading(false);
+    }
+  };
+
   const canDeleteSelectedUser =
     me?.role === "super_user" &&
     !!selectedUserDetails &&
     me.id !== selectedUserDetails.id;
+
+  const canResetSelectedUserPassword =
+    me?.role === "super_user" && !!selectedUserDetails;
 
   return (
     <>
@@ -899,17 +964,29 @@ export default function AdminUsersPage() {
                     </div>
                   </div>
 
-                  {canDeleteSelectedUser ? (
-                    <div className="relative mt-4 flex justify-end">
-                      <button
-                        onClick={handleDeleteUser}
-                        disabled={deleteLoading}
-                        className="inline-flex items-center gap-2 rounded-2xl border border-rose-400/20 bg-rose-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-rose-500/20 transition duration-200 hover:-translate-y-0.5 hover:border-rose-300/40 hover:bg-rose-600 hover:shadow-[0_16px_36px_rgba(244,63,94,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
-                        type="button"
-                      >
-                        <span className="material-symbols-outlined text-base">delete</span>
-                        {deleteLoading ? "Deleting..." : "Delete User"}
-                      </button>
+                  {canResetSelectedUserPassword || canDeleteSelectedUser ? (
+                    <div className="relative mt-4 flex flex-wrap justify-end gap-2">
+                      {canResetSelectedUserPassword ? (
+                        <button
+                          onClick={handleOpenResetPassword}
+                          className="inline-flex items-center gap-2 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-sm font-bold text-primary shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-primary/15"
+                          type="button"
+                        >
+                          <span className="material-symbols-outlined text-base">lock_reset</span>
+                          Reset Password
+                        </button>
+                      ) : null}
+                      {canDeleteSelectedUser ? (
+                        <button
+                          onClick={handleDeleteUser}
+                          disabled={deleteLoading}
+                          className="inline-flex items-center gap-2 rounded-2xl border border-rose-400/20 bg-rose-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-rose-500/20 transition duration-200 hover:-translate-y-0.5 hover:border-rose-300/40 hover:bg-rose-600 hover:shadow-[0_16px_36px_rgba(244,63,94,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
+                          type="button"
+                        >
+                          <span className="material-symbols-outlined text-base">delete</span>
+                          {deleteLoading ? "Deleting..." : "Delete User"}
+                        </button>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
@@ -1076,6 +1153,96 @@ export default function AdminUsersPage() {
 
                 </div>
               ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {showResetPassword && selectedUserDetails ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/35 p-4 backdrop-blur-md">
+          <div className="relative w-full max-w-md overflow-hidden rounded-[13px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/95 via-[rgb(244,249,255)]/90 to-[rgb(233,246,255)]/85 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(18,26,42)]/95 dark:via-[rgb(21,31,49)]/92 dark:to-[rgb(31,23,43)]/90">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/15 via-[rgb(255,255,255)]/35 to-[rgb(125,211,252)]/20 dark:from-primary/12 dark:via-white/5 dark:to-[rgb(56,189,248)]/10" />
+
+            <div className="relative flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Reset Password
+                </h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Set a new password for{" "}
+                  <span className="font-semibold">
+                    {selectedUserDetails.email}
+                  </span>
+                  . They won&apos;t need their old password.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowResetPassword(false)}
+                className="rounded-xl border border-white/40 bg-white/60 px-3 py-2 text-xs font-bold text-slate-700 backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-200"
+                type="button"
+              >
+                Close
+              </button>
+            </div>
+
+            {resetPasswordError ? (
+              <div className="relative mt-4 rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 backdrop-blur-md dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
+                {resetPasswordError}
+              </div>
+            ) : null}
+
+            <div className="relative mt-5 space-y-4">
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  New Password
+                </label>
+                <GlassInput
+                  type="password"
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="At least 8 characters"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Confirm New Password
+                </label>
+                <GlassInput
+                  type="password"
+                  autoComplete="new-password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  placeholder="Re-enter the new password"
+                />
+              </div>
+            </div>
+
+            <div className="relative mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setShowResetPassword(false)}
+                disabled={resetPasswordLoading}
+                className="rounded-xl border border-white/40 bg-white/60 px-4 py-2.5 text-sm font-bold text-slate-700 backdrop-blur-md disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/10 dark:text-slate-200"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleResetPassword}
+                disabled={
+                  resetPasswordLoading ||
+                  !newPassword ||
+                  !confirmNewPassword
+                }
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                type="button"
+              >
+                <span className="material-symbols-outlined text-base">
+                  lock_reset
+                </span>
+                {resetPasswordLoading ? "Resetting..." : "Reset Password"}
+              </button>
             </div>
           </div>
         </div>

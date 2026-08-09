@@ -277,6 +277,17 @@ def delete_user(db: Session, user_id: int, current_user: User) -> None:
     db.commit()
 
 
+def reset_user_password(db: Session, user_id: int, new_password: str) -> User:
+    user = get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    user.hashed_password = get_password_hash(new_password)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 def ensure_default_super_user(db: Session) -> None:
     if db.query(User).count() > 0:
         return
