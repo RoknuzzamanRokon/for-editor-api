@@ -26,6 +26,7 @@ alembic = "*"
 reportlab = "*"
 pymupdf = "*"
 python-pptx = "*"
+pillow-heif = "*"
 
 [dev-packages]
 pytest = "*"

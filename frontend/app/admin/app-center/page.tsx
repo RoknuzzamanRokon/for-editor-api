@@ -19,6 +19,143 @@ type MyApiEntry = {
 
 const toEditSlug = (action: string) => action.replace(/_/g, "-");
 
+type ToolCategoryId = "pdf" | "image" | "other";
+
+const ACTION_CATEGORY: Record<string, ToolCategoryId> = {
+  pdf_to_docs: "pdf",
+  pdf_to_excel: "pdf",
+  docx_to_pdf: "pdf",
+  excel_to_pdf: "pdf",
+  pdf_page_remove: "pdf",
+  merge_pdf: "pdf",
+  split_pdf: "pdf",
+  rotate_pdf: "pdf",
+  protect_pdf: "pdf",
+  unlock_pdf: "pdf",
+  watermark_pdf: "pdf",
+  pdf_page_numbers: "pdf",
+  pdf_to_text: "pdf",
+  text_to_pdf: "pdf",
+  pptx_to_pdf: "pdf",
+  pdf_to_pptx: "pdf",
+  compress_pdf: "pdf",
+  pdf_organize: "pdf",
+  image_to_pdf: "image",
+  remove_background: "image",
+  image_format_convert: "image",
+  pdf_to_image: "image",
+};
+
+const CATEGORY_SECTIONS: { id: ToolCategoryId; label: string; icon: string }[] = [
+  { id: "pdf", label: "PDF Tools", icon: "picture_as_pdf" },
+  { id: "image", label: "Image Tools", icon: "image" },
+  { id: "other", label: "Other Tools", icon: "apps" },
+];
+
+// Map action to specific icon
+function getIcon(action: string) {
+  switch (action) {
+    case 'pdf_to_docs':
+      return 'description';
+    case 'pdf_to_excel':
+      return 'table_chart';
+    case 'docx_to_pdf':
+      return 'picture_as_pdf';
+    case 'excel_to_pdf':
+      return 'grid_on';
+    case 'image_to_pdf':
+      return 'image';
+    case 'remove_background':
+      return 'auto_fix_high';
+    case 'pdf_page_remove':
+      return 'delete_sweep';
+    case 'merge_pdf':
+      return 'merge';
+    case 'split_pdf':
+      return 'call_split';
+    case 'rotate_pdf':
+      return 'rotate_right';
+    case 'protect_pdf':
+      return 'lock';
+    case 'unlock_pdf':
+      return 'lock_open';
+    case 'watermark_pdf':
+      return 'branding_watermark';
+    case 'pdf_page_numbers':
+      return 'format_list_numbered';
+    case 'pdf_to_text':
+      return 'text_snippet';
+    case 'text_to_pdf':
+      return 'note_add';
+    case 'pptx_to_pdf':
+      return 'slideshow';
+    case 'pdf_to_image':
+      return 'photo_library';
+    case 'image_format_convert':
+      return 'sync_alt';
+    case 'compress_pdf':
+      return 'compress';
+    case 'pdf_organize':
+      return 'reorder';
+    case 'pdf_to_pptx':
+      return 'co_present';
+    default:
+      return 'apps';
+  }
+}
+
+// Map action to short smart name
+function getShortName(action: string, fallbackLabel: string) {
+  switch (action) {
+    case 'pdf_to_docs':
+      return 'PDF→Word';
+    case 'pdf_to_excel':
+      return 'PDF→Excel';
+    case 'docx_to_pdf':
+      return 'Word→PDF';
+    case 'excel_to_pdf':
+      return 'Excel→PDF';
+    case 'image_to_pdf':
+      return 'Image→PDF';
+    case 'remove_background':
+      return 'Remove BG';
+    case 'pdf_page_remove':
+      return 'Delete Pages';
+    case 'merge_pdf':
+      return 'Merge PDF';
+    case 'split_pdf':
+      return 'Split PDF';
+    case 'rotate_pdf':
+      return 'Rotate PDF';
+    case 'protect_pdf':
+      return 'Protect PDF';
+    case 'unlock_pdf':
+      return 'Unlock PDF';
+    case 'watermark_pdf':
+      return 'Watermark';
+    case 'pdf_page_numbers':
+      return 'Page Numbers';
+    case 'pdf_to_text':
+      return 'PDF→Text';
+    case 'text_to_pdf':
+      return 'Text→PDF';
+    case 'pptx_to_pdf':
+      return 'PPT→PDF';
+    case 'pdf_to_image':
+      return 'PDF→Image';
+    case 'image_format_convert':
+      return 'Image Convert';
+    case 'compress_pdf':
+      return 'Compress PDF';
+    case 'pdf_organize':
+      return 'Organize Pages';
+    case 'pdf_to_pptx':
+      return 'PDF→PPT';
+    default:
+      return fallbackLabel;
+  }
+}
+
 export default function AdminAppCenterPage() {
   const router = useRouter();
   const [actions, setActions] = useState<ActionItem[]>([]);
@@ -69,6 +206,19 @@ export default function AdminAppCenterPage() {
     });
   }, [actions, router]);
 
+  const groupedActions = useMemo(() => {
+    const groups = new Map<ToolCategoryId, ActionItem[]>();
+    for (const item of filteredActions) {
+      const category = ACTION_CATEGORY[item.action] ?? "other";
+      if (!groups.has(category)) groups.set(category, []);
+      groups.get(category)!.push(item);
+    }
+    return CATEGORY_SECTIONS.map((section) => ({
+      ...section,
+      items: groups.get(section.id) ?? [],
+    })).filter((section) => section.items.length > 0);
+  }, [filteredActions]);
+
   return (
       <section className="h-full min-h-full overflow-y-auto  px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="mx-auto w-full max-w-8xl">
@@ -108,136 +258,52 @@ export default function AdminAppCenterPage() {
               <h2 className="mb-6 text-xl font-bold text-slate-800 dark:text-slate-200">
                 Editor Panel
               </h2>
-              <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
-                {filteredActions.map((item) => {
-                  const editHref = `/admin/app-center/edit/${toEditSlug(item.action)}`;
-                  
-                  // Map action to specific icon
-                  const getIcon = (action: string) => {
-                    switch (action) {
-                      case 'pdf_to_docs':
-                        return 'description';
-                      case 'pdf_to_excel':
-                        return 'table_chart';
-                      case 'docx_to_pdf':
-                        return 'picture_as_pdf';
-                      case 'excel_to_pdf':
-                        return 'grid_on';
-                      case 'image_to_pdf':
-                        return 'image';
-                      case 'remove_background':
-                        return 'auto_fix_high';
-                      case 'pdf_page_remove':
-                        return 'delete_sweep';
-                      case 'merge_pdf':
-                        return 'merge';
-                      case 'split_pdf':
-                        return 'call_split';
-                      case 'rotate_pdf':
-                        return 'rotate_right';
-                      case 'protect_pdf':
-                        return 'lock';
-                      case 'unlock_pdf':
-                        return 'lock_open';
-                      case 'watermark_pdf':
-                        return 'branding_watermark';
-                      case 'pdf_page_numbers':
-                        return 'format_list_numbered';
-                      case 'pdf_to_text':
-                        return 'text_snippet';
-                      case 'text_to_pdf':
-                        return 'note_add';
-                      case 'pptx_to_pdf':
-                        return 'slideshow';
-                      case 'pdf_to_image':
-                        return 'photo_library';
-                      case 'image_format_convert':
-                        return 'sync_alt';
-                      case 'compress_pdf':
-                        return 'compress';
-                      case 'pdf_organize':
-                        return 'reorder';
-                      case 'pdf_to_pptx':
-                        return 'co_present';
-                      default:
-                        return 'apps';
-                    }
-                  };
-
-                  // Map action to short smart name
-                  const getShortName = (action: string) => {
-                    switch (action) {
-                      case 'pdf_to_docs':
-                        return 'PDF→Word';
-                      case 'pdf_to_excel':
-                        return 'PDF→Excel';
-                      case 'docx_to_pdf':
-                        return 'Word→PDF';
-                      case 'excel_to_pdf':
-                        return 'Excel→PDF';
-                      case 'image_to_pdf':
-                        return 'Image→PDF';
-                      case 'remove_background':
-                        return 'Remove BG';
-                      case 'pdf_page_remove':
-                        return 'Delete Pages';
-                      case 'merge_pdf':
-                        return 'Merge PDF';
-                      case 'split_pdf':
-                        return 'Split PDF';
-                      case 'rotate_pdf':
-                        return 'Rotate PDF';
-                      case 'protect_pdf':
-                        return 'Protect PDF';
-                      case 'unlock_pdf':
-                        return 'Unlock PDF';
-                      case 'watermark_pdf':
-                        return 'Watermark';
-                      case 'pdf_page_numbers':
-                        return 'Page Numbers';
-                      case 'pdf_to_text':
-                        return 'PDF→Text';
-                      case 'text_to_pdf':
-                        return 'Text→PDF';
-                      case 'pptx_to_pdf':
-                        return 'PPT→PDF';
-                      case 'pdf_to_image':
-                        return 'PDF→Image';
-                      case 'image_format_convert':
-                        return 'Image Convert';
-                      case 'compress_pdf':
-                        return 'Compress PDF';
-                      case 'pdf_organize':
-                        return 'Organize Pages';
-                      case 'pdf_to_pptx':
-                        return 'PDF→PPT';
-                      default:
-                        return item.label;
-                    }
-                  };
-                  
-                  return (
-                    <div key={item.action} className="flex flex-col items-center gap-2">
-                      <Link
-                        href={editHref}
-                        prefetch
-                        onMouseEnter={() => router.prefetch(editHref)}
-                        onFocus={() => router.prefetch(editHref)}
-                        className="group relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-slate-200  from-slate-900 via-slate-800 to-primary shadow-[2px_2px_0px_rgba(255,255,30,0.9)] transition-all hover:scale-110 hover:shadow-[4px_2px_0px_rgba(255,255,255,1)] dark:border-slate-800 neo-shadow active-neo group-hover:bg-[#ffcc00]"
-                        title={item.label}
-                      >
-                        <span className="material-symbols-outlined text-5xl text-primary">
-                          {getIcon(item.action)}
-                        </span>
-                      </Link>
-                      <span className="text-xs pt-4 font-bold text-slate-700 dark:text-slate-300">
-                        {getShortName(item.action)}
+              <div className="space-y-6">
+                {groupedActions.map((section) => (
+                  <div
+                    key={section.id}
+                    className="rounded-xl border border-slate-200 bg-slate-50/50 p-5 dark:border-slate-800 dark:bg-slate-800/20"
+                  >
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary">
+                        {section.icon}
+                      </span>
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                        {section.label}
+                      </h3>
+                      <span className="ml-auto rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                        {section.items.length}
                       </span>
                     </div>
-                  );
-                })}
+                    <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
+                      {section.items.map((item) => {
+                        const editHref = `/admin/app-center/edit/${toEditSlug(item.action)}`;
+
+                        return (
+                          <div key={item.action} className="flex flex-col items-center gap-2">
+                            <Link
+                              href={editHref}
+                              prefetch
+                              onMouseEnter={() => router.prefetch(editHref)}
+                              onFocus={() => router.prefetch(editHref)}
+                              className="group relative flex h-24 w-24 items-center justify-center rounded-xl border-2 border-slate-200  from-slate-900 via-slate-800 to-primary shadow-[2px_2px_0px_rgba(255,255,30,0.9)] transition-all hover:scale-110 hover:shadow-[4px_2px_0px_rgba(255,255,255,1)] dark:border-slate-800 neo-shadow active-neo group-hover:bg-[#ffcc00]"
+                              title={item.label}
+                            >
+                              <span className="material-symbols-outlined text-5xl text-primary">
+                                {getIcon(item.action)}
+                              </span>
+                            </Link>
+                            <span className="text-xs pt-4 font-bold text-slate-700 dark:text-slate-300">
+                              {getShortName(item.action, item.label)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
                 {filteredActions.length === 0 ? (
-                  <div className="col-span-full rounded-xl border border-primary/10 bg-primary/5 p-5 text-center text-sm text-slate-500">
+                  <div className="rounded-xl border border-primary/10 bg-primary/5 p-5 text-center text-sm text-slate-500">
                     No actions found.
                   </div>
                 ) : null}

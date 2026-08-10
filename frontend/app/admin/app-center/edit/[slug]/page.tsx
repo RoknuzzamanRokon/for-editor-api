@@ -102,9 +102,17 @@ const ACTION_EXTRA_FIELD: Record<string, ExtraFieldConfig | undefined> = {
       { value: "png", label: "PNG" },
       { value: "jpg", label: "JPG" },
       { value: "webp", label: "WEBP" },
+      { value: "bmp", label: "BMP" },
+      { value: "tiff", label: "TIFF" },
+      { value: "gif", label: "GIF" },
+      { value: "ico", label: "ICO" },
     ],
   },
 };
+
+const IMAGE_CONVERT_PREVIEWABLE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"];
+const canPreviewImageInBrowser = (filename: string) =>
+  IMAGE_CONVERT_PREVIEWABLE_EXTENSIONS.some((ext) => filename.toLowerCase().endsWith(ext));
 
 type EditPageProps = {
   params: {
@@ -197,6 +205,13 @@ const IMAGE_UPLOAD_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
 const isAcceptedImageFile = (file: File) =>
   file.type.startsWith("image/") ||
   IMAGE_UPLOAD_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext));
+
+const CONVERTIBLE_IMAGE_EXTENSIONS = [
+  ".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff", ".tif", ".gif", ".heic", ".heif",
+];
+
+const isConvertibleImageFile = (file: File) =>
+  CONVERTIBLE_IMAGE_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext));
 
 const PDF_PREVIEW_FRAME_CLASS =
   "h-[88vh] min-h-[546px] w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 sm:h-[1120px]";
@@ -375,6 +390,9 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const [mergeFiles, setMergeFiles] = useState<File[]>([]);
   const mergeInputRef = useRef<HTMLInputElement | null>(null);
   const [extraFieldValue, setExtraFieldValue] = useState("");
+  const [formatConvertPreviewUrl, setFormatConvertPreviewUrl] = useState<string | null>(null);
+  const [isFormatConvertDragActive, setIsFormatConvertDragActive] = useState(false);
+  const formatConvertInputRef = useRef<HTMLInputElement | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState("");
@@ -398,6 +416,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const isImageToPdf = action === "image_to_pdf";
   const isMergePdf = action === "merge_pdf";
   const isPdfOrganize = action === "pdf_organize";
+  const isImageFormatConvert = action === "image_format_convert";
   const convertRoute = useMemo(() => ACTION_TO_ROUTE[action] || "", [action]);
   const historyRoute = useMemo(
     () => ACTION_TO_HISTORY_ROUTE[action] || "/api/v3/conversions/history",
@@ -424,6 +443,16 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [imageFiles]);
+
+  useEffect(() => {
+    if (!isImageFormatConvert || !file || !canPreviewImageInBrowser(file.name)) {
+      setFormatConvertPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setFormatConvertPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file, isImageFormatConvert]);
 
   useEffect(() => {
     if (!submitting) return;
@@ -846,7 +875,9 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                       ? "Add one or more photos — they'll be combined into a single PDF in the order shown."
                       : isMergePdf
                         ? "Add two or more PDFs — they'll be combined into one file in the order shown."
-                        : "Choose a file and send it to the selected conversion endpoint."
+                        : isImageFormatConvert
+                          ? "Convert a photo between PNG, JPG, WEBP, BMP, TIFF, GIF, and ICO — HEIC/HEIF supported as a source."
+                          : "Choose a file and send it to the selected conversion endpoint."
                   }
                 >
                   {isImageToPdf ? (
@@ -1142,6 +1173,147 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                           : mergeFiles.length >= 2
                             ? `Merge ${mergeFiles.length} PDFs`
                             : "Merge PDFs"}
+                      </button>
+                    </div>
+                  ) : isImageFormatConvert ? (
+                    <div className="space-y-5">
+                      <div
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setIsFormatConvertDragActive(true);
+                        }}
+                        onDragLeave={() => setIsFormatConvertDragActive(false)}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          setIsFormatConvertDragActive(false);
+                          const dropped = Array.from(e.dataTransfer.files ?? []).find(
+                            isConvertibleImageFile,
+                          );
+                          if (dropped) setFile(dropped);
+                        }}
+                        className={`rounded-2xl border-2 border-dashed p-4 transition-colors ${
+                          isFormatConvertDragActive
+                            ? "border-primary bg-primary/5"
+                            : "border-slate-200 dark:border-slate-700"
+                        }`}
+                      >
+                        {!file ? (
+                          <button
+                            type="button"
+                            onClick={() => formatConvertInputRef.current?.click()}
+                            className="flex w-full flex-col items-center justify-center gap-3 rounded-xl py-14 text-center transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                          >
+                            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                              <span className="material-symbols-outlined text-3xl">
+                                sync_alt
+                              </span>
+                            </span>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                              Click to select an image, or drag &amp; drop it here
+                            </span>
+                            <span className="text-xs text-slate-400">
+                              PNG, JPG, WEBP, BMP, TIFF, GIF, HEIC, or HEIF — up to 50MB
+                            </span>
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-4">
+                            <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50">
+                              {formatConvertPreviewUrl ? (
+                                <Image
+                                  src={formatConvertPreviewUrl}
+                                  alt={file.name}
+                                  fill
+                                  unoptimized
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center">
+                                  <span className="material-symbols-outlined text-3xl text-slate-400">
+                                    image
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p
+                                className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200"
+                                title={file.name}
+                              >
+                                {file.name}
+                              </p>
+                              <p className="text-xs text-slate-400">
+                                {(file.size / 1024).toFixed(0)} KB
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => formatConvertInputRef.current?.click()}
+                              className="text-xs font-semibold text-primary hover:underline"
+                            >
+                              Change
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setFile(null)}
+                              className="material-symbols-outlined text-slate-400 transition hover:text-rose-500"
+                              aria-label="Remove image"
+                            >
+                              close
+                            </button>
+                          </div>
+                        )}
+
+                        <input
+                          ref={formatConvertInputRef}
+                          type="file"
+                          accept=".png,.jpg,.jpeg,.webp,.bmp,.tiff,.tif,.gif,.heic,.heif"
+                          onChange={(e) => {
+                            const picked = e.target.files?.[0];
+                            if (picked && isConvertibleImageFile(picked)) setFile(picked);
+                            e.target.value = "";
+                          }}
+                          className="hidden"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                          Convert To
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {extraField?.options?.map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => setExtraFieldValue(opt.value)}
+                              className={`rounded-xl border px-4 py-2 text-sm font-bold transition ${
+                                extraFieldValue === opt.value
+                                  ? "border-primary bg-primary text-white"
+                                  : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={handleConvert}
+                        disabled={!file || !extraFieldValue || submitting}
+                        type="button"
+                        className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200 sm:w-auto
+                        ${
+                          file
+                            ? "bg-primary text-white hover:opacity-90"
+                            : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
+                        }
+                      `}
+                      >
+                        <span className="material-symbols-outlined text-base">bolt</span>
+                        {submitting
+                          ? "Converting..."
+                          : `Convert to ${extraFieldValue.toUpperCase()}`}
                       </button>
                     </div>
                   ) : (

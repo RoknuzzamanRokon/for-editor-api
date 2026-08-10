@@ -23,7 +23,10 @@ class FileManagerService:
     XLS_MAGIC_NUMBER = b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1'
     PNG_MAGIC_NUMBER = b'\x89PNG\r\n\x1a\n'
     JPEG_MAGIC_NUMBER = b'\xff\xd8\xff'
-    
+    BMP_MAGIC_NUMBER = b'BM'
+    TIFF_MAGIC_NUMBERS = [b'II*\x00', b'MM\x00*']
+    GIF_MAGIC_NUMBERS = [b'GIF87a', b'GIF89a']
+
     def __init__(self, storage_dir: str = "static/pdfToExcel"):
         """
         Initialize FileManagerService
@@ -186,7 +189,44 @@ class FileManagerService:
             return False, "File size exceeds 50MB limit"
 
         return True, None
-    
+
+    async def validate_convertible_image_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate an uploaded image file for the Image Format Converter tool.
+
+        Supported types: .png, .jpg, .jpeg, .webp, .bmp, .tiff, .tif, .gif, .heic, .heif
+        This is intentionally separate from validate_image_file so widening accepted
+        input types here doesn't loosen what other tools (e.g. Remove Background) accept.
+        """
+        allowed_extensions = (
+            '.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tiff', '.tif', '.gif', '.heic', '.heif',
+        )
+        if not file.filename or not file.filename.lower().endswith(allowed_extensions):
+            return False, "Only PNG, JPG, JPEG, WEBP, BMP, TIFF, GIF, HEIC, and HEIF files are accepted"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        is_png = content.startswith(self.PNG_MAGIC_NUMBER)
+        is_jpeg = content.startswith(self.JPEG_MAGIC_NUMBER)
+        is_webp = len(content) > 12 and content[:4] == b'RIFF' and content[8:12] == b'WEBP'
+        is_bmp = content.startswith(self.BMP_MAGIC_NUMBER)
+        is_tiff = any(content.startswith(magic) for magic in self.TIFF_MAGIC_NUMBERS)
+        is_gif = any(content.startswith(magic) for magic in self.GIF_MAGIC_NUMBERS)
+        # HEIC/HEIF are ISO base media files: a 4-byte size field, then an 'ftyp' box.
+        is_heic = len(content) > 12 and content[4:8] == b'ftyp'
+
+        if not (is_png or is_jpeg or is_webp or is_bmp or is_tiff or is_gif or is_heic):
+            return False, "Only PNG, JPG, JPEG, WEBP, BMP, TIFF, GIF, HEIC, and HEIF files are accepted"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        return True, None
+
     async def validate_pptx_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
         """
         Validate uploaded PowerPoint file (type and size)

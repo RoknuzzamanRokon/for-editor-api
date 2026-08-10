@@ -1,15 +1,32 @@
 """
-Image Format Converter Service for converting between PNG, JPG, and WEBP,
-and downscaling oversized images
+Image Format Converter Service for converting between PNG, JPG, WEBP, BMP,
+TIFF, GIF, and ICO (including HEIC/HEIF photos as a source), and downscaling
+oversized images.
 """
 import os
 from pathlib import Path
 from typing import Optional, Tuple
 
 from PIL import Image
+import pillow_heif
 
-SUPPORTED_FORMATS = {"png": "PNG", "jpg": "JPEG", "jpeg": "JPEG", "webp": "WEBP"}
+# Registers the HEIF/HEIC decoder into Pillow's Image.open(), so HEIC photos
+# (e.g. straight off an iPhone) can be used as a source image like any other format.
+pillow_heif.register_heif_opener()
+
+SUPPORTED_FORMATS = {
+    "png": "PNG",
+    "jpg": "JPEG",
+    "jpeg": "JPEG",
+    "webp": "WEBP",
+    "bmp": "BMP",
+    "tiff": "TIFF",
+    "gif": "GIF",
+    "ico": "ICO",
+}
+FLATTEN_TO_RGB_FORMATS = {"JPEG", "BMP"}
 MAX_DIMENSION = 4000
+ICO_MAX_DIMENSION = 256
 
 
 class ImageFormatConverterService:
@@ -19,7 +36,7 @@ class ImageFormatConverterService:
         self, image_path: str, output_path: str, target_format: str
     ) -> Tuple[bool, Optional[str]]:
         """
-        Convert an image to the requested target format (png, jpg, or webp).
+        Convert an image to the requested target format.
 
         Returns:
             Tuple of (success: bool, error_message: Optional[str])
@@ -32,7 +49,7 @@ class ImageFormatConverterService:
 
             normalized_format = (target_format or "").strip().lower()
             if normalized_format not in SUPPORTED_FORMATS:
-                return False, "Unsupported target format. Choose PNG, JPG, or WEBP"
+                return False, "Unsupported target format. Choose PNG, JPG, WEBP, BMP, TIFF, GIF, or ICO"
 
             pillow_format = SUPPORTED_FORMATS[normalized_format]
 
@@ -40,17 +57,27 @@ class ImageFormatConverterService:
             output_dir.mkdir(parents=True, exist_ok=True)
 
             with Image.open(image_path) as img:
-                if max(img.size) > MAX_DIMENSION:
-                    ratio = MAX_DIMENSION / max(img.size)
+                img.load()
+                max_dimension = ICO_MAX_DIMENSION if pillow_format == "ICO" else MAX_DIMENSION
+                if max(img.size) > max_dimension:
+                    ratio = max_dimension / max(img.size)
                     img = img.resize((int(img.size[0] * ratio), int(img.size[1] * ratio)))
 
-                if pillow_format == "JPEG" and img.mode in ("RGBA", "LA", "P"):
+                if pillow_format in FLATTEN_TO_RGB_FORMATS and img.mode in ("RGBA", "LA", "P"):
                     rgba = img.convert("RGBA")
                     background = Image.new("RGB", rgba.size, (255, 255, 255))
                     background.paste(rgba, mask=rgba.split()[-1])
                     save_image = background
-                elif pillow_format == "JPEG":
+                elif pillow_format in FLATTEN_TO_RGB_FORMATS:
                     save_image = img.convert("RGB")
+                elif pillow_format == "GIF":
+                    # GIF requires palette mode; flatten transparency first, same as JPEG/BMP.
+                    rgba = img.convert("RGBA")
+                    background = Image.new("RGB", rgba.size, (255, 255, 255))
+                    background.paste(rgba, mask=rgba.split()[-1])
+                    save_image = background.convert("P", palette=Image.ADAPTIVE)
+                elif pillow_format == "ICO":
+                    save_image = img.convert("RGBA")
                 else:
                     save_image = img
 

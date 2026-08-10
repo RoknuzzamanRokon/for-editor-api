@@ -2337,9 +2337,9 @@ async def upload_image_for_format_convert(
     try:
         normalized_format = (target_format or "").strip().lower()
         if normalized_format not in IMAGE_FORMAT_TARGETS:
-            raise HTTPException(status_code=400, detail="Unsupported target format. Choose PNG, JPG, or WEBP")
+            raise HTTPException(status_code=400, detail="Unsupported target format. Choose PNG, JPG, WEBP, BMP, TIFF, GIF, or ICO")
 
-        is_valid, error_message = await image_format_convert_file_manager.validate_image_file(file)
+        is_valid, error_message = await image_format_convert_file_manager.validate_convertible_image_file(file)
         if not is_valid:
             raise HTTPException(status_code=400, detail=error_message)
 
