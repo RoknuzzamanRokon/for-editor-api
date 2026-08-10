@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useMarketingTheme } from "@/config/marketingTheme";
+import { API_BASE } from "@/lib/apiBase";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ export default function ContactModal({ isOpen, onClose, planName }: ContactModal
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string }>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   if (!isOpen) return null;
 
@@ -40,14 +43,46 @@ export default function ContactModal({ isOpen, onClose, planName }: ContactModal
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
-    setSubmitted(true);
+
+    setSubmitError("");
+    setSubmitting(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/api/v1/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          plan_name: planName,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = "Failed to submit your request";
+        try {
+          const body = await response.json();
+          errorMessage = body.detail || errorMessage;
+        } catch {
+          const body = await response.text();
+          errorMessage = body || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      setSubmitted(true);
+    } catch (err: unknown) {
+      setSubmitError(err instanceof Error ? err.message : "Failed to submit your request");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -55,6 +90,7 @@ export default function ContactModal({ isOpen, onClose, planName }: ContactModal
     setEmail("");
     setPhone("");
     setErrors({});
+    setSubmitError("");
     setSubmitted(false);
     onClose();
   };
@@ -195,16 +231,26 @@ export default function ContactModal({ isOpen, onClose, planName }: ContactModal
                 )}
               </div>
 
+              {submitError && (
+                <p
+                  className="rounded-xl border px-4 py-3 text-sm"
+                  style={{ borderColor: t.error, color: t.error, background: `${t.error}10` }}
+                >
+                  {submitError}
+                </p>
+              )}
+
               <button
                 type="submit"
-                className="w-full rounded-xl py-3 text-sm font-bold transition-all hover:opacity-90"
+                disabled={submitting}
+                className="w-full rounded-xl py-3 text-sm font-bold transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                 style={{
                   background: t.buttonBg,
                   color: t.buttonText,
                   boxShadow: t.actionShadow,
                 }}
               >
-                Submit Contact Request
+                {submitting ? "Submitting..." : "Submit Contact Request"}
               </button>
             </form>
           </>
