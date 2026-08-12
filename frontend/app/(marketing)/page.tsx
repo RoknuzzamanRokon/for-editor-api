@@ -428,8 +428,8 @@ export default function Page() {
 
         {/* ── Final CTA ── */}
         <section
-          className="mb-8 overflow-hidden rounded-[2rem] px-6 py-14 text-center shadow-2xl sm:px-10 sm:py-16 lg:py-20"
-          style={{ background: ctaBackground, boxShadow: t.elevatedCardShadow }}
+          className="mb-8 overflow-hidden rounded-[2rem] border px-6 py-14 text-center shadow-2xl sm:px-10 sm:py-16 lg:py-20"
+          style={{ background: ctaBackground, borderColor: t.border, boxShadow: t.elevatedCardShadow }}
         >
           <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl" style={{ color: t.heading }}>
             Ready to start converting?
