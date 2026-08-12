@@ -962,8 +962,15 @@ function SplashCursor({
       return hash;
     }
 
+    // Elements marked with data-splash-exclude (e.g. the login/register form
+    // card) should never trigger new splashes while the pointer is over them.
+    function isExcludedTarget(target) {
+      return !!(target && typeof target.closest === 'function' && target.closest('[data-splash-exclude]'));
+    }
+
     // Named event handlers for proper cleanup
     function handleMouseDown(e) {
+      if (isExcludedTarget(e.target)) return;
       let pointer = pointers[0];
       let posX = scaleByPixelRatio(e.clientX);
       let posY = scaleByPixelRatio(e.clientY);
@@ -973,6 +980,7 @@ function SplashCursor({
 
     let firstMouseMoveHandled = false;
     function handleMouseMove(e) {
+      if (isExcludedTarget(e.target)) return;
       let pointer = pointers[0];
       let posX = scaleByPixelRatio(e.clientX);
       let posY = scaleByPixelRatio(e.clientY);
@@ -986,6 +994,7 @@ function SplashCursor({
     }
 
     function handleTouchStart(e) {
+      if (isExcludedTarget(e.target)) return;
       const touches = e.targetTouches;
       let pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
@@ -996,6 +1005,7 @@ function SplashCursor({
     }
 
     function handleTouchMove(e) {
+      if (isExcludedTarget(e.target)) return;
       const touches = e.targetTouches;
       let pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {

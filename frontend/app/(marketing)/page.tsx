@@ -46,8 +46,8 @@ const HOW_IT_WORKS = [
 
 const PRICING_TEASER = [
   { name: 'Demo', price: '$0', sub: 'Test the API for free', featured: false },
-  { name: 'General', price: '$5', sub: 'For individual developers', featured: false },
-  { name: 'Admin', price: '$49', sub: 'High-volume, priority access', featured: true },
+  { name: 'General', price: '$19', sub: 'For individual developers', featured: false },
+  { name: 'Admin', price: '$99', sub: 'High-volume, priority access', featured: true },
   { name: 'Enterprise', price: 'Custom', sub: 'Dedicated support & SLAs', featured: false },
 ] as const
 

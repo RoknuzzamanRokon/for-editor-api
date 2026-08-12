@@ -6,8 +6,8 @@ import ContactModal from '@/components/marketing/ContactModal'
 
 const plans = [
   { name: 'Demo',       price: '$0',     sub: 'Perfect for testing and small personal projects.',  btn: 'Start Free',    featured: false, features: ['20 requests / one week', 'Basic 3 Converters', 'Community Support'] },
-  { name: 'General',    price: '$5',    sub: 'Ideal for professional developers and startups.',   btn: 'Get Started',   featured: false, features: ['500 requests / month', 'All Converters', 'Email Support'] },
-  { name: 'Admin',      price: '$49',    sub: 'Scale your business with high-volume access.',      btn: 'Get Started',   featured: true,  features: ['50k requests / month', 'Priority Access', '24/7 Priority Support', 'Advanced Analytics'] },
+  { name: 'General',    price: '$19',    sub: 'Ideal for professional developers and startups.',   btn: 'Get Started',   featured: false, features: ['1k requests / month', 'All Converters', 'Email Support'] },
+  { name: 'Admin',      price: '$99',    sub: 'Scale your business with high-volume access.',      btn: 'Get Started',   featured: true,  features: ['10k requests / month', 'Priority Access', '24/7 Priority Support', 'Advanced Analytics'] },
   { name: 'Enterprise', price: 'Custom', sub: 'Dedicated solutions for large organizations.',      btn: 'Contact Sales', featured: false, features: ['Unlimited requests', 'Custom Integrations', 'Dedicated Manager', 'ALL Support'] },
 ]
 

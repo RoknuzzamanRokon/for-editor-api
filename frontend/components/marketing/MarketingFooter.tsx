@@ -36,7 +36,7 @@ export default function MarketingFooter() {
             Crafted for modern file workflows.
           </p>
           <p className="mt-4 text-xs uppercase tracking-[0.2em]" style={{ color: theme.primary }}>
-            © 2026 Roknuzzaman
+            © 2026 Rokunuzzaman
           </p>
         </div>
 

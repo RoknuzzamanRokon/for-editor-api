@@ -268,7 +268,10 @@ function LoginForm() {
 
         <div className="absolute inset-x-0 bottom-0 top-16 z-10 flex items-center justify-center overflow-hidden">
           {/* Liquid glass card */}
-          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl dark:bg-[rgba(17,24,39,0.74)]">
+          <div
+            data-splash-exclude
+            className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card/60 shadow-[0_12px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl dark:bg-[rgba(17,24,39,0.74)]"
+          >
             <div className="p-8">
               {/* Brand header */}
               <div className="mb-8 flex items-center gap-3">
