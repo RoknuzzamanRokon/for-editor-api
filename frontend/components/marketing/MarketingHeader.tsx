@@ -20,6 +20,7 @@ export default function MarketingHeader() {
   const router = useRouter()
   const { theme } = useMarketingTheme()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   const isActive = (path: string) => pathname === path
 
@@ -32,15 +33,25 @@ export default function MarketingHeader() {
       router.prefetch(href)
     })
     router.prefetch('/login')
+    router.prefetch('/register')
   }, [router])
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 8)
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
     <header
-      className="fixed inset-x-0 top-0 z-50 w-full backdrop-blur-xl"
+      className="fixed inset-x-0 top-0 z-50 w-full backdrop-blur-xl transition-[background-color,box-shadow] duration-300"
       style={{
-        background: 'rgba(2,6,23,0.88)',
+        background: isScrolled ? 'rgba(2,6,23,0.96)' : 'rgba(2,6,23,0.88)',
         borderColor: theme.border,
-        boxShadow: '0 18px 42px rgba(2,6,23,0.34), 0 0 20px rgba(249,115,22,0.08)',
+        boxShadow: isScrolled
+          ? '0 22px 50px rgba(2,6,23,0.45), 0 0 26px rgba(249,115,22,0.14)'
+          : '0 18px 42px rgba(2,6,23,0.34), 0 0 20px rgba(249,115,22,0.08)',
       }}
     >
       <div className="border-b" style={{ borderColor: theme.border }}>
@@ -61,18 +72,35 @@ export default function MarketingHeader() {
                 key={href}
                 href={href}
                 prefetch
-                className="text-lg font-semibold tracking-tight transition-colors"
+                className="group relative py-2 text-lg font-semibold tracking-tight transition-colors"
                 style={{ color: isActive(href) ? theme.primary : theme.text }}
                 onMouseEnter={() => router.prefetch(href)}
               >
                 {label}
+                <span
+                  className="absolute inset-x-0 -bottom-1 h-0.5 origin-left scale-x-0 rounded-full transition-transform duration-300 group-hover:scale-x-100"
+                  style={{
+                    background: theme.primary,
+                    transform: isActive(href) ? 'scaleX(1)' : undefined,
+                  }}
+                />
               </Link>
             ))}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:gap-4">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3 lg:gap-4">
             <Link
               href="/login"
+              prefetch
+              className="rounded-lg px-2 py-2 text-xs font-bold transition-colors hover:opacity-80 sm:px-3 sm:text-sm lg:text-base"
+              style={{ color: theme.text }}
+              onMouseEnter={() => router.prefetch('/login')}
+            >
+              Login
+            </Link>
+
+            <Link
+              href="/register"
               prefetch
               className="rounded-xl px-3 py-2 text-xs font-bold shadow-lg transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] sm:px-4 sm:py-2.5 sm:text-sm lg:px-6 lg:py-3 lg:text-base"
               style={{
@@ -80,9 +108,9 @@ export default function MarketingHeader() {
                 color: theme.buttonText,
                 boxShadow: theme.actionShadow,
               }}
-              onMouseEnter={() => router.prefetch('/login')}
+              onMouseEnter={() => router.prefetch('/register')}
             >
-              Login
+              Sign Up
             </Link>
 
             <button
