@@ -86,7 +86,7 @@ export default function Page() {
   const heroBackground = 'rgba(11,17,32,0.82)'
   const primaryCardBackground = 'rgba(9,17,31,0.74)'
   const secondaryCardBackground = 'rgba(17,24,39,0.74)'
-  const ctaBackground = 'linear-gradient(135deg, rgba(17,24,39,0.82) 0%, rgba(9,17,31,0.76) 100%)'
+  const ctaBackground = 'linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(4,7,15,0.95) 100%)'
 
   return (
     <main
