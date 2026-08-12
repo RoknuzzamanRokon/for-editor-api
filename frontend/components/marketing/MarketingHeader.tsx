@@ -61,7 +61,7 @@ export default function MarketingHeader() {
                 key={href}
                 href={href}
                 prefetch
-                className="text-base font-semibold transition-colors"
+                className="text-lg font-semibold tracking-tight transition-colors"
                 style={{ color: isActive(href) ? theme.primary : theme.text }}
                 onMouseEnter={() => router.prefetch(href)}
               >
@@ -116,7 +116,7 @@ export default function MarketingHeader() {
                 key={href}
                 href={href}
                 prefetch
-                className="rounded-2xl border px-4 py-3 text-sm font-semibold transition-colors"
+                className="rounded-2xl border px-4 py-3 text-base font-semibold transition-colors"
                 style={isActive(href)
                   ? {
                     background: `${theme.primary}16`,
