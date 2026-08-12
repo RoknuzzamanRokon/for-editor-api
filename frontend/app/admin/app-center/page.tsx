@@ -254,7 +254,7 @@ export default function AdminAppCenterPage() {
               {error}
             </div>
           ) : (
-            <div className="mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 p-6 dark:border-slate-800 ">
+            <div className="app-panel-card mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 p-6 dark:border-slate-800 ">
               <h2 className="mb-6 text-xl font-bold text-slate-800 dark:text-slate-200">
                 Editor Panel
               </h2>
@@ -262,7 +262,7 @@ export default function AdminAppCenterPage() {
                 {groupedActions.map((section) => (
                   <div
                     key={section.id}
-                    className="rounded-xl border border-slate-200 bg-slate-50/50 p-5 dark:border-slate-800 dark:bg-slate-800/20"
+                    className="app-subcard rounded-xl border border-slate-200 bg-slate-50/50 p-5 dark:border-slate-800 dark:bg-slate-800/20"
                   >
                     <div className="mb-4 flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary">
@@ -312,7 +312,7 @@ export default function AdminAppCenterPage() {
           )}
 
           {/* Viewer Panel Card */}
-          <div className="mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 p-6 dark:border-slate-800 mt-6">
+          <div className="app-panel-card mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 p-6 dark:border-slate-800 mt-6">
             <h2 className="mb-6 text-xl font-bold text-slate-800 dark:text-slate-200">
               Viewer Panel
             </h2>

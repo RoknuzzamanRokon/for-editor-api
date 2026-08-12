@@ -159,6 +159,31 @@ html[data-font-size="xlarge"] { font-size: 19px; }
   --card-hover: #f1f0ec;
 }
 
+/*
+ * app-panel-card / app-subcard: several dashboard/admin panels only ever
+ * defined a dark: background (their light-mode background was always the
+ * page itself bleeding through). That reads fine against the dark themes'
+ * saturated backgrounds, but disappears against Paper's near-white page —
+ * so give Paper its own visible surface here without touching the others.
+ */
+.paper .app-panel-card {
+  background: linear-gradient(160deg, var(--card) 0%, var(--card-hover) 100%);
+  border-color: var(--border);
+}
+
+.paper .app-subcard {
+  background: linear-gradient(160deg, var(--card-hover) 0%, var(--background) 100%);
+  border-color: var(--border);
+}
+
+/* App Center tool tiles use a neo-brutalist offset shadow tuned for the dark
+   themes (a bright yellow shadow). Against Paper's light background that
+   reads wrong, so swap the shadow color itself for Paper. */
+.paper .neo-shadow {
+  --tw-shadow: 2px 2px 0px rgba(0, 25, 5, 0.9);
+  --tw-shadow-colored: 2px 2px 0px rgba(0, 25, 5, 0.9);
+}
+
 body {
   background-color: var(--background);
   font-family: var(--font-sans);

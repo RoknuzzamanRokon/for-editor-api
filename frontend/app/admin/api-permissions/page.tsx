@@ -542,7 +542,7 @@ export default function AdminApiPermissionsPage() {
               No actions found.
             </div>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="flex max-h-[336px] flex-col gap-2 overflow-y-auto pr-1">
               {filteredActions.map((item) => (
                 <div key={item.action} className="flex items-center justify-between px-4 py-3">
                   <p className="text-sm font-semibold text-foreground">{item.label}</p>
