@@ -48,6 +48,18 @@ class AdminCheckUserResponse(BaseModel):
     api_permissions: List[AdminCheckUserApiEntry]
 
 
+class AdminRoleUpdateRequest(BaseModel):
+    role: str
+
+
+class AdminRoleUpdateResponse(BaseModel):
+    id: int
+    email: str
+    username: Optional[str] = None
+    role: str
+    previous_role: str
+
+
 class AdminActiveUserEntry(BaseModel):
     id: int
     email: str

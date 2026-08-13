@@ -49,6 +49,23 @@ def block_demo_write(request: Request, user: User = Depends(get_current_user)) -
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo user is read-only")
 
 
+def ensure_can_manage_user(current_user: User, target_user: User) -> None:
+    """Guard for admin screens that mutate another user's access.
+
+    super_user accounts are never editable, and an admin_user may only reach
+    down to general/demo users — never sideways to another admin.
+    """
+    if target_user.role == RoleEnum.super_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot modify super_user permissions",
+        )
+
+    if current_user.role == RoleEnum.admin_user:
+        if target_user.role not in {RoleEnum.general_user, RoleEnum.demo_user}:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+
+
 def require_owner(resource_owner_id: int, current_user: User) -> None:
     if current_user.role == RoleEnum.super_user:
         return

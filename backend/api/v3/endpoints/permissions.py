@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import case, func
 from sqlalchemy.orm import Session
 
-from core.deps import get_current_user, require_role
+from core.deps import ensure_can_manage_user, get_current_user, require_role
 from core.permissions import list_allowed_actions, validate_action
 from core.points import POINTS_COST_PER_REQUEST
 from db.models import Conversion, RoleEnum, User, UserConversionPermission
@@ -73,12 +73,7 @@ API_META: dict[str, dict[str, str]] = {
 
 
 def _ensure_target_allowed(current_user: User, target_user: User) -> None:
-    if target_user.role == RoleEnum.super_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot modify super_user permissions")
-
-    if current_user.role == RoleEnum.admin_user:
-        if target_user.role not in {RoleEnum.general_user, RoleEnum.demo_user}:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    ensure_can_manage_user(current_user, target_user)
 
 
 @router.get("/actions")

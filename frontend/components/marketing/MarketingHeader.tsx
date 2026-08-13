@@ -33,7 +33,6 @@ export default function MarketingHeader() {
       router.prefetch(href)
     })
     router.prefetch('/login')
-    router.prefetch('/register')
   }, [router])
 
   useEffect(() => {
@@ -92,25 +91,15 @@ export default function MarketingHeader() {
             <Link
               href="/login"
               prefetch
-              className="rounded-lg px-2 py-2 text-xs font-bold transition-colors hover:opacity-80 sm:px-3 sm:text-sm lg:text-base"
-              style={{ color: theme.text }}
-              onMouseEnter={() => router.prefetch('/login')}
-            >
-              Login
-            </Link>
-
-            <Link
-              href="/register"
-              prefetch
               className="rounded-xl px-3 py-2 text-xs font-bold shadow-lg transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] sm:px-4 sm:py-2.5 sm:text-sm lg:px-6 lg:py-3 lg:text-base"
               style={{
                 background: theme.buttonBg,
                 color: theme.buttonText,
                 boxShadow: theme.actionShadow,
               }}
-              onMouseEnter={() => router.prefetch('/register')}
+              onMouseEnter={() => router.prefetch('/login')}
             >
-              Sign Up
+              Login
             </Link>
 
             <button

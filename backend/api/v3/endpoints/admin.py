@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import case, func
 from sqlalchemy.orm import Session, aliased
 
-from core.deps import require_role
+from core.deps import ensure_can_manage_user, require_role
 from core.permissions import list_allowed_actions
 from core.points import POINTS_COST_PER_REQUEST, get_user_balance, topup_points
 from db.models import (
@@ -34,6 +34,8 @@ from models.admin import (
     AdminDashboardTopPointHolder,
     AdminPointGivingHistoryEntry,
     AdminPointGivingHistoryResponse,
+    AdminRoleUpdateRequest,
+    AdminRoleUpdateResponse,
     AdminTopupRequestEntry,
     AdminTopupRequestListResponse,
 )
@@ -779,4 +781,67 @@ def check_user_details(
         conversions=conversions,
         active_apis=active_apis,
         api_permissions=api_permissions,
+    )
+
+
+# Roles an admin_user is allowed to hand out. super_user is unrestricted.
+ADMIN_ASSIGNABLE_ROLES = {RoleEnum.general_user, RoleEnum.demo_user}
+
+
+@router.patch("/users/{user_id}/role", response_model=AdminRoleUpdateResponse)
+def update_user_role_v3(
+    user_id: int,
+    payload: AdminRoleUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
+) -> AdminRoleUpdateResponse:
+    """Change a user's role.
+
+    Unlike ``PATCH /api/v2/users/{id}/role`` (super_user only), an admin_user
+    may use this to move their own general/demo users between those two roles
+    — the demo-to-general promotion the admin console needs. Admins still
+    cannot create or touch admin/super accounts.
+    """
+    try:
+        new_role = RoleEnum(payload.role)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid role '{payload.role}'",
+        )
+
+    target_user = get_user_by_id(db, user_id)
+    if not target_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if target_user.id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot change your own role",
+        )
+
+    ensure_can_manage_user(current_user, target_user)
+
+    if current_user.role == RoleEnum.admin_user and new_role not in ADMIN_ASSIGNABLE_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admins can only assign the General User or Demo User role",
+        )
+
+    previous_role = target_user.role.value
+    if new_role != target_user.role:
+        target_user.role = new_role
+        # A demo account's expiry is meaningless once it is a real user, and a
+        # stale timestamp would keep tripping the demo-expiry check.
+        if new_role != RoleEnum.demo_user:
+            target_user.demo_expires_at = None
+        db.commit()
+        db.refresh(target_user)
+
+    return AdminRoleUpdateResponse(
+        id=target_user.id,
+        email=target_user.email,
+        username=target_user.username,
+        role=target_user.role.value,
+        previous_role=previous_role,
     )

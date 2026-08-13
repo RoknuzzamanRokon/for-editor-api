@@ -47,6 +47,12 @@ class User(Base):
         foreign_keys="UserConversionPermission.user_id",
         cascade="all, delete-orphan",
     )
+    page_permissions = relationship(
+        "UserPagePermission",
+        back_populates="user",
+        foreign_keys="UserPagePermission.user_id",
+        cascade="all, delete-orphan",
+    )
     conversions = relationship("Conversion", back_populates="owner", cascade="all, delete-orphan")
     preferences = relationship(
         "UserPreference",
@@ -131,6 +137,24 @@ class UserConversionPermission(Base):
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", back_populates="conversion_permissions", foreign_keys=[user_id])
+
+
+class UserPagePermission(Base):
+    __tablename__ = "user_page_permissions"
+    __table_args__ = (
+        UniqueConstraint("user_id", "page_key", name="uq_user_page_permissions"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    page_key = Column(String(64), nullable=False, index=True)
+    is_allowed = Column(Boolean, nullable=False, default=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    updated_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User", back_populates="page_permissions", foreign_keys=[user_id])
 
 
 class PointsTopup(Base):

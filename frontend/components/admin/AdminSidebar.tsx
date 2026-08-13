@@ -11,6 +11,7 @@ import {
   publishAccountSettingsCache,
   readAccountSettingsCache,
 } from "@/lib/accountSettingsCache";
+import { useVisibleNavItems } from "@/lib/useAllowedPaths";
 
 type NavItem = {
   label: string;
@@ -78,6 +79,7 @@ export default function AdminSidebar({
   onCloseMobileMenu: () => void;
 }) {
   const pathname = usePathname();
+  const visibleNavItems = useVisibleNavItems(navItems);
   const [totalGivenPoints, setTotalGivenPoints] = useState<number>(0);
   const [account, setAccount] = useState<{
     username?: string | null;
@@ -227,7 +229,7 @@ export default function AdminSidebar({
       </div>
 
       <nav className={`relative flex flex-col gap-2 py-4 ${compactDesktop ? "px-2" : "px-4"}`}>
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const matchTarget = item.match ?? item.href;
           const isActive =
             item.href === "/admin"

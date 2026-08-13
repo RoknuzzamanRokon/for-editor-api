@@ -8,6 +8,7 @@ import { AvatarBadge, type AvatarKey } from '@/lib/accountAvatar'
 import { formatProfileName } from '@/lib/profileName'
 import { formatRoleLabel } from '@/lib/roleLabel'
 import { publishAccountSettingsCache, readAccountSettingsCache } from '@/lib/accountSettingsCache'
+import { useVisibleNavItems } from '@/lib/useAllowedPaths'
 
 type SidebarSettingsPayload = {
   identity: {
@@ -66,6 +67,7 @@ export default function UserSidebar({
   onCloseMobileMenu: () => void;
 }) {
   const pathname = usePathname()
+  const visibleNavItems = useVisibleNavItems(navItems)
   const [pointsBalance, setPointsBalance] = useState<number | null>(null)
   const [account, setAccount] = useState<{
     username?: string | null;
@@ -196,7 +198,7 @@ export default function UserSidebar({
         </button>
       </div>
       <nav className={`relative flex flex-col gap-2 py-4 ${compactDesktop ? "px-2" : "px-4"}`}>
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive =
             item.href === '/dashboard'
               ? pathname === '/dashboard'
