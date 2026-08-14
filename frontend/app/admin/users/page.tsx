@@ -124,22 +124,19 @@ function GlassStatCard({
   icon: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-[28px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)] via-[rgb(240,248,255)] to-[rgb(232,246,255)] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(20,27,40)] dark:via-[rgb(19,31,51)] dark:to-[rgb(31,21,43)]">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/18 via-[rgb(255,255,255)]/45 to-[rgb(125,211,252)]/25 dark:from-primary/20 dark:via-white/5 dark:to-[rgb(56,189,248)]/10" />
-      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[rgb(56,189,248)]/20 blur-3xl dark:bg-[rgb(14,165,233)]/20" />
+    <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
 
-      <div className="relative">
-        <div className="mb-4 inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
-          <span className="material-symbols-outlined">{icon}</span>
-        </div>
-
-        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-          {title}
-        </p>
-        <p className="mt-2 text-xl font-black tracking-tight text-slate-900 dark:text-white">
-          {value}
-        </p>
+      <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+        <span className="material-symbols-outlined">{icon}</span>
       </div>
+
+      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+        {title}
+      </p>
+      <p className="mt-2 text-xl font-black tracking-tight text-slate-900 dark:text-white">
+        {value}
+      </p>
     </div>
   );
 }
@@ -156,12 +153,10 @@ function GlassSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)] via-[rgb(244,250,255)] to-[rgb(236,247,255)] shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(17,24,39)] dark:via-[rgb(21,30,48)] dark:to-[rgb(31,23,46)]">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/12 via-[rgb(255,255,255)]/35 to-[rgb(147,197,253)]/20 dark:from-primary/15 dark:via-white/5 dark:to-[rgb(96,165,250)]/10" />
-      <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-[rgb(96,165,250)]/18 blur-3xl dark:bg-[rgb(59,130,246)]/20" />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
+    <section className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+      <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
 
-      <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+      <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -177,7 +172,7 @@ function GlassSection({
         </div>
       </div>
 
-      <div className="relative p-6">{children}</div>
+      <div className="relative p-5 sm:p-6">{children}</div>
     </section>
   );
 }
@@ -713,10 +708,10 @@ export default function AdminUsersPage() {
             </div>
           }
         >
-          <div className="overflow-hidden rounded-[24px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/85 via-[rgb(245,250,255)]/85 to-[rgb(238,247,255)]/80 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(18,25,39)]/80 dark:via-[rgb(22,30,47)]/85 dark:to-[rgb(30,23,44)]/85">
-            <div className="overflow-x-auto">
+          <div className="overflow-hidden rounded-[18px]">
+            <div className="max-h-[580px] overflow-auto">
               <table className="w-full text-left">
-                <thead className="bg-white/50 text-xs uppercase tracking-[0.16em] text-slate-500 backdrop-blur-md dark:bg-white/5 dark:text-slate-400">
+                <thead className="sticky top-0 bg-slate-50 text-xs uppercase tracking-[0.16em] text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
                   <tr>
                     <th className="px-6 py-4">ID</th>
                     <th className="px-6 py-4">Email</th>
@@ -727,7 +722,7 @@ export default function AdminUsersPage() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-white/30 dark:divide-white/10">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {loading ? (
                     Array.from({ length: 5 }).map((_, index) => (
                       <tr key={index}>
@@ -751,7 +746,7 @@ export default function AdminUsersPage() {
                     filteredUsers.map((user) => (
                       <tr
                         key={user.id}
-                        className="cursor-pointer transition hover:bg-white/40 dark:hover:bg-white/5"
+                        className="cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
                         onClick={() => handleOpenUserDetails(user.id)}
                       >
                         <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">

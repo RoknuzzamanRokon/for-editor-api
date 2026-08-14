@@ -61,16 +61,13 @@ function formatDate(v: string) {
 
 function StatTile({ label, value, icon }: { label: string; value: string | number; icon: string }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-white/40 bg-white/55 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-      <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/10 blur-3xl" />
-      <div className="relative">
-        <div className="mb-3 inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
-          <span className="material-symbols-outlined">{icon}</span>
-        </div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="mt-1 text-2xl font-black tracking-tight text-slate-900 dark:text-white">{value}</p>
+    <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+        <span className="material-symbols-outlined">{icon}</span>
       </div>
+      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mt-2 text-xl font-black tracking-tight text-slate-900 dark:text-white">{value}</p>
     </div>
   );
 }
@@ -186,13 +183,11 @@ export default function AdminPointPage() {
         </section>
 
         {/* Distribute form */}
-        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-          <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
+        <section className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
           <div className="relative">
             <div className="mb-5 flex items-center gap-3">
-              <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
                 <span className="material-symbols-outlined">add_circle</span>
               </div>
               <div>
@@ -261,12 +256,11 @@ export default function AdminPointPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
-          <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+        <section className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
+          <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
             <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
                 <span className="material-symbols-outlined">pending_actions</span>
               </div>
               <div>
@@ -275,7 +269,7 @@ export default function AdminPointPage() {
               </div>
             </div>
           </div>
-          <div className="relative p-6">
+          <div className="relative p-5 sm:p-6">
             {loading ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, index) => (
@@ -287,21 +281,21 @@ export default function AdminPointPage() {
                 ))}
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-white/40 bg-white/40 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-                <div className="overflow-x-auto">
+              <div className="overflow-hidden rounded-[18px]">
+                <div className="max-h-[480px] overflow-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-white/30 dark:border-white/10">
+                      <tr className="sticky top-0 border-b border-slate-200/70 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50">
                         {["#", "User", "Amount", "Requested By", "Status", "Date", "Action"].map((h) => (
                           <th key={h} className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{h}</th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/20 dark:divide-white/5">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                       {!requests?.items.length ? (
                         <tr><td colSpan={7} className="px-4 py-8 text-slate-400 dark:text-slate-500">No incoming requests.</td></tr>
                       ) : requests.items.map((entry) => (
-                        <tr key={entry.id} className="hover:bg-white/30 dark:hover:bg-white/5">
+                        <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                           <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.id}</td>
                           <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
                             {formatProfileName(entry.user_username, entry.user_email)}
@@ -365,12 +359,11 @@ export default function AdminPointPage() {
         </section>
 
         {/* History */}
-        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
-          <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+        <section className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
+          <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
             <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
                 <span className="material-symbols-outlined">history</span>
               </div>
               <div>
@@ -379,7 +372,7 @@ export default function AdminPointPage() {
               </div>
             </div>
           </div>
-          <div className="relative p-6">
+          <div className="relative p-5 sm:p-6">
             {loading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, index) => (
@@ -391,21 +384,21 @@ export default function AdminPointPage() {
                 ))}
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-white/40 bg-white/40 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-                <div className="overflow-x-auto">
+              <div className="overflow-hidden rounded-[18px]">
+                <div className="max-h-[480px] overflow-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-white/30 dark:border-white/10">
+                      <tr className="sticky top-0 border-b border-slate-200/70 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50">
                         {["#", "Recipient", "Amount", "Note", "Given By", "Date"].map((h) => (
                           <th key={h} className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{h}</th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/20 dark:divide-white/5">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                       {!history?.items.length ? (
                         <tr><td colSpan={6} className="px-4 py-8 text-slate-400 dark:text-slate-500">No history yet.</td></tr>
                       ) : history.items.map((entry) => (
-                        <tr key={entry.id} className="hover:bg-white/30 dark:hover:bg-white/5">
+                        <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                           <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.id}</td>
                           <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
                             {formatProfileName(entry.user_username, entry.user_email)}
