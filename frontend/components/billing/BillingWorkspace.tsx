@@ -123,17 +123,14 @@ function MetricCard({
   caption: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-white/40 bg-white/55 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/10 blur-3xl" />
-      <div className="relative">
-        <div className="mb-4 inline-flex rounded-2xl border border-white/40 bg-white/65 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
-          <span className="material-symbols-outlined">{icon}</span>
-        </div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="mt-1 text-3xl font-black tracking-tight text-slate-900 dark:text-white">{value}</p>
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{caption}</p>
+    <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+        <span className="material-symbols-outlined">{icon}</span>
       </div>
+      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mt-1 text-3xl font-black tracking-tight text-slate-900 dark:text-white">{value}</p>
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{caption}</p>
     </div>
   );
 }
@@ -349,7 +346,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
           </div>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="rounded-[28px] border border-white/40 bg-white/55 p-5 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+              <div key={index} className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
                 <div className="h-12 w-12 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-4 h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
@@ -358,7 +355,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
           </div>
           <div className="grid gap-6 xl:grid-cols-2">
             {Array.from({ length: 2 }).map((_, index) => (
-              <div key={index} className="rounded-[13px] border border-white/40 bg-white/55 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+              <div key={index} className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
                 <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-4 w-52 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
                 <div className="mt-6 h-56 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
@@ -460,7 +457,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
       </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <section className="relative overflow-hidden rounded-[13px] border bg-transparent">
+      <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
         <div className="flex items-center justify-center p-10">
           <button
             type="button"
@@ -566,12 +563,11 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
         )}
       </section>
 
-      <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
-          <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+      <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+          <div className="relative border-b border-slate-200/70 px-6 py-5 dark:border-white/10">
             <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
                 <span className="material-symbols-outlined">receipt_long</span>
               </div>
               <div>
@@ -585,7 +581,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-white/30 dark:border-white/10">
+                    <tr className="border-b border-slate-200/70 dark:border-white/10">
                       {["ID", "Target", "Amount", "Status", "Note", "Created", "Action"].map((head) => (
                         <th key={head} className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                           {head}
@@ -593,7 +589,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/20 dark:divide-white/5">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {!requests?.items.length ? (
                       <tr>
                         <td colSpan={7} className="px-4 py-8 text-slate-400 dark:text-slate-500">
@@ -602,7 +598,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                       </tr>
                     ) : (
                       requests.items.map((entry) => (
-                        <tr key={entry.id} className="hover:bg-white/30 dark:hover:bg-white/5">
+                        <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                           <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.id}</td>
                           <td className="px-4 py-3 text-slate-600 dark:text-slate-300">#{entry.requested_admin_user_id}</td>
                           <td className="px-4 py-3 font-black text-primary">{entry.amount}</td>
@@ -639,15 +635,16 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
         </section>
       </div>
 
-      <section className="relative overflow-hidden rounded-[13px] border border-border bg-transparent [box-shadow:4px_4px_0px_0px_var(--border)]">
-          <div className="relative border-b border-border px-6 py-5">
+      <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+          <div className="relative border-b border-slate-200/70 px-6 py-5 dark:border-white/10">
             <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-2xl border border-border p-3 text-primary">
+              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
                 <span className="material-symbols-outlined">history</span>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-foreground">Point Activity</h2>
-                <p className="text-xs text-foreground/60">Every charge, refund, and balance change tied to this account.</p>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Point Activity</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Every charge, refund, and balance change tied to this account.</p>
               </div>
             </div>
           </div>

@@ -98,21 +98,18 @@ function MetricCard({
   caption: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-white/40 bg-white/55 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/10 blur-3xl" />
-      <div className="relative">
-        <div className="mb-4 inline-flex rounded-2xl border border-white/40 bg-white/65 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
-          <span className="material-symbols-outlined">{icon}</span>
-        </div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-          {label}
-        </p>
-        <p className="mt-1 text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-          {value}
-        </p>
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{caption}</p>
+    <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+        <span className="material-symbols-outlined">{icon}</span>
       </div>
+      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+        {label}
+      </p>
+      <p className="mt-1 text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+        {value}
+      </p>
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{caption}</p>
     </div>
   );
 }
@@ -217,7 +214,7 @@ export default function PointsWorkspace() {
           </div>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="rounded-[28px] border border-white/40 bg-white/55 p-5 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+              <div key={index} className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
                 <div className="h-12 w-12 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-4 h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
@@ -226,7 +223,7 @@ export default function PointsWorkspace() {
           </div>
           <div className="grid gap-6 xl:grid-cols-2">
             {Array.from({ length: 2 }).map((_, index) => (
-              <div key={index} className="rounded-[13px] border border-white/40 bg-white/55 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
+              <div key={index} className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
                 <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-4 w-52 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
                 <div className="mt-6 h-56 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
@@ -372,12 +369,10 @@ export default function PointsWorkspace() {
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
-          <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+          <div className="relative border-b border-slate-200/70 px-6 py-5 dark:border-white/10">
             <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
                 <span className="material-symbols-outlined">bar_chart</span>
               </div>
               <div>
@@ -488,12 +483,10 @@ export default function PointsWorkspace() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden rounded-[13px] border border-white/40 bg-white/55 shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/30 to-transparent dark:from-primary/10 dark:via-white/5 dark:to-transparent" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent dark:via-white/20" />
-          <div className="relative border-b border-white/30 px-6 py-5 dark:border-white/10">
+        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+          <div className="relative border-b border-slate-200/70 px-6 py-5 dark:border-white/10">
             <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-2xl border border-white/40 bg-white/60 p-3 text-primary shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
                 <span className="material-symbols-outlined">donut_small</span>
               </div>
               <div>
@@ -535,8 +528,8 @@ export default function PointsWorkspace() {
         </section>
       </section>
 
-      <section className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex flex-col gap-3 border-b border-slate-100 p-6 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
+      <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+        <div className="flex flex-col gap-3 border-b border-slate-100 p-6 dark:border-white/10 md:flex-row md:items-center md:justify-between">
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Point Ledger History</h3>
             <p className="mt-1 text-sm text-slate-500">Total entries: {points.total}</p>

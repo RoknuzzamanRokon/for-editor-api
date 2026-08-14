@@ -159,6 +159,24 @@ html[data-font-size="xlarge"] { font-size: 19px; }
   --card-hover: #f1f0ec;
 }
 
+.crimson {
+  --primary: #ef4444;
+  --background: #180b0d;
+  --foreground: #fce7e7;
+  --border: #542126;
+  --card: #281114;
+  --card-hover: #36171b;
+}
+
+.burgundy {
+  --primary: #e5484d;
+  --background: #160a0b;
+  --foreground: #f9dfe0;
+  --border: #4a1f22;
+  --card: #241113;
+  --card-hover: #321619;
+}
+
 /*
  * app-panel-card / app-subcard: several dashboard/admin panels only ever
  * defined a dark: background (their light-mode background was always the

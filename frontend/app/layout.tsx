@@ -87,7 +87,7 @@ export default function RootLayout({
               (function () {
                 try {
                   var stored = localStorage.getItem('theme');
-                  var themes = ['ocean', 'sunset', 'forest', 'paper'];
+                  var themes = ['ocean', 'sunset', 'forest', 'paper', 'crimson', 'burgundy'];
                   var lightThemes = ['light', 'paper'];
                   var theme = themes.indexOf(stored) !== -1 ? stored : 'sunset';
                   var root = document.documentElement;
@@ -97,7 +97,7 @@ export default function RootLayout({
                     if (document.body) document.body.style.overflow = 'hidden';
                   }
                   var applyTheme = function (nextTheme) {
-                    root.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'paper', 'midnight', 'livedark');
+                    root.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'paper', 'crimson', 'burgundy', 'midnight', 'livedark');
                     root.classList.add(nextTheme);
                     if (lightThemes.indexOf(nextTheme) === -1) {
                       root.classList.add('dark');

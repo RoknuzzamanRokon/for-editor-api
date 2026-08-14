@@ -8,6 +8,8 @@ const themes = [
   { id: 'sunset', label: 'Sunset', color: '#451a03' },
   { id: 'forest', label: 'Forest', color: '#052e16' },
   { id: 'paper', label: 'Paper', color: '#e8e6e1' },
+  { id: 'crimson', label: 'Crimson', color: '#180b0d' },
+  { id: 'burgundy', label: 'Burgundy', color: '#160a0b' },
 ] as const
 
 export default function ThemeSwitcher({ className = '' }: { className?: string }) {

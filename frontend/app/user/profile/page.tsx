@@ -131,7 +131,8 @@ function StatCard({
   icon: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-white p-5 [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-slate-900">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-white/30 p-5 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+      <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-medium text-slate-500">{title}</p>
@@ -229,7 +230,8 @@ export default function DashboardProfilePage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-8xl p-4 sm:p-6 lg:p-8">
-        <div className="rounded-[13px] border border-border bg-white p-6 [box-shadow:4px_4px_0px_0px_var(--border)] sm:p-8 dark:bg-slate-900">
+        <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] sm:p-8 dark:bg-white/[0.03]">
+          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 animate-pulse rounded-2xl bg-primary/20" />
             <div className="space-y-2">
@@ -239,7 +241,7 @@ export default function DashboardProfilePage() {
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="rounded-2xl border border-border bg-white p-5 [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-slate-900">
+              <div key={index} className="relative overflow-hidden rounded-2xl border border-border bg-white/30 p-5 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
                 <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-8 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
               </div>
@@ -407,7 +409,8 @@ export default function DashboardProfilePage() {
 
       <section className="grid grid-cols-1 gap-8 xl:grid-cols-12">
         <div className="space-y-6 xl:col-span-4">
-          <div className="rounded-[13px] border border-border bg-white p-6 [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-slate-900">
+          <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
             <div className="mb-5 flex items-center gap-3">
               <div className="rounded-2xl bg-primary/10 p-3 text-primary">
                 <span className="material-symbols-outlined">person</span>
@@ -423,14 +426,14 @@ export default function DashboardProfilePage() {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-wider text-slate-500">
                   User ID
                 </p>
                 <p className="mt-1 text-sm font-semibold">{me.id}</p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-wider text-slate-500">
                   Username
                 </p>
@@ -439,7 +442,7 @@ export default function DashboardProfilePage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-wider text-slate-500">
                   Email
                 </p>
@@ -448,7 +451,7 @@ export default function DashboardProfilePage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-wider text-slate-500">
                   Joined
                 </p>
@@ -459,7 +462,8 @@ export default function DashboardProfilePage() {
             </div>
           </div>
 
-          <div className="rounded-[13px] border border-border bg-white p-6 [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-slate-900">
+          <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
             <div className="mb-5 flex items-center gap-3">
               <div className="rounded-2xl bg-primary/10 p-3 text-primary">
                 <span className="material-symbols-outlined">schedule</span>
@@ -475,7 +479,7 @@ export default function DashboardProfilePage() {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-wider text-slate-500">
                   Available Points
                 </p>
@@ -484,7 +488,7 @@ export default function DashboardProfilePage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-wider text-slate-500">
                   Point Status
                 </p>
@@ -497,7 +501,7 @@ export default function DashboardProfilePage() {
                 </span>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-wider text-slate-500">
                   Expiry Status
                 </p>
@@ -568,8 +572,9 @@ export default function DashboardProfilePage() {
         </div>
 
         <div className="space-y-6 xl:col-span-8">
-          <div className="overflow-hidden rounded-[13px] border border-border bg-white [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-slate-800">
+          <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+            <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-white/10">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                   My Active APIs
@@ -594,7 +599,7 @@ export default function DashboardProfilePage() {
                     <Link
                       key={item.action}
                       href={`/user/app-center/edit/${toEditSlug(item.action)}`}
-                      className="group block rounded-2xl border border-border bg-gradient-to-br from-white to-slate-50 p-4 [box-shadow:4px_4px_0px_0px_var(--border)] transition duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:from-slate-900 dark:to-slate-800/60 dark:focus-visible:ring-offset-slate-900"
+                      className="group block rounded-2xl border border-border bg-white/40 p-4 [box-shadow:4px_4px_0px_0px_var(--border)] transition duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:bg-white/5 dark:focus-visible:ring-offset-slate-900"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div
@@ -637,8 +642,9 @@ export default function DashboardProfilePage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-[13px] border border-border bg-white [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-slate-900">
-            <div className="flex flex-col gap-3 border-b border-slate-100 p-6 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
+          <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+            <div className="flex flex-col gap-3 border-b border-slate-100 p-6 dark:border-white/10 md:flex-row md:items-center md:justify-between">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                   Point History

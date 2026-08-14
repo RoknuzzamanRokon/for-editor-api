@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import type { FontFamily } from '@/lib/fonts'
 
-type Theme = 'ocean' | 'sunset' | 'forest' | 'paper'
+type Theme = 'ocean' | 'sunset' | 'forest' | 'paper' | 'crimson' | 'burgundy'
 export type FontSize = 'small' | 'medium' | 'large' | 'xlarge'
 
 interface ThemeContextType {
@@ -17,7 +17,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-const THEMES: Theme[] = ['ocean', 'sunset', 'forest', 'paper']
+const THEMES: Theme[] = ['ocean', 'sunset', 'forest', 'paper', 'crimson', 'burgundy']
 const LIGHT_THEMES: Theme[] = ['paper']
 const VALID_FONTS = ['dm_sans', 'inter', 'roboto', 'open_sans', 'lato', 'montserrat', 'oswald', 'raleway', 'source_sans']
 const VALID_SIZES: FontSize[] = ['small', 'medium', 'large', 'xlarge']
@@ -91,7 +91,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Apply theme to DOM
   useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'paper', 'midnight', 'livedark')
+    document.documentElement.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'paper', 'crimson', 'burgundy', 'midnight', 'livedark')
     document.documentElement.classList.add(theme)
     if (!LIGHT_THEMES.includes(theme)) {
       document.documentElement.classList.add('dark')

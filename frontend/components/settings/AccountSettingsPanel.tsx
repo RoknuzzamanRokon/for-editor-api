@@ -13,7 +13,9 @@ type ThemeName =
   | "ocean"
   | "sunset"
   | "forest"
-  | "paper";
+  | "paper"
+  | "crimson"
+  | "burgundy";
 
 type AccountSettingsResponse = {
   identity: {
