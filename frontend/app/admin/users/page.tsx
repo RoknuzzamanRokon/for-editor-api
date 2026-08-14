@@ -68,6 +68,13 @@ type UserDetails = {
 // site theme) — only the primary accent color should follow the active theme here.
 const MUTED_FG = "text-slate-500 dark:text-slate-400";
 
+// Tailwind can't apply opacity modifiers to the var()-based theme colors, so
+// `bg-primary/10` and `via-primary/50` compile to no CSS at all. color-mix
+// renders the same intent for real, and stays reactive to the active theme.
+const PRIMARY_TINT = "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]";
+const ACCENT_RAIL_STOPS =
+  "bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent";
+
 const ROLE_OPTIONS = [
   {
     value: "general_user",
@@ -110,6 +117,17 @@ function getStatusBadgeClass(active: boolean) {
     : "bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/20";
 }
 
+/** Reuses the role picker's own tints so the directory and the create form
+ *  always agree on what each role looks like. */
+function getRoleMeta(role: string) {
+  return (
+    ROLE_OPTIONS.find((option) => option.value === role) ?? {
+      icon: "person",
+      tint: "bg-slate-500/10 text-slate-600 dark:text-slate-300",
+    }
+  );
+}
+
 function GlassStatCard({
   title,
   value,
@@ -121,9 +139,9 @@ function GlassStatCard({
 }) {
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
 
-      <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+      <div className={`mb-4 inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
         <span className="material-symbols-outlined">{icon}</span>
       </div>
 
@@ -150,7 +168,9 @@ function GlassSection({
 }) {
   return (
     <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
+      <div
+        className={`absolute inset-y-5 left-5 w-px sm:inset-y-6 sm:left-6 ${ACCENT_RAIL_STOPS}`}
+      />
 
       <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -177,7 +197,7 @@ function GlassInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition placeholder:text-slate-400 focus:border-primary/30 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-slate-500 ${
+      className={`w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_35%,transparent)] dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-slate-500 ${
         props.className ?? ""
       }`}
     />
@@ -188,7 +208,7 @@ function GlassSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/30 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white ${
+      className={`w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_35%,transparent)] dark:border-white/10 dark:bg-white/10 dark:text-white ${
         props.className ?? ""
       }`}
     />
@@ -716,17 +736,16 @@ export default function AdminUsersPage() {
             </div>
           }
         >
-          <div className="overflow-hidden rounded-[18px]">
+          <div className="overflow-hidden rounded-[18px] border border-slate-200/70 dark:border-white/10">
             <div className="max-h-[580px] overflow-auto">
               <table className="w-full text-left">
-                <thead className="sticky top-0 bg-slate-50 text-xs uppercase tracking-[0.16em] text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
+                <thead className="sticky top-0 z-10 bg-slate-50 text-[11px] uppercase tracking-[0.16em] text-slate-500 backdrop-blur dark:bg-slate-800/80 dark:text-slate-400">
                   <tr>
-                    <th className="px-6 py-4">ID</th>
-                    <th className="px-6 py-4">Email</th>
-                    <th className="px-6 py-4">Username</th>
-                    <th className="px-6 py-4">Role</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4">Created At</th>
+                    <th className="px-5 py-3.5 font-bold">User</th>
+                    <th className="px-5 py-3.5 font-bold">Role</th>
+                    <th className="px-5 py-3.5 font-bold">Status</th>
+                    <th className="px-5 py-3.5 font-bold">Created</th>
+                    <th className="w-10 px-5 py-3.5" />
                   </tr>
                 </thead>
 
@@ -734,8 +753,8 @@ export default function AdminUsersPage() {
                   {loading ? (
                     Array.from({ length: 5 }).map((_, index) => (
                       <tr key={index}>
-                        {Array.from({ length: 6 }).map((__, cellIndex) => (
-                          <td key={cellIndex} className="px-6 py-4">
+                        {Array.from({ length: 5 }).map((__, cellIndex) => (
+                          <td key={cellIndex} className="px-5 py-3.5">
                             <div className="h-4 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
                           </td>
                         ))}
@@ -743,46 +762,92 @@ export default function AdminUsersPage() {
                     ))
                   ) : filteredUsers.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan={6}
-                        className="px-6 py-8 text-sm text-slate-500 dark:text-slate-400"
-                      >
-                        No users found.
+                      <td colSpan={5} className="px-5 py-14 text-center">
+                        <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">
+                          person_search
+                        </span>
+                        <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                          No users found
+                        </p>
+                        <p className={`mt-1 text-xs ${MUTED_FG}`}>
+                          {search
+                            ? "Try a different search term."
+                            : "Create your first user to get started."}
+                        </p>
                       </td>
                     </tr>
                   ) : (
-                    filteredUsers.map((user) => (
-                      <tr
-                        key={user.id}
-                        className="cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                        onClick={() => handleOpenUserDetails(user.id)}
-                      >
-                        <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">
-                          {user.id}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-200">
-                          {user.email}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-200">
-                          {formatProfileName(user.username, "-")}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-200">
-                          {formatRoleLabel(user.role)}
-                        </td>
-                        <td className="px-6 py-4 text-sm">
-                          <span
-                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadgeClass(
-                              user.is_active,
-                            )}`}
+                    filteredUsers.map((user) => {
+                      const role = getRoleMeta(user.role);
+                      return (
+                        <tr
+                          key={user.id}
+                          className="group cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                          onClick={() => handleOpenUserDetails(user.id)}
+                        >
+                          {/* Identity reads as one unit — avatar, name, email —
+                              instead of three columns the eye has to reassemble. */}
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <span
+                                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-black uppercase ${role.tint}`}
+                              >
+                                {(user.username || user.email).slice(0, 1)}
+                              </span>
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                                  {formatProfileName(user.username, user.email)}
+                                </p>
+                                <p className={`truncate text-xs ${MUTED_FG}`}>
+                                  {user.email}
+                                  <span className="ml-2 tabular-nums opacity-60">
+                                    #{user.id}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-5 py-3.5">
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${role.tint}`}
+                            >
+                              <span className="material-symbols-outlined text-[14px]">
+                                {role.icon}
+                              </span>
+                              {formatRoleLabel(user.role)}
+                            </span>
+                          </td>
+
+                          <td className="px-5 py-3.5">
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadgeClass(
+                                user.is_active,
+                              )}`}
+                            >
+                              <span className="material-symbols-outlined text-[14px]">
+                                {user.is_active ? "check_circle" : "cancel"}
+                              </span>
+                              {user.is_active ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+
+                          <td
+                            className={`whitespace-nowrap px-5 py-3.5 text-xs tabular-nums ${MUTED_FG}`}
                           >
-                            {user.is_active ? "Active" : "Inactive"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
-                          {new Date(user.created_at).toLocaleString()}
-                        </td>
-                      </tr>
-                    ))
+                            {formatDate(user.created_at)}
+                          </td>
+
+                          {/* Rows open a detail modal on click; this makes that
+                              affordance visible instead of leaving it hidden. */}
+                          <td className="px-5 py-3.5 text-right">
+                            <span className="material-symbols-outlined text-lg text-slate-300 transition-colors group-hover:text-primary dark:text-slate-600">
+                              chevron_right
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
