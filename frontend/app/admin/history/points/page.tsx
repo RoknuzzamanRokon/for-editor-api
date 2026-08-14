@@ -14,7 +14,7 @@ export default function Page() {
             </div>
             <nav class="flex-1 px-4 space-y-1 mt-4">
       <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
-          href="/admin">
+          href="/admin/dashboard">
         <span class="material-symbols-outlined">dashboard</span>
         <span class="text-sm font-medium">Dashboard</span>
       </a>
@@ -91,7 +91,7 @@ export default function Page() {
             <main class="flex-1 overflow-y-auto bg-transparent p-8">
                 <!-- Breadcrumbs -->
                 <nav class="flex items-center gap-2 mb-6 text-sm">
-                    <a class="text-slate-500 hover:text-primary transition-colors" href="/admin">Home</a>
+                    <a class="text-slate-500 hover:text-primary transition-colors" href="/admin/dashboard">Home</a>
                     <span class="material-symbols-outlined text-slate-400 text-xs">chevron_right</span>
                     <span class="text-slate-900 dark:text-slate-200 font-medium">Point History</span>
                 </nav>

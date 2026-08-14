@@ -86,7 +86,7 @@ PAGE_REGISTRY: Dict[str, dict] = {
     # --- Admin workspace ----------------------------------------------------
     "admin_home": {
         "label": "Dashboard",
-        "path": "/admin",
+        "path": "/admin/dashboard",
         "area": "admin",
         "icon": "dashboard",
         "roles": ADMIN_ROLES,

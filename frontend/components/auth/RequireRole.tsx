@@ -14,7 +14,7 @@ type RefreshTokenResponse = {
 };
 
 function defaultRouteForRole(role: Role) {
-  return role === "general_user" || role === "demo_user" ? "/user/dashboard" : "/admin";
+  return role === "general_user" || role === "demo_user" ? "/user/dashboard" : "/admin/dashboard";
 }
 
 async function fetchMe(token: string) {

@@ -4,7 +4,7 @@ import { startTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const PREFETCH_ROUTES = [
-  "/admin",
+  "/admin/dashboard",
   "/admin/profile",
   "/admin/app-center",
   "/admin/billing",

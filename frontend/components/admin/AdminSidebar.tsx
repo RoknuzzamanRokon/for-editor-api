@@ -57,7 +57,7 @@ function normalizeSidebarSettings(payload: unknown) {
 }
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/admin", icon: "dashboard" },
+  { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" },
   { label: "Profile", href: "/admin/profile", icon: "manage_accounts" },
   { label: "App Center", href: "/admin/app-center", icon: "apps" },
   { label: "Billing", href: "/admin/billing", icon: "credit_card" },
@@ -232,8 +232,8 @@ export default function AdminSidebar({
         {visibleNavItems.map((item) => {
           const matchTarget = item.match ?? item.href;
           const isActive =
-            item.href === "/admin"
-              ? pathname === "/admin"
+            item.href === "/admin/dashboard"
+              ? pathname === "/admin/dashboard"
               : pathname.startsWith(matchTarget.replace(/\/+$/, ""));
           const linkClasses = compactDesktop
             ? `mx-auto flex h-12 w-12 items-center justify-center rounded-full px-0 py-0 ${
