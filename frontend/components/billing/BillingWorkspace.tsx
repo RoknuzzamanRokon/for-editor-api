@@ -20,6 +20,18 @@ const FOCUS_RING =
 // modifier, and these sit on neutral surfaces anyway.
 const MUTED_FG = "text-slate-500 dark:text-slate-400";
 
+// --- Modal-only tones -------------------------------------------------------
+// The dialog sits on `bg-card`, whose lightness varies enormously per theme:
+// near-black in crimson/burgundy, white in paper, but MID-TONE in ocean
+// (#075985), sunset (#7c2d12) and forest (#14532d). Fixed slate text scores
+// 2.95 / 3.65 / 3.55 against those three — below the 4.5 WCAG floor, which is
+// exactly why only those themes looked wrong. Deriving from --foreground
+// instead tracks whatever card the theme supplies; 80% is the lowest step that
+// clears 4.5 on all six (worst case ocean, 4.83).
+const MODAL_MUTED = "text-[color-mix(in_srgb,var(--foreground)_80%,transparent)]";
+// Inner panels lift off the card using the theme's own second surface.
+const MODAL_PANEL = "border border-border bg-card-hover";
+
 type PointHistoryEntry = {
   id: number;
   action: string;
@@ -919,13 +931,13 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                 <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-4 sm:px-6">
                   <div className="min-w-0">
                     <h3 className="text-lg font-bold text-foreground">Topup Request</h3>
-                    <p className={`mt-0.5 text-xs ${MUTED_FG}`}>{requestHint}</p>
+                    <p className={`mt-0.5 text-xs ${MODAL_MUTED}`}>{requestHint}</p>
                   </div>
                   <button
                     type="button"
                     onClick={closeTopupModal}
                     aria-label="Close"
-                    className={`-mr-1 shrink-0 rounded-lg p-1 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white ${MUTED_FG}`}
+                    className={`-mr-1 shrink-0 rounded-lg p-1 transition hover:bg-card-hover hover:text-foreground ${MODAL_MUTED}`}
                   >
                     <span className="material-symbols-outlined">close</span>
                   </button>
@@ -948,21 +960,21 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                 {/* Routing is decided by the server from who created this
                     account — shown, never entered. */}
                 {catalog ? (
-                  <div className="mb-5 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
-                    <span className={`material-symbols-outlined text-lg ${MUTED_FG}`}>
+                  <div className={`mb-5 flex items-start gap-3 rounded-xl p-3 ${MODAL_PANEL}`}>
+                    <span className={`material-symbols-outlined text-lg ${MODAL_MUTED}`}>
                       {catalog.target.routing === "creator" ? "supervisor_account" : "shield"}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                      <p className={`text-xs font-bold uppercase tracking-widest ${MODAL_MUTED}`}>
                         Goes to
                       </p>
-                      <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                      <p className="truncate text-sm font-semibold text-foreground">
                         {catalog.target.username || catalog.target.email}
-                        <span className={`ml-2 text-xs font-normal ${MUTED_FG}`}>
+                        <span className={`ml-2 text-xs font-normal ${MODAL_MUTED}`}>
                           {formatRoleLabel(catalog.target.role)}
                         </span>
                       </p>
-                      <p className={`mt-0.5 text-xs ${MUTED_FG}`}>
+                      <p className={`mt-0.5 text-xs ${MODAL_MUTED}`}>
                         {catalog.target.routing === "creator"
                           ? "The administrator who created your account."
                           : "Your account is self-registered, so this goes to a super admin."}
@@ -973,7 +985,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <span className={`text-xs font-bold uppercase tracking-widest ${MUTED_FG}`}>
+                    <span className={`text-xs font-bold uppercase tracking-widest ${MODAL_MUTED}`}>
                       Choose a package
                     </span>
                     <div className="grid grid-cols-1 gap-2">
@@ -989,12 +1001,12 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                             className={`flex items-center justify-between gap-3 rounded-xl border p-3 text-left transition ${
                               active
                                 ? "border-primary ring-1 ring-inset ring-primary"
-                                : "border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/60"
+                                : "border-border hover:bg-card-hover"
                             }`}
                           >
                             <span className="min-w-0 flex-1">
                               <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                <span className="text-sm font-bold text-slate-900 dark:text-white">
+                                <span className="text-sm font-bold text-foreground">
                                   {isCustom ? "Custom" : `${pkg.label} · ${formatUsd(pkg.price_cents)}`}
                                 </span>
                                 {pkg.grants_admin_access ? (
@@ -1006,7 +1018,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                                   </span>
                                 ) : null}
                               </span>
-                              <span className={`mt-0.5 block text-xs ${MUTED_FG}`}>
+                              <span className={`mt-0.5 block text-xs ${MODAL_MUTED}`}>
                                 {pkg.description}
                               </span>
                             </span>
@@ -1015,7 +1027,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                                 <span className="block text-sm font-black tabular-nums text-primary">
                                   {pkg.points.toLocaleString()}
                                 </span>
-                                <span className={`block text-[10px] uppercase tracking-wider ${MUTED_FG}`}>
+                                <span className={`block text-[10px] uppercase tracking-wider ${MODAL_MUTED}`}>
                                   points
                                 </span>
                               </span>
@@ -1028,11 +1040,11 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
                   {selectedPackage === "custom" ? (
                     <label className="block space-y-1.5">
-                      <span className={`text-xs font-bold uppercase tracking-widest ${MUTED_FG}`}>
+                      <span className={`text-xs font-bold uppercase tracking-widest ${MODAL_MUTED}`}>
                         Amount in USD
                       </span>
                       <div className="relative">
-                        <span className={`pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm ${MUTED_FG}`}>
+                        <span className={`pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm ${MODAL_MUTED}`}>
                           $
                         </span>
                         <input
@@ -1041,14 +1053,14 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                           step="1"
                           value={customDollars}
                           onChange={(e) => setCustomDollars(e.target.value)}
-                          className={`w-full rounded-xl border border-border bg-transparent py-3 pl-8 pr-4 text-sm text-foreground outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 ${FOCUS_RING}`}
+                          className={`w-full rounded-xl border border-border bg-transparent py-3 pl-8 pr-4 text-sm text-foreground outline-none transition placeholder:text-[color-mix(in_srgb,var(--foreground)_50%,transparent)] ${FOCUS_RING}`}
                         />
                       </div>
                     </label>
                   ) : null}
 
                   <label className="block space-y-1.5">
-                    <span className={`text-xs font-bold uppercase tracking-widest ${MUTED_FG}`}>
+                    <span className={`text-xs font-bold uppercase tracking-widest ${MODAL_MUTED}`}>
                       Request Note <span className="font-normal normal-case">(optional)</span>
                     </span>
                     <input
@@ -1058,7 +1070,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                         setForm((prev) => ({ ...prev, note: e.target.value }))
                       }
                       placeholder="Reason or project note"
-                      className={`w-full rounded-xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 ${FOCUS_RING}`}
+                      className={`w-full rounded-xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[color-mix(in_srgb,var(--foreground)_50%,transparent)] ${FOCUS_RING}`}
                     />
                   </label>
                 </div>
@@ -1069,17 +1081,17 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                     className={`mt-5 rounded-xl border p-3 ${
                       belowMinimum
                         ? "border-rose-200 bg-rose-50 dark:border-rose-900/40 dark:bg-rose-950/30"
-                        : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50"
+                        : `${MODAL_PANEL}`
                     }`}
                   >
                     <div className="flex items-baseline justify-between gap-3">
-                      <span className={`text-xs font-bold uppercase tracking-widest ${MUTED_FG}`}>
+                      <span className={`text-xs font-bold uppercase tracking-widest ${MODAL_MUTED}`}>
                         You receive
                       </span>
-                      <span className="text-lg font-black tabular-nums text-slate-900 dark:text-white">
+                      <span className="text-lg font-black tabular-nums text-foreground">
                         {quote.points.toLocaleString()}
-                        <span className={`ml-1 text-xs font-semibold ${MUTED_FG}`}>pts</span>
-                        <span className={`mx-2 text-xs font-normal ${MUTED_FG}`}>for</span>
+                        <span className={`ml-1 text-xs font-semibold ${MODAL_MUTED}`}>pts</span>
+                        <span className={`mx-2 text-xs font-normal ${MODAL_MUTED}`}>for</span>
                         {formatUsd(quote.cents)}
                       </span>
                     </div>
@@ -1101,7 +1113,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                   <button
                     type="button"
                     onClick={closeTopupModal}
-                    className="flex-1 rounded-xl border border-border py-2.5 text-sm font-semibold text-foreground transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                    className="flex-1 rounded-xl border border-border py-2.5 text-sm font-semibold text-foreground transition hover:bg-card-hover"
                   >
                     Cancel
                   </button>
