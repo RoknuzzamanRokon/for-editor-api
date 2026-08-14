@@ -9,7 +9,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen font-display transition-colors duration-300" style={{ color: theme.text, background: theme.shellBg }}>
       <MarketingHeader />
-      <div className="pt-[6.5rem] sm:pt-[7.5rem] lg:pt-32">
+      <div className="pt-[4.5rem] sm:pt-[5.5rem] lg:pt-[6rem]">
         {children}
       </div>
       <MarketingFooter />

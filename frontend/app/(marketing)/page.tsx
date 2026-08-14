@@ -96,7 +96,7 @@ export default function Page() {
 
       {/* ── Hero ── */}
       <section
-        className="relative mb-16 w-full overflow-hidden border-y px-4 pb-10 pt-0 backdrop-blur-sm sm:px-6 sm:pb-14 sm:pt-8 lg:mb-24 lg:px-8 lg:py-20"
+        className="relative mb-16 w-full overflow-hidden border-b px-4 pb-10 pt-6 backdrop-blur-sm sm:px-6 sm:pb-14 sm:pt-10 lg:mb-24 lg:px-8 lg:pb-20 lg:pt-16"
         style={{ background: heroBackground, borderColor: t.border }}
       >
         <div className="relative mx-auto grid max-w-[1440px] items-center gap-5 lg:grid-cols-[0.82fr_1.18fr] lg:gap-18 lg:px-12">

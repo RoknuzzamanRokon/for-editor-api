@@ -77,7 +77,7 @@ const sunset: MarketingTheme = {
   codeBlockBg: '#020617',
   codeBlockText: '#d6d3d1',
   codeBlockBorder: 'rgba(249,115,22,0.24)',
-  shellBg: '#020617',
+  shellBg: '#09111f',
   panelShadow: '0 28px 90px rgba(2,6,23,0.58), 0 0 0 1px rgba(249,115,22,0.12), 0 0 50px rgba(249,115,22,0.14)',
   elevatedCardShadow: '0 24px 56px rgba(2,6,23,0.58), 0 0 26px rgba(249,115,22,0.14)',
   softCardShadow: '0 16px 34px rgba(2,6,23,0.42), 0 0 18px rgba(249,115,22,0.08)',
