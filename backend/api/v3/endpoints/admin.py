@@ -144,39 +144,60 @@ def get_admin_dashboard_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
 ) -> AdminDashboardSummaryResponse:
-    _ = current_user
+    # A super_user sees platform-wide data; an admin_user sees only the
+    # activity of users they personally created (User.created_by_user_id) —
+    # same rule as list_users() and the points giving-history endpoints below.
+    is_admin_scoped = current_user.role == RoleEnum.admin_user
+
     recent_day_keys = _build_recent_day_keys()
     earliest_day = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=29)
 
-    total_points_issued = (
-        db.query(func.coalesce(func.sum(PointsTopup.amount), 0))
-        .scalar()
-        or 0
+    total_points_issued_query = db.query(func.coalesce(func.sum(PointsTopup.amount), 0)).join(
+        User, User.id == PointsTopup.user_id
     )
-    active_users = (
-        db.query(func.count(User.id))
-        .filter(User.is_active.is_(True))
-        .scalar()
-        or 0
-    )
-    total_api_requests = db.query(func.count(Conversion.id)).scalar() or 0
-    flagged_activities = (
-        db.query(func.count(Conversion.id))
-        .filter(Conversion.status == "failed")
-        .scalar()
-        or 0
-    )
-
-    recent_rows = (
-        db.query(
-            PointsLedger.user_id,
-            User.email.label("user_email"),
-            User.username.label("user_username"),
-            PointsLedger.amount,
-            PointsLedger.status,
-            PointsLedger.created_at,
+    if is_admin_scoped:
+        total_points_issued_query = total_points_issued_query.filter(
+            User.created_by_user_id == current_user.id
         )
-        .join(User, User.id == PointsLedger.user_id)
+    total_points_issued = total_points_issued_query.scalar() or 0
+
+    active_users_query = db.query(func.count(User.id)).filter(User.is_active.is_(True))
+    if is_admin_scoped:
+        active_users_query = active_users_query.filter(User.created_by_user_id == current_user.id)
+    active_users = active_users_query.scalar() or 0
+
+    total_api_requests_query = db.query(func.count(Conversion.id)).join(
+        User, User.id == Conversion.owner_user_id
+    )
+    if is_admin_scoped:
+        total_api_requests_query = total_api_requests_query.filter(
+            User.created_by_user_id == current_user.id
+        )
+    total_api_requests = total_api_requests_query.scalar() or 0
+
+    flagged_activities_query = (
+        db.query(func.count(Conversion.id))
+        .join(User, User.id == Conversion.owner_user_id)
+        .filter(Conversion.status == "failed")
+    )
+    if is_admin_scoped:
+        flagged_activities_query = flagged_activities_query.filter(
+            User.created_by_user_id == current_user.id
+        )
+    flagged_activities = flagged_activities_query.scalar() or 0
+
+    recent_rows_query = db.query(
+        PointsLedger.user_id,
+        User.email.label("user_email"),
+        User.username.label("user_username"),
+        PointsLedger.amount,
+        PointsLedger.status,
+        PointsLedger.created_at,
+    ).join(User, User.id == PointsLedger.user_id)
+    if is_admin_scoped:
+        recent_rows_query = recent_rows_query.filter(User.created_by_user_id == current_user.id)
+    recent_rows = (
+        recent_rows_query
         .order_by(PointsLedger.created_at.desc(), PointsLedger.id.desc())
         .limit(8)
         .all()
@@ -199,33 +220,35 @@ def get_admin_dashboard_summary(
         for row in recent_rows
     ]
 
-    success_stats = (
-        db.query(
-            func.count(Conversion.id).label("total"),
-            func.sum(case((Conversion.status == "success", 1), else_=0)).label("success"),
-            func.sum(
-                case(
-                    (Conversion.status.in_(["processing", "pending", "queued"]), 1),
-                    else_=0,
-                )
-            ).label("processing"),
-        )
-        .first()
-    )
+    success_stats_query = db.query(
+        func.count(Conversion.id).label("total"),
+        func.sum(case((Conversion.status == "success", 1), else_=0)).label("success"),
+        func.sum(
+            case(
+                (Conversion.status.in_(["processing", "pending", "queued"]), 1),
+                else_=0,
+            )
+        ).label("processing"),
+    ).join(User, User.id == Conversion.owner_user_id)
+    if is_admin_scoped:
+        success_stats_query = success_stats_query.filter(User.created_by_user_id == current_user.id)
+    success_stats = success_stats_query.first()
     total_conversions = int(success_stats.total or 0)
     successful_conversions = int(success_stats.success or 0)
     processing_queue = int(success_stats.processing or 0)
     api_success_rate = round((successful_conversions / total_conversions) * 100, 1) if total_conversions else 0.0
 
-    failed_last_day = (
+    failed_last_day_query = (
         db.query(func.count(Conversion.id))
+        .join(User, User.id == Conversion.owner_user_id)
         .filter(
             Conversion.status == "failed",
             Conversion.updated_at >= datetime.utcnow() - timedelta(hours=24),
         )
-        .scalar()
-        or 0
     )
+    if is_admin_scoped:
+        failed_last_day_query = failed_last_day_query.filter(User.created_by_user_id == current_user.id)
+    failed_last_day = failed_last_day_query.scalar() or 0
 
     quick_stats = [
         AdminDashboardQuickStat(label="Total Points Issued", value=int(total_points_issued), icon="toll"),
@@ -252,7 +275,7 @@ def get_admin_dashboard_summary(
         ),
     ]
 
-    request_rows = (
+    request_rows_query = (
         db.query(
             func.date(Conversion.created_at).label("day"),
             func.count(Conversion.id).label("total"),
@@ -265,7 +288,13 @@ def get_admin_dashboard_summary(
                 )
             ).label("processing"),
         )
+        .join(User, User.id == Conversion.owner_user_id)
         .filter(Conversion.created_at >= earliest_day)
+    )
+    if is_admin_scoped:
+        request_rows_query = request_rows_query.filter(User.created_by_user_id == current_user.id)
+    request_rows = (
+        request_rows_query
         .group_by(func.date(Conversion.created_at))
         .order_by(func.date(Conversion.created_at).asc())
         .all()
@@ -290,14 +319,20 @@ def get_admin_dashboard_summary(
         for day_key in recent_day_keys
     ]
 
-    points_rows = (
+    points_rows_query = (
         db.query(
             func.date(PointsLedger.created_at).label("day"),
             func.sum(case((PointsLedger.status == "topup", PointsLedger.amount), else_=0)).label("topup"),
             func.sum(case((PointsLedger.status == "spent", -PointsLedger.amount), else_=0)).label("spent"),
             func.sum(case((PointsLedger.status == "refunded", PointsLedger.amount), else_=0)).label("refunded"),
         )
+        .join(User, User.id == PointsLedger.user_id)
         .filter(PointsLedger.created_at >= earliest_day)
+    )
+    if is_admin_scoped:
+        points_rows_query = points_rows_query.filter(User.created_by_user_id == current_user.id)
+    points_rows = (
+        points_rows_query
         .group_by(func.date(PointsLedger.created_at))
         .order_by(func.date(PointsLedger.created_at).asc())
         .all()
@@ -320,15 +355,19 @@ def get_admin_dashboard_summary(
         for day_key in recent_day_keys
     ]
 
-    top_point_holder_rows = (
-        db.query(
-            UserPoints.user_id,
-            User.email,
-            User.username,
-            User.role,
-            UserPoints.balance,
+    top_point_holder_rows_query = db.query(
+        UserPoints.user_id,
+        User.email,
+        User.username,
+        User.role,
+        UserPoints.balance,
+    ).join(User, User.id == UserPoints.user_id)
+    if is_admin_scoped:
+        top_point_holder_rows_query = top_point_holder_rows_query.filter(
+            User.created_by_user_id == current_user.id
         )
-        .join(User, User.id == UserPoints.user_id)
+    top_point_holder_rows = (
+        top_point_holder_rows_query
         .order_by(UserPoints.balance.desc(), User.id.asc())
         .limit(6)
         .all()
