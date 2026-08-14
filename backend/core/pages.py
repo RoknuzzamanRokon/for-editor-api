@@ -74,6 +74,15 @@ PAGE_REGISTRY: Dict[str, dict] = {
         "locked": False,
         "description": "Plans and invoices",
     },
+    "dashboard_usage_history": {
+        "label": "Usage History",
+        "path": "/user/usage-history",
+        "area": "dashboard",
+        "icon": "query_stats",
+        "roles": DASHBOARD_ROLES,
+        "locked": False,
+        "description": "Your own API and points usage",
+    },
     "dashboard_notifications": {
         "label": "Notifications",
         "path": "/user/notifications",
@@ -146,6 +155,15 @@ PAGE_REGISTRY: Dict[str, dict] = {
         "roles": ADMIN_ROLES,
         "locked": False,
         "description": "Grant points and review top-up requests",
+    },
+    "admin_usage_history": {
+        "label": "Usage History",
+        "path": "/admin/usage-history",
+        "area": "admin",
+        "icon": "query_stats",
+        "roles": ADMIN_ROLES,
+        "locked": False,
+        "description": "Your own API and points usage",
     },
     "admin_notifications": {
         "label": "Notifications",

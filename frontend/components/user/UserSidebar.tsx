@@ -51,6 +51,7 @@ const navItems = [
   { label: 'App Center', href: '/user/app-center', icon: 'apps' },
   { label: 'Profile', href: '/user/profile', icon: 'person' },
   { label: 'Points', href: '/user/points', icon: 'toll' },
+  { label: 'Usage History', href: '/user/usage-history', icon: 'query_stats' },
   { label: 'Billing', href: '/user/billing', icon: 'credit_card' },
   { label: 'Notifications', href: '/user/notifications', icon: 'notifications' },
   { label: 'Settings', href: '/user/settings', icon: 'settings' },

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, aliased
 from core.deps import ensure_can_manage_user, require_role
 from core.permissions import list_allowed_actions
 from core.points import POINTS_COST_PER_REQUEST, get_user_balance, topup_points
+from core.timeseries import build_recent_day_keys
 from db.models import (
     Conversion,
     PointsLedger,
@@ -42,14 +43,6 @@ from models.admin import (
 from services.users import get_user_by_id
 
 router = APIRouter(prefix="/admin", tags=["admin"])
-
-
-def _build_recent_day_keys(day_count: int = 30) -> list[str]:
-    today = datetime.utcnow().date()
-    return [
-        (today - timedelta(days=offset)).isoformat()
-        for offset in range(day_count - 1, -1, -1)
-    ]
 
 
 def _ensure_admin_can_handle_topup_request(current_user: User, request: PointsTopupRequest) -> None:
@@ -149,7 +142,7 @@ def get_admin_dashboard_summary(
     # same rule as list_users() and the points giving-history endpoints below.
     is_admin_scoped = current_user.role == RoleEnum.admin_user
 
-    recent_day_keys = _build_recent_day_keys()
+    recent_day_keys = build_recent_day_keys()
     earliest_day = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=29)
 
     total_points_issued_query = db.query(func.coalesce(func.sum(PointsTopup.amount), 0)).join(
