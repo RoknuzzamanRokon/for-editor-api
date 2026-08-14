@@ -4,6 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import case, func
 from sqlalchemy.orm import Session
 
+from core.billing_packages import (
+    MIN_TOPUP_CENTS,
+    MIN_TOPUP_POINTS,
+    list_packages,
+    resolve_package,
+    resolve_request_target,
+)
 from core.deps import get_current_user, require_role
 from core.points import POINTS_COST_PER_REQUEST, get_user_balance, topup_points
 from db.models import PointsLedger, PointsTopupRequest as PointsTopupRequestModel, RoleEnum, User
@@ -20,6 +27,9 @@ from models.points import (
     PointsTopupRequestEntry,
     PointsTopupRequestList,
     PointsTopupResponse,
+    TopupPackage,
+    TopupPackagesResponse,
+    TopupTarget,
 )
 from services.users import get_user_by_id
 
@@ -93,6 +103,29 @@ def topup(
     return PointsTopupResponse(user_id=payload.user_id, balance=balance)
 
 
+@router.get("/topup-packages", response_model=TopupPackagesResponse)
+def get_topup_packages(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> TopupPackagesResponse:
+    """The package catalogue plus who this caller's request would be routed to."""
+    target = resolve_request_target(db, current_user)
+    routing = "creator" if target.id == current_user.created_by_user_id else "super_user"
+
+    return TopupPackagesResponse(
+        min_price_cents=MIN_TOPUP_CENTS,
+        min_points=MIN_TOPUP_POINTS,
+        packages=[TopupPackage(**item) for item in list_packages()],
+        target=TopupTarget(
+            id=target.id,
+            email=target.email,
+            username=target.username,
+            role=target.role.value if hasattr(target.role, "value") else str(target.role),
+            routing=routing,
+        ),
+    )
+
+
 @router.post("/topup-requests", response_model=PointsTopupRequestEntry, status_code=status.HTTP_201_CREATED)
 def create_topup_request(
     payload: PointsTopupCreateRequest,
@@ -103,34 +136,50 @@ def create_topup_request(
     if not target_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    requested_admin = get_user_by_id(db, payload.requested_admin_user_id)
-    if not requested_admin:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Requested admin not found")
-    if requested_admin.role not in {RoleEnum.admin_user, RoleEnum.super_user}:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Requested user must be an admin or super user",
-        )
-
     if current_user.role not in {RoleEnum.admin_user, RoleEnum.super_user} and payload.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Users can only request topups for their own account",
         )
 
-    if (
-        requested_admin.role == RoleEnum.admin_user
-        and target_user.created_by_user_id != requested_admin.id
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Selected admin is not allowed to manage this user",
-        )
+    # Commercial terms come from the catalogue, never from the client — a request
+    # body can pick a package but can't invent its price or its point value.
+    terms = resolve_package(payload.package_key, payload.price_cents)
+
+    # Routing is resolved from who created the account. An explicit target is
+    # honoured only for admins/super users, and still has to be a valid fulfiller.
+    if payload.requested_admin_user_id is not None:
+        if current_user.role not in {RoleEnum.admin_user, RoleEnum.super_user}:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Top-up requests are routed automatically; you cannot choose the recipient",
+            )
+        requested_admin = get_user_by_id(db, payload.requested_admin_user_id)
+        if not requested_admin:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Requested admin not found")
+        if requested_admin.role not in {RoleEnum.admin_user, RoleEnum.super_user}:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Requested user must be an admin or super user",
+            )
+        if (
+            requested_admin.role == RoleEnum.admin_user
+            and target_user.created_by_user_id != requested_admin.id
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Selected admin is not allowed to manage this user",
+            )
+    else:
+        requested_admin = resolve_request_target(db, target_user)
 
     request = PointsTopupRequestModel(
         user_id=payload.user_id,
-        requested_admin_user_id=payload.requested_admin_user_id,
-        amount=payload.amount,
+        requested_admin_user_id=requested_admin.id,
+        amount=terms["points"],
+        package_key=terms["package_key"],
+        price_cents=terms["price_cents"],
+        grants_admin_access=terms["grants_admin_access"],
         note=payload.note,
         status="pending",
         created_by_user_id=current_user.id,

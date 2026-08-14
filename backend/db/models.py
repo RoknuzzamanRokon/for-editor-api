@@ -178,6 +178,11 @@ class PointsTopupRequest(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     requested_admin_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     amount = Column(Integer, nullable=False)
+    # Commercial terms, frozen at request time so editing core/billing_packages.py
+    # later never rewrites what was already agreed. custom | small | medium | large.
+    package_key = Column(String(32), nullable=False, default="custom", server_default="custom")
+    price_cents = Column(Integer, nullable=False, default=0, server_default="0")
+    grants_admin_access = Column(Boolean, nullable=False, default=False, server_default="0")
     note = Column(String(255), nullable=True)
     status = Column(String(32), nullable=False, default="pending", server_default="pending", index=True)
     created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)

@@ -1,11 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { API_BASE } from "@/lib/apiBase";
 import { formatRoleLabel } from "@/lib/roleLabel";
 const POINT_ACTIVITY_CHART_WIDTH = 1920;
 const POINT_ACTIVITY_CHART_HEIGHT = 240;
 const POINT_ACTIVITY_CHART_PADDING = { top: 16, right: 18, bottom: 34, left: 18 };
+
+// Tailwind can't apply opacity modifiers to the var()-based theme colors, so
+// `bg-primary/10`, `via-primary/50` and `text-foreground/60` all compile to no
+// CSS at all. color-mix expresses the same intent and stays theme-reactive.
+const PRIMARY_TINT = "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]";
+const ACCENT_RAIL_STOPS =
+  "bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent";
+const FOCUS_RING =
+  "focus:border-primary focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_35%,transparent)]";
+// Fixed neutral muted tone — the theme's own foreground can't take an opacity
+// modifier, and these sit on neutral surfaces anyway.
+const MUTED_FG = "text-slate-500 dark:text-slate-400";
 
 type PointHistoryEntry = {
   id: number;
@@ -46,6 +59,9 @@ type TopupRequestEntry = {
   user_id: number;
   requested_admin_user_id: number;
   amount: number;
+  package_key: string;
+  price_cents: number;
+  grants_admin_access: boolean;
   note: string | null;
   status: string;
   created_by_user_id: number;
@@ -60,6 +76,30 @@ type TopupRequestList = {
   total: number;
   limit: number;
   offset: number;
+};
+
+type TopupPackage = {
+  key: string;
+  label: string;
+  price_cents: number;
+  points: number;
+  grants_admin_access: boolean;
+  description: string;
+};
+
+type TopupTarget = {
+  id: number;
+  email: string;
+  username: string | null;
+  role: string;
+  routing: string;
+};
+
+type TopupPackagesResponse = {
+  min_price_cents: number;
+  min_points: number;
+  packages: TopupPackage[];
+  target: TopupTarget;
 };
 
 type MeResponse = {
@@ -103,6 +143,47 @@ function getStatusClass(status: string) {
   return "border-slate-200/70 bg-slate-50/80 text-slate-700 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300";
 }
 
+/** Pairs each status tone with an icon, so state is never carried by color alone. */
+function getStatusIcon(status: string) {
+  const normalized = status.toLowerCase();
+  if (
+    normalized.includes("success") ||
+    normalized.includes("active") ||
+    normalized.includes("available") ||
+    normalized.includes("approved")
+  ) {
+    return "check_circle";
+  }
+  if (normalized.includes("pending")) return "schedule";
+  if (
+    normalized.includes("expired") ||
+    normalized.includes("failed") ||
+    normalized.includes("inactive") ||
+    normalized.includes("rejected")
+  ) {
+    return "cancel";
+  }
+  return "info";
+}
+
+/** "Aug 12, 10:04 AM" — the requests table lives in a half-width column, where a
+ *  full toLocaleString() overflows and gets clipped. */
+function formatShortDateTime(value?: string | null) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+/** Integer cents -> "$30" / "$4.99". Money never becomes a float on the way in. */
+function formatUsd(cents: number) {
+  const dollars = cents / 100;
+  return `$${Number.isInteger(dollars) ? dollars : dollars.toFixed(2)}`;
+}
+
 function formatCompactDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -124,8 +205,8 @@ function MetricCard({
 }) {
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-      <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+      <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
+      <div className={`mb-4 inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
         <span className="material-symbols-outlined">{icon}</span>
       </div>
       <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
@@ -148,15 +229,45 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
   const [cancelRequestId, setCancelRequestId] = useState<number | null>(null);
   const [requestError, setRequestError] = useState("");
   const [requestSuccess, setRequestSuccess] = useState("");
-  const [form, setForm] = useState({
-    requested_admin_user_id: "",
-    amount: "",
-    note: "",
-  });
+  const [form, setForm] = useState({ note: "" });
+  const [catalog, setCatalog] = useState<TopupPackagesResponse | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState("small");
+  // Custom tier only: dollars as typed, converted to integer cents on submit.
+  const [customDollars, setCustomDollars] = useState("5");
+  // The modal portals into document.body, which only exists after mount.
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const closeTopupModal = useCallback(() => {
+    setShowTopupModal(false);
+    setRequestError("");
+    setRequestSuccess("");
+  }, []);
+
+  useEffect(() => {
+    if (!showTopupModal) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeTopupModal();
+    };
+
+    // Lock the page behind the overlay so scrolling doesn't run underneath it.
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [showTopupModal, closeTopupModal]);
 
   const refreshPageData = useCallback(async () => {
     const auth = localStorage.getItem("access_token") ?? "";
-    const [meRes, pointsRes, activitySummaryRes, requestsRes] = await Promise.all([
+    const [meRes, pointsRes, activitySummaryRes, requestsRes, packagesRes] = await Promise.all([
       fetch(`${API_BASE}/api/v2/auth/me`, {
         method: "GET",
         headers: { Authorization: `Bearer ${auth}` },
@@ -170,6 +281,10 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
         headers: { Authorization: `Bearer ${auth}` },
       }),
       fetch(`${API_BASE}/api/v3/points/topup-requests/mine`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${auth}` },
+      }),
+      fetch(`${API_BASE}/api/v3/points/topup-packages`, {
         method: "GET",
         headers: { Authorization: `Bearer ${auth}` },
       }),
@@ -195,6 +310,10 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
     if (requestsRes.ok) {
       setRequests(await requestsRes.json() as TopupRequestList);
+    }
+
+    if (packagesRes.ok) {
+      setCatalog(await packagesRes.json() as TopupPackagesResponse);
     }
   }, []);
 
@@ -230,16 +349,14 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     [requests],
   );
 
+  // Routing is resolved server-side from who created the account, so this copy
+  // explains where the request lands rather than asking for an admin ID.
   const requestHint = useMemo(() => {
-    if (!me) return "Send a topup request to a specific admin by admin ID.";
-    if (me.role === "admin_user") {
-      return "As an admin, you can request points from another admin or from a super admin by entering their ID.";
-    }
-    if (me.role === "super_user") {
-      return "As a super admin, you can still log and route a request to another admin or super admin if needed.";
-    }
-    return "Send a topup request to the admin or super admin responsible for your account.";
-  }, [me]);
+    if (!catalog) return "Pick a package and submit your request for approval.";
+    return catalog.target.routing === "creator"
+      ? "Your request goes to the administrator who created your account."
+      : "Your account is self-registered, so your request goes to a super admin.";
+  }, [catalog]);
 
   const profilePill = useMemo(() => {
     if (!me || !points) return "Loading profile";
@@ -263,21 +380,46 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
   }, [pointActivityChart]);
   const pointActivityDays = isMobileChart ? 7 : 30;
 
-  const handlePrefillCreator = () => {
-    if (!me?.created_by) return;
-    setForm((prev) => ({
-      ...prev,
-      requested_admin_user_id: String(me.created_by?.id ?? ""),
-    }));
-  };
+  const activePackage = useMemo(
+    () => catalog?.packages.find((item) => item.key === selectedPackage) ?? null,
+    [catalog, selectedPackage],
+  );
+
+  /** What the selected tier actually costs and yields. For the custom tier this
+   *  previews the server's own base rate; the server still recomputes on submit,
+   *  so this is display-only and can never set the real price. */
+  const quote = useMemo(() => {
+    if (!catalog || !activePackage) return null;
+    if (activePackage.key !== "custom") {
+      return {
+        cents: activePackage.price_cents,
+        points: activePackage.points,
+        grantsAdmin: activePackage.grants_admin_access,
+      };
+    }
+    const cents = Math.round((Number(customDollars) || 0) * 100);
+    return {
+      cents,
+      points: Math.floor((cents * catalog.min_points) / catalog.min_price_cents),
+      grantsAdmin: false,
+    };
+  }, [catalog, activePackage, customDollars]);
+
+  const belowMinimum = Boolean(
+    catalog && quote && quote.cents < catalog.min_price_cents,
+  );
 
   const handleCreateRequest = async () => {
     setRequestError("");
     setRequestSuccess("");
-    if (!form.requested_admin_user_id || !form.amount || !points) {
-      setRequestError("Target admin ID and amount are required.");
+    if (!points || !quote) return;
+    if (belowMinimum) {
+      setRequestError(
+        `Minimum top-up is ${formatUsd(catalog!.min_price_cents)} (${catalog!.min_points} points).`,
+      );
       return;
     }
+
     setRequestLoading(true);
     try {
       const auth = localStorage.getItem("access_token") ?? "";
@@ -289,17 +431,24 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
         },
         body: JSON.stringify({
           user_id: points.user_id,
-          requested_admin_user_id: Number(form.requested_admin_user_id),
-          amount: Number(form.amount),
+          package_key: selectedPackage,
+          // Only meaningful for the custom tier; the server ignores it otherwise.
+          price_cents: selectedPackage === "custom" ? quote.cents : undefined,
           note: form.note || undefined,
         }),
       });
       const body = await res.text();
       if (!res.ok) {
-        throw new Error(body || "Failed to create topup request");
+        let detail = body;
+        try {
+          detail = (JSON.parse(body) as { detail?: string }).detail ?? body;
+        } catch {
+          // Non-JSON error body — surface it verbatim.
+        }
+        throw new Error(detail || "Failed to create topup request");
       }
       setRequestSuccess("Topup request submitted successfully.");
-      setForm({ requested_admin_user_id: "", amount: "", note: "" });
+      setForm({ note: "" });
       await refreshPageData();
     } catch (err) {
       setRequestError(err instanceof Error ? err.message : "Failed to create topup request");
@@ -412,7 +561,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
       <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
+        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-white/5 blur-3xl" />
         <div className="relative">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur">
             <span className="material-symbols-outlined text-sm">credit_card</span>
@@ -458,116 +607,55 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-        <div className="flex items-center justify-center p-10">
+        <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
+        <div className="relative flex h-full flex-col justify-center gap-5 p-6">
+          <div className="flex items-center gap-3">
+            <div className={`inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
+              <span className="material-symbols-outlined">add_card</span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                Request a Top-up
+              </h2>
+              <p className={`text-xs ${MUTED_FG}`}>
+                Ask your administrator to add points to this account.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-[18px] border border-slate-200/70 bg-white/60 p-4 dark:border-white/10 dark:bg-white/[0.04]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+              Current Balance
+            </p>
+            <p className="mt-1 text-3xl font-black tracking-tight tabular-nums text-slate-900 dark:text-white">
+              {points ? points.available_points.toLocaleString() : "—"}
+              <span className={`ml-2 text-sm font-semibold ${MUTED_FG}`}>points</span>
+            </p>
+            {pendingRequests > 0 ? (
+              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-200/70 bg-amber-50/80 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
+                <span className="material-symbols-outlined text-[14px]">schedule</span>
+                {pendingRequests} request{pendingRequests === 1 ? "" : "s"} pending
+              </p>
+            ) : null}
+          </div>
+
           <button
             type="button"
             onClick={() => setShowTopupModal(true)}
-            className="group relative flex h-64 w-64 flex-col items-center justify-center rounded-full border-2 border-primary bg-primary/10 transition-all duration-300 hover:bg-primary/20 active:scale-95"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 active:scale-[0.99]"
           >
-            <span className="material-symbols-outlined text-8xl text-primary">add</span>
-            <span className="mt-2 text-sm font-bold uppercase tracking-widest text-primary">Top Up</span>
+            <span className="material-symbols-outlined text-base">add</span>
+            New Top-up Request
           </button>
         </div>
 
-        {/* Modal */}
-        {showTopupModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="mb-5 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-foreground">Topup Request</h3>
-                <button
-                  type="button"
-                  onClick={() => setShowTopupModal(false)}
-                  className="rounded-lg p-1 text-foreground/50 hover:text-foreground"
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              </div>
-
-              {requestError && (
-                <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
-                  {requestError}
-                </div>
-              )}
-              {requestSuccess && (
-                <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
-                  {requestSuccess}
-                </div>
-              )}
-
-              <div className="space-y-4">
-                <label className="block space-y-1.5">
-                  <span className="text-xs font-bold uppercase tracking-widest text-foreground/60">Target Admin ID</span>
-                  <input
-                    type="number"
-                    min={1}
-                    value={form.requested_admin_user_id}
-                    onChange={(e) => setForm((prev) => ({ ...prev, requested_admin_user_id: e.target.value }))}
-                    placeholder="Target admin / super admin ID"
-                    className="w-full rounded-xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-                  />
-                </label>
-                <label className="block space-y-1.5">
-                  <span className="text-xs font-bold uppercase tracking-widest text-foreground/60">Requested Points</span>
-                  <input
-                    type="number"
-                    min={1}
-                    value={form.amount}
-                    onChange={(e) => setForm((prev) => ({ ...prev, amount: e.target.value }))}
-                    placeholder="Requested point amount"
-                    className="w-full rounded-xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-                  />
-                </label>
-                <label className="block space-y-1.5">
-                  <span className="text-xs font-bold uppercase tracking-widest text-foreground/60">Request Note</span>
-                  <input
-                    type="text"
-                    value={form.note}
-                    onChange={(e) => setForm((prev) => ({ ...prev, note: e.target.value }))}
-                    placeholder="Reason or project note"
-                    className="w-full rounded-xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-                  />
-                </label>
-              </div>
-
-              {me.created_by ? (
-                <button
-                  type="button"
-                  onClick={() => { handlePrefillCreator(); }}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-bold text-foreground/70 transition hover:text-foreground"
-                >
-                  <span className="material-symbols-outlined text-sm">north_east</span>
-                  Prefill Creator #{me.created_by.id}
-                </button>
-              ) : null}
-
-              <div className="mt-6 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowTopupModal(false)}
-                  className="flex-1 rounded-xl border border-border py-2.5 text-sm font-semibold text-foreground transition hover:bg-card/60"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => { await handleCreateRequest(); if (!requestError) setShowTopupModal(false); }}
-                  disabled={requestLoading}
-                  className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {requestLoading ? "Submitting..." : "Submit Request"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </section>
 
       <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+          <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
           <div className="relative border-b border-slate-200/70 px-6 py-5 dark:border-white/10">
             <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+              <div className={`inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
                 <span className="material-symbols-outlined">receipt_long</span>
               </div>
               <div>
@@ -576,14 +664,17 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
               </div>
             </div>
           </div>
-          <div className="relative p-6">
-            <div className="transparent">
-              <div className="overflow-x-auto">
+          <div className="relative p-5 sm:p-6">
+            <div className="overflow-hidden rounded-[18px] border border-slate-200/70 dark:border-white/10">
+              <div className="max-h-[420px] overflow-auto">
                 <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200/70 dark:border-white/10">
-                      {["ID", "Target", "Amount", "Status", "Note", "Created", "Action"].map((head) => (
-                        <th key={head} className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  <thead className="sticky top-0 z-10 bg-slate-50 backdrop-blur dark:bg-slate-800/80">
+                    <tr>
+                      {["Request", "Amount", "Status", "Created", ""].map((head, index) => (
+                        <th
+                          key={head || index}
+                          className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400"
+                        >
                           {head}
                         </th>
                       ))}
@@ -592,36 +683,82 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {!requests?.items.length ? (
                       <tr>
-                        <td colSpan={7} className="px-4 py-8 text-slate-400 dark:text-slate-500">
-                          No topup requests submitted yet.
+                        <td colSpan={5} className="px-5 py-14 text-center">
+                          <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">
+                            receipt_long
+                          </span>
+                          <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                            No top-up requests yet
+                          </p>
+                          <p className={`mt-1 text-xs ${MUTED_FG}`}>
+                            Submit one above and track its status here.
+                          </p>
                         </td>
                       </tr>
                     ) : (
                       requests.items.map((entry) => (
-                        <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                          <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.id}</td>
-                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">#{entry.requested_admin_user_id}</td>
-                          <td className="px-4 py-3 font-black text-primary">{entry.amount}</td>
-                          <td className="px-4 py-3">
-                            <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${getStatusClass(entry.status)}`}>
+                        <tr
+                          key={entry.id}
+                          className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                        >
+                          {/* Request identity as one unit: who it went to, the
+                              note, and the id — instead of three thin columns. */}
+                          <td className="px-5 py-3.5">
+                            <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                              To admin #{entry.requested_admin_user_id}
+                              <span className={`ml-2 text-xs font-normal tabular-nums ${MUTED_FG}`}>
+                                #{entry.id}
+                              </span>
+                            </p>
+                            <p className={`mt-0.5 truncate text-xs ${MUTED_FG}`}>
+                              {entry.note || "No note provided"}
+                            </p>
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-3.5">
+                            <p className="text-sm font-black tabular-nums text-primary">
+                              +{entry.amount.toLocaleString()}
+                            </p>
+                            <p className={`mt-0.5 text-xs capitalize ${MUTED_FG}`}>
+                              {entry.package_key}
+                              {entry.price_cents ? ` · ${formatUsd(entry.price_cents)}` : ""}
+                              {entry.grants_admin_access ? " · admin" : ""}
+                            </p>
+                          </td>
+
+                          <td className="px-5 py-3.5">
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold capitalize ${getStatusClass(
+                                entry.status,
+                              )}`}
+                            >
+                              <span className="material-symbols-outlined text-[14px]">
+                                {getStatusIcon(entry.status)}
+                              </span>
                               {entry.status}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{entry.note || "-"}</td>
-                          <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{formatDate(entry.created_at)}</td>
-                          <td className="px-4 py-3">
+
+                          <td
+                            className={`whitespace-nowrap px-5 py-3.5 text-xs tabular-nums ${MUTED_FG}`}
+                            title={formatDate(entry.created_at)}
+                          >
+                            {formatShortDateTime(entry.created_at)}
+                          </td>
+
+                          <td className="px-5 py-3.5 text-right">
                             {entry.status === "pending" ? (
                               <button
                                 type="button"
                                 onClick={() => handleCancelRequest(entry.id)}
                                 disabled={cancelRequestId === entry.id}
-                                className="inline-flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
+                                className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
                               >
-                                <span className="material-symbols-outlined text-sm">delete</span>
-                                {cancelRequestId === entry.id ? "Cancelling..." : "Cancel"}
+                                <span className="material-symbols-outlined text-sm">close</span>
+                                {cancelRequestId === entry.id ? "Cancelling…" : "Cancel"}
                               </button>
                             ) : (
-                              <span className="text-xs text-slate-400 dark:text-slate-500">-</span>
+                              <span className={`text-xs ${MUTED_FG}`}>—</span>
                             )}
                           </td>
                         </tr>
@@ -636,10 +773,10 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
       </div>
 
       <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+          <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
           <div className="relative border-b border-slate-200/70 px-6 py-5 dark:border-white/10">
             <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+              <div className={`inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
                 <span className="material-symbols-outlined">history</span>
               </div>
               <div>
@@ -748,9 +885,243 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
               </div>
 
             </div>
-            
+
           </div>
         </section>
+
+      {/* Portaled to <body>. The card this modal used to live in has
+          `backdrop-blur-2xl`, and a backdrop-filter makes an element the
+          containing block for its `position: fixed` descendants — so
+          `fixed inset-0` resolved against that half-width card instead of the
+          viewport, and the card's `overflow-hidden` then clipped it. */}
+      {mounted && showTopupModal
+        ? createPortal(
+            <div
+              // No `overflow-y-auto` here: an overflow container that also
+              // centres with flex puts everything above the centre line out of
+              // reach — you cannot scroll up to it. The dialog caps its own
+              // height and scrolls internally instead.
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+              onClick={(event) => {
+                if (event.target === event.currentTarget) closeTopupModal();
+              }}
+            >
+              {/* Column layout with a capped height: header and footer stay put,
+                  only the middle scrolls, so the submit button is always
+                  reachable. dvh (not vh) so mobile browser chrome doesn't cut
+                  the bottom off. */}
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-label="Topup Request"
+                className="flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+              >
+                <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-4 sm:px-6">
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-bold text-foreground">Topup Request</h3>
+                    <p className={`mt-0.5 text-xs ${MUTED_FG}`}>{requestHint}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeTopupModal}
+                    aria-label="Close"
+                    className={`-mr-1 shrink-0 rounded-lg p-1 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white ${MUTED_FG}`}
+                  >
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+
+                {/* min-h-0 lets this flex child shrink below its content height —
+                    without it the overflow never engages. */}
+                <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6">
+                {requestError && (
+                  <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+                    {requestError}
+                  </div>
+                )}
+                {requestSuccess && (
+                  <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-300">
+                    {requestSuccess}
+                  </div>
+                )}
+
+                {/* Routing is decided by the server from who created this
+                    account — shown, never entered. */}
+                {catalog ? (
+                  <div className="mb-5 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
+                    <span className={`material-symbols-outlined text-lg ${MUTED_FG}`}>
+                      {catalog.target.routing === "creator" ? "supervisor_account" : "shield"}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        Goes to
+                      </p>
+                      <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                        {catalog.target.username || catalog.target.email}
+                        <span className={`ml-2 text-xs font-normal ${MUTED_FG}`}>
+                          {formatRoleLabel(catalog.target.role)}
+                        </span>
+                      </p>
+                      <p className={`mt-0.5 text-xs ${MUTED_FG}`}>
+                        {catalog.target.routing === "creator"
+                          ? "The administrator who created your account."
+                          : "Your account is self-registered, so this goes to a super admin."}
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <span className={`text-xs font-bold uppercase tracking-widest ${MUTED_FG}`}>
+                      Choose a package
+                    </span>
+                    <div className="grid grid-cols-1 gap-2">
+                      {catalog?.packages.map((pkg) => {
+                        const active = selectedPackage === pkg.key;
+                        const isCustom = pkg.key === "custom";
+                        return (
+                          <button
+                            key={pkg.key}
+                            type="button"
+                            onClick={() => setSelectedPackage(pkg.key)}
+                            aria-pressed={active}
+                            className={`flex items-center justify-between gap-3 rounded-xl border p-3 text-left transition ${
+                              active
+                                ? "border-primary ring-1 ring-inset ring-primary"
+                                : "border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/60"
+                            }`}
+                          >
+                            <span className="min-w-0 flex-1">
+                              <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                <span className="text-sm font-bold text-slate-900 dark:text-white">
+                                  {isCustom ? "Custom" : `${pkg.label} · ${formatUsd(pkg.price_cents)}`}
+                                </span>
+                                {pkg.grants_admin_access ? (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                                    <span className="material-symbols-outlined text-[12px]">
+                                      shield
+                                    </span>
+                                    Admin access
+                                  </span>
+                                ) : null}
+                              </span>
+                              <span className={`mt-0.5 block text-xs ${MUTED_FG}`}>
+                                {pkg.description}
+                              </span>
+                            </span>
+                            {!isCustom ? (
+                              <span className="shrink-0 text-right">
+                                <span className="block text-sm font-black tabular-nums text-primary">
+                                  {pkg.points.toLocaleString()}
+                                </span>
+                                <span className={`block text-[10px] uppercase tracking-wider ${MUTED_FG}`}>
+                                  points
+                                </span>
+                              </span>
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {selectedPackage === "custom" ? (
+                    <label className="block space-y-1.5">
+                      <span className={`text-xs font-bold uppercase tracking-widest ${MUTED_FG}`}>
+                        Amount in USD
+                      </span>
+                      <div className="relative">
+                        <span className={`pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm ${MUTED_FG}`}>
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          min={catalog ? catalog.min_price_cents / 100 : 5}
+                          step="1"
+                          value={customDollars}
+                          onChange={(e) => setCustomDollars(e.target.value)}
+                          className={`w-full rounded-xl border border-border bg-transparent py-3 pl-8 pr-4 text-sm text-foreground outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 ${FOCUS_RING}`}
+                        />
+                      </div>
+                    </label>
+                  ) : null}
+
+                  <label className="block space-y-1.5">
+                    <span className={`text-xs font-bold uppercase tracking-widest ${MUTED_FG}`}>
+                      Request Note <span className="font-normal normal-case">(optional)</span>
+                    </span>
+                    <input
+                      type="text"
+                      value={form.note}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, note: e.target.value }))
+                      }
+                      placeholder="Reason or project note"
+                      className={`w-full rounded-xl border border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 ${FOCUS_RING}`}
+                    />
+                  </label>
+                </div>
+
+                {/* Running total, so the terms are explicit before submitting. */}
+                {quote ? (
+                  <div
+                    className={`mt-5 rounded-xl border p-3 ${
+                      belowMinimum
+                        ? "border-rose-200 bg-rose-50 dark:border-rose-900/40 dark:bg-rose-950/30"
+                        : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50"
+                    }`}
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className={`text-xs font-bold uppercase tracking-widest ${MUTED_FG}`}>
+                        You receive
+                      </span>
+                      <span className="text-lg font-black tabular-nums text-slate-900 dark:text-white">
+                        {quote.points.toLocaleString()}
+                        <span className={`ml-1 text-xs font-semibold ${MUTED_FG}`}>pts</span>
+                        <span className={`mx-2 text-xs font-normal ${MUTED_FG}`}>for</span>
+                        {formatUsd(quote.cents)}
+                      </span>
+                    </div>
+                    {belowMinimum && catalog ? (
+                      <p className="mt-1 text-xs font-semibold text-rose-700 dark:text-rose-300">
+                        Minimum is {formatUsd(catalog.min_price_cents)} ({catalog.min_points} points).
+                      </p>
+                    ) : quote.grantsAdmin ? (
+                      <p className="mt-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                        Includes admin access once approved.
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+                </div>
+
+                {/* Pinned footer — the primary action never scrolls away. */}
+                <div className="flex shrink-0 gap-3 border-t border-border px-5 py-4 sm:px-6">
+                  <button
+                    type="button"
+                    onClick={closeTopupModal}
+                    className="flex-1 rounded-xl border border-border py-2.5 text-sm font-semibold text-foreground transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await handleCreateRequest();
+                      if (!requestError) setShowTopupModal(false);
+                    }}
+                    disabled={requestLoading || belowMinimum}
+                    className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {requestLoading ? "Submitting..." : "Submit Request"}
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

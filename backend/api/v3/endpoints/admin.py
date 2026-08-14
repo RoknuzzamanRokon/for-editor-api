@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import case, func
+from sqlalchemy import case, func, literal
 from sqlalchemy.orm import Session, aliased
 
+from core.billing_packages import grant_admin_access
 from core.deps import ensure_can_manage_user, require_role
 from core.permissions import list_allowed_actions
 from core.points import POINTS_COST_PER_REQUEST, get_user_balance, topup_points
@@ -21,6 +22,8 @@ from db.models import (
 from db.session import get_db
 from models.admin import (
     AdminCheckUserApiEntry,
+    AdminFundingMovement,
+    AdminFundingSummaryResponse,
     AdminCheckUserConversionSummary,
     AdminCheckUserPointsSummary,
     AdminCheckUserResponse,
@@ -633,6 +636,150 @@ def get_topup_requests(
     )
 
 
+@router.get("/points/funding-summary", response_model=AdminFundingSummaryResponse)
+def get_funding_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.super_user, RoleEnum.admin_user)),
+    limit: int = Query(25, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+) -> AdminFundingSummaryResponse:
+    """The caller's own funding position: what came in, what went out, what's left.
+
+    Points are pre-funded — an admin can only distribute what a super user has
+    already transferred to them — so this is the view that makes the chain legible.
+    """
+    balance = get_user_balance(db, current_user.id)
+
+    # Received: every top-up credited to this account, split out by whether a
+    # super user funded it. Uses PointsTopup.created_by_user_id so rows written
+    # before source metadata existed still resolve correctly.
+    funder = aliased(User)
+    received_rows = (
+        db.query(
+            func.coalesce(func.sum(PointsTopup.amount), 0).label("total"),
+            func.coalesce(
+                func.sum(
+                    case((funder.role == RoleEnum.super_user, PointsTopup.amount), else_=0)
+                ),
+                0,
+            ).label("from_super"),
+        )
+        .outerjoin(funder, funder.id == PointsTopup.created_by_user_id)
+        .filter(PointsTopup.user_id == current_user.id)
+        .first()
+    )
+    received_total = int(received_rows.total or 0)
+    received_from_super = int(received_rows.from_super or 0)
+
+    # Transferred out: the debit leg written by core.points.topup_points.
+    transferred_to_users = int(
+        db.query(func.coalesce(func.sum(-PointsLedger.amount), 0))
+        .filter(
+            PointsLedger.user_id == current_user.id,
+            PointsLedger.action == "admin_points_transfer",
+        )
+        .scalar()
+        or 0
+    )
+
+    # What is already promised but not yet paid out of this balance.
+    pending_request_points = int(
+        db.query(func.coalesce(func.sum(PointsTopupRequest.amount), 0))
+        .filter(
+            PointsTopupRequest.requested_admin_user_id == current_user.id,
+            PointsTopupRequest.status == "pending",
+        )
+        .scalar()
+        or 0
+    )
+
+    # --- Combined movement history (both legs), newest first ---
+    counterparty = aliased(User)
+
+    incoming = (
+        db.query(
+            PointsTopup.id.label("id"),
+            literal("in").label("direction"),
+            PointsTopup.amount.label("amount"),
+            counterparty.id.label("cp_id"),
+            counterparty.email.label("cp_email"),
+            counterparty.username.label("cp_username"),
+            counterparty.role.label("cp_role"),
+            PointsTopup.note.label("note"),
+            PointsTopup.created_at.label("created_at"),
+        )
+        .outerjoin(counterparty, counterparty.id == PointsTopup.created_by_user_id)
+        .filter(PointsTopup.user_id == current_user.id)
+    )
+
+    outgoing = (
+        db.query(
+            PointsLedger.id.label("id"),
+            literal("out").label("direction"),
+            (-PointsLedger.amount).label("amount"),
+            counterparty.id.label("cp_id"),
+            counterparty.email.label("cp_email"),
+            counterparty.username.label("cp_username"),
+            counterparty.role.label("cp_role"),
+            literal(None).label("note"),
+            PointsLedger.created_at.label("created_at"),
+        )
+        # SQLAlchemy's typed JSON accessor, not a raw json_extract() — it emits
+        # the right expression per dialect (MySQL in production, SQLite in tests)
+        # and casts to an integer so the id comparison is apples-to-apples.
+        .outerjoin(
+            counterparty,
+            counterparty.id == PointsLedger.meta_json["target_user_id"].as_integer(),
+        )
+        .filter(
+            PointsLedger.user_id == current_user.id,
+            PointsLedger.action == "admin_points_transfer",
+        )
+    )
+
+    combined = incoming.union_all(outgoing).subquery()
+    total = db.query(func.count()).select_from(combined).scalar() or 0
+    rows = (
+        db.query(combined)
+        .order_by(combined.c.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+
+    items = [
+        AdminFundingMovement(
+            id=int(row.id),
+            direction=str(row.direction),
+            amount=int(row.amount or 0),
+            counterparty_id=row.cp_id,
+            counterparty_email=row.cp_email,
+            counterparty_username=row.cp_username,
+            counterparty_role=(
+                row.cp_role.value if hasattr(row.cp_role, "value") else row.cp_role
+            ),
+            note=row.note,
+            created_at=row.created_at,
+        )
+        for row in rows
+    ]
+
+    return AdminFundingSummaryResponse(
+        balance=balance,
+        received_from_super=received_from_super,
+        received_total=received_total,
+        transferred_to_users=transferred_to_users,
+        pending_request_points=pending_request_points,
+        # Only a super user can bring new points into the system, by crediting
+        # their own balance.
+        can_issue=current_user.role == RoleEnum.super_user,
+        total=int(total),
+        limit=limit,
+        offset=offset,
+        items=items,
+    )
+
+
 @router.post("/points/topup-requests/{request_id}/approve", response_model=AdminTopupRequestEntry)
 def approve_topup_request(
     request_id: int,
@@ -653,6 +800,14 @@ def approve_topup_request(
         created_by_user_id=current_user.id,
         note=request.note,
     )
+
+    # Medium/large packages include admin access. The promotion happens only
+    # here — on an explicit approval by an admin who can see the package on the
+    # request — never at request time, so buying alone never escalates a role.
+    if request.grants_admin_access:
+        buyer = get_user_by_id(db, request.user_id)
+        if buyer:
+            grant_admin_access(buyer)
 
     request.status = "approved"
     request.resolved_by_user_id = current_user.id

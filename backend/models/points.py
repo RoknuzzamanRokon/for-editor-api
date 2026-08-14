@@ -53,8 +53,13 @@ class PointsTopupResponse(BaseModel):
 
 class PointsTopupCreateRequest(BaseModel):
     user_id: int
-    requested_admin_user_id: int
-    amount: int = Field(gt=0)
+    # Which tier is being bought. "custom" additionally requires price_cents.
+    package_key: str = "custom"
+    price_cents: Optional[int] = Field(None, ge=0)
+    # Normally the fulfiller is resolved from the requester's creator
+    # (see core.billing_packages.resolve_request_target); an admin or super user
+    # may still direct a request explicitly.
+    requested_admin_user_id: Optional[int] = None
     note: Optional[str] = None
 
 
@@ -63,6 +68,9 @@ class PointsTopupRequestEntry(BaseModel):
     user_id: int
     requested_admin_user_id: int
     amount: int
+    package_key: str = "custom"
+    price_cents: int = 0
+    grants_admin_access: bool = False
     note: Optional[str] = None
     status: str
     created_by_user_id: int
@@ -72,6 +80,34 @@ class PointsTopupRequestEntry(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class TopupPackage(BaseModel):
+    key: str
+    label: str
+    price_cents: int
+    points: int
+    grants_admin_access: bool
+    description: str
+
+
+class TopupTarget(BaseModel):
+    """Who the caller's top-up request will be routed to."""
+
+    id: int
+    email: str
+    username: Optional[str] = None
+    role: str
+    # "creator" when it goes to the admin who made the account, "super_user"
+    # when the account is self-registered.
+    routing: str
+
+
+class TopupPackagesResponse(BaseModel):
+    min_price_cents: int
+    min_points: int
+    packages: list[TopupPackage]
+    target: TopupTarget
 
 
 class PointsTopupRequestList(BaseModel):

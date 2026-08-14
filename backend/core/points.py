@@ -223,6 +223,29 @@ def refund_points(
     return True
 
 
+def _lock_balances(db: Session, user_ids: list[int]) -> dict[int, UserPoints]:
+    """Locks the given balance rows FOR UPDATE, creating any that are missing.
+
+    Rows are always locked in ascending user_id order. Two transfers running at
+    once between the same pair of accounts (A funds B while B funds A) would
+    otherwise be able to grab the two rows in opposite orders and deadlock.
+    """
+    rows: dict[int, UserPoints] = {}
+    for uid in sorted(set(user_ids)):
+        row = (
+            db.query(UserPoints)
+            .filter(UserPoints.user_id == uid)
+            .with_for_update()
+            .first()
+        )
+        if not row:
+            row = UserPoints(user_id=uid, balance=0)
+            db.add(row)
+            db.flush()
+        rows[uid] = row
+    return rows
+
+
 def topup_points(
     db: Session,
     user_id: int,
@@ -231,6 +254,20 @@ def topup_points(
     note: Optional[str] = None,
     expires_at: Optional[Any] = None,
 ) -> int:
+    """Moves `amount` points to `user_id`, debiting the funder when there is one.
+
+    Points are pre-funded, never conjured mid-chain:
+
+        super_user -> own balance   issuance; this is where points enter the system
+        super_user -> someone else  debits the super user
+        admin_user -> customer      debits the admin
+        admin_user -> own balance   rejected
+        no creator                  system grant (signup bonus)
+
+    Both sides of a transfer — the funder's debit and the recipient's credit —
+    are written in a single transaction with one commit at the end, so a transfer
+    can never land half-applied.
+    """
     if amount <= 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Amount must be positive")
 
@@ -238,31 +275,39 @@ def topup_points(
 
     creator: Optional[User] = None
     if created_by_user_id is not None:
-      creator = db.query(User).filter(User.id == created_by_user_id).first()
+        creator = db.query(User).filter(User.id == created_by_user_id).first()
 
-    # super_user can mint points, but admin_user must spend from their own balance.
-    if creator and creator.role == RoleEnum.admin_user:
-        if creator.id == user_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Admin cannot top up their own balance",
-            )
+    is_self_topup = creator is not None and creator.id == user_id
 
-        creator_points = (
-            db.query(UserPoints)
-            .filter(UserPoints.user_id == creator.id)
-            .with_for_update()
-            .first()
+    if creator and creator.role == RoleEnum.admin_user and is_self_topup:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Admin cannot top up their own balance",
         )
-        if not creator_points:
-            creator_points = UserPoints(user_id=creator.id, balance=0)
-            db.add(creator_points)
-            db.flush()
+
+    # A transfer between two accounts always comes out of the sender's balance.
+    # A super user crediting themselves is issuance, and a creator-less grant is
+    # a system grant — neither has a funder to debit.
+    debits_creator = (
+        creator is not None
+        and creator.role in {RoleEnum.admin_user, RoleEnum.super_user}
+        and not is_self_topup
+    )
+
+    if debits_creator:
+        assert creator is not None  # narrowed by debits_creator
+        balances = _lock_balances(db, [creator.id, user_id])
+        creator_points = balances[creator.id]
+        points = balances[user_id]
 
         if creator_points.balance < amount:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Admin does not have enough points to transfer",
+                detail=(
+                    "Admin does not have enough points to transfer"
+                    if creator.role == RoleEnum.admin_user
+                    else "Super user does not have enough points to transfer"
+                ),
             )
 
         creator_points.balance -= amount
@@ -279,28 +324,31 @@ def topup_points(
                 },
             )
         )
-    
-    points = (
-        db.query(UserPoints)
-        .filter(UserPoints.user_id == user_id)
-        .with_for_update()
-        .first()
-    )
-    if not points:
-        points = UserPoints(user_id=user_id, balance=0)
-        db.add(points)
-        db.flush()
+    else:
+        points = _lock_balances(db, [user_id])[user_id]
 
     points.balance += amount
-    ledger = PointsLedger(
-        user_id=user_id,
-        action="topup",
-        amount=amount,
-        status="topup",
-        request_id=request_id,
-        meta_json={"note": note} if note else {},
+    # The credit records who funded it, so an account's own ledger is enough to
+    # answer "where did these points come from" without a join.
+    credit_meta: dict[str, Any] = {}
+    if note:
+        credit_meta["note"] = note
+    if creator is not None:
+        credit_meta["source_user_id"] = creator.id
+        credit_meta["source_role"] = (
+            creator.role.value if hasattr(creator.role, "value") else str(creator.role)
+        )
+
+    db.add(
+        PointsLedger(
+            user_id=user_id,
+            action="topup",
+            amount=amount,
+            status="topup",
+            request_id=request_id,
+            meta_json=credit_meta,
+        )
     )
-    db.add(ledger)
     db.add(
         PointsTopup(
             user_id=user_id,
@@ -311,5 +359,5 @@ def topup_points(
         )
     )
     db.commit()
-    
+
     return points.balance

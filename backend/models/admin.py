@@ -179,3 +179,30 @@ class AdminDashboardSummaryResponse(BaseModel):
     request_trend_30_days: List[AdminDashboardRequestTrendDay]
     points_activity_30_days: List[AdminDashboardPointsTrendDay]
     top_point_holders: List[AdminDashboardTopPointHolder]
+
+
+class AdminFundingMovement(BaseModel):
+    """One leg of the funding chain, from the acting admin's point of view."""
+
+    id: int
+    direction: str  # "in" (received) | "out" (transferred)
+    amount: int
+    counterparty_id: Optional[int] = None
+    counterparty_email: Optional[str] = None
+    counterparty_username: Optional[str] = None
+    counterparty_role: Optional[str] = None
+    note: Optional[str] = None
+    created_at: datetime
+
+
+class AdminFundingSummaryResponse(BaseModel):
+    balance: int
+    received_from_super: int
+    received_total: int
+    transferred_to_users: int
+    pending_request_points: int
+    can_issue: bool
+    total: int
+    limit: int
+    offset: int
+    items: List[AdminFundingMovement]

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { API_BASE } from "@/lib/apiBase";
 import { formatProfileName } from "@/lib/profileName";
+import { formatRoleLabel } from "@/lib/roleLabel";
 
 type GivingEntry = {
   id: number;
@@ -55,6 +56,31 @@ type TopupRequestList = {
 
 type UserItem = { id: number; email: string; username: string | null };
 
+type FundingMovement = {
+  id: number;
+  direction: "in" | "out";
+  amount: number;
+  counterparty_id: number | null;
+  counterparty_email: string | null;
+  counterparty_username: string | null;
+  counterparty_role: string | null;
+  note: string | null;
+  created_at: string;
+};
+
+type FundingSummary = {
+  balance: number;
+  received_from_super: number;
+  received_total: number;
+  transferred_to_users: number;
+  pending_request_points: number;
+  can_issue: boolean;
+  total: number;
+  limit: number;
+  offset: number;
+  items: FundingMovement[];
+};
+
 function formatDate(v: string) {
   return new Date(v).toLocaleString();
 }
@@ -82,6 +108,7 @@ export default function AdminPointPage() {
   const [topupError, setTopupError] = useState("");
   const [topupSuccess, setTopupSuccess] = useState("");
   const [form, setForm] = useState({ user_id: "", amount: "", note: "" });
+  const [funding, setFunding] = useState<FundingSummary | null>(null);
 
   const token = () => localStorage.getItem("access_token") ?? "";
 
@@ -94,11 +121,13 @@ export default function AdminPointPage() {
       fetch(`${API_BASE}/api/v3/admin/points/giving-history?limit=50&offset=0`, { headers: h }),
       fetch(`${API_BASE}/api/v3/admin/points/topup-requests?limit=50&offset=0`, { headers: h }),
       fetch(`${API_BASE}/api/v2/users`, { headers: h }),
+      fetch(`${API_BASE}/api/v3/admin/points/funding-summary?limit=25&offset=0`, { headers: h }),
     ])
-      .then(async ([hr, rr, ur]) => {
+      .then(async ([hr, rr, ur, fr]) => {
         if (hr.ok) setHistory(await hr.json() as GivingHistory);
         if (rr.ok) setRequests(await rr.json() as TopupRequestList);
         if (ur.ok) setUsers(await ur.json() as UserItem[]);
+        if (fr.ok) setFunding(await fr.json() as FundingSummary);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -108,12 +137,14 @@ export default function AdminPointPage() {
 
   const refreshData = async () => {
     const h = { Authorization: `Bearer ${token()}` };
-    const [hr, rr] = await Promise.all([
+    const [hr, rr, fr] = await Promise.all([
       fetch(`${API_BASE}/api/v3/admin/points/giving-history?limit=50&offset=0`, { headers: h }),
       fetch(`${API_BASE}/api/v3/admin/points/topup-requests?limit=50&offset=0`, { headers: h }),
+      fetch(`${API_BASE}/api/v3/admin/points/funding-summary?limit=25&offset=0`, { headers: h }),
     ]);
     if (hr.ok) setHistory(await hr.json() as GivingHistory);
     if (rr.ok) setRequests(await rr.json() as TopupRequestList);
+    if (fr.ok) setFunding(await fr.json() as FundingSummary);
   };
 
   const handleTopup = async () => {
@@ -180,6 +211,190 @@ export default function AdminPointPage() {
           <StatTile label="Total Distributed" value={totalGiven.toLocaleString()} icon="account_balance_wallet" />
           <StatTile label="Transactions" value={history?.total ?? 0} icon="receipt_long" />
           <StatTile label="Pending Requests" value={pendingRequests} icon="notifications_active" />
+        </section>
+
+        {/* Funding position. Points are pre-funded: an admin can only hand out
+            what a super user has already transferred in, so this sits directly
+            above the distribute form that spends it. */}
+        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent" />
+
+          <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="inline-flex rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] p-2 text-primary">
+                  <span className="material-symbols-outlined">account_balance</span>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">My Point Wallet</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {funding?.can_issue
+                      ? "You issue points into the system and fund admins from this balance."
+                      : "Points you distribute come out of this balance."}
+                  </p>
+                </div>
+              </div>
+
+              {funding && funding.pending_request_points > funding.balance ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/70 bg-amber-50/80 px-3 py-1 text-xs font-semibold text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
+                  <span className="material-symbols-outlined text-[14px]">warning</span>
+                  Pending requests exceed your balance
+                </span>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="relative p-5 sm:p-6">
+            {loading ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-24 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="rounded-xl border border-slate-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900/60">
+                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <span className="material-symbols-outlined text-[15px] text-emerald-600 dark:text-emerald-400">south_west</span>
+                      Received from Super
+                    </p>
+                    <p className="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
+                      {(funding?.received_from_super ?? 0).toLocaleString()}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                      {(funding?.received_total ?? 0).toLocaleString()} received in total
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900/60">
+                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <span className="material-symbols-outlined text-[15px] text-orange-600 dark:text-orange-400">north_east</span>
+                      Transferred Out
+                    </p>
+                    <p className="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
+                      {(funding?.transferred_to_users ?? 0).toLocaleString()}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Paid out to users</p>
+                  </div>
+
+                  <div className="rounded-xl border-2 border-primary bg-white/70 p-4 dark:bg-slate-900/60">
+                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <span className="material-symbols-outlined text-[15px] text-primary">account_balance_wallet</span>
+                      Remaining Balance
+                    </p>
+                    <p className="mt-1 text-2xl font-black tabular-nums text-primary">
+                      {(funding?.balance ?? 0).toLocaleString()}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Available to distribute</p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900/60">
+                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <span className="material-symbols-outlined text-[15px] text-amber-600 dark:text-amber-400">schedule</span>
+                      Pending Requests
+                    </p>
+                    <p className="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
+                      {(funding?.pending_request_points ?? 0).toLocaleString()}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Points awaiting your approval</p>
+                  </div>
+                </div>
+
+                {/* Received − transferred = remaining, spelled out so the wallet reconciles on sight. */}
+                <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                  <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+                    {(funding?.received_total ?? 0).toLocaleString()}
+                  </span>{" "}
+                  received −{" "}
+                  <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+                    {(funding?.transferred_to_users ?? 0).toLocaleString()}
+                  </span>{" "}
+                  transferred ={" "}
+                  <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+                    {(funding?.balance ?? 0).toLocaleString()}
+                  </span>{" "}
+                  remaining
+                </p>
+
+                <div className="mt-5 overflow-hidden rounded-[18px] border border-slate-200/70 dark:border-white/10">
+                  <div className="max-h-[320px] overflow-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="sticky top-0 z-10 bg-slate-50 backdrop-blur dark:bg-slate-800/80">
+                        <tr>
+                          {["Movement", "Counterparty", "Amount", "When"].map((h) => (
+                            <th key={h} className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {!funding?.items.length ? (
+                          <tr>
+                            <td colSpan={4} className="px-5 py-12 text-center">
+                              <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">savings</span>
+                              <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-300">No funding movements yet</p>
+                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                {funding?.can_issue
+                                  ? "Issue points to yourself, then fund your admins."
+                                  : "Ask a super admin to fund your wallet before distributing points."}
+                              </p>
+                            </td>
+                          </tr>
+                        ) : (
+                          funding.items.map((move) => {
+                            const inbound = move.direction === "in";
+                            return (
+                              <tr key={`${move.direction}-${move.id}`} className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td className="px-5 py-3">
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                      inbound
+                                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                        : "bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                                    }`}
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">
+                                      {inbound ? "south_west" : "north_east"}
+                                    </span>
+                                    {inbound ? "Received" : "Transferred"}
+                                  </span>
+                                </td>
+                                <td className="px-5 py-3">
+                                  <p className="text-sm font-medium text-slate-900 dark:text-white">
+                                    {formatProfileName(move.counterparty_username, move.counterparty_email ?? "System")}
+                                  </p>
+                                  {move.counterparty_role ? (
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                      {formatRoleLabel(move.counterparty_role)}
+                                    </p>
+                                  ) : null}
+                                </td>
+                                <td
+                                  className={`whitespace-nowrap px-5 py-3 text-sm font-black tabular-nums ${
+                                    inbound
+                                      ? "text-emerald-600 dark:text-emerald-400"
+                                      : "text-orange-600 dark:text-orange-400"
+                                  }`}
+                                >
+                                  {inbound ? "+" : "−"}
+                                  {move.amount.toLocaleString()}
+                                </td>
+                                <td className="whitespace-nowrap px-5 py-3 text-xs tabular-nums text-slate-500 dark:text-slate-400">
+                                  {formatDate(move.created_at)}
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </section>
 
         {/* Distribute form */}
