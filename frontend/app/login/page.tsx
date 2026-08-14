@@ -144,7 +144,7 @@ function LoginForm() {
 
   const defaultRouteForRole = (role?: string | null) =>
     role === "general_user" || role === "demo_user"
-      ? "/dashboard/app-center"
+      ? "/user/app-center"
       : "/admin/app-center";
 
   useEffect(() => {

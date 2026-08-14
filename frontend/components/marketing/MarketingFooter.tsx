@@ -16,7 +16,7 @@ const footerGroups = [
     title: 'Platform',
     links: [
       ['/login', 'Login'],
-      ['/dashboard', 'Dashboard'],
+      ['/user/dashboard', 'Dashboard'],
       ['/pricing', 'Plans'],
     ] as const,
   },

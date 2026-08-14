@@ -122,7 +122,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/dashboard/app-center"
+              href="/user/app-center"
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -148,7 +148,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/dashboard/app-center"
+              href="/user/app-center"
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -174,7 +174,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/dashboard/app-center"
+              href="/user/app-center"
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -200,7 +200,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/dashboard/app-center"
+              href="/user/app-center"
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -226,7 +226,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/dashboard/app-center"
+              href="/user/app-center"
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -252,7 +252,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/dashboard/app-center"
+              href="/user/app-center"
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -278,7 +278,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/dashboard/app-center"
+              href="/user/app-center"
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -303,7 +303,7 @@ export default function ViewerPage() {
       <div className="mx-auto w-full max-w-4xl">
         <div className="mb-6">
           <Link
-            href="/dashboard/app-center"
+            href="/user/app-center"
             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
           >
             <span className="material-symbols-outlined text-lg">arrow_back</span>

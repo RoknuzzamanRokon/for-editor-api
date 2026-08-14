@@ -782,7 +782,7 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
     <div className="w-full max-w-none space-y-8 p-6 md:p-8">
       <div className="flex flex-col gap-4">
         <Link
-          href="/dashboard/app-center"
+          href="/user/app-center"
           className="inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
         >
           <span className="material-symbols-outlined text-base">

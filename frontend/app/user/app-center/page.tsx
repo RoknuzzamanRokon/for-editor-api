@@ -202,7 +202,7 @@ export default function DashboardAppCenterPage() {
 
   useEffect(() => {
     actions.slice(0, 24).forEach((item) => {
-      router.prefetch(`/dashboard/app-center/edit/${toEditSlug(item.action)}`);
+      router.prefetch(`/user/app-center/edit/${toEditSlug(item.action)}`);
     });
   }, [actions, router]);
 
@@ -277,7 +277,7 @@ export default function DashboardAppCenterPage() {
                     </div>
                     <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
                       {section.items.map((item) => {
-                        const editHref = `/dashboard/app-center/edit/${toEditSlug(item.action)}`;
+                        const editHref = `/user/app-center/edit/${toEditSlug(item.action)}`;
 
                         return (
                           <div key={item.action} className="flex flex-col items-center gap-2">
@@ -326,7 +326,7 @@ export default function DashboardAppCenterPage() {
                 { action: 'json_reader', label: 'JSON Reader', icon: 'data_object' },
                 { action: 'xml_reader', label: 'XML Reader', icon: 'code_blocks' },
               ].map((item) => {
-                const viewHref = `/dashboard/app-center/view/${item.action}`;
+                const viewHref = `/user/app-center/view/${item.action}`;
                 
                 return (
                   <div key={item.action} className="flex flex-col items-center gap-2">

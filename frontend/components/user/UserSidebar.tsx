@@ -47,12 +47,12 @@ function normalizeSidebarSettings(payload: unknown) {
 }
 
 const navItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-  { label: 'App Center', href: '/dashboard/app-center', icon: 'apps' },
-  { label: 'Profile', href: '/dashboard/profile', icon: 'person' },
-  { label: 'Points', href: '/dashboard/points', icon: 'toll' },
-  { label: 'Billing', href: '/dashboard/billing', icon: 'credit_card' },
-  { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
+  { label: 'Dashboard', href: '/user/dashboard', icon: 'dashboard' },
+  { label: 'App Center', href: '/user/app-center', icon: 'apps' },
+  { label: 'Profile', href: '/user/profile', icon: 'person' },
+  { label: 'Points', href: '/user/points', icon: 'toll' },
+  { label: 'Billing', href: '/user/billing', icon: 'credit_card' },
+  { label: 'Settings', href: '/user/settings', icon: 'settings' },
 ]
 
 export default function UserSidebar({
@@ -200,8 +200,8 @@ export default function UserSidebar({
       <nav className={`relative flex flex-col gap-2 py-4 ${compactDesktop ? "px-2" : "px-4"}`}>
         {visibleNavItems.map((item) => {
           const isActive =
-            item.href === '/dashboard'
-              ? pathname === '/dashboard'
+            item.href === '/user/dashboard'
+              ? pathname === '/user/dashboard'
               : pathname.startsWith(item.href.replace(/\/+$/, ''))
           const linkClasses = compactDesktop
             ? `mx-auto flex h-12 w-12 items-center justify-center rounded-full px-0 py-0 ${

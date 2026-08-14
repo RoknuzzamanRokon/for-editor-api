@@ -14,7 +14,7 @@ type RefreshTokenResponse = {
 };
 
 function defaultRouteForRole(role: Role) {
-  return role === "general_user" || role === "demo_user" ? "/dashboard" : "/admin";
+  return role === "general_user" || role === "demo_user" ? "/user/dashboard" : "/admin";
 }
 
 async function fetchMe(token: string) {
@@ -147,7 +147,7 @@ export default function RequireRole({
   }, [allow, pathname, router]);
 
   if (!ready) {
-    if ((pathname || "").startsWith("/dashboard")) {
+    if ((pathname || "").startsWith("/user")) {
       return (
         <UserShell>
           <RouteLoadingContent label="Dashboard workspace" titleWidth="w-72" />

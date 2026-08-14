@@ -12,7 +12,7 @@ const navLinks = [
   ['/features', 'Features'],
   ['/pricing', 'Pricing'],
   ['/docs', 'Documentation'],
-  ['/dashboard', 'Dashboard'],
+  ['/user/dashboard', 'Dashboard'],
 ] as const
 
 export default function MarketingHeader() {

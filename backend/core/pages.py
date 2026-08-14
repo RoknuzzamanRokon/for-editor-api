@@ -31,7 +31,7 @@ PAGE_REGISTRY: Dict[str, dict] = {
     # --- End-user workspace -------------------------------------------------
     "dashboard_home": {
         "label": "Dashboard",
-        "path": "/dashboard",
+        "path": "/user/dashboard",
         "area": "dashboard",
         "icon": "dashboard",
         "roles": DASHBOARD_ROLES,
@@ -40,7 +40,7 @@ PAGE_REGISTRY: Dict[str, dict] = {
     },
     "dashboard_app_center": {
         "label": "App Center",
-        "path": "/dashboard/app-center",
+        "path": "/user/app-center",
         "area": "dashboard",
         "icon": "apps",
         "roles": DASHBOARD_ROLES,
@@ -49,7 +49,7 @@ PAGE_REGISTRY: Dict[str, dict] = {
     },
     "dashboard_profile": {
         "label": "Profile",
-        "path": "/dashboard/profile",
+        "path": "/user/profile",
         "area": "dashboard",
         "icon": "person",
         "roles": DASHBOARD_ROLES,
@@ -58,7 +58,7 @@ PAGE_REGISTRY: Dict[str, dict] = {
     },
     "dashboard_points": {
         "label": "Points",
-        "path": "/dashboard/points",
+        "path": "/user/points",
         "area": "dashboard",
         "icon": "toll",
         "roles": DASHBOARD_ROLES,
@@ -67,7 +67,7 @@ PAGE_REGISTRY: Dict[str, dict] = {
     },
     "dashboard_billing": {
         "label": "Billing",
-        "path": "/dashboard/billing",
+        "path": "/user/billing",
         "area": "dashboard",
         "icon": "credit_card",
         "roles": DASHBOARD_ROLES,
@@ -76,7 +76,7 @@ PAGE_REGISTRY: Dict[str, dict] = {
     },
     "dashboard_settings": {
         "label": "Settings",
-        "path": "/dashboard/settings",
+        "path": "/user/settings",
         "area": "dashboard",
         "icon": "settings",
         "roles": DASHBOARD_ROLES,

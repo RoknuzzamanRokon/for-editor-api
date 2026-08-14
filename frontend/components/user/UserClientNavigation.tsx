@@ -4,12 +4,12 @@ import { startTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const PREFETCH_ROUTES = [
-  "/dashboard",
-  "/dashboard/points",
-  "/dashboard/profile",
-  "/dashboard/app-center",
-  "/dashboard/billing",
-  "/dashboard/settings",
+  "/user/dashboard",
+  "/user/points",
+  "/user/profile",
+  "/user/app-center",
+  "/user/billing",
+  "/user/settings",
 ];
 
 export default function UserClientNavigation({

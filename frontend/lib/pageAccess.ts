@@ -69,7 +69,7 @@ export async function fetchMyPages(token: string): Promise<PageAccessEntry[]> {
 }
 
 /**
- * Longest-prefix match, so /dashboard/app-center/view/x resolves to the
+ * Longest-prefix match, so /user/app-center/view/x resolves to the
  * App Center entry rather than the Dashboard root.
  */
 export function matchPage(
@@ -103,5 +103,5 @@ export function isPathAllowed(
 
 /** Where to send someone bounced off a page they may not open. */
 export function fallbackPathForArea(pathname: string) {
-  return pathname.startsWith("/admin") ? "/admin" : "/dashboard";
+  return pathname.startsWith("/admin") ? "/admin" : "/user/dashboard";
 }

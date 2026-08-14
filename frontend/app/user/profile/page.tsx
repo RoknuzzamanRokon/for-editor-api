@@ -594,7 +594,7 @@ export default function DashboardProfilePage() {
                   {activeApis.map((item) => (
                     <Link
                       key={item.action}
-                      href={`/dashboard/app-center/edit/${toEditSlug(item.action)}`}
+                      href={`/user/app-center/edit/${toEditSlug(item.action)}`}
                       className="group block rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 transition duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:border-slate-800 dark:from-slate-900 dark:to-slate-800/60 dark:focus-visible:ring-offset-slate-900"
                     >
                       <div className="flex items-start justify-between gap-3">
