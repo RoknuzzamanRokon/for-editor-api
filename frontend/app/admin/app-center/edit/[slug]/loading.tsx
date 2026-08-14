@@ -8,19 +8,22 @@ function LoadingCard({
   description: string;
 }) {
   return (
-    <section className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="border-b border-slate-100 px-6 py-5 dark:border-slate-800">
-        <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="mt-2 h-4 w-72 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
-        <p className="sr-only">
-          {title} {description}
-        </p>
-      </div>
-      <div className="space-y-4 p-6">
-        <div className="h-12 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="h-28 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
-          <div className="h-28 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
+    <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent" />
+      <div className="overflow-hidden rounded-[18px]">
+        <div className="border-b border-slate-100 px-6 py-5 dark:border-slate-800">
+          <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="mt-2 h-4 w-72 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
+          <p className="sr-only">
+            {title} {description}
+          </p>
+        </div>
+        <div className="space-y-4 p-6">
+          <div className="h-12 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="h-28 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
+            <div className="h-28 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
+          </div>
         </div>
       </div>
     </section>
