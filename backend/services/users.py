@@ -20,6 +20,7 @@ from db.models import (
     UserPreference,
 )
 from models.auth import DemoRegisterRequest, UserCreate
+from services.notifications import purge_user_notifications
 
 DEMO_SELF_REGISTER_POINTS = 33
 DEMO_TRIAL_DAYS = 8
@@ -263,6 +264,8 @@ def delete_user(db: Session, user_id: int, current_user: User) -> None:
         | (PointsTopupRequest.requested_admin_user_id == user_id)
         | (PointsTopupRequest.created_by_user_id == user_id)
     ).delete(synchronize_session=False)
+
+    purge_user_notifications(db, user_id)
 
     db.query(PointsTopup).filter(PointsTopup.user_id == user_id).delete(synchronize_session=False)
     db.query(PointsLedger).filter(PointsLedger.user_id == user_id).delete(synchronize_session=False)

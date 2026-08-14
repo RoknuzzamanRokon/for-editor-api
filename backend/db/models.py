@@ -210,6 +210,53 @@ class Conversion(Base):
     owner = relationship("User", back_populates="conversions", foreign_keys=[owner_user_id])
 
 
+class Notification(Base):
+    """A single message composed by a super_user or admin_user.
+
+    Recipients are fanned out into notification_recipients at send time, so the
+    audience is frozen to whoever was in scope when it was sent — a later change
+    to a user's created_by_user_id never retroactively reveals an old message.
+    """
+
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    sender_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    title = Column(String(200), nullable=False)
+    message = Column(String(2000), nullable=False)
+    # info | success | warning | alert — drives the icon/accent in the UI only.
+    category = Column(String(32), nullable=False, default="info", server_default="info", index=True)
+    # all | my_users | selected — records what the sender asked for, for display.
+    audience = Column(String(32), nullable=False, default="selected", server_default="selected")
+    recipient_count = Column(Integer, nullable=False, default=0, server_default="0")
+    created_at = Column(DateTime, nullable=False, server_default=func.now(), index=True)
+
+    sender = relationship("User", foreign_keys=[sender_user_id])
+    recipients = relationship(
+        "NotificationRecipient",
+        back_populates="notification",
+        cascade="all, delete-orphan",
+    )
+
+
+class NotificationRecipient(Base):
+    __tablename__ = "notification_recipients"
+    __table_args__ = (
+        UniqueConstraint("notification_id", "user_id", name="uq_notification_recipients"),
+        Index("ix_notification_recipients_inbox", "user_id", "is_read"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    notification_id = Column(Integer, ForeignKey("notifications.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    is_read = Column(Boolean, nullable=False, default=False, server_default="0")
+    read_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    notification = relationship("Notification", back_populates="recipients")
+    user = relationship("User", foreign_keys=[user_id])
+
+
 class EmailVerificationSession(Base):
     __tablename__ = "email_verification_sessions"
     __table_args__ = (

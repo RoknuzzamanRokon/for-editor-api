@@ -74,6 +74,15 @@ PAGE_REGISTRY: Dict[str, dict] = {
         "locked": False,
         "description": "Plans and invoices",
     },
+    "dashboard_notifications": {
+        "label": "Notifications",
+        "path": "/user/notifications",
+        "area": "dashboard",
+        "icon": "notifications",
+        "roles": DASHBOARD_ROLES,
+        "locked": False,
+        "description": "Messages from your administrator",
+    },
     "dashboard_settings": {
         "label": "Settings",
         "path": "/user/settings",
@@ -137,6 +146,15 @@ PAGE_REGISTRY: Dict[str, dict] = {
         "roles": ADMIN_ROLES,
         "locked": False,
         "description": "Grant points and review top-up requests",
+    },
+    "admin_notifications": {
+        "label": "Notifications",
+        "path": "/admin/notifications",
+        "area": "admin",
+        "icon": "notifications",
+        "roles": ADMIN_ROLES,
+        "locked": False,
+        "description": "Send and review notifications",
     },
     "admin_api_permissions": {
         "label": "API Permissions",

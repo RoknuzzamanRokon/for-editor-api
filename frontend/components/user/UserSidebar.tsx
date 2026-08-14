@@ -52,6 +52,7 @@ const navItems = [
   { label: 'Profile', href: '/user/profile', icon: 'person' },
   { label: 'Points', href: '/user/points', icon: 'toll' },
   { label: 'Billing', href: '/user/billing', icon: 'credit_card' },
+  { label: 'Notifications', href: '/user/notifications', icon: 'notifications' },
   { label: 'Settings', href: '/user/settings', icon: 'settings' },
 ]
 

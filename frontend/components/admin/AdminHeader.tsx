@@ -2,6 +2,7 @@
 
 import { startTransition, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
 import { API_BASE } from "@/lib/apiBase";
@@ -163,10 +164,7 @@ export default function AdminHeader({
       </div>
       <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
         <ThemeSwitcher />
-        <button className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
-          <span className="material-symbols-outlined">notifications</span>
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500 dark:border-slate-900" />
-        </button>
+        <NotificationBell basePath="/admin" />
         <div className="flex items-center gap-2 border-l border-slate-200 pl-2 sm:gap-3 sm:pl-4 dark:border-slate-800">
           <div className="hidden text-right sm:block">
             <p className="text-sm font-bold leading-none">{displayName}</p>
