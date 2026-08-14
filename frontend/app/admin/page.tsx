@@ -204,7 +204,8 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200/80 bg-white/80 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.07)] backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/75 sm:p-6">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-5 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03] sm:p-6">
+      <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
       <div className="mb-5">
         <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">{title}</h2>
         <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
@@ -260,7 +261,8 @@ function TopPointHoldersChart({
   const maxBalance = Math.max(1, ...data.map((item) => item.balance));
 
   return (
-    <div className="h-full rounded-2xl border border-primary/10 bg-primary/5 p-4 shadow-sm">
+    <div className="relative h-full overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
       <div className="mb-3">
         <h3 className="text-base font-bold">Top Point Holders</h3>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -890,8 +892,9 @@ export default function AdminPage() {
             ? Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
-                  className="rounded-2xl border border-primary/10 bg-primary/5 p-6 shadow-sm"
+                  className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]"
                 >
+                  <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
                   <div className="mb-4 h-10 w-10 animate-pulse rounded-xl bg-primary/10" />
                   <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                   <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
@@ -900,8 +903,9 @@ export default function AdminPage() {
             : quickStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-2xl border border-primary/10 bg-primary/5 p-6 shadow-sm"
+                  className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]"
                 >
+                  <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
                   <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
                     <span className="material-symbols-outlined">{stat.icon}</span>
                   </div>
@@ -914,7 +918,8 @@ export default function AdminPage() {
         </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-          <div className="h-full rounded-2xl border border-primary/10 bg-primary/5 p-4 shadow-sm">
+          <div className="relative h-full overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+            <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
             <div className="overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex flex-col gap-2 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                 <h2 className="text-lg font-bold">Recent Activity</h2>
@@ -988,7 +993,8 @@ export default function AdminPage() {
 
           <TopPointHoldersChart data={topPointHolders} loading={loading} />
 
-          <div className="h-full rounded-2xl border border-primary/10 bg-primary/5 p-4 shadow-sm">
+          <div className="relative h-full overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+              <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
               <h3 className="mb-3 text-base font-bold">System Status</h3>
               <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
                 {loading

@@ -710,7 +710,7 @@ export default function AdminProfilePage() {
                 </span>
               </div>
 
-              <div className="mt-6 space-y-3">
+              <div className="mt-6">
                 {state.apisError ? (
                   <p className="rounded-[18px] border border-amber-300/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
                     {state.apisError}
@@ -720,7 +720,8 @@ export default function AdminProfilePage() {
                     No active endpoints found for this account.
                   </p>
                 ) : (
-                  state.apis.map((api) => (
+                <div className="max-h-[360px] space-y-3 overflow-y-auto pr-1">
+                  {state.apis.map((api) => (
                     <div
                       key={api.action}
                       className="flex items-center justify-between gap-3 rounded-[18px] border border-white/40 bg-white/40 px-4 py-3 dark:border-white/10 dark:bg-white/[0.04]"
@@ -753,7 +754,8 @@ export default function AdminProfilePage() {
                         </Link>
                       </div>
                     </div>
-                  ))
+                  ))}
+                </div>
                 )}
               </div>
             </section>

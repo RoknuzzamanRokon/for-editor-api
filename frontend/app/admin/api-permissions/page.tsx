@@ -775,22 +775,42 @@ export default function AdminApiPermissionsPage() {
 
         {details ? (
           <>
-            <GlassSection
-              title="User Details"
-              description="Identity and activity data for the selected user."
-            >
-              <div className="grid grid-cols-2 gap-3">
-                <InfoTile label="ID" value={details.id} />
-                <InfoTile label="Email" value={details.email} mono />
-                <InfoTile label="Username" value={details.username ?? "-"} />
-                <InfoTile label="Role" value={formatRoleLabel(details.role)} />
-                <InfoTile label="Position" value={details.position} />
-                <InfoTile label="Status" value={details.is_active ? "Active" : "Inactive"} />
-                <InfoTile label="Created" value={formatDate(details.created_at)} />
-                <InfoTile label="Last Login" value={formatDate(details.last_login)} />
-                <InfoTile label="Last Active" value={formatDate(details.last_active_at)} />
-              </div>
-            </GlassSection>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <GlassSection
+                title="User Details"
+                description="Identity and activity data for the selected user."
+              >
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoTile label="ID" value={details.id} />
+                  <InfoTile label="Email" value={details.email} mono />
+                  <InfoTile label="Username" value={details.username ?? "-"} />
+                  <InfoTile label="Role" value={formatRoleLabel(details.role)} />
+                  <InfoTile label="Position" value={details.position} />
+                  <InfoTile label="Status" value={details.is_active ? "Active" : "Inactive"} />
+                  <InfoTile label="Created" value={formatDate(details.created_at)} />
+                  <InfoTile label="Last Login" value={formatDate(details.last_login)} />
+                  <InfoTile label="Last Active" value={formatDate(details.last_active_at)} />
+                </div>
+              </GlassSection>
+
+              <GlassSection
+                title="Points & Conversion Summary"
+                description="Wallet activity and conversion health."
+              >
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoTile label="Balance" value={details.points.balance} />
+                  <InfoTile label="Topup" value={details.points.total_topup} />
+                  <InfoTile label="Spent" value={details.points.total_spent} />
+                  <InfoTile label="Refunded" value={details.points.total_refunded} />
+                  <InfoTile label="Points Activity" value={formatDate(details.points.last_points_activity_at)} />
+                  <InfoTile label="Conversions" value={details.conversions.total} />
+                  <InfoTile label="Success" value={details.conversions.success} />
+                  <InfoTile label="Failed" value={details.conversions.failed} />
+                  <InfoTile label="Processing" value={details.conversions.processing} />
+                  <InfoTile label="Last Conversion" value={formatDate(details.conversions.last_conversion_at)} />
+                </div>
+              </GlassSection>
+            </div>
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               <GlassSection
@@ -952,34 +972,6 @@ export default function AdminApiPermissionsPage() {
                     ))}
                   </div>
                 )}
-              </GlassSection>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-              <GlassSection
-                title="Points Summary"
-                description="Wallet and points activity."
-              >
-                <div className="grid grid-cols-2 gap-3">
-                  <InfoTile label="Balance" value={details.points.balance} />
-                  <InfoTile label="Topup" value={details.points.total_topup} />
-                  <InfoTile label="Spent" value={details.points.total_spent} />
-                  <InfoTile label="Refunded" value={details.points.total_refunded} />
-                  <InfoTile label="Last Activity" value={formatDate(details.points.last_points_activity_at)} />
-                </div>
-              </GlassSection>
-
-              <GlassSection
-                title="Conversion Summary"
-                description="Usage and conversion health."
-              >
-                <div className="grid grid-cols-2 gap-3">
-                  <InfoTile label="Total" value={details.conversions.total} />
-                  <InfoTile label="Success" value={details.conversions.success} />
-                  <InfoTile label="Failed" value={details.conversions.failed} />
-                  <InfoTile label="Processing" value={details.conversions.processing} />
-                  <InfoTile label="Last Conversion" value={formatDate(details.conversions.last_conversion_at)} />
-                </div>
               </GlassSection>
             </div>
 
