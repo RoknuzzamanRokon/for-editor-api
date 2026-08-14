@@ -226,7 +226,9 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(Integer, primary_key=True, index=True)
-    sender_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # NULL for system-generated notifications (points credited, request declined)
+    # — those have no human author, and must not appear in anyone's Sent list.
+    sender_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     title = Column(String(200), nullable=False)
     message = Column(String(2000), nullable=False)
     # info | success | warning | alert — drives the icon/accent in the UI only.

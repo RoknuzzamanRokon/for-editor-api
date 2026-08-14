@@ -27,6 +27,10 @@ from db.models import Notification, NotificationRecipient, RoleEnum, User
 
 SENDER_ROLES = (RoleEnum.super_user, RoleEnum.admin_user)
 
+# Audience marker for machine-raised notifications. Not a value a client can
+# submit — `NotificationCreateRequest.audience` only accepts all/my_users/selected.
+SYSTEM_AUDIENCE = "system"
+
 
 def _audience_pool_query(db: Session, sender: User):
     """Base query for every user `sender` is permitted to notify.
@@ -133,6 +137,54 @@ def create_notification(
     return notification
 
 
+def notify_users(
+    db: Session,
+    user_ids: list[int],
+    title: str,
+    message: str,
+    category: str = "info",
+    sender_user_id: int | None = None,
+) -> Notification | None:
+    """Raises a notification without any permission resolution. Caller commits.
+
+    This is the *system* path, for events the platform itself reports — points
+    credited, a request declined. It deliberately skips `resolve_recipients`:
+    the action being reported was already authorised, and running the audience
+    rules again could refuse to notify a legitimate recipient (or, worse, raise
+    mid-transaction and roll back a money transfer).
+
+    Rows are only added to the session — the caller's own commit makes the
+    notification atomic with whatever it is reporting.
+    """
+    unique_ids = [uid for uid in dict.fromkeys(user_ids) if uid]
+    if not unique_ids:
+        return None
+
+    notification = Notification(
+        sender_user_id=sender_user_id,
+        # Columns are VARCHAR(200)/VARCHAR(2000); truncate rather than let a long
+        # user-supplied note blow up the insert and take the transfer with it.
+        title=title[:200],
+        message=message[:2000],
+        category=category,
+        # Marks this as machine-raised. `list_sent` filters it out, so automated
+        # point notifications never flood an admin's "Sent" history — a super
+        # user sees every sent notification, and there are a lot of these.
+        audience=SYSTEM_AUDIENCE,
+        recipient_count=len(unique_ids),
+    )
+    db.add(notification)
+    db.flush()
+
+    db.add_all(
+        [
+            NotificationRecipient(notification_id=notification.id, user_id=uid)
+            for uid in unique_ids
+        ]
+    )
+    return notification
+
+
 def count_unread(db: Session, user: User) -> int:
     return (
         db.query(NotificationRecipient)
@@ -216,7 +268,10 @@ def list_sent(
             detail="Not permitted to view sent notifications",
         )
 
-    base = db.query(Notification)
+    # "Sent" means notifications a person composed. Machine-raised ones are
+    # excluded — otherwise every points credit would show up here, and a super
+    # user (who sees all senders) would have nothing else visible.
+    base = db.query(Notification).filter(Notification.audience != SYSTEM_AUDIENCE)
     if sender.role != RoleEnum.super_user:
         base = base.filter(Notification.sender_user_id == sender.id)
 

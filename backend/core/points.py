@@ -358,6 +358,60 @@ def topup_points(
             expires_at=expires_at,
         )
     )
+
+    # Tell the recipient their balance went up. Added to this same transaction so
+    # the notification and the credit land together — nobody is ever told about
+    # points that did not arrive. Self-issuance is skipped: a super user crediting
+    # their own wallet does not need to be notified about it.
+    if not is_self_topup:
+        _notify_points_credited(
+            db,
+            recipient_id=user_id,
+            amount=amount,
+            new_balance=points.balance,
+            funder=creator,
+            note=note,
+        )
+
     db.commit()
 
     return points.balance
+
+
+def _notify_points_credited(
+    db: Session,
+    recipient_id: int,
+    amount: int,
+    new_balance: int,
+    funder: Optional[User],
+    note: Optional[str],
+) -> None:
+    """Queues the 'you received points' notification. Never raises."""
+    # Imported here rather than at module scope: services/ sits above core/, and
+    # a top-level import would invert the layering for a purely optional concern.
+    from services.notifications import notify_users
+
+    if funder is not None:
+        who = funder.username or funder.email
+        source = f" from {who}"
+    else:
+        source = ""
+
+    body = f"{amount:,} points were added to your account{source}."
+    if note:
+        body += f' Note: "{note}"'
+    body += f" Your balance is now {new_balance:,} points."
+
+    try:
+        notify_users(
+            db,
+            user_ids=[recipient_id],
+            title=f"You received {amount:,} points",
+            message=body,
+            category="success",
+            sender_user_id=funder.id if funder else None,
+        )
+    except Exception:
+        # A notification must never cost someone their points. The transfer has
+        # already been applied above and still commits.
+        pass

@@ -43,6 +43,7 @@ from models.admin import (
     AdminTopupRequestEntry,
     AdminTopupRequestListResponse,
 )
+from services.notifications import notify_users
 from services.users import get_user_by_id
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -833,6 +834,23 @@ def reject_topup_request(
     request.status = "rejected"
     request.resolved_by_user_id = current_user.id
     request.resolved_at = datetime.utcnow()
+
+    # A decline is the one outcome that credits nothing, so it has no
+    # topup_points call to piggyback on — notify explicitly, in the same
+    # transaction as the status change.
+    decline_note = f' Note: "{request.note}"' if request.note else ""
+    notify_users(
+        db,
+        user_ids=[request.user_id],
+        title="Top-up request declined",
+        message=(
+            f"Your request for {request.amount:,} points was declined by "
+            f"{current_user.username or current_user.email}.{decline_note}"
+        ),
+        category="warning",
+        sender_user_id=current_user.id,
+    )
+
     db.commit()
     db.refresh(request)
     return _build_topup_request_entry(db, request)

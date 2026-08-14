@@ -901,10 +901,10 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
               // centres with flex puts everything above the centre line out of
               // reach — you cannot scroll up to it. The dialog caps its own
               // height and scrolls internally instead.
+              // Deliberately no click-to-close on the backdrop: this form holds
+              // a package choice and a note, and a stray click outside it should
+              // not discard that. Closing is an explicit act — the X or Cancel.
               className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-              onClick={(event) => {
-                if (event.target === event.currentTarget) closeTopupModal();
-              }}
             >
               {/* Column layout with a capped height: header and footer stay put,
                   only the middle scrolls, so the submit button is always
