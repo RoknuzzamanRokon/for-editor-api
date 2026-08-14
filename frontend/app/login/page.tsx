@@ -191,6 +191,7 @@ function LoginForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (loading) return;
     setError("");
     setLoading(true);
 

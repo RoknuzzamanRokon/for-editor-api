@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from core.deps import block_demo_write, get_current_user
 from core.permissions import list_allowed_actions
 from core.points import POINTS_COST_PER_REQUEST, get_user_balance
+from core.rate_limit import enforce_login_rate_limit
 from db.models import Conversion, PointsLedger, RoleEnum, User, UserConversionPermission
 from db.session import get_db
 from models.auth import (
@@ -95,7 +96,11 @@ API_META: dict[str, dict[str, str]] = {
 # - Add a reset-token persistence model with expiry/revocation support plus email integration.
 
 
-@router.post("/login", response_model=TokenPair)
+@router.post(
+    "/login",
+    response_model=TokenPair,
+    dependencies=[Depends(enforce_login_rate_limit)],
+)
 def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenPair:
     user = auth_service.authenticate_user(db, payload.email, payload.password)
     access_token, refresh_token = auth_service.create_token_pair(db, user)
