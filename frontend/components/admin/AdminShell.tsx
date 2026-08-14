@@ -72,7 +72,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       />
       <div
         className={`min-h-screen transition-[margin] duration-300 ${
-          sidebarCollapsed ? "lg:ml-20" : "lg:ml-72"
+          sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
         }`}
       >
         <AdminHeader onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
