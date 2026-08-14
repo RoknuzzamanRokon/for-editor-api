@@ -61,7 +61,7 @@ function formatDate(v: string) {
 
 function StatTile({ label, value, icon }: { label: string; value: string | number; icon: string }) {
   return (
-    <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+    <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
       <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
       <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
         <span className="material-symbols-outlined">{icon}</span>
@@ -183,7 +183,7 @@ export default function AdminPointPage() {
         </section>
 
         {/* Distribute form */}
-        <section className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
           <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
           <div className="relative">
             <div className="mb-5 flex items-center gap-3">
@@ -256,7 +256,7 @@ export default function AdminPointPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
           <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
           <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
             <div className="flex items-center gap-3">
@@ -359,7 +359,7 @@ export default function AdminPointPage() {
         </section>
 
         {/* History */}
-        <section className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
           <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
           <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
             <div className="flex items-center gap-3">

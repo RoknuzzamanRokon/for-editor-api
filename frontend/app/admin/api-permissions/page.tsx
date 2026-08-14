@@ -1018,9 +1018,9 @@ export default function AdminApiPermissionsPage() {
               </div>
 
               <div className="overflow-hidden rounded-[24px] bg-transparent">
-                <div className="overflow-x-auto">
+                <div className="max-h-[760px] overflow-auto">
                   <table className="w-full text-left">
-                    <thead className="border-b border-border text-[10px] uppercase tracking-[0.16em] text-foreground/60">
+                    <thead className="sticky top-0 border-b border-border bg-background text-[10px] uppercase tracking-[0.16em] text-foreground/60">
                       <tr>
                         <th className="px-3 py-2">API</th>
                         <th className="px-3 py-2">Allowed</th>

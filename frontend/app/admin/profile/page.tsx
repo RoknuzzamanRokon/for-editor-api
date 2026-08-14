@@ -173,7 +173,7 @@ function SignalMetric({
   value: string;
 }) {
   return (
-    <div className="relative min-w-0 overflow-hidden rounded-[24px] border border-white/35 bg-white/40 px-4 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+    <div className="relative min-w-0 overflow-hidden rounded-[24px] border border-border bg-white/40 px-4 py-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/5">
       <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-primary/0 via-primary/70 to-primary/0" />
       <div className="flex items-center gap-3">
         <span className="material-symbols-outlined text-primary">{icon}</span>
@@ -557,7 +557,7 @@ export default function AdminProfilePage() {
 
         {!state.loading && !state.error && state.me ? (
           <section className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-[13px] border border-white/40 bg-white/45 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05]">
+            <div className="rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
                 Role Channel
               </p>
@@ -571,7 +571,7 @@ export default function AdminProfilePage() {
               </div>
             </div>
 
-            <div className="rounded-[13px] border border-white/40 bg-white/45 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05]">
+            <div className="rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
                 Point
               </p>
@@ -585,7 +585,7 @@ export default function AdminProfilePage() {
               </div>
             </div>
 
-            <div className="rounded-[13px] border border-white/40 bg-white/45 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05]">
+            <div className="rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
                 Access State
               </p>
@@ -599,7 +599,7 @@ export default function AdminProfilePage() {
               </div>
             </div>
 
-            <div className="rounded-[13px] border border-white/40 bg-white/45 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05] sm:col-span-2 xl:col-span-1">
+            <div className="rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05] sm:col-span-2 xl:col-span-1">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
                 Joined Signal
               </p>
@@ -616,7 +616,7 @@ export default function AdminProfilePage() {
         ) : null}
 
         {state.loading ? (
-          <div className="relative overflow-hidden rounded-[28px] border border-white/40 bg-white/40 p-6 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+          <div className="relative overflow-hidden rounded-[28px] border border-border bg-white/40 p-6 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/5">
             <div className="space-y-4">
               <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
               <div className="grid gap-4 md:grid-cols-3">
@@ -640,7 +640,7 @@ export default function AdminProfilePage() {
         {!state.loading && !state.error && state.me ? (
         <>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <section className="w-full relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+              <section className="w-full relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
               <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
               <SectionKicker
                 icon="person"
@@ -685,7 +685,7 @@ export default function AdminProfilePage() {
               </div>
               </section>
               
-            <section className="w-full relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+            <section className="w-full relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
               <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
               <SectionKicker
                 icon="api"
@@ -693,7 +693,7 @@ export default function AdminProfilePage() {
                 description="All active endpoints available for this admin account."
               />
 
-              <div className="mt-8 flex items-center justify-between rounded-[18px] border border-white/40 bg-white/40 px-4 py-3 dark:border-white/10 dark:bg-white/[0.04]">
+              <div className="mt-8 flex items-center justify-between rounded-[10px] border bg-white/40 px-4 py-3 dark:bg-white/[0.04]">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
                     Active Endpoints
@@ -724,7 +724,7 @@ export default function AdminProfilePage() {
                   {state.apis.map((api) => (
                     <div
                       key={api.action}
-                      className="flex items-center justify-between gap-3 rounded-[18px] border border-white/40 bg-white/40 px-4 py-3 dark:border-white/10 dark:bg-white/[0.04]"
+                      className="flex items-center justify-between gap-3 rounded-[10px] border border-border bg-white/40 px-4 py-3 [box-shadow:2px_2px_0px_0px_var(--border)] dark:bg-white/[0.04]"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <span className="material-symbols-outlined text-primary">

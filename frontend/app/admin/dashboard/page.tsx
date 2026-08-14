@@ -184,7 +184,7 @@ function TopPointHoldersChart({
   const maxBalance = Math.max(1, ...data.map((item) => item.balance));
 
   return (
-    <div className="relative h-full overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+    <div className="relative h-full overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
       <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
       <div className="mb-3">
         <h3 className="text-base font-bold">Top Point Holders</h3>
@@ -335,7 +335,7 @@ function RequestTrendChart({
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03] sm:p-5">
+    <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03] sm:p-5">
       <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-5 sm:left-5" />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -607,7 +607,7 @@ function PointsActivityChart({
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03] sm:p-5">
+    <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03] sm:p-5">
       <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-5 sm:left-5" />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -885,7 +885,7 @@ export default function AdminPage() {
             ? Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
-                  className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]"
+                  className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
                 >
                   <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
                   <div className="mb-4 h-10 w-10 animate-pulse rounded-xl bg-primary/10" />
@@ -896,7 +896,7 @@ export default function AdminPage() {
             : quickStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]"
+                  className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
                 >
                   <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
                   <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
@@ -911,7 +911,7 @@ export default function AdminPage() {
         </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <div className="relative h-full overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="relative h-full overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
             <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
             <div className="overflow-hidden rounded-[18px]">
               <div className="flex flex-col gap-2 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
@@ -988,7 +988,7 @@ export default function AdminPage() {
         </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <div className="relative h-full overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03] sm:p-5">
+          <div className="relative h-full overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03] sm:p-5">
               <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-5 sm:left-5" />
               <div>
                 <h3 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">

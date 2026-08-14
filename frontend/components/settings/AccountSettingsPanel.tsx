@@ -59,7 +59,7 @@ function SectionCard({
   return (
     <section
       className={cn(
-        "group relative overflow-hidden rounded-[13px] border border-border bg-transparent backdrop-blur-sm",
+        "group relative overflow-hidden rounded-[13px] border border-border bg-transparent backdrop-blur-sm [box-shadow:4px_4px_0px_0px_var(--border)]",
         hoverable && "transition-all duration-300",
       )}
     >
@@ -247,7 +247,7 @@ function ActionLauncherCard({
         "group relative overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300",
         active
           ? "border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary text-white shadow-xl dark:border-slate-800"
-          : "border-border bg-transparent hover:bg-card/40 hover:[box-shadow:4px_4px_0px_0px_var(--border)]",
+          : "border-border bg-transparent [box-shadow:4px_4px_0px_0px_var(--border)] hover:bg-card/40",
       )}
     >
       <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
@@ -628,7 +628,7 @@ export default function AccountSettingsPanel({
   if (loading) {
     return (
       <div className="space-y-6 p-6 md:p-8">
-        <div className="relative overflow-hidden rounded-[13px] border border-slate-200/80 bg-white/80 p-8 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80">
+        <div className="relative overflow-hidden rounded-[13px] border border-border bg-transparent p-8 backdrop-blur-sm [box-shadow:4px_4px_0px_0px_var(--border)]">
           <div className="h-8 w-56 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
           <div className="mt-3 h-4 w-96 max-w-full animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
         </div>
@@ -636,7 +636,7 @@ export default function AccountSettingsPanel({
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="relative overflow-hidden rounded-[13px] border border-slate-200/80 bg-white/80 p-6 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/80"
+              className="relative overflow-hidden rounded-[13px] border border-border bg-transparent p-6 backdrop-blur-sm [box-shadow:4px_4px_0px_0px_var(--border)]"
             >
               <div className="h-6 w-40 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
               <div className="mt-3 h-4 w-72 max-w-full animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />

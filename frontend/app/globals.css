@@ -151,10 +151,10 @@ html[data-font-size="xlarge"] { font-size: 19px; }
 }
 
 .paper {
-  --primary: #6366f1;
+  --primary: #02020c;
   --background: #f7f7f5;
-  --foreground: #1f2023;
-  --border: #e8e6e1;
+  --foreground: #000000;
+  --border: #a6a4a0;
   --card: #ffffff;
   --card-hover: #f1f0ec;
 }
