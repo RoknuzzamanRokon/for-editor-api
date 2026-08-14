@@ -270,7 +270,8 @@ export default function DashboardPage() {
           </div>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="rounded-2xl border border-primary/10 bg-primary/5 p-6 shadow-sm">
+              <div key={index} className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+                <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
                 <div className="mb-4 h-10 w-10 animate-pulse rounded-xl bg-primary/10" />
                 <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
@@ -393,28 +394,32 @@ export default function DashboardPage() {
       </section>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
           <p className="text-sm font-medium text-slate-500">Monthly Requests</p>
           <p className="mt-1 text-2xl font-bold">
             {overview.summary.monthly_requests.toLocaleString()}
           </p>
         </div>
 
-        <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
           <p className="text-sm font-medium text-slate-500">Remaining Points</p>
           <p className="mt-1 text-2xl font-bold">
             {overview.summary.remaining_points.toLocaleString()}
           </p>
         </div>
 
-        <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
           <p className="text-sm font-medium text-slate-500">Success Rate</p>
           <p className="mt-1 text-2xl font-bold">
             {overview.summary.success_rate.toFixed(1)}%
           </p>
         </div>
 
-        <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
           <p className="text-sm font-medium text-slate-500">Avg. Latency</p>
           <p className="mt-1 text-2xl font-bold">
             {overview.summary.avg_latency_ms == null
@@ -424,7 +429,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+        <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
         <div className="border-b border-slate-100 p-4 sm:p-6 dark:border-slate-800">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -570,7 +576,8 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
-          <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <h3 className="font-bold">My Active APIs</h3>
@@ -620,7 +627,8 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="rounded-[13px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-6 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
             <h4 className="mb-3 font-bold">Conversion Summary</h4>
             <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
               <p>
@@ -652,7 +660,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+            <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
             <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 dark:border-slate-800">
               <h3 className="text-lg font-bold">Recent History</h3>
               <span className="text-xs text-slate-500">

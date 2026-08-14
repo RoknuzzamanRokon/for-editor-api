@@ -138,83 +138,6 @@ function getChartPoints(values: number[], width: number, height: number, maxValu
   }));
 }
 
-function ChartStat({
-  label,
-  value,
-  toneClass,
-}: {
-  label: string;
-  value: string;
-  toneClass?: string;
-}) {
-  return (
-    <div className="rounded-[16px] border border-white/45 bg-white/60 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05]">
-      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-        {label}
-      </p>
-      <p className={`mt-2 text-lg font-black text-slate-900 dark:text-white ${toneClass ?? ""}`}>{value}</p>
-    </div>
-  );
-}
-
-function ChartLegend({
-  items,
-}: {
-  items: {
-    label: string;
-    color: string;
-    value: string;
-    active?: boolean;
-    onClick?: () => void;
-  }[];
-}) {
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-      {items.map((item) => (
-        <button
-          key={item.label}
-          type="button"
-          onClick={item.onClick}
-          className={`rounded-[16px] border px-4 py-3 text-left backdrop-blur-xl transition ${
-            item.active === false
-              ? "border-slate-200/70 bg-white/45 opacity-55 dark:border-slate-800 dark:bg-slate-900/40"
-              : "border-slate-200/70 bg-white/75 shadow-[0_10px_25px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900/70"
-          } ${item.onClick ? "cursor-pointer" : "cursor-default"}`}
-        >
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-              {item.label}
-            </span>
-          </div>
-          <p className="mt-2 text-lg font-black text-slate-900 dark:text-white">{item.value}</p>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function ChartCard({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-5 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03] sm:p-6">
-      <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
-      <div className="mb-5">
-        <h2 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">{title}</h2>
-        <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
-      </div>
-      <div className="flex flex-1 flex-col">{children}</div>
-    </div>
-  );
-}
-
 function DonutStat({
   label,
   value,
@@ -229,24 +152,24 @@ function DonutStat({
   const clamped = Math.max(0, Math.min(100, value));
 
   return (
-    <div className="rounded-[18px] border border-slate-200/70 bg-white/80 p-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70">
-      <div className="flex items-center gap-4">
-        <div
-          className="relative h-16 w-16 shrink-0 rounded-full"
-          style={{
-            background: `conic-gradient(${color} 0deg ${clamped * 3.6}deg, rgba(148,163,184,0.18) ${clamped * 3.6}deg 360deg)`,
-          }}
-        >
-          <div className="absolute inset-[7px] flex items-center justify-center rounded-full bg-white text-sm font-black text-slate-900 dark:bg-slate-950 dark:text-white">
-            {clamped.toFixed(0)}%
-          </div>
-        </div>
-
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-slate-900 dark:text-white">{label}</p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{helper}</p>
-        </div>
+    <div className="py-2">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+          {label}
+        </span>
+        <span className="text-sm font-bold text-slate-900 dark:text-white">
+          {clamped.toFixed(0)}%
+        </span>
       </div>
+      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/10">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${clamped}%`, backgroundColor: color }}
+        />
+      </div>
+      <p className="mt-1 truncate text-[11px] text-slate-500 dark:text-slate-400">
+        {helper}
+      </p>
     </div>
   );
 }
@@ -345,7 +268,7 @@ function RequestTrendChart({
     failed: true,
   });
   const width = 680;
-  const height = 220;
+  const height = 128;
   const labels = useMemo(
     () =>
       data.map((item, index) => ({
@@ -387,180 +310,221 @@ function RequestTrendChart({
     });
   };
 
+  const seriesStats = [
+    {
+      key: "total" as const,
+      label: "Total",
+      color: "#38bdf8",
+      value: formatNumber(totalRequests),
+      active: visibleSeries.total,
+    },
+    {
+      key: "success" as const,
+      label: "Success",
+      color: "#34d399",
+      value: formatNumber(success.reduce((sum, value) => sum + value, 0)),
+      active: visibleSeries.success,
+    },
+    {
+      key: "failed" as const,
+      label: "Failed",
+      color: "#fb7185",
+      value: formatNumber(failed.reduce((sum, value) => sum + value, 0)),
+      active: visibleSeries.failed,
+    },
+  ];
+
   return (
-    <ChartCard
-      title="Requests Overview"
-      description="Daily request volume for the last 30 days with success and failed overlays."
-    >
-      <div className="mt-6 flex flex-1 flex-col">
-        {loading ? (
-          <div className="min-h-[420px] flex-1 animate-pulse rounded-[20px] bg-slate-100 dark:bg-slate-800" />
-        ) : (
-          <div className="flex min-h-[420px] flex-1 flex-col overflow-hidden rounded-[20px] border border-slate-200/80 bg-gradient-to-br from-cyan-50 via-white to-sky-100 p-4 dark:border-cyan-500/10 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 sm:p-5">
-            <div className="min-h-[320px] w-full flex-1">
-              <svg
-                viewBox={`0 0 ${width} ${height + 32}`}
-                className="h-full w-full"
-                role="img"
-                aria-label="Admin request trend chart"
-              >
-                <defs>
-                  <linearGradient
-                    id="admin-request-area"
-                    x1="0"
-                    x2="0"
-                    y1="0"
-                    y2="1"
-                  >
-                    <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.45" />
-                    <stop
-                      offset="100%"
-                      stopColor="#38bdf8"
-                      stopOpacity="0.02"
-                    />
-                  </linearGradient>
-                </defs>
+    <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03] sm:p-5">
+      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-5 sm:left-5" />
 
-                {gridValues.map((ratio) => {
-                  const y = height - height * ratio;
-                  return (
-                    <g key={ratio}>
-                      <line
-                        x1="0"
-                        x2={width}
-                        y1={y}
-                        y2={y}
-                        stroke="rgba(255,255,255,0.10)"
-                        strokeDasharray="5 8"
-                      />
-                      <text
-                        x="0"
-                        y={Math.max(y - 6, 12)}
-                        fill="rgba(255,255,255,0.55)"
-                        fontSize="12"
-                      >
-                        {formatNumber(Math.round(maxValue * ratio))}
-                      </text>
-                    </g>
-                  );
-                })}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+            Requests Overview
+          </h2>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Last 30 days
+          </p>
+        </div>
 
-                {visibleSeries.total ? (
-                  <path d={totalAreaPath} fill="url(#admin-request-area)" />
-                ) : null}
-                {visibleSeries.total ? (
-                  <path
-                    d={totalPath}
-                    fill="none"
-                    stroke="#7dd3fc"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                  />
-                ) : null}
-                {visibleSeries.success ? (
-                  <path
-                    d={successPath}
-                    fill="none"
-                    stroke="#34d399"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                ) : null}
-                {visibleSeries.failed ? (
-                  <path
-                    d={failedPath}
-                    fill="none"
-                    stroke="#fb7185"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                ) : null}
-
-                {visibleSeries.total
-                  ? totalPoints.map((point, index) => (
-                      <circle
-                        key={`${point.x}-${index}`}
-                        cx={point.x}
-                        cy={point.y}
-                        r="3.5"
-                        fill="#e0f2fe"
-                      />
-                    ))
-                  : null}
-
-                {labels.map((label, index) => {
-                  if (!label.show) return null;
-                  const x =
-                    labels.length === 1
-                      ? width / 2
-                      : (index / (labels.length - 1)) * width;
-                  return (
-                    <text
-                      key={label.date}
-                      x={x}
-                      y={height + 22}
-                      textAnchor={
-                        index === 0
-                          ? "start"
-                          : index === labels.length - 1
-                            ? "end"
-                            : "middle"
-                      }
-                      fill="rgba(255,255,255,0.58)"
-                      fontSize="12"
-                    >
-                      {formatDayLabel(label.date)}
-                    </text>
-                  );
-                })}
-              </svg>
-            </div>
-
-            <div className="mt-4">
-              <ChartLegend
-                items={[
-                  {
-                    label: "Total",
-                    color: "#7dd3fc",
-                    value: formatNumber(totalRequests),
-                  },
-                  {
-                    label: "Successful",
-                    color: "#34d399",
-                    value: formatNumber(
-                      success.reduce((sum, value) => sum + value, 0),
-                    ),
-                  },
-                  {
-                    label: "Failed",
-                    color: "#fb7185",
-                    value: formatNumber(
-                      failed.reduce((sum, value) => sum + value, 0),
-                    ),
-                  },
-                ].map((item) => ({
-                  ...item,
-                  active:
-                    item.label === "Total"
-                      ? visibleSeries.total
-                      : item.label === "Successful"
-                        ? visibleSeries.success
-                        : visibleSeries.failed,
-                  onClick: () =>
-                    toggleSeries(
-                      item.label === "Total"
-                        ? "total"
-                        : item.label === "Successful"
-                          ? "success"
-                          : "failed",
-                    ),
-                }))}
-              />
-            </div>
-          </div>
-        )}
+        {!loading ? (
+          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            <span className="material-symbols-outlined text-[13px]">trending_up</span>
+            {successRate}% success
+          </span>
+        ) : null}
       </div>
-    </ChartCard>
+
+      {loading ? (
+        <div className="mt-4 h-[168px] w-full animate-pulse rounded-[12px] bg-slate-100 dark:bg-slate-800" />
+      ) : (
+        <>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {seriesStats.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => toggleSeries(item.key)}
+                className={`flex items-center gap-2 rounded-[10px] border px-2.5 py-2 text-left transition ${
+                  item.active
+                    ? "border-slate-200/70 bg-white/50 dark:border-white/10 dark:bg-white/[0.04]"
+                    : "border-transparent opacity-40"
+                }`}
+              >
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="min-w-0">
+                  <span className="block text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    {item.label}
+                  </span>
+                  <span className="block text-sm font-bold text-slate-900 dark:text-white">
+                    {item.value}
+                  </span>
+                </span>
+              </button>
+            ))}
+
+            {peakDay ? (
+              <div className="flex items-center gap-2 rounded-[10px] border border-transparent px-2.5 py-2 text-left">
+                <span className="material-symbols-outlined shrink-0 text-[16px] text-slate-400 dark:text-slate-500">
+                  bolt
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Peak Day
+                  </span>
+                  <span className="block truncate text-sm font-bold text-slate-900 dark:text-white">
+                    {formatDayLabel(peakDay.date)} · {formatNumber(peakDay.total)}
+                  </span>
+                </span>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="mt-3 w-full" style={{ aspectRatio: `${width} / ${height + 28}` }}>
+            <svg
+              viewBox={`0 0 ${width} ${height + 28}`}
+              className="h-full w-full"
+              role="img"
+              aria-label="Admin request trend chart"
+            >
+              <defs>
+                <linearGradient
+                  id="admin-request-area"
+                  x1="0"
+                  x2="0"
+                  y1="0"
+                  y2="1"
+                >
+                  <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.28" />
+                  <stop
+                    offset="100%"
+                    stopColor="#38bdf8"
+                    stopOpacity="0.02"
+                  />
+                </linearGradient>
+              </defs>
+
+              {gridValues.map((ratio) => {
+                const y = height - height * ratio;
+                return (
+                  <g key={ratio}>
+                    <line
+                      x1="0"
+                      x2={width}
+                      y1={y}
+                      y2={y}
+                      stroke="rgba(255,255,255,0.08)"
+                      strokeDasharray="4 6"
+                    />
+                    <text
+                      x="0"
+                      y={Math.max(y - 5, 10)}
+                      fill="rgba(255,255,255,0.5)"
+                      fontSize="10"
+                    >
+                      {formatNumber(Math.round(maxValue * ratio))}
+                    </text>
+                  </g>
+                );
+              })}
+
+              {visibleSeries.total ? (
+                <path d={totalAreaPath} fill="url(#admin-request-area)" />
+              ) : null}
+              {visibleSeries.total ? (
+                <path
+                  d={totalPath}
+                  fill="none"
+                  stroke="#7dd3fc"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+              ) : null}
+              {visibleSeries.success ? (
+                <path
+                  d={successPath}
+                  fill="none"
+                  stroke="#34d399"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                />
+              ) : null}
+              {visibleSeries.failed ? (
+                <path
+                  d={failedPath}
+                  fill="none"
+                  stroke="#fb7185"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                />
+              ) : null}
+
+              {visibleSeries.total
+                ? totalPoints.map((point, index) => (
+                    <circle
+                      key={`${point.x}-${index}`}
+                      cx={point.x}
+                      cy={point.y}
+                      r="2.25"
+                      fill="#e0f2fe"
+                    />
+                  ))
+                : null}
+
+              {labels.map((label, index) => {
+                if (!label.show) return null;
+                const x =
+                  labels.length === 1
+                    ? width / 2
+                    : (index / (labels.length - 1)) * width;
+                return (
+                  <text
+                    key={label.date}
+                    x={x}
+                    y={height + 20}
+                    textAnchor={
+                      index === 0
+                        ? "start"
+                        : index === labels.length - 1
+                          ? "end"
+                          : "middle"
+                    }
+                    fill="rgba(255,255,255,0.5)"
+                    fontSize="10"
+                  >
+                    {formatDayLabel(label.date)}
+                  </text>
+                );
+              })}
+            </svg>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -577,7 +541,7 @@ function PointsActivityChart({
     refunded: true,
   });
   const width = 680;
-  const height = 220;
+  const height = 128;
   const labels = useMemo(
     () =>
       data.map((item, index) => ({
@@ -618,150 +582,179 @@ function PointsActivityChart({
     });
   };
 
+  const seriesStats = [
+    {
+      key: "topup" as const,
+      label: "Topup",
+      color: "#0ea5e9",
+      value: formatNumber(totals.topup),
+      active: visibleSeries.topup,
+    },
+    {
+      key: "spent" as const,
+      label: "Spent",
+      color: "#f59e0b",
+      value: formatNumber(totals.spent),
+      active: visibleSeries.spent,
+    },
+    {
+      key: "refunded" as const,
+      label: "Refunded",
+      color: "#10b981",
+      value: formatNumber(totals.refunded),
+      active: visibleSeries.refunded,
+    },
+  ];
+
   return (
-    <ChartCard
-      title="Points Activity"
-      description="Topups, spending, and refunds split by day for the same 30-day window."
-    >
-      <div className="mt-6 flex flex-1 flex-col">
-        {loading ? (
-          <div className="min-h-[420px] flex-1 animate-pulse rounded-[20px] bg-slate-100 dark:bg-slate-800" />
-        ) : (
-          <div className="flex min-h-[420px] flex-1 flex-col overflow-hidden rounded-[20px] border border-slate-200/80 bg-gradient-to-br from-cyan-50 via-white to-sky-100 p-4 dark:border-cyan-500/10 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 sm:p-5">
-            <div className="min-h-[320px] w-full flex-1">
-              <svg
-                viewBox={`0 0 ${width} ${height + 32}`}
-                className="h-full w-full"
-                role="img"
-                aria-label="Admin points activity chart"
-              >
-                {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-                  const y = height - height * ratio;
-                  return (
-                    <g key={ratio}>
-                      <line
-                        x1="0"
-                        x2={width}
-                        y1={y}
-                        y2={y}
-                        stroke="rgba(15,23,42,0.12)"
-                        strokeDasharray="5 8"
-                        className="dark:stroke-white/10"
-                      />
-                      <text
-                        x="0"
-                        y={Math.max(y - 6, 12)}
-                        fill="rgba(15,23,42,0.50)"
-                        fontSize="12"
-                        className="dark:fill-white/55"
-                      >
-                        {formatNumber(Math.round(maxValue * ratio))}
-                      </text>
-                    </g>
-                  );
-                })}
+    <div className="relative overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03] sm:p-5">
+      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-5 sm:left-5" />
 
-                {data.map((item, index) => {
-                  const groupX = index * barGroupWidth + barGroupWidth / 2;
-                  const topupHeight =
-                    maxValue === 0 ? 0 : (item.topup / maxValue) * height;
-                  const spentHeight =
-                    maxValue === 0 ? 0 : (item.spent / maxValue) * height;
-                  const refundedHeight =
-                    maxValue === 0 ? 0 : (item.refunded / maxValue) * height;
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+            Points Activity
+          </h2>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Last 30 days
+          </p>
+        </div>
 
-                  return (
-                    <g key={item.date}>
-                      {visibleSeries.topup ? (
-                        <rect
-                          x={groupX - barWidth * 1.5}
-                          y={height - topupHeight}
-                          width={barWidth}
-                          height={topupHeight}
-                          rx="4"
-                          fill="#0ea5e9"
-                        />
-                      ) : null}
-                      {visibleSeries.spent ? (
-                        <rect
-                          x={groupX - barWidth / 2}
-                          y={height - spentHeight}
-                          width={barWidth}
-                          height={spentHeight}
-                          rx="4"
-                          fill="#f59e0b"
-                        />
-                      ) : null}
-                      {visibleSeries.refunded ? (
-                        <rect
-                          x={groupX + barWidth / 2}
-                          y={height - refundedHeight}
-                          width={barWidth}
-                          height={refundedHeight}
-                          rx="4"
-                          fill="#10b981"
-                        />
-                      ) : null}
-
-                      {labels[index]?.show ? (
-                        <text
-                          x={groupX}
-                          y={height + 22}
-                          textAnchor="middle"
-                          fill="rgba(15,23,42,0.54)"
-                          fontSize="12"
-                          className="dark:fill-white/58"
-                        >
-                          {formatDayLabel(item.date)}
-                        </text>
-                      ) : null}
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
-
-            <div className="mt-4 space-y-4">
-              <ChartLegend
-                items={[
-                  {
-                    label: "Topup",
-                    color: "#0ea5e9",
-                    value: formatNumber(totals.topup),
-                  },
-                  {
-                    label: "Spent",
-                    color: "#f59e0b",
-                    value: formatNumber(totals.spent),
-                  },
-                  {
-                    label: "Refunded",
-                    color: "#10b981",
-                    value: formatNumber(totals.refunded),
-                  },
-                ].map((item) => ({
-                  ...item,
-                  active:
-                    item.label === "Topup"
-                      ? visibleSeries.topup
-                      : item.label === "Spent"
-                        ? visibleSeries.spent
-                        : visibleSeries.refunded,
-                  onClick: () =>
-                    toggleSeries(
-                      item.label === "Topup"
-                        ? "topup"
-                        : item.label === "Spent"
-                          ? "spent"
-                          : "refunded",
-                    ),
-                }))}
-              />
-            </div>
-          </div>
-        )}
+        {!loading && busiestDay ? (
+          <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+            <span className="material-symbols-outlined text-[13px]">bolt</span>
+            Busiest {formatDayLabel(busiestDay.date)}
+          </span>
+        ) : null}
       </div>
-    </ChartCard>
+
+      {loading ? (
+        <div className="mt-4 h-[168px] w-full animate-pulse rounded-[12px] bg-slate-100 dark:bg-slate-800" />
+      ) : (
+        <>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {seriesStats.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => toggleSeries(item.key)}
+                className={`flex items-center gap-2 rounded-[10px] border px-2.5 py-2 text-left transition ${
+                  item.active
+                    ? "border-slate-200/70 bg-white/50 dark:border-white/10 dark:bg-white/[0.04]"
+                    : "border-transparent opacity-40"
+                }`}
+              >
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="min-w-0">
+                  <span className="block text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    {item.label}
+                  </span>
+                  <span className="block text-sm font-bold text-slate-900 dark:text-white">
+                    {item.value}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-3 w-full" style={{ aspectRatio: `${width} / ${height + 28}` }}>
+            <svg
+              viewBox={`0 0 ${width} ${height + 28}`}
+              className="h-full w-full"
+              role="img"
+              aria-label="Admin points activity chart"
+            >
+              {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+                const y = height - height * ratio;
+                return (
+                  <g key={ratio}>
+                    <line
+                      x1="0"
+                      x2={width}
+                      y1={y}
+                      y2={y}
+                      stroke="rgba(15,23,42,0.1)"
+                      strokeDasharray="4 6"
+                      className="dark:stroke-white/10"
+                    />
+                    <text
+                      x="0"
+                      y={Math.max(y - 5, 10)}
+                      fill="rgba(15,23,42,0.5)"
+                      fontSize="10"
+                      className="dark:fill-white/50"
+                    >
+                      {formatNumber(Math.round(maxValue * ratio))}
+                    </text>
+                  </g>
+                );
+              })}
+
+              {data.map((item, index) => {
+                const groupX = index * barGroupWidth + barGroupWidth / 2;
+                const topupHeight =
+                  maxValue === 0 ? 0 : (item.topup / maxValue) * height;
+                const spentHeight =
+                  maxValue === 0 ? 0 : (item.spent / maxValue) * height;
+                const refundedHeight =
+                  maxValue === 0 ? 0 : (item.refunded / maxValue) * height;
+
+                return (
+                  <g key={item.date}>
+                    {visibleSeries.topup ? (
+                      <rect
+                        x={groupX - barWidth * 1.5}
+                        y={height - topupHeight}
+                        width={barWidth}
+                        height={topupHeight}
+                        rx="3"
+                        fill="#0ea5e9"
+                      />
+                    ) : null}
+                    {visibleSeries.spent ? (
+                      <rect
+                        x={groupX - barWidth / 2}
+                        y={height - spentHeight}
+                        width={barWidth}
+                        height={spentHeight}
+                        rx="3"
+                        fill="#f59e0b"
+                      />
+                    ) : null}
+                    {visibleSeries.refunded ? (
+                      <rect
+                        x={groupX + barWidth / 2}
+                        y={height - refundedHeight}
+                        width={barWidth}
+                        height={refundedHeight}
+                        rx="3"
+                        fill="#10b981"
+                      />
+                    ) : null}
+
+                    {labels[index]?.show ? (
+                      <text
+                        x={groupX}
+                        y={height + 20}
+                        textAnchor="middle"
+                        fill="rgba(15,23,42,0.5)"
+                        fontSize="10"
+                        className="dark:fill-white/50"
+                      >
+                        {formatDayLabel(item.date)}
+                      </text>
+                    ) : null}
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -917,10 +910,10 @@ export default function AdminPage() {
               ))}
         </section>
 
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <div className="relative h-full overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
             <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-            <div className="overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="overflow-hidden rounded-[18px]">
               <div className="flex flex-col gap-2 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                 <h2 className="text-lg font-bold">Recent Activity</h2>
                 <button className="text-xs font-bold text-primary hover:underline" type="button">
@@ -992,22 +985,28 @@ export default function AdminPage() {
           </div>
 
           <TopPointHoldersChart data={topPointHolders} loading={loading} />
+        </section>
 
-          <div className="relative h-full overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
-              <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-              <h3 className="mb-3 text-base font-bold">System Status</h3>
-              <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <div className="relative h-full overflow-hidden rounded-[13px] border border-white/35 bg-white/30 p-4 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03] sm:p-5">
+              <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-5 sm:left-5" />
+              <div>
+                <h3 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+                  System Status
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Last 30 days
+                </p>
+              </div>
+              <div className="mt-2">
                 {loading
                   ? Array.from({ length: 3 }).map((_, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-4 rounded-[18px] border border-slate-200/70 bg-white/80 p-3 dark:border-slate-800 dark:bg-slate-900/70"
-                      >
-                        <div className="h-16 w-16 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
-                        <div className="flex-1 space-y-2">
-                          <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                          <div className="h-3 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                      <div key={index} className="py-2">
+                        <div className="flex items-center justify-between">
+                          <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                          <div className="h-3 w-8 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                         </div>
+                        <div className="mt-1.5 h-1.5 w-full animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
                       </div>
                     ))
                   : requestStatusSummary.map((item) => (
@@ -1021,11 +1020,11 @@ export default function AdminPage() {
                   ))}
               </div>
               {!loading && systemStatus.length > 0 ? (
-                <div className="mt-3 space-y-2 border-t border-slate-200/70 pt-3 text-sm dark:border-slate-800">
+                <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-slate-200/70 pt-3 dark:border-white/10">
                   {systemStatus.map((item) => (
-                    <div key={item.label} className="flex items-center justify-between">
-                      <span className="text-slate-500">{item.label}</span>
-                      <span className={`font-semibold ${getToneClass(item.tone)}`}>
+                    <div key={item.label} className="flex items-center justify-between gap-2 text-xs">
+                      <span className="truncate text-slate-500 dark:text-slate-400">{item.label}</span>
+                      <span className={`shrink-0 font-semibold ${getToneClass(item.tone)}`}>
                         {item.value}
                       </span>
                     </div>
@@ -1033,11 +1032,12 @@ export default function AdminPage() {
                 </div>
               ) : null}
           </div>
+
+          <PointsActivityChart data={pointsActivity} loading={loading} />
         </section>
 
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <section className="grid grid-cols-1 gap-6">
           <RequestTrendChart data={requestTrend} loading={loading} />
-          <PointsActivityChart data={pointsActivity} loading={loading} />
         </section>
       </div>
   );
