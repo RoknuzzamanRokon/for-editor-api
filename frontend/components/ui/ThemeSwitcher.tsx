@@ -22,6 +22,19 @@ export default function ThemeSwitcher({ className = '' }: { className?: string }
     setMounted(true)
   }, [])
 
+  useEffect(() => {
+    if (!open) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [open])
+
   const displayTheme = mounted ? theme : 'sunset'
 
   return (
@@ -37,40 +50,37 @@ export default function ThemeSwitcher({ className = '' }: { className?: string }
       </button>
 
       {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-2 w-44 rounded-xl border border-primary/20 bg-card p-2 shadow-2xl backdrop-blur-md">
-            {themes.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => {
-                  setTheme(t.id)
-                  setOpen(false)
+        <div className="absolute right-0 z-50 mt-2 w-44 rounded-xl border border-primary/20 bg-card p-2 shadow-2xl backdrop-blur-md">
+          {themes.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setTheme(t.id)
+                setOpen(false)
+              }}
+              className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+                displayTheme === t.id
+                  ? 'bg-primary/15 font-semibold text-foreground'
+                  : 'text-foreground/70 hover:bg-card-hover'
+              }`}
+              type="button"
+            >
+              <span
+                className="h-3.5 w-3.5 flex-shrink-0 rounded-full border border-primary/20"
+                style={{
+                  background:
+                    'accent' in t
+                      ? `linear-gradient(135deg, ${t.color} 50%, ${t.accent} 50%)`
+                      : t.color,
                 }}
-                className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
-                  displayTheme === t.id
-                    ? 'bg-primary/15 font-semibold text-foreground'
-                    : 'text-foreground/70 hover:bg-card-hover'
-                }`}
-                type="button"
-              >
-                <span
-                  className="h-3.5 w-3.5 flex-shrink-0 rounded-full border border-primary/20"
-                  style={{
-                    background:
-                      'accent' in t
-                        ? `linear-gradient(135deg, ${t.color} 50%, ${t.accent} 50%)`
-                        : t.color,
-                  }}
-                />
-                {t.label}
-                {displayTheme === t.id && (
-                  <span className="material-symbols-outlined ml-auto text-sm">check</span>
-                )}
-              </button>
-            ))}
-          </div>
-        </>
+              />
+              {t.label}
+              {displayTheme === t.id && (
+                <span className="material-symbols-outlined ml-auto text-sm">check</span>
+              )}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   )
