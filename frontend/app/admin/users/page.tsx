@@ -64,42 +64,38 @@ type UserDetails = {
   api_permissions: UserApiPermission[];
 };
 
+// Fixed neutral tone (not tied to the ocean/sunset/forest/paper/crimson/burgundy
+// site theme) — only the primary accent color should follow the active theme here.
+const MUTED_FG = "text-slate-500 dark:text-slate-400";
+
 const ROLE_OPTIONS = [
   {
     value: "general_user",
     label: "General User",
     icon: "person",
     description: "Standard access for everyday conversion work.",
-    classes:
-      "from-[rgba(59,130,246,0.18)] via-[rgba(56,189,248,0.10)] to-[rgba(255,255,255,0.72)] text-blue-700 border-blue-200/70 dark:from-[rgba(37,99,235,0.28)] dark:via-[rgba(14,165,233,0.18)] dark:to-[rgba(15,23,42,0.72)] dark:text-blue-200 dark:border-blue-400/20",
-    glow: "bg-[rgba(59,130,246,0.22)] dark:bg-[rgba(37,99,235,0.32)]",
+    tint: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
   },
   {
     value: "admin_user",
     label: "Admin User",
     icon: "admin_panel_settings",
     description: "Operational control with elevated management access.",
-    classes:
-      "from-[rgba(16,185,129,0.18)] via-[rgba(34,197,94,0.10)] to-[rgba(255,255,255,0.72)] text-emerald-700 border-emerald-200/70 dark:from-[rgba(5,150,105,0.28)] dark:via-[rgba(34,197,94,0.16)] dark:to-[rgba(15,23,42,0.72)] dark:text-emerald-200 dark:border-emerald-400/20",
-    glow: "bg-[rgba(16,185,129,0.22)] dark:bg-[rgba(5,150,105,0.32)]",
+    tint: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
   },
   {
     value: "demo_user",
     label: "Demo User",
     icon: "smart_display",
     description: "Restricted access suited for guided demos and trials.",
-    classes:
-      "from-[rgba(249,115,22,0.18)] via-[rgba(251,191,36,0.10)] to-[rgba(255,255,255,0.72)] text-orange-700 border-orange-200/70 dark:from-[rgba(194,65,12,0.30)] dark:via-[rgba(249,115,22,0.16)] dark:to-[rgba(15,23,42,0.72)] dark:text-orange-200 dark:border-orange-400/20",
-    glow: "bg-[rgba(249,115,22,0.22)] dark:bg-[rgba(194,65,12,0.32)]",
+    tint: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
   },
   {
     value: "super_user",
     label: "Super User",
     icon: "shield",
     description: "Full platform access with highest-level privileges.",
-    classes:
-      "from-[rgba(168,85,247,0.18)] via-[rgba(236,72,153,0.10)] to-[rgba(255,255,255,0.72)] text-fuchsia-700 border-fuchsia-200/70 dark:from-[rgba(147,51,234,0.28)] dark:via-[rgba(236,72,153,0.16)] dark:to-[rgba(15,23,42,0.72)] dark:text-fuchsia-200 dark:border-fuchsia-400/20",
-    glow: "bg-[rgba(168,85,247,0.22)] dark:bg-[rgba(147,51,234,0.32)]",
+    tint: "bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400",
   },
 ] as const;
 
@@ -207,17 +203,10 @@ function RolePicker({
   onChange: (next: string) => void;
 }) {
   return (
-    <div className="space-y-3">
-      <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-          User Type
-        </p>
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-          Choose a role with the right permission level.
-        </p>
-      </div>
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-slate-900 dark:text-white">User role</label>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {ROLE_OPTIONS.map((role) => {
           const selected = value === role.value;
 
@@ -226,42 +215,37 @@ function RolePicker({
               key={role.value}
               type="button"
               onClick={() => onChange(role.value)}
-              className={`group relative overflow-hidden rounded-[26px] border bg-gradient-to-br p-4 text-left shadow-[0_12px_35px_rgba(15,23,42,0.08)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(15,23,42,0.12)] dark:shadow-[0_14px_36px_rgba(2,6,23,0.22)] ${role.classes} ${
+              aria-pressed={selected}
+              className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
                 selected
-                  ? "ring-4 ring-primary/20"
-                  : "border-white/40 dark:border-white/10"
+                  ? "border-primary bg-white ring-1 ring-inset ring-primary dark:bg-slate-900"
+                  : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800"
               }`}
             >
-              <div
-                className={`absolute -right-8 -top-8 h-24 w-24 rounded-full blur-3xl transition ${role.glow}`}
-              />
-              <div className="relative flex items-start justify-between gap-3">
-                <div>
-                  <div className="inline-flex rounded-2xl border border-white/50 bg-white/65 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/10">
-                    <span className="material-symbols-outlined text-[22px]">
-                      {role.icon}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-sm font-black tracking-tight">
-                    {role.label}
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
-                    {role.description}
-                  </p>
-                </div>
+              <span
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${role.tint}`}
+              >
+                <span className="material-symbols-outlined text-[19px]">
+                  {role.icon}
+                </span>
+              </span>
 
-                <div
-                  className={`mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full border text-xs ${
-                    selected
-                      ? "border-primary bg-primary text-white"
-                      : "border-slate-300/70 bg-white/70 text-slate-400 dark:border-white/15 dark:bg-white/10 dark:text-slate-500"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm">
-                    {selected ? "check" : "add"}
-                  </span>
-                </div>
-              </div>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold text-slate-900 dark:text-white">
+                  {role.label}
+                </span>
+                <span className={`block truncate text-xs ${MUTED_FG}`}>
+                  {role.description}
+                </span>
+              </span>
+
+              <span
+                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                  selected ? "border-primary bg-primary" : "border-slate-300 dark:border-slate-600"
+                }`}
+              >
+                {selected ? <span className="h-1.5 w-1.5 rounded-full bg-white" /> : null}
+              </span>
             </button>
           );
         })}
@@ -305,6 +289,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
   const [createSuccess, setCreateSuccess] = useState("");
@@ -401,6 +386,29 @@ export default function AdminUsersPage() {
       selectedUserDetails?.api_permissions.filter((api) => api.allowed) ?? [],
     [selectedUserDetails],
   );
+
+  const closeCreateModal = () => {
+    setShowCreate(false);
+    setShowCreatePassword(false);
+    setCreateError("");
+    setForm({ email: "", password: "", username: "", role: "general_user" });
+  };
+
+  useEffect(() => {
+    if (!showCreate) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowCreate(false);
+        setShowCreatePassword(false);
+        setCreateError("");
+        setForm({ email: "", password: "", username: "", role: "general_user" });
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [showCreate]);
 
   const handleCreateUser = async () => {
     setCreateError("");
@@ -784,65 +792,121 @@ export default function AdminUsersPage() {
       </div>
 
       {showCreate ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-md">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-[13px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/95 via-[rgb(244,249,255)]/90 to-[rgb(233,246,255)]/85 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(18,26,42)]/95 dark:via-[rgb(21,31,49)]/92 dark:to-[rgb(31,23,43)]/90">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-[rgb(255,255,255)]/35 to-[rgb(125,211,252)]/20 dark:from-primary/12 dark:via-white/5 dark:to-[rgb(56,189,248)]/10" />
-            <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-[rgb(56,189,248)]/20 blur-3xl dark:bg-[rgb(14,165,233)]/20" />
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) closeCreateModal();
+          }}
+        >
+          <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:border-slate-800 dark:bg-slate-900">
+            <div className="h-1 w-full bg-primary" />
 
-            <div className="relative">
-              <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-4 px-6 pt-5">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+                  <span className="material-symbols-outlined text-[20px]">
+                    person_add
+                  </span>
+                </span>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Create User
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                    Create user
                   </h3>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    POST /api/v2/users
+                  <p className={`text-xs ${MUTED_FG}`}>
+                    Add a new account to the platform
                   </p>
                 </div>
-
-                <button
-                  onClick={() => setShowCreate(false)}
-                  className="rounded-xl border border-white/40 bg-white/60 px-3 py-2 text-xs font-bold text-slate-700 backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-200"
-                  type="button"
-                >
-                  Close
-                </button>
               </div>
 
+              <button
+                onClick={closeCreateModal}
+                className={`rounded-lg p-1.5 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white ${MUTED_FG}`}
+                type="button"
+                aria-label="Close"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
               {createError ? (
-                <div className="mt-4 rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 backdrop-blur-md dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
-                  {createError}
+                <div className="mb-4 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+                  <span className="material-symbols-outlined text-base">error</span>
+                  <span>{createError}</span>
                 </div>
               ) : null}
 
-              <div className="mt-5 space-y-3">
-                <GlassInput
-                  value={form.email}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, email: e.target.value }))
-                  }
-                  placeholder="Email"
-                  type="email"
-                />
-                <GlassInput
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, password: e.target.value }))
-                  }
-                  placeholder="Password"
-                  type="password"
-                />
-                <GlassInput
-                  value={form.username}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      username: capitalizeProfileName(e.target.value),
-                    }))
-                  }
-                  placeholder="Username (optional)"
-                  type="text"
-                />
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="new-user-email"
+                    className="text-sm font-medium text-slate-900 dark:text-white"
+                  >
+                    Email
+                  </label>
+                  <GlassInput
+                    id="new-user-email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, email: e.target.value }))
+                    }
+                    placeholder="name@company.com"
+                    type="email"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="new-user-password"
+                    className="text-sm font-medium text-slate-900 dark:text-white"
+                  >
+                    Password
+                  </label>
+                  <div className="relative">
+                    <GlassInput
+                      id="new-user-password"
+                      value={form.password}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, password: e.target.value }))
+                      }
+                      placeholder="Minimum 8 characters"
+                      type={showCreatePassword ? "text" : "password"}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCreatePassword((prev) => !prev)}
+                      className={`absolute inset-y-0 right-0 flex items-center pr-3 transition hover:text-slate-900 dark:hover:text-white ${MUTED_FG}`}
+                      aria-label={showCreatePassword ? "Hide password" : "Show password"}
+                    >
+                      <span className="material-symbols-outlined text-lg">
+                        {showCreatePassword ? "visibility_off" : "visibility"}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="new-user-username"
+                    className="text-sm font-medium text-slate-900 dark:text-white"
+                  >
+                    Username <span className={`font-normal ${MUTED_FG}`}>(optional)</span>
+                  </label>
+                  <GlassInput
+                    id="new-user-username"
+                    value={form.username}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        username: capitalizeProfileName(e.target.value),
+                      }))
+                    }
+                    placeholder="Display name"
+                    type="text"
+                  />
+                </div>
+
                 <RolePicker
                   value={form.role}
                   onChange={(role) =>
@@ -850,60 +914,50 @@ export default function AdminUsersPage() {
                   }
                 />
 
-                <div className="relative overflow-hidden rounded-[26px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/80 via-[rgb(244,249,255)]/85 to-[rgb(232,244,255)]/80 p-5 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-gradient-to-br dark:from-[rgb(19,27,41)]/85 dark:via-[rgb(21,31,49)]/88 dark:to-[rgb(29,24,44)]/88">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-[rgb(56,189,248)]/10 dark:from-primary/15 dark:to-[rgb(56,189,248)]/10" />
-                  <div className="relative">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                      User Preview
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
+                      {formatProfileName(
+                        form.username,
+                        form.email.trim() || "New user",
+                      )}
                     </p>
-
-                    <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                          Username
-                        </p>
-                        <p className="mt-1 truncate text-xl font-black tracking-tight text-slate-900 dark:text-white">
-                          {formatProfileName(
-                            form.username,
-                            form.email.trim() || "New User",
-                          )}
-                        </p>
-                      </div>
-
-                      <div className="shrink-0">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                          Role
-                        </p>
-                        <span className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-sm font-black text-primary">
-                          <span className="material-symbols-outlined text-base">
-                            shield
-                          </span>
-                          {ROLE_OPTIONS.find((item) => item.value === form.role)?.label ??
-                            form.role}
-                        </span>
-                      </div>
-                    </div>
+                    <p className={`truncate text-xs ${MUTED_FG}`}>
+                      {form.email.trim() || "No email yet"}
+                    </p>
                   </div>
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
+                    <span className="material-symbols-outlined text-sm">shield</span>
+                    {ROLE_OPTIONS.find((item) => item.value === form.role)?.label ??
+                      form.role}
+                  </span>
                 </div>
               </div>
+            </div>
 
-              <div className="mt-6 flex items-center justify-end gap-3">
-                <button
-                  onClick={() => setShowCreate(false)}
-                  className="rounded-2xl border border-white/40 bg-white/60 px-4 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-200"
-                  type="button"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCreateUser}
-                  disabled={creating}
-                  className="rounded-2xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                  type="button"
-                >
-                  {creating ? "Creating..." : "Create User"}
-                </button>
-              </div>
+            <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-4 dark:border-slate-800">
+              <button
+                onClick={closeCreateModal}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateUser}
+                disabled={creating}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                type="button"
+              >
+                {creating ? (
+                  <>
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create user"
+                )}
+              </button>
             </div>
           </div>
         </div>

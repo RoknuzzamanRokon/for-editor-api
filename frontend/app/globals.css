@@ -841,6 +841,14 @@ html.paper body {
     color: rgb(15, 23, 42) !important;
   }
 
+  /* Buttons/badges that carry their own bg-primary fill stay dark (near-black
+     in Paper) even though the hero card behind them turns white, so keep
+     their text white instead of inheriting the card's dark-on-light override. */
+  .light .app-hero-card .bg-primary.text-white,
+  .paper .app-hero-card .bg-primary.text-white {
+    color: rgb(255, 255, 255) !important;
+  }
+
   .light .app-hero-card .app-hero-muted,
   .paper .app-hero-card .app-hero-muted {
     color: rgb(71, 85, 105) !important;

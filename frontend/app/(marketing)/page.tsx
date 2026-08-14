@@ -114,7 +114,7 @@ export default function Page() {
                   color: t.buttonText,
                   boxShadow: t.actionShadow,
                 }}>
-                <span className="relative z-10">Try API Free</span>
+                <span className="relative z-10">Try Free</span>
               </a>
               <a href="/docs" className="rounded-2xl border px-6 py-3.5 text-center text-base font-bold backdrop-blur-sm transition-all hover:opacity-90 sm:px-8 sm:py-4 sm:text-lg"
                 style={{ background: t.buttonOutlineBg, color: t.buttonOutlineText, borderColor: t.buttonOutlineBorder }}>
@@ -443,7 +443,7 @@ export default function Page() {
               className="rounded-2xl px-6 py-3.5 text-center text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] sm:px-8 sm:py-4 sm:text-lg"
               style={{ background: t.buttonBg, color: t.buttonText, boxShadow: t.actionShadow }}
             >
-              Try API Free
+              Try Free
             </a>
             <Link
               href="/pricing"

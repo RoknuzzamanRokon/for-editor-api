@@ -211,9 +211,11 @@ export default function AdminPointPage() {
                   onChange={(e) => setForm((p) => ({ ...p, user_id: e.target.value }))}
                   className="w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white"
                 >
-                  <option value="">Select user...</option>
+                  <option value="" className="bg-card text-foreground">
+                    Select user...
+                  </option>
                   {users.map((u) => (
-                    <option key={u.id} value={u.id}>
+                    <option key={u.id} value={u.id} className="bg-card text-foreground">
                       {formatProfileName(u.username, u.email)} (#{u.id})
                     </option>
                   ))}

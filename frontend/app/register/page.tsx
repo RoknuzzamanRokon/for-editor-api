@@ -375,10 +375,10 @@ export default function RegisterPage() {
 
               <h1 className="text-2xl font-semibold text-foreground">Create account</h1>
               <div className="mt-2 flex items-center gap-2 text-xs text-foreground/60">
-                <span className={`rounded-full px-2 py-1 ${step === 1 ? "bg-primary/15 text-primary" : step > 1 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>1</span>
-                <span className={`rounded-full px-2 py-1 ${step === 2 ? "bg-primary/15 text-primary" : step > 2 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>2</span>
-                <span className={`rounded-full px-2 py-1 ${step === 3 ? "bg-primary/15 text-primary" : step > 3 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>3</span>
-                <span className={`rounded-full px-2 py-1 ${step === 4 ? "bg-primary/15 text-primary" : step > 4 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>4</span>
+                <span className={`rounded-full px-2 py-1 ${step === 1 ? "ring-2 ring-inset ring-primary text-primary" : step > 1 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>1</span>
+                <span className={`rounded-full px-2 py-1 ${step === 2 ? "ring-2 ring-inset ring-primary text-primary" : step > 2 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>2</span>
+                <span className={`rounded-full px-2 py-1 ${step === 3 ? "ring-2 ring-inset ring-primary text-primary" : step > 3 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>3</span>
+                <span className={`rounded-full px-2 py-1 ${step === 4 ? "ring-2 ring-inset ring-primary text-primary" : step > 4 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>4</span>
               </div>
 
               <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
