@@ -251,6 +251,100 @@ class FileManagerService:
 
         return True, None
 
+    async def validate_zip_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate uploaded ZIP archive (type and size)
+
+        Supported types: .zip
+        """
+        if not file.filename or not file.filename.lower().endswith('.zip'):
+            return False, "Only ZIP files are accepted"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        # ZIP files share the same PK signature as DOCX/XLSX (all OOXML-family formats).
+        if not content.startswith(self.DOCX_MAGIC_NUMBER):
+            return False, "Only ZIP files are accepted"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        return True, None
+
+    async def validate_csv_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate uploaded CSV file (type and size)
+
+        Supported types: .csv
+        """
+        if not file.filename or not file.filename.lower().endswith('.csv'):
+            return False, "Only CSV files are accepted"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        try:
+            content.decode('utf-8')
+        except UnicodeDecodeError:
+            return False, "Only UTF-8 encoded CSV files are accepted"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        return True, None
+
+    async def validate_html_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate uploaded HTML file (type and size)
+
+        Supported types: .html, .htm
+        """
+        if not file.filename or not file.filename.lower().endswith(('.html', '.htm')):
+            return False, "Only HTML files are accepted"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        try:
+            content.decode('utf-8')
+        except UnicodeDecodeError:
+            return False, "Only UTF-8 encoded HTML files are accepted"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        return True, None
+
+    async def validate_any_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate an uploaded file of any type for size only.
+
+        Used by tools like Zip Files where the input can be any file type.
+        """
+        if not file.filename:
+            return False, "A file name is required"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        return True, None
+
     async def validate_text_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
         """
         Validate uploaded plain text file (type and size)

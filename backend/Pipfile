@@ -27,6 +27,7 @@ reportlab = "*"
 pymupdf = "*"
 python-pptx = "*"
 pillow-heif = "*"
+xhtml2pdf = "*"
 
 [dev-packages]
 pytest = "*"

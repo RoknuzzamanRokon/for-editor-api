@@ -88,6 +88,54 @@ const XMLViewer = dynamic(() => import("@/components/viewers/XMLViewer"), {
   ),
 });
 
+const ImageViewer = dynamic(() => import("@/components/viewers/ImageViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center">
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Loading viewer...</p>
+      </div>
+    </div>
+  ),
+});
+
+const PPTXViewer = dynamic(() => import("@/components/viewers/PPTXViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center">
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Loading viewer...</p>
+      </div>
+    </div>
+  ),
+});
+
+const TextCodeViewer = dynamic(() => import("@/components/viewers/TextCodeViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center">
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Loading viewer...</p>
+      </div>
+    </div>
+  ),
+});
+
+const YAMLViewer = dynamic(() => import("@/components/viewers/YAMLViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center">
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Loading viewer...</p>
+      </div>
+    </div>
+  ),
+});
+
 export default function ViewerPage() {
   const params = useParams();
   const viewer = params.viewer as string;
@@ -100,6 +148,10 @@ export default function ViewerPage() {
     markdown_reader: "Markdown Reader",
     json_reader: "JSON Reader",
     xml_reader: "XML Reader",
+    image_reader: "Image Viewer",
+    pptx_reader: "PowerPoint Viewer",
+    text_reader: "Text/Code Viewer",
+    yaml_reader: "YAML Viewer",
   };
 
   const viewerIcons: Record<string, string> = {
@@ -110,6 +162,10 @@ export default function ViewerPage() {
     markdown_reader: "code",
     json_reader: "data_object",
     xml_reader: "code_blocks",
+    image_reader: "image",
+    pptx_reader: "co_present",
+    text_reader: "terminal",
+    yaml_reader: "list_alt",
   };
 
   const name = viewerNames[viewer] || "Viewer";
@@ -292,6 +348,110 @@ export default function ViewerPage() {
         </div>
         <div className="flex-1 overflow-hidden">
           <XMLViewer />
+        </div>
+      </section>
+    );
+  }
+
+  // Image Viewer implementation
+  if (viewer === "image_reader") {
+    return (
+      <section className="flex h-full flex-col overflow-hidden">
+        <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/user/app-center"
+              className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              Back to App Center
+            </Link>
+            <h1 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+              {name}
+            </h1>
+            <div className="w-32"></div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <ImageViewer />
+        </div>
+      </section>
+    );
+  }
+
+  // PowerPoint Viewer implementation
+  if (viewer === "pptx_reader") {
+    return (
+      <section className="flex h-full flex-col overflow-hidden">
+        <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/user/app-center"
+              className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              Back to App Center
+            </Link>
+            <h1 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+              {name}
+            </h1>
+            <div className="w-32"></div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <PPTXViewer />
+        </div>
+      </section>
+    );
+  }
+
+  // Text/Code Viewer implementation
+  if (viewer === "text_reader") {
+    return (
+      <section className="flex h-full flex-col overflow-hidden">
+        <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/user/app-center"
+              className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              Back to App Center
+            </Link>
+            <h1 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+              {name}
+            </h1>
+            <div className="w-32"></div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <TextCodeViewer />
+        </div>
+      </section>
+    );
+  }
+
+  // YAML Viewer implementation
+  if (viewer === "yaml_reader") {
+    return (
+      <section className="flex h-full flex-col overflow-hidden">
+        <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/user/app-center"
+              className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              Back to App Center
+            </Link>
+            <h1 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+              {name}
+            </h1>
+            <div className="w-32"></div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <YAMLViewer />
         </div>
       </section>
     );

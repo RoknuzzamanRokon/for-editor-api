@@ -31,6 +31,12 @@ ALLOWED_ACTIONS: Dict[str, str] = {
     "compress_pdf": "Compress PDF",
     "pdf_organize": "Reorganize PDF Pages",
     "pdf_to_pptx": "PDF to PowerPoint",
+    "zip_files": "Zip Files",
+    "unzip_file": "Unzip Archive",
+    "csv_to_excel": "CSV to Excel",
+    "excel_to_csv": "Excel to CSV",
+    "html_to_pdf": "HTML to PDF",
+    "pdf_to_html": "PDF to HTML",
 }
 
 

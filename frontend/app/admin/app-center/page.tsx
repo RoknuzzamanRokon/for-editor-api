@@ -99,6 +99,18 @@ function getIcon(action: string) {
       return 'reorder';
     case 'pdf_to_pptx':
       return 'co_present';
+    case 'zip_files':
+      return 'folder_zip';
+    case 'unzip_file':
+      return 'unarchive';
+    case 'csv_to_excel':
+      return 'grid_on';
+    case 'excel_to_csv':
+      return 'csv';
+    case 'html_to_pdf':
+      return 'html';
+    case 'pdf_to_html':
+      return 'code';
     default:
       return 'apps';
   }
@@ -151,6 +163,18 @@ function getShortName(action: string, fallbackLabel: string) {
       return 'Organize Pages';
     case 'pdf_to_pptx':
       return 'PDF→PPT';
+    case 'zip_files':
+      return 'Zip Files';
+    case 'unzip_file':
+      return 'Unzip Archive';
+    case 'csv_to_excel':
+      return 'CSV→Excel';
+    case 'excel_to_csv':
+      return 'Excel→CSV';
+    case 'html_to_pdf':
+      return 'HTML→PDF';
+    case 'pdf_to_html':
+      return 'PDF→HTML';
     default:
       return fallbackLabel;
   }
@@ -325,6 +349,10 @@ export default function AdminAppCenterPage() {
                 { action: 'markdown_reader', label: 'Markdown Reader', icon: 'code' },
                 { action: 'json_reader', label: 'JSON Reader', icon: 'data_object' },
                 { action: 'xml_reader', label: 'XML Reader', icon: 'code_blocks' },
+                { action: 'image_reader', label: 'Image Viewer', icon: 'image' },
+                { action: 'pptx_reader', label: 'PowerPoint Viewer', icon: 'co_present' },
+                { action: 'text_reader', label: 'Text/Code Viewer', icon: 'terminal' },
+                { action: 'yaml_reader', label: 'YAML Viewer', icon: 'list_alt' },
               ].map((item) => {
                 const viewHref = `/admin/app-center/view/${item.action}`;
                 

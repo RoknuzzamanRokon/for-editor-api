@@ -34,6 +34,12 @@ const ACTION_TO_ROUTE: Record<string, string> = {
   compress_pdf: "/api/v3/conversions/compress-pdf",
   pdf_organize: "/api/v3/conversions/pdf-organize",
   pdf_to_pptx: "/api/v3/conversions/pdf-to-pptx",
+  zip_files: "/api/v3/conversions/zip-files",
+  unzip_file: "/api/v3/conversions/unzip-file",
+  csv_to_excel: "/api/v3/conversions/csv-to-excel",
+  excel_to_csv: "/api/v3/conversions/excel-to-csv",
+  html_to_pdf: "/api/v3/conversions/html-to-pdf",
+  pdf_to_html: "/api/v3/conversions/pdf-to-html",
 };
 
 const ACTION_TO_HISTORY_ROUTE: Record<string, string> = {
@@ -59,6 +65,12 @@ const ACTION_TO_HISTORY_ROUTE: Record<string, string> = {
   compress_pdf: "/api/v3/conversions/compress-pdf/files/history",
   pdf_organize: "/api/v3/conversions/pdf-organize/files/history",
   pdf_to_pptx: "/api/v3/conversions/pdf-to-pptx/files/history",
+  zip_files: "/api/v3/conversions/zip-files/files/history",
+  unzip_file: "/api/v3/conversions/unzip-file/files/history",
+  csv_to_excel: "/api/v3/conversions/csv-to-excel/files/history",
+  excel_to_csv: "/api/v3/conversions/excel-to-csv/files/history",
+  html_to_pdf: "/api/v3/conversions/html-to-pdf/files/history",
+  pdf_to_html: "/api/v3/conversions/pdf-to-html/files/history",
 };
 
 type ExtraFieldConfig = {
@@ -419,6 +431,8 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const pendingTileFocus = useRef<number | null>(null);
   const [mergeFiles, setMergeFiles] = useState<File[]>([]);
   const mergeInputRef = useRef<HTMLInputElement | null>(null);
+  const [zipFiles, setZipFiles] = useState<File[]>([]);
+  const zipInputRef = useRef<HTMLInputElement | null>(null);
   const [extraFieldValue, setExtraFieldValue] = useState("");
   const [formatConvertPreviewUrl, setFormatConvertPreviewUrl] = useState<string | null>(null);
   const [isFormatConvertDragActive, setIsFormatConvertDragActive] = useState(false);
@@ -447,6 +461,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const isMergePdf = action === "merge_pdf";
   const isPdfOrganize = action === "pdf_organize";
   const isImageFormatConvert = action === "image_format_convert";
+  const isZipFiles = action === "zip_files";
   const convertRoute = useMemo(() => ACTION_TO_ROUTE[action] || "", [action]);
   const historyRoute = useMemo(
     () => ACTION_TO_HISTORY_ROUTE[action] || "/api/v3/conversions/history",
@@ -704,13 +719,23 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       return;
     }
 
-    if (isImageToPdf ? imageFiles.length === 0 : isMergePdf ? mergeFiles.length < 2 : !file) {
+    if (
+      isImageToPdf
+        ? imageFiles.length === 0
+        : isMergePdf
+          ? mergeFiles.length < 2
+          : isZipFiles
+            ? zipFiles.length === 0
+            : !file
+    ) {
       setError(
         isImageToPdf
           ? "Please choose at least one image"
           : isMergePdf
             ? "Please choose at least two PDF files to merge"
-            : "Please choose a file first",
+            : isZipFiles
+              ? "Please choose at least one file to zip"
+              : "Please choose a file first",
       );
       setConversionStage("error");
       return;
@@ -731,6 +756,8 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
         imageFiles.forEach((imageFile) => formData.append("files", imageFile));
       } else if (isMergePdf) {
         mergeFiles.forEach((mergeFile) => formData.append("files", mergeFile));
+      } else if (isZipFiles) {
+        zipFiles.forEach((zipFile) => formData.append("files", zipFile));
       } else if (file) {
         formData.append("file", file);
       }
@@ -761,7 +788,9 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                 ? `${imageFiles.length} image${imageFiles.length === 1 ? "" : "s"}`
                 : isMergePdf
                   ? `${mergeFiles.length} PDFs merged`
-                  : file?.name || "upload",
+                  : isZipFiles
+                    ? `${zipFiles.length} file${zipFiles.length === 1 ? "" : "s"} zipped`
+                    : file?.name || "upload",
               status: "completed",
               error_message: null,
               points_charged: parsed.points_charged,
@@ -974,9 +1003,11 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                       ? "Add one or more photos — they'll be combined into a single PDF in the order shown."
                       : isMergePdf
                         ? "Add two or more PDFs — they'll be combined into one file in the order shown."
-                        : isImageFormatConvert
-                          ? "Convert a photo between PNG, JPG, WEBP, BMP, TIFF, GIF, and ICO — HEIC/HEIF supported as a source."
-                          : "Choose a file and send it to the selected conversion endpoint."
+                        : isZipFiles
+                          ? "Add one or more files of any type — they'll be combined into a single .zip archive."
+                          : isImageFormatConvert
+                            ? "Convert a photo between PNG, JPG, WEBP, BMP, TIFF, GIF, and ICO — HEIC/HEIF supported as a source."
+                            : "Choose a file and send it to the selected conversion endpoint."
                   }
                 >
                   {isImageToPdf ? (
@@ -1332,6 +1363,113 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                             : "Merge PDFs"}
                       </button>
                     </div>
+                  ) : isZipFiles ? (
+                    <div className="space-y-4">
+                      {zipFiles.length === 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => zipInputRef.current?.click()}
+                          className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 py-14 text-center transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/40"
+                        >
+                          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <span className="material-symbols-outlined text-3xl">
+                              folder_zip
+                            </span>
+                          </span>
+                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            Click to select one or more files
+                          </span>
+                          <span className="text-xs text-slate-400">
+                            They&apos;ll be combined into a single .zip archive
+                          </span>
+                        </button>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                              {zipFiles.length} file{zipFiles.length === 1 ? "" : "s"} selected
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setZipFiles([])}
+                              className="text-xs font-semibold text-rose-500 hover:underline"
+                            >
+                              Clear all
+                            </button>
+                          </div>
+
+                          <ul className="space-y-2">
+                            {zipFiles.map((zipFile, index) => (
+                              <li
+                                key={`${zipFile.name}-${zipFile.lastModified}-${index}`}
+                                className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800/60"
+                              >
+                                <span className="material-symbols-outlined text-base text-slate-400">
+                                  draft
+                                </span>
+                                <span
+                                  className="min-w-0 flex-1 truncate text-slate-700 dark:text-slate-200"
+                                  title={zipFile.name}
+                                >
+                                  {zipFile.name}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setZipFiles((prev) => prev.filter((_, i) => i !== index))
+                                  }
+                                  className="material-symbols-outlined text-base text-slate-400 transition hover:text-rose-500"
+                                  aria-label={`Remove ${zipFile.name}`}
+                                >
+                                  close
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+
+                          <button
+                            type="button"
+                            onClick={() => zipInputRef.current?.click()}
+                            className="inline-flex items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 px-4 py-2 text-sm font-semibold text-slate-500 transition hover:border-primary hover:text-primary dark:border-slate-600"
+                          >
+                            <span className="material-symbols-outlined text-base">add</span>
+                            Add more files
+                          </button>
+                        </div>
+                      )}
+
+                      <input
+                        ref={zipInputRef}
+                        type="file"
+                        multiple
+                        onChange={(e) => {
+                          const picked = Array.from(e.target.files ?? []);
+                          setZipFiles((prev) => [...prev, ...picked]);
+                          e.target.value = "";
+                        }}
+                        className="hidden"
+                      />
+
+                      <button
+                        onClick={handleConvert}
+                        disabled={zipFiles.length === 0 || submitting}
+                        type="button"
+                        className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200 sm:w-auto
+                        ${
+                          zipFiles.length > 0
+                            ? "bg-primary text-white hover:opacity-90"
+                            : "border border-slate-300 text-slate-500 bg-transparent hover:bg-slate-50"
+                        }
+                      `}
+                      >
+                        <span className="material-symbols-outlined text-base">bolt</span>
+                        {submitting
+                          ? "Zipping..."
+                          : zipFiles.length > 0
+                            ? `Zip ${zipFiles.length} File${zipFiles.length === 1 ? "" : "s"}`
+                            : "Zip Files"}
+                      </button>
+                    </div>
                   ) : isImageFormatConvert ? (
                     <div className="space-y-5">
                       <div
@@ -1572,7 +1710,11 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                               ? mergeFiles.length
                                 ? `${mergeFiles.length} PDF${mergeFiles.length === 1 ? "" : "s"}`
                                 : undefined
-                              : file?.name
+                              : isZipFiles
+                                ? zipFiles.length
+                                  ? `${zipFiles.length} file${zipFiles.length === 1 ? "" : "s"}`
+                                  : undefined
+                                : file?.name
                         }
                       />
                     ) : (
@@ -1837,6 +1979,13 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
               sourceBlob={spreadsheetPreviewBlob}
               filename={preview.filename}
               downloadUrl={preview.url}
+            />
+          ) : preview.mimeType.includes("html") || preview.filename.toLowerCase().endsWith(".html") ? (
+            <iframe
+              src={preview.url}
+              sandbox=""
+              className="h-[88vh] min-h-[546px] w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 sm:h-[1120px]"
+              title="HTML Preview"
             />
           ) : (
             <div className="rounded-2xl border border-dashed border-slate-300 p-8 dark:border-slate-700">
