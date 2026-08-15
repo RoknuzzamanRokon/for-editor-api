@@ -57,15 +57,6 @@ def charge_points(
     request_id: Optional[str],
     meta: Optional[Dict[str, Any]] = None,
 ) -> ChargeResult:
-    if user.role == RoleEnum.super_user:
-        return ChargeResult(
-            charged=False,
-            already_processed=False,
-            balance=None,
-            request_id=request_id or str(uuid4()),
-            existing_result=None,
-        )
-
     request_id = request_id or str(uuid4())
 
     existing = (

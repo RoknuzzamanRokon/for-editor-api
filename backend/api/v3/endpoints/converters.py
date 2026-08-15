@@ -208,7 +208,6 @@ def _create_conversion_row(db: Session, user: User, action: str, input_filename:
 def _process_pdf_to_word_background(
     conversion_id: int,
     user_id: int,
-    is_super_user: bool,
     request_id: str,
     pdf_bytes: bytes,
 ) -> None:
@@ -226,43 +225,17 @@ def _process_pdf_to_word_background(
 
         success, error_msg = pdf_to_docs_converter.convert_pdf_to_docx(temp_pdf_path, output_path)
         if not success:
-            if not is_super_user:
-                refund_points(db, user_id, "pdf_to_docs", request_id)
+            refund_points(db, user_id, "pdf_to_docs", request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
             db.commit()
 
-            if not is_super_user:
-                failure_result = ConversionCreateResponse(
-                    conversion_id=conversion.id,
-                    status="failed",
-                    download_url=None,
-                    points_charged=0,
-                    remaining_balance=get_user_balance(db, user_id),
-                )
-                record_conversion_result(
-                    db,
-                    user_id,
-                    "pdf_to_docs",
-                    request_id,
-                    failure_result.model_dump(),
-                )
-            return
-
-        points_charged = POINTS_COST_PER_REQUEST if not is_super_user else 0
-        conversion.status = "success"
-        conversion.output_filename = output_path
-        conversion.error_message = None
-        conversion.points_charged = points_charged
-        db.commit()
-
-        if not is_super_user:
-            success_result = ConversionCreateResponse(
+            failure_result = ConversionCreateResponse(
                 conversion_id=conversion.id,
-                status="success",
-                download_url=f"/api/v3/conversions/{conversion.id}/download",
-                points_charged=points_charged,
+                status="failed",
+                download_url=None,
+                points_charged=0,
                 remaining_balance=get_user_balance(db, user_id),
             )
             record_conversion_result(
@@ -270,13 +243,35 @@ def _process_pdf_to_word_background(
                 user_id,
                 "pdf_to_docs",
                 request_id,
-                success_result.model_dump(),
+                failure_result.model_dump(),
             )
+            return
+
+        points_charged = POINTS_COST_PER_REQUEST
+        conversion.status = "success"
+        conversion.output_filename = output_path
+        conversion.error_message = None
+        conversion.points_charged = points_charged
+        db.commit()
+
+        success_result = ConversionCreateResponse(
+            conversion_id=conversion.id,
+            status="success",
+            download_url=f"/api/v3/conversions/{conversion.id}/download",
+            points_charged=points_charged,
+            remaining_balance=get_user_balance(db, user_id),
+        )
+        record_conversion_result(
+            db,
+            user_id,
+            "pdf_to_docs",
+            request_id,
+            success_result.model_dump(),
+        )
     except Exception as exc:
         conversion = db.query(Conversion).filter(Conversion.id == conversion_id).first()
         if conversion:
-            if not is_super_user:
-                refund_points(db, user_id, "pdf_to_docs", request_id)
+            refund_points(db, user_id, "pdf_to_docs", request_id)
             conversion.status = "failed"
             conversion.error_message = str(exc)
             conversion.points_charged = 0
@@ -345,9 +340,7 @@ def _build_status_response(
         normalized_status = "completed"
         download_url = f"/api/v3/conversions/{conversion.id}/download"
 
-    remaining_balance = None
-    if current_user.role != RoleEnum.super_user:
-        remaining_balance = get_user_balance(db, current_user.id)
+    remaining_balance = get_user_balance(db, current_user.id)
 
     return ConversionStatusResponse(
         conversion_id=conversion.id,
@@ -815,8 +808,7 @@ async def upload_pdf(
 
         success, error_msg = pdf_to_excel_converter.convert_pdf_to_excel(temp_pdf_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -827,13 +819,12 @@ async def upload_pdf(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -845,15 +836,14 @@ async def upload_pdf(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -900,22 +890,20 @@ async def upload_pdf_for_docs(
             charge_result.request_id,
         )
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         result = ConversionCreateResponse(
             conversion_id=conversion.id,
             status="processing",
             download_url=None,
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
 
         background_tasks.add_task(
             _process_pdf_to_word_background,
             conversion.id,
             current_user.id,
-            current_user.role == RoleEnum.super_user,
             charge_result.request_id,
             content,
         )
@@ -923,7 +911,7 @@ async def upload_pdf_for_docs(
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -974,8 +962,7 @@ async def upload_docx_for_pdf(
 
         success, error_msg = docx_to_pdf_converter.convert_docx_to_pdf(temp_docx_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -986,13 +973,12 @@ async def upload_docx_for_pdf(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1004,15 +990,14 @@ async def upload_docx_for_pdf(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1067,8 +1052,7 @@ async def upload_excel_for_pdf(
 
         success, error_msg = excel_to_pdf_converter.convert_excel_to_pdf(temp_excel_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -1079,13 +1063,12 @@ async def upload_excel_for_pdf(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1097,15 +1080,14 @@ async def upload_excel_for_pdf(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1174,8 +1156,7 @@ async def upload_image_for_pdf(
 
         success, error_msg = image_to_pdf_converter.convert_images_to_pdf(temp_image_paths, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -1186,13 +1167,12 @@ async def upload_image_for_pdf(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1204,15 +1184,14 @@ async def upload_image_for_pdf(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1274,8 +1253,7 @@ async def remove_pages_from_pdf(
             remove_blank=remove_blank,
         )
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Page removal failed"
             conversion.points_charged = 0
@@ -1286,13 +1264,12 @@ async def remove_pages_from_pdf(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1304,15 +1281,14 @@ async def remove_pages_from_pdf(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1367,8 +1343,7 @@ async def remove_background(
 
         success, error_msg = background_remover.remove_background(temp_image_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Background removal failed"
             conversion.points_charged = 0
@@ -1379,13 +1354,12 @@ async def remove_background(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1397,15 +1371,14 @@ async def remove_background(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1464,8 +1437,7 @@ async def upload_pdfs_for_merge(
 
         success, error_msg = merge_pdf_service.merge_pdfs(temp_pdf_paths, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Merge failed"
             conversion.points_charged = 0
@@ -1476,13 +1448,12 @@ async def upload_pdfs_for_merge(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1494,15 +1465,14 @@ async def upload_pdfs_for_merge(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1553,8 +1523,7 @@ async def upload_pdf_for_split(
 
         success, error_msg = split_pdf_service.split_to_zip(temp_pdf_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Split failed"
             conversion.points_charged = 0
@@ -1565,13 +1534,12 @@ async def upload_pdf_for_split(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1583,15 +1551,14 @@ async def upload_pdf_for_split(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1642,8 +1609,7 @@ async def upload_pdf_for_rotate(
 
         success, error_msg = rotate_pdf_service.rotate_pdf(temp_pdf_path, output_path, angle)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Rotation failed"
             conversion.points_charged = 0
@@ -1654,13 +1620,12 @@ async def upload_pdf_for_rotate(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1672,15 +1637,14 @@ async def upload_pdf_for_rotate(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1734,8 +1698,7 @@ async def upload_pdf_for_protect(
 
         success, error_msg = protect_pdf_service.protect_pdf(temp_pdf_path, output_path, password)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Protection failed"
             conversion.points_charged = 0
@@ -1746,13 +1709,12 @@ async def upload_pdf_for_protect(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1764,15 +1726,14 @@ async def upload_pdf_for_protect(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1823,8 +1784,7 @@ async def upload_pdf_for_unlock(
 
         success, error_msg = unlock_pdf_service.unlock_pdf(temp_pdf_path, output_path, password)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Unlock failed"
             conversion.points_charged = 0
@@ -1835,13 +1795,12 @@ async def upload_pdf_for_unlock(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1853,15 +1812,14 @@ async def upload_pdf_for_unlock(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -1915,8 +1873,7 @@ async def upload_pdf_for_watermark(
 
         success, error_msg = watermark_pdf_service.watermark_pdf(temp_pdf_path, output_path, watermark_text)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Watermarking failed"
             conversion.points_charged = 0
@@ -1927,13 +1884,12 @@ async def upload_pdf_for_watermark(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -1945,15 +1901,14 @@ async def upload_pdf_for_watermark(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2003,8 +1958,7 @@ async def upload_pdf_for_page_numbers(
 
         success, error_msg = pdf_page_numbers_service.add_page_numbers(temp_pdf_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Adding page numbers failed"
             conversion.points_charged = 0
@@ -2015,13 +1969,12 @@ async def upload_pdf_for_page_numbers(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2033,15 +1986,14 @@ async def upload_pdf_for_page_numbers(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2091,8 +2043,7 @@ async def upload_pdf_for_text(
 
         success, error_msg = pdf_to_text_service.convert_pdf_to_text(temp_pdf_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Text extraction failed"
             conversion.points_charged = 0
@@ -2103,13 +2054,12 @@ async def upload_pdf_for_text(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2121,15 +2071,14 @@ async def upload_pdf_for_text(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2179,8 +2128,7 @@ async def upload_text_for_pdf(
 
         success, error_msg = text_to_pdf_service.convert_text_to_pdf(temp_text_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "PDF generation failed"
             conversion.points_charged = 0
@@ -2191,13 +2139,12 @@ async def upload_text_for_pdf(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2209,15 +2156,14 @@ async def upload_text_for_pdf(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2267,8 +2213,7 @@ async def upload_pptx_for_pdf(
 
         success, error_msg = pptx_to_pdf_service.convert_pptx_to_pdf(temp_pptx_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -2279,13 +2224,12 @@ async def upload_pptx_for_pdf(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2297,15 +2241,14 @@ async def upload_pptx_for_pdf(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2355,8 +2298,7 @@ async def upload_pdf_for_image(
 
         success, error_msg = pdf_to_image_service.convert_pdf_to_images(temp_pdf_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -2367,13 +2309,12 @@ async def upload_pdf_for_image(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2385,15 +2326,14 @@ async def upload_pdf_for_image(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2452,8 +2392,7 @@ async def upload_image_for_format_convert(
             temp_image_path, output_path, normalized_format
         )
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -2464,13 +2403,12 @@ async def upload_image_for_format_convert(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2482,15 +2420,14 @@ async def upload_image_for_format_convert(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2540,8 +2477,7 @@ async def upload_pdf_for_compress(
 
         success, error_msg = compress_pdf_service.compress_pdf(temp_pdf_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Compression failed"
             conversion.points_charged = 0
@@ -2552,13 +2488,12 @@ async def upload_pdf_for_compress(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2570,15 +2505,14 @@ async def upload_pdf_for_compress(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2637,8 +2571,7 @@ async def upload_pdf_for_organize(
 
         success, error_msg = pdf_organize_service.reorganize_pages(temp_pdf_path, output_path, parsed_order)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Reorganizing pages failed"
             conversion.points_charged = 0
@@ -2649,13 +2582,12 @@ async def upload_pdf_for_organize(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2667,15 +2599,14 @@ async def upload_pdf_for_organize(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2725,8 +2656,7 @@ async def upload_pdf_for_pptx(
 
         success, error_msg = pdf_to_pptx_service.convert_pdf_to_pptx(temp_pdf_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -2737,13 +2667,12 @@ async def upload_pdf_for_pptx(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2755,15 +2684,14 @@ async def upload_pdf_for_pptx(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2825,8 +2753,7 @@ async def upload_files_for_zip(
 
         success, error_msg = zip_files_service.create_zip(entries, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Zip failed"
             conversion.points_charged = 0
@@ -2837,13 +2764,12 @@ async def upload_files_for_zip(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2855,15 +2781,14 @@ async def upload_files_for_zip(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -2914,8 +2839,7 @@ async def upload_zip_for_extraction(
 
         success, error_msg = unzip_file_service.extract_flattened(temp_zip_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Extraction failed"
             conversion.points_charged = 0
@@ -2926,13 +2850,12 @@ async def upload_zip_for_extraction(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -2944,15 +2867,14 @@ async def upload_zip_for_extraction(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -3002,8 +2924,7 @@ async def upload_csv_for_excel(
 
         success, error_msg = csv_to_excel_service.convert_csv_to_excel(temp_csv_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -3014,13 +2935,12 @@ async def upload_csv_for_excel(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -3032,15 +2952,14 @@ async def upload_csv_for_excel(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -3091,8 +3010,7 @@ async def upload_excel_for_csv(
 
         success, error_msg = excel_to_csv_service.convert_excel_to_csv(temp_excel_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -3103,13 +3021,12 @@ async def upload_excel_for_csv(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -3121,15 +3038,14 @@ async def upload_excel_for_csv(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -3179,8 +3095,7 @@ async def upload_html_for_pdf(
 
         success, error_msg = html_to_pdf_service.convert_html_to_pdf(temp_html_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -3191,13 +3106,12 @@ async def upload_html_for_pdf(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -3209,15 +3123,14 @@ async def upload_html_for_pdf(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
@@ -3267,8 +3180,7 @@ async def upload_pdf_for_html(
 
         success, error_msg = pdf_to_html_service.convert_pdf_to_html(temp_pdf_path, output_path)
         if not success:
-            if current_user.role != RoleEnum.super_user:
-                refund_points(db, current_user.id, action, charge_result.request_id)
+            refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"
             conversion.error_message = error_msg or "Conversion failed"
             conversion.points_charged = 0
@@ -3279,13 +3191,12 @@ async def upload_pdf_for_html(
                 status="failed",
                 download_url=None,
                 points_charged=0,
-                remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+                remaining_balance=get_user_balance(db, current_user.id),
             )
-            if current_user.role != RoleEnum.super_user:
-                record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
             return result
 
-        points_charged = POINTS_COST_PER_REQUEST if current_user.role != RoleEnum.super_user else 0
+        points_charged = POINTS_COST_PER_REQUEST
         conversion.status = "success"
         conversion.output_filename = output_path
         conversion.error_message = None
@@ -3297,15 +3208,14 @@ async def upload_pdf_for_html(
             status="success",
             download_url=f"/api/v3/conversions/{conversion.id}/download",
             points_charged=points_charged,
-            remaining_balance=get_user_balance(db, current_user.id) if current_user.role != RoleEnum.super_user else None,
+            remaining_balance=get_user_balance(db, current_user.id),
         )
-        if current_user.role != RoleEnum.super_user:
-            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
         return result
     except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
         raise
     except Exception as exc:
-        if current_user.role != RoleEnum.super_user and charge_result and charge_result.charged:
+        if charge_result and charge_result.charged:
             refund_points(db, current_user.id, action, charge_result.request_id)
         if conversion:
             conversion.status = "failed"
