@@ -128,29 +128,51 @@ function getRoleMeta(role: string) {
   );
 }
 
+// Mirrors the table's own active/inactive badge colors (getStatusBadgeClass)
+// so the summary cards and the directory below always agree on what
+// "active" and "inactive" look like, instead of every card reading identical.
+const STAT_TONES = {
+  neutral: `text-primary ${PRIMARY_TINT}`,
+  positive: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
+  negative: "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300",
+} as const;
+
 function GlassStatCard({
   title,
   value,
   icon,
+  tone = "neutral",
+  subtext,
+  loading = false,
 }: {
   title: string;
   value: string | number;
   icon: string;
+  tone?: keyof typeof STAT_TONES;
+  subtext?: string;
+  loading?: boolean;
 }) {
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
       <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
 
-      <div className={`mb-4 inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
+      <div className={`mb-4 inline-flex rounded-xl p-2 ${STAT_TONES[tone]}`}>
         <span className="material-symbols-outlined">{icon}</span>
       </div>
 
       <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
         {title}
       </p>
-      <p className="mt-2 text-xl font-black tracking-tight text-slate-900 dark:text-white">
-        {value}
-      </p>
+      {loading ? (
+        <div className="mt-2.5 h-7 w-14 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+      ) : (
+        <p className="mt-2 text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+          {value}
+        </p>
+      )}
+      {!loading && subtext ? (
+        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{subtext}</p>
+      ) : null}
     </div>
   );
 }
@@ -400,6 +422,9 @@ export default function AdminUsersPage() {
     () => users.filter((user) => !user.is_active).length,
     [users],
   );
+
+  const formatSharePct = (count: number) =>
+    users.length === 0 ? "No users yet" : `${Math.round((count / users.length) * 100)}% of total`;
 
   const allowedApiPermissions = useMemo(
     () =>
@@ -685,16 +710,23 @@ export default function AdminUsersPage() {
             title="Total Users"
             value={users.length}
             icon="groups"
+            loading={loading}
           />
           <GlassStatCard
             title="Active Users"
             value={activeCount}
             icon="verified_user"
+            tone="positive"
+            subtext={formatSharePct(activeCount)}
+            loading={loading}
           />
           <GlassStatCard
             title="Inactive Users"
             value={inactiveCount}
             icon="person_off"
+            tone="negative"
+            subtext={formatSharePct(inactiveCount)}
+            loading={loading}
           />
         </section>
 
