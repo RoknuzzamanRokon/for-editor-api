@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { API_BASE } from "@/lib/apiBase";
@@ -82,7 +82,7 @@ export default function AdminSidebar({
 }) {
   const pathname = usePathname();
   const visibleNavItems = useVisibleNavItems(navItems);
-  const [totalGivenPoints, setTotalGivenPoints] = useState<number>(0);
+  const [pointsBalance, setPointsBalance] = useState<number | null>(null);
   const [account, setAccount] = useState<{
     username?: string | null;
     email?: string;
@@ -91,43 +91,21 @@ export default function AdminSidebar({
   } | null>(null);
   const compactDesktop = collapsed && !mobileOpen;
 
-  const displayGivenPoints = useMemo(() => {
-    return totalGivenPoints.toLocaleString();
-  }, [totalGivenPoints]);
+  const displayPoints = pointsBalance !== null ? pointsBalance.toLocaleString() : "--";
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
-    const headers = { Authorization: `Bearer ${token}` };
-
-    const load = async () => {
-      try {
-        const meRes = await fetch(`${API_BASE}/api/v2/auth/me`, { headers });
-        if (!meRes.ok) return;
-        const me = (await meRes.json()) as { id?: number };
-        if (!me?.id) return;
-
-        const historyRes = await fetch(
-          `${API_BASE}/api/v3/admin/points/giving-history?created_by_user_id=${me.id}&limit=200&offset=0`,
-          { headers },
-        );
-        if (!historyRes.ok) return;
-
-        const data = (await historyRes.json()) as {
-          items?: Array<{ amount?: number }>;
-        };
-        const sum = (data.items || []).reduce(
-          (acc, item) => acc + Number(item.amount || 0),
-          0,
-        );
-        setTotalGivenPoints(sum);
-      } catch {
-        setTotalGivenPoints(0);
-      }
-    };
-
-    void load();
+    fetch(`${API_BASE}/api/v3/points/balance`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load points balance");
+        return res.json() as Promise<{ balance: number }>;
+      })
+      .then((data) => setPointsBalance(data.balance))
+      .catch(() => setPointsBalance(null));
   }, []);
 
   useEffect(() => {
@@ -275,17 +253,17 @@ export default function AdminSidebar({
           }`}
         >
           {compactDesktop ? (
-            <span>{displayGivenPoints}</span>
+            <span>{displayPoints}</span>
           ) : (
             <>
               <div className="mb-2 flex justify-between text-xs font-bold">
-                <span>ADMIN GIVEN</span>
-                <span>{displayGivenPoints}</span>
+                <span>AVAILABLE POINT</span>
+                <span>{displayPoints}</span>
               </div>
               <div className="mb-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
                 <div className="h-1.5 w-full rounded-full bg-primary" />
               </div>
-              <p className="text-[10px] uppercase text-slate-500">Total points given by admin</p>
+              <p className="text-[10px] uppercase text-slate-500">Points available to spend</p>
             </>
           )}
         </div>

@@ -573,11 +573,11 @@ export default function AdminProfilePage() {
 
             <div className="rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                Point
+                My Point
               </p>
               <div className="mt-3 flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">
-                  badge
+                  toll
                 </span>
                 <p className="text-lg font-black text-slate-900 dark:text-white">
                   {state.points ? String(state.points.available_points) : "N/A"}

@@ -12,10 +12,13 @@ from services.users import ensure_default_super_user
 
 app = FastAPI()
 
-# Add CORS middleware for Next.js frontend
+# Add CORS middleware for Next.js frontend. The regex covers any local dev
+# port (Next.js auto-increments past 3000 when it's already taken), so this
+# doesn't need a new entry every time the dev server lands on a new port.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3005","http://localhost:3005"],
+    allow_origins=["http://localhost:3000", "http://localhost:3005"],
+    allow_origin_regex=r"^http://(localhost|127\.0\.0\.1):\d+$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
