@@ -607,11 +607,7 @@ export default function AdminApiPermissionsPage() {
                 API Permissions
               </h1>
 
-              <p className="mt-1 max-w-2xl text-xs text-white/80">
-                Check user details, inspect permission coverage, and enable or
-                disable conversion APIs with a clean liquid glass admin
-                workflow.
-              </p>
+              
             </div>
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">

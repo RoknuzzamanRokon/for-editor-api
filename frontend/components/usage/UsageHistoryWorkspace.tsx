@@ -127,10 +127,7 @@ export default function UsageHistoryWorkspace({ area }: { area: "admin" | "user"
             <h1 className="mt-4 text-3xl font-black tracking-tight text-white md:text-4xl">
               Your API &amp; Points Usage
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-white/80">
-              Every request you have made and every point you have spent or earned —
-              this view is always your own account, never anyone else&apos;s.
-            </p>
+        
           </div>
 
           {summary ? (

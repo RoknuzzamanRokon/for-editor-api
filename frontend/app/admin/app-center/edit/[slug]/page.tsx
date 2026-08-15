@@ -923,29 +923,15 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
             <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
 
-            <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-white backdrop-blur">
-                  <span className="material-symbols-outlined text-sm">
-                    admin_panel_settings
-                  </span>
-                  Admin App Center
-                </div>
-
-                <p className="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-white/70">
-                  App Center / Edit / {params.slug}
+            <div className="relative flex items-center justify-between gap-6">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">
+                  App Center
                 </p>
-                <h1 className="mt-3 text-3xl font-black tracking-tight text-white md:text-4xl">
+                <h1 className="mt-1 text-2xl font-black tracking-tight text-white md:text-3xl">
                   {title}
                 </h1>
-                <p className="app-hero-muted mt-3 max-w-2xl text-sm leading-6 text-white/80">
-                  Upload a file, submit a conversion request, preview the
-                  result, and review history for this tool from one focused
-                  workspace.
-                </p>
               </div>
-
-
             </div>
           </div>
         </div>
@@ -957,16 +943,13 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
         ) : null}
 
         {unsupported ? (
-          <SectionCard
-            title="Unsupported Tool"
-            description="This slug is not mapped to any conversion endpoint yet."
-          >
+          <SectionCard title="Tool Unavailable">
             <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
               <span className="material-symbols-outlined text-4xl text-slate-400">
                 block
               </span>
               <p className="mt-3 text-sm text-slate-500">
-                Add this action inside your route map before using this page.
+                This tool isn&apos;t available yet. Please check back later.
               </p>
             </div>
           </SectionCard>
@@ -996,20 +979,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
           ) : (
             <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
               <div className="space-y-8 xl:col-span-12">
-                <SectionCard
-                  title="Request Builder"
-                  description={
-                    isImageToPdf
-                      ? "Add one or more photos — they'll be combined into a single PDF in the order shown."
-                      : isMergePdf
-                        ? "Add two or more PDFs — they'll be combined into one file in the order shown."
-                        : isZipFiles
-                          ? "Add one or more files of any type — they'll be combined into a single .zip archive."
-                          : isImageFormatConvert
-                            ? "Convert a photo between PNG, JPG, WEBP, BMP, TIFF, GIF, and ICO — HEIC/HEIF supported as a source."
-                            : "Choose a file and send it to the selected conversion endpoint."
-                  }
-                >
+                <SectionCard title="Request Builder">
                   {isImageToPdf ? (
                     <div className="space-y-4">
                       <div
@@ -1058,8 +1028,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
                                 {imageFiles.length} photo
-                                {imageFiles.length === 1 ? "" : "s"} selected ·
-                                drag to reorder — pages follow this order
+                                {imageFiles.length === 1 ? "" : "s"} · drag to reorder
                               </p>
                               <button
                                 type="button"
@@ -1244,7 +1213,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                         <div className="space-y-3">
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-                              {mergeFiles.length} PDF{mergeFiles.length === 1 ? "" : "s"} selected · merges in this order
+                              {mergeFiles.length} PDF{mergeFiles.length === 1 ? "" : "s"} · reorder with the arrows
                             </p>
                             <button
                               type="button"
@@ -1684,19 +1653,16 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                         </button>
                       </div>
 
-                      <p className="mt-2 text-xs text-slate-500">
-                        {file
-                          ? `Selected: ${file.name}`
-                          : "No file selected yet"}
-                      </p>
+                      {file ? (
+                        <p className="mt-2 text-xs text-slate-500">
+                          Selected: {file.name}
+                        </p>
+                      ) : null}
                     </>
                   )}
                 </SectionCard>
                 {submitting || result ? (
-                  <SectionCard
-                    title="Response Summary"
-                    description="Most recent conversion response from the backend."
-                  >
+                  <SectionCard title="Response Summary">
                     {submitting ? (
                       <ConversionProgressPanel
                         progress={conversionProgress}
@@ -1719,16 +1685,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                       />
                     ) : (
                       <div className="space-y-4">
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                          <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                            <p className="text-xs uppercase tracking-wider text-slate-500">
-                              Conversion ID
-                            </p>
-                            <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                              {result?.conversion_id}
-                            </p>
-                          </div>
-
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                           <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
                             <p className="text-xs uppercase tracking-wider text-slate-500">
                               Status
@@ -1740,7 +1697,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
 
                           <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
                             <p className="text-xs uppercase tracking-wider text-slate-500">
-                              Points Charged
+                              Points
                             </p>
                             <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                               {result?.points_charged ?? "-"}
@@ -1749,10 +1706,19 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
 
                           <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
                             <p className="text-xs uppercase tracking-wider text-slate-500">
-                              Remaining Balance
+                              Balance
                             </p>
                             <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                               {result?.remaining_balance ?? "-"}
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                            <p className="text-xs uppercase tracking-wider text-slate-500">
+                              ID
+                            </p>
+                            <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                              {result?.conversion_id}
                             </p>
                           </div>
                         </div>
@@ -1778,7 +1744,6 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
               <div className="space-y-8 xl:col-span-12">
                 <SectionCard
                   title="Conversion History"
-                  description="Browse previous converted files for this tool."
                   action={
                   <div className="flex flex-wrap items-center gap-3">
                       <button
@@ -1798,7 +1763,79 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                     </div>
                   }
                 >
-                  <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
+                  {/* Mobile: stacked cards */}
+                  <div className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 dark:divide-slate-800 dark:border-slate-800 sm:hidden">
+                    {history.length === 0 ? (
+                      <div className="px-4 py-10 text-center text-sm text-slate-500">
+                        No history loaded yet.
+                      </div>
+                    ) : (
+                      history.map((item) => (
+                        <div key={item.id} className="space-y-3 p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <p
+                              className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900 dark:text-white"
+                              title={item.input_filename}
+                            >
+                              {item.input_filename}
+                            </p>
+                            <StatusBadge status={item.status} />
+                          </div>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                            <span>#{item.id}</span>
+                            <span>{item.action}</span>
+                            <span>{formatDate(item.updated_at)}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              disabled={!item.download_url}
+                              onClick={() => handleDownload(item)}
+                              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                            >
+                              Download
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={!item.download_url}
+                              onClick={async () => {
+                                if (!item.download_url) return;
+                                try {
+                                  setError("");
+                                  await fetchPreviewFile(
+                                    item.download_url,
+                                    item.input_filename,
+                                  );
+                                  setShowPreviewViewer(true);
+                                } catch (err: unknown) {
+                                  setError(
+                                    err instanceof Error
+                                      ? err.message
+                                      : "Preview loading failed",
+                                  );
+                                }
+                              }}
+                              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                            >
+                              Preview
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(item)}
+                              className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Desktop/tablet: table */}
+                  <div className="hidden overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 sm:block">
                     <div className="max-h-[440px] overflow-y-auto overflow-x-auto">
                       <table className="w-full text-left text-sm">
                         <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
@@ -1905,8 +1942,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
         ) : null}
         {showPreviewViewer && preview && !isRemoveBackground ? (
           <SectionCard
-            title="Preview Viewer"
-            description="Inspect the converted file before downloading."
+            title="Preview"
             action={
               <a
                 href={preview.url}

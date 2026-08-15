@@ -240,11 +240,7 @@ export default function AdminNotificationsPage() {
             <h1 className="mt-4 text-3xl font-black tracking-tight text-white md:text-4xl">
               Send Notifications
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-white/80">
-              {isSuperUser
-                ? "As a super user you can notify every account on the platform."
-                : "You can notify the users you created. Other accounts are out of scope."}
-            </p>
+           
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur">

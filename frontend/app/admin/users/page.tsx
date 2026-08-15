@@ -655,12 +655,6 @@ export default function AdminUsersPage() {
               <h1 className="mt-4 text-3xl font-black tracking-tight text-white md:text-4xl">
                 Admin Users
               </h1>
-
-              <p className="mt-2 max-w-2xl text-sm text-white/80">
-                Manage users, inspect account details, and create new accounts
-                with the same liquid glass design system as the admin profile
-                page.
-              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

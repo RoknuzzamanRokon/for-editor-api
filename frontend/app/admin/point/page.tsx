@@ -202,7 +202,6 @@ export default function AdminPointPage() {
               Points Management
             </div>
             <h1 className="mt-4 text-3xl font-black tracking-tight text-white md:text-4xl">Point Distribution</h1>
-            <p className="mt-2 text-sm text-white/80">Distribute points to users, review incoming requests, and monitor the full giving history from one admin control surface.</p>
           </div>
         </section>
 

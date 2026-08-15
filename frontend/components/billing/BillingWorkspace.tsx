@@ -584,9 +584,6 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
               <h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">
                 Point wallet, request routing, and usage timeline
               </h1>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-white/80">
-                Track your point balance, request more credits from a target admin or super admin, and monitor every request status from one place.
-              </p>
             </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
               <span className="material-symbols-outlined text-sm text-white/80">shield_person</span>
