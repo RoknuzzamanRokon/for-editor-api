@@ -38,19 +38,22 @@ function SectionCard({
   children: ReactNode
 }) {
   return (
-    <section className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex flex-col gap-3 border-b border-slate-100 px-6 py-5 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-            {title}
-          </h2>
-          {description ? (
-            <p className="mt-1 text-sm text-slate-500">{description}</p>
-          ) : null}
+    <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent" />
+      <div className="overflow-hidden rounded-[18px]">
+        <div className="flex flex-col gap-3 border-b border-slate-100 px-6 py-5 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+              {title}
+            </h2>
+            {description ? (
+              <p className="mt-1 text-sm text-slate-500">{description}</p>
+            ) : null}
+          </div>
+          {action ? <div>{action}</div> : null}
         </div>
-        {action ? <div>{action}</div> : null}
+        <div className="p-6">{children}</div>
       </div>
-      <div className="p-6">{children}</div>
     </section>
   )
 }
@@ -259,7 +262,7 @@ export default function PdfPageOrganizer({
           <div className="mt-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-slate-500">
-                {pageOrder.length} of {thumbnails.length} pages kept — drag to reorder
+                {pageOrder.length} of {thumbnails.length} pages kept — drag a thumbnail, or use its position dropdown, to reorder
               </p>
               <button
                 type="button"
@@ -276,45 +279,64 @@ export default function PdfPageOrganizer({
               {pageOrder.map((pageNumber, index) => {
                 const thumbnail = thumbnailByPage.get(pageNumber)
                 return (
-                  <div
-                    key={pageNumber}
-                    draggable
-                    onDragStart={() => setDragIndex(index)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      e.preventDefault()
-                      if (dragIndex !== null && dragIndex !== index) {
-                        moveTo(dragIndex, index)
-                      }
-                      setDragIndex(null)
-                    }}
-                    onDragEnd={() => setDragIndex(null)}
-                    className="group relative cursor-grab overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50"
-                  >
-                    {thumbnail ? (
-                      <Image
-                        src={thumbnail.imageUrl}
-                        alt={`Page ${pageNumber}`}
-                        width={220}
-                        height={300}
-                        unoptimized
-                        className="h-full w-full object-contain"
-                      />
-                    ) : null}
-                    <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-[11px] font-bold text-white">
-                      {index + 1}
-                    </span>
-                    <span className="absolute left-1.5 bottom-1.5 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
-                      original p.{pageNumber}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removePage(pageNumber)}
-                      className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100 hover:bg-rose-500"
-                      aria-label={`Drop page ${pageNumber}`}
+                  <div key={pageNumber} className="group flex flex-col gap-1.5">
+                    <div
+                      draggable
+                      onDragStart={() => setDragIndex(index)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault()
+                        if (dragIndex !== null && dragIndex !== index) {
+                          moveTo(dragIndex, index)
+                        }
+                        setDragIndex(null)
+                      }}
+                      onDragEnd={() => setDragIndex(null)}
+                      className={`relative aspect-[3/4] cursor-grab overflow-hidden rounded-xl border bg-slate-50 transition dark:bg-slate-800/50 ${
+                        dragIndex === index
+                          ? 'border-primary opacity-80 ring-2 ring-primary'
+                          : 'border-slate-200 dark:border-slate-700'
+                      }`}
                     >
-                      <span className="material-symbols-outlined text-sm">close</span>
-                    </button>
+                      {thumbnail ? (
+                        <Image
+                          src={thumbnail.imageUrl}
+                          alt={`Page ${pageNumber}`}
+                          width={220}
+                          height={300}
+                          unoptimized
+                          draggable={false}
+                          className="h-full w-full select-none object-contain"
+                        />
+                      ) : null}
+                      <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-[11px] font-bold text-white">
+                        {index + 1}
+                      </span>
+                      <span className="absolute left-1.5 bottom-1.5 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                        original p.{pageNumber}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removePage(pageNumber)}
+                        className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100 hover:bg-rose-500"
+                        aria-label={`Drop page ${pageNumber}`}
+                      >
+                        <span className="material-symbols-outlined text-sm">close</span>
+                      </button>
+                    </div>
+
+                    <select
+                      value={index}
+                      onChange={(e) => moveTo(index, Number(e.target.value))}
+                      aria-label={`Move page ${pageNumber} to a different position`}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-primary/40 focus:border-primary focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+                    >
+                      {pageOrder.map((_, position) => (
+                        <option key={position} value={position}>
+                          Position {position + 1}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 )
               })}
