@@ -330,36 +330,39 @@ function ConversionProgressPanel({
   const clampedProgress = Math.max(0, Math.min(100, Math.round(progress)));
 
   return (
-    <div className="rounded-[13px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950/60">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-            Conversion Progress
-          </p>
-          <h3 className="mt-2 text-lg font-bold text-slate-900 dark:text-white">
-            {getProgressLabel(stage)}
-          </h3>
-          <p className="mt-1 text-sm text-slate-500">
-            {filename ? `Working on ${filename}` : "Preparing your converted file."}
-          </p>
+    <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent" />
+      <div className="relative rounded-[18px] p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+              Conversion Progress
+            </p>
+            <h3 className="mt-2 text-lg font-bold text-slate-900 dark:text-white">
+              {getProgressLabel(stage)}
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">
+              {filename ? `Working on ${filename}` : "Preparing your converted file."}
+            </p>
+          </div>
+          <div
+            className={`rounded-2xl px-3 py-2 text-sm font-bold ${accent.text} ${accent.glow}`}
+          >
+            {clampedProgress}%
+          </div>
         </div>
-        <div
-          className={`rounded-2xl px-3 py-2 text-sm font-bold ${accent.text} ${accent.glow}`}
-        >
-          {clampedProgress}%
+
+        <div className={`mt-5 h-3 overflow-hidden rounded-full ${accent.track}`}>
+          <div
+            className={`h-full rounded-full ${accent.bar} transition-[width] duration-500 ease-out`}
+            style={{ width: `${clampedProgress}%` }}
+          />
         </div>
-      </div>
 
-      <div className={`mt-5 h-3 overflow-hidden rounded-full ${accent.track}`}>
-        <div
-          className={`h-full rounded-full ${accent.bar} transition-[width] duration-500 ease-out`}
-          style={{ width: `${clampedProgress}%` }}
-        />
-      </div>
-
-      <div className="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
-        <span>Status updates will appear automatically.</span>
-        <span className={accent.text}>{getProgressLabel(stage)}</span>
+        <div className="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
+          <span>Status updates will appear automatically.</span>
+          <span className={accent.text}>{getProgressLabel(stage)}</span>
+        </div>
       </div>
     </div>
   );
@@ -377,19 +380,22 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex flex-col gap-3 border-b border-slate-100 px-6 py-5 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-            {title}
-          </h2>
-          {description ? (
-            <p className="mt-1 text-sm text-slate-500">{description}</p>
-          ) : null}
+    <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent" />
+      <div className="overflow-hidden rounded-[18px]">
+        <div className="flex flex-col gap-3 border-b border-slate-100 px-6 py-5 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+              {title}
+            </h2>
+            {description ? (
+              <p className="mt-1 text-sm text-slate-500">{description}</p>
+            ) : null}
+          </div>
+          {action ? <div>{action}</div> : null}
         </div>
-        {action ? <div>{action}</div> : null}
+        <div className="p-6">{children}</div>
       </div>
-      <div className="p-6">{children}</div>
     </section>
   );
 }

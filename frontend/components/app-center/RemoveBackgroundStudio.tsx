@@ -112,19 +112,22 @@ function SectionCard({
   children: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-[13px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex flex-col gap-3 border-b border-slate-100 px-6 py-5 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-            {title}
-          </h2>
-          {description ? (
-            <p className="mt-1 text-sm text-slate-500">{description}</p>
-          ) : null}
+    <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent" />
+      <div className="overflow-hidden rounded-[18px]">
+        <div className="flex flex-col gap-3 border-b border-slate-100 px-6 py-5 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+              {title}
+            </h2>
+            {description ? (
+              <p className="mt-1 text-sm text-slate-500">{description}</p>
+            ) : null}
+          </div>
+          {action ? <div>{action}</div> : null}
         </div>
-        {action ? <div>{action}</div> : null}
+        <div className="p-6">{children}</div>
       </div>
-      <div className="p-6">{children}</div>
     </section>
   );
 }
@@ -208,36 +211,39 @@ function ConversionProgressPanel({
   const clampedProgress = Math.max(0, Math.min(100, Math.round(progress)));
 
   return (
-    <div className="rounded-[13px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950/60">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-            Remove Background Progress
-          </p>
-          <h3 className="mt-2 text-lg font-bold text-slate-900 dark:text-white">
-            {getProgressLabel(stage)}
-          </h3>
-          <p className="mt-1 text-sm text-slate-500">
-            {filename ? `Working on ${filename}` : "Preparing your transparent PNG."}
-          </p>
+    <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent" />
+      <div className="relative rounded-[18px] p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+              Remove Background Progress
+            </p>
+            <h3 className="mt-2 text-lg font-bold text-slate-900 dark:text-white">
+              {getProgressLabel(stage)}
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">
+              {filename ? `Working on ${filename}` : "Preparing your transparent PNG."}
+            </p>
+          </div>
+          <div
+            className={`rounded-2xl px-3 py-2 text-sm font-bold ${accent.text} ${accent.glow}`}
+          >
+            {clampedProgress}%
+          </div>
         </div>
-        <div
-          className={`rounded-2xl px-3 py-2 text-sm font-bold ${accent.text} ${accent.glow}`}
-        >
-          {clampedProgress}%
+
+        <div className={`mt-5 h-3 overflow-hidden rounded-full ${accent.track}`}>
+          <div
+            className={`h-full rounded-full ${accent.bar} transition-[width] duration-500 ease-out`}
+            style={{ width: `${clampedProgress}%` }}
+          />
         </div>
-      </div>
 
-      <div className={`mt-5 h-3 overflow-hidden rounded-full ${accent.track}`}>
-        <div
-          className={`h-full rounded-full ${accent.bar} transition-[width] duration-500 ease-out`}
-          style={{ width: `${clampedProgress}%` }}
-        />
-      </div>
-
-      <div className="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
-        <span>Progress updates appear automatically.</span>
-        <span className={accent.text}>{getProgressLabel(stage)}</span>
+        <div className="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
+          <span>Status updates will appear automatically.</span>
+          <span className={accent.text}>{getProgressLabel(stage)}</span>
+        </div>
       </div>
     </div>
   );
@@ -1130,7 +1136,7 @@ export default function RemoveBackgroundStudio({
     <div className="space-y-8">
       <SectionCard
         title="Remove Background Studio"
-        description="Drop an image, preview the original instantly, and export a transparent PNG from the same workspace."
+        description="Upload an image and export a transparent PNG in seconds."
         action={
           <div className="flex flex-wrap gap-2">
             <button
@@ -1262,23 +1268,12 @@ export default function RemoveBackgroundStudio({
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-5 text-white dark:border-slate-800">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/60">
-                Studio Notes
-              </p>
-              <ul className="mt-4 space-y-3 text-sm text-white/80">
-                <li>Preview the original image before you submit.</li>
-                <li>See transparency on a checkerboard result stage.</li>
-                <li>History preview can show only the processed PNG because the current API does not store original uploads.</li>
-              </ul>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950/50">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950/50">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
                 Export
               </p>
               <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                Download the finished image as a PNG with transparency preserved.
+                Download the result as a transparent PNG.
               </p>
               <button
                 type="button"
@@ -1395,7 +1390,7 @@ export default function RemoveBackgroundStudio({
                     Original preview unavailable
                   </p>
                   <p className="mt-2 text-sm text-slate-500">
-                    This history item can show only the processed PNG because the current API does not store original uploaded images.
+                    Originals aren&apos;t stored for history items — only the processed PNG is available.
                   </p>
                 </div>
               ) : (
@@ -1524,10 +1519,6 @@ export default function RemoveBackgroundStudio({
                       </span>
                     </div>
                   </div>
-
-                  <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 px-4 py-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">
-                    Brush edits stay on this page only. Download the refined PNG when it looks right.
-                  </div>
                 </div>
               </div>
             ) : null}
@@ -1569,12 +1560,6 @@ export default function RemoveBackgroundStudio({
                       <p className="mt-2 text-sm text-slate-500">
                         Your processed PNG is loading into the editor now.
                       </p>
-                    </div>
-                  ) : null}
-
-                  {resultPreview.fromHistory ? (
-                    <div className="max-w-xl rounded-2xl bg-white/85 px-4 py-3 text-center text-sm text-slate-600 shadow-sm dark:bg-slate-900/85 dark:text-slate-300">
-                      Original preview is unavailable for history items, but you can still refine and download this processed PNG locally.
                     </div>
                   ) : null}
                 </div>
