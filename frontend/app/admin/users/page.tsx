@@ -119,6 +119,21 @@ function getStatusBadgeClass(active: boolean) {
 
 /** Reuses the role picker's own tints so the directory and the create form
  *  always agree on what each role looks like. */
+// Avatar initials for the User Details header — email-first names ("john.doe")
+// are split on the @ first, so the local part drives the initials rather than
+// the domain.
+function getInitials(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return "?";
+  const base = trimmed.includes("@") ? trimmed.split("@")[0] : trimmed;
+  const parts = base.split(/[\s._-]+/).filter(Boolean);
+  const initials = parts
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+  return initials || base[0]?.toUpperCase() || "?";
+}
+
 function getRoleMeta(role: string) {
   return (
     ROLE_OPTIONS.find((option) => option.value === role) ?? {
@@ -306,20 +321,17 @@ function InfoTile({
   mono?: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/40 bg-gradient-to-r from-[rgb(255,255,255)] via-[rgb(246,251,255)] to-[rgb(240,249,255)] px-4 py-3.5 shadow-sm backdrop-blur-lg dark:border-white/10 dark:bg-gradient-to-r dark:from-[rgb(19,27,41)] dark:via-[rgb(20,31,49)] dark:to-[rgb(26,24,43)]">
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/8 via-transparent to-[rgb(59,130,246)]/8 dark:from-primary/12 dark:to-[rgb(59,130,246)]/10" />
-      <div className="relative">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-          {label}
-        </p>
-        <p
-          className={`mt-1 text-sm font-semibold text-slate-900 dark:text-white ${
-            mono ? "break-all font-mono text-[13px]" : ""
-          }`}
-        >
-          {value}
-        </p>
-      </div>
+    <div className="rounded-xl border border-slate-200/70 bg-white/70 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/40">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        {label}
+      </p>
+      <p
+        className={`mt-1 text-sm font-semibold text-slate-900 dark:text-white ${
+          mono ? "break-all font-mono text-[13px]" : ""
+        }`}
+      >
+        {value}
+      </p>
     </div>
   );
 }
@@ -1062,60 +1074,77 @@ export default function AdminUsersPage() {
 
       {showDetails ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-md">
-          <div className="relative flex max-h-[96vh] w-full max-w-5xl flex-col overflow-hidden rounded-[13px] border border-white/40 bg-gradient-to-br from-[rgb(255,255,255)]/95 via-[rgb(244,249,255)]/90 to-[rgb(233,246,255)]/85 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:from-[rgb(18,26,42)]/95 dark:via-[rgb(21,31,49)]/92 dark:to-[rgb(31,23,43)]/90">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/15 via-[rgb(255,255,255)]/35 to-[rgb(125,211,252)]/20 dark:from-primary/12 dark:via-white/5 dark:to-[rgb(56,189,248)]/10" />
-            <div className="pointer-events-none absolute right-0 top-0 h-36 w-36 rounded-full bg-[rgb(56,189,248)]/20 blur-3xl dark:bg-[rgb(14,165,233)]/20" />
+          <div className="relative flex max-h-[96vh] w-full max-w-5xl flex-col overflow-hidden rounded-[13px] border border-border bg-white/30 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:bg-white/[0.03]">
+            <div
+              className={`pointer-events-none absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`}
+            />
 
             {/* Header */}
-            <div className="relative shrink-0 border-b border-white/30 px-6 py-4 dark:border-white/10">
+            <div className="relative shrink-0 border-b border-slate-200/70 px-6 py-4 dark:border-white/10">
               <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">User Details</h3>
-                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">User Details</h3>
                 <button
                   onClick={() => setShowDetails(false)}
-                  className="rounded-xl border border-white/40 bg-white/60 px-3 py-2 text-xs font-bold text-slate-700 backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-200"
+                  className={`rounded-lg p-1.5 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white ${MUTED_FG}`}
                   type="button"
+                  aria-label="Close"
                 >
-                  Close
+                  <span className="material-symbols-outlined text-xl">close</span>
                 </button>
               </div>
 
               {deleteError ? (
-                <div className="mt-4 rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 backdrop-blur-md dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
+                <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
                   {deleteError}
                 </div>
               ) : null}
 
               {selectedUserDetails ? (
-                <div className="mt-4 relative overflow-hidden rounded-2xl border border-white/40 bg-white/55 p-4 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-[rgb(56,189,248)]/10 dark:from-primary/15 dark:to-[rgb(56,189,248)]/10" />
-                  <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <p className="mt-1 truncate text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-                        {formatProfileName(
-                          selectedUserDetails.username,
-                          selectedUserDetails.email,
+                <div className="mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-800/20">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 flex-1 items-center gap-4">
+                      <span
+                        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-black ${
+                          getRoleMeta(selectedUserDetails.role).tint
+                        }`}
+                      >
+                        {getInitials(
+                          formatProfileName(
+                            selectedUserDetails.username,
+                            selectedUserDetails.email,
+                          ),
                         )}
-                      </p>
-                    </div>
-                    <div className="shrink-0">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                        Role
-                      </p>
-                      <span className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-sm font-black text-primary">
-                        <span className="material-symbols-outlined text-base">shield</span>
-                        {formatRoleLabel(selectedUserDetails.role)}
                       </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">
+                          {formatProfileName(
+                            selectedUserDetails.username,
+                            selectedUserDetails.email,
+                          )}
+                        </p>
+                        <p className={`truncate text-sm ${MUTED_FG}`}>
+                          {selectedUserDetails.email}
+                        </p>
+                      </div>
                     </div>
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1.5 self-start rounded-xl px-4 py-2 text-sm font-black sm:self-center ${
+                        getRoleMeta(selectedUserDetails.role).tint
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-base">
+                        {getRoleMeta(selectedUserDetails.role).icon}
+                      </span>
+                      {formatRoleLabel(selectedUserDetails.role)}
+                    </span>
                   </div>
 
                   {canResetSelectedUserPassword || canDeleteSelectedUser ? (
-                    <div className="relative mt-4 flex flex-wrap justify-end gap-2">
+                    <div className="mt-4 flex flex-wrap justify-end gap-2 border-t border-slate-200/70 pt-4 dark:border-slate-800">
                       {canResetSelectedUserPassword ? (
                         <button
                           onClick={handleOpenResetPassword}
-                          className="inline-flex items-center gap-2 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-sm font-bold text-primary shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-primary/15"
+                          className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/15"
                           type="button"
                         >
                           <span className="material-symbols-outlined text-base">lock_reset</span>
@@ -1126,7 +1155,7 @@ export default function AdminUsersPage() {
                         <button
                           onClick={handleDeleteUser}
                           disabled={deleteLoading}
-                          className="inline-flex items-center gap-2 rounded-2xl border border-rose-400/20 bg-rose-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-rose-500/20 transition duration-200 hover:-translate-y-0.5 hover:border-rose-300/40 hover:bg-rose-600 hover:shadow-[0_16px_36px_rgba(244,63,94,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex items-center gap-2 rounded-xl border border-rose-400/20 bg-rose-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-60"
                           type="button"
                         >
                           <span className="material-symbols-outlined text-base">delete</span>
@@ -1145,13 +1174,13 @@ export default function AdminUsersPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {Array.from({ length: 3 }).map((_, index) => (
-                      <div key={index} className="rounded-2xl border border-white/40 bg-white/55 p-4 backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+                      <div key={index} className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-800/20">
                         <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                         <div className="mt-3 h-6 w-20 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
                       </div>
                     ))}
                   </div>
-                  <div className="rounded-2xl border border-white/40 bg-white/55 p-5 backdrop-blur-lg dark:border-white/10 dark:bg-white/5">
+                  <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
                     <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                     <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
                       {Array.from({ length: 6 }).map((_, index) => (
@@ -1161,81 +1190,73 @@ export default function AdminUsersPage() {
                   </div>
                 </div>
               ) : detailsError ? (
-                <div className="rounded-2xl border border-rose-200/70 bg-rose-50/80 p-4 text-sm text-rose-700 backdrop-blur-md dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
+                <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
                   {detailsError}
                 </div>
               ) : selectedUserDetails ? (
-                <div className="space-y-0 divide-y divide-white/30 overflow-hidden rounded-[24px] border border-white/40 bg-white/40 backdrop-blur-xl dark:divide-white/10 dark:border-white/10 dark:bg-white/5">
+                <div className="space-y-4">
 
                   {/* Profile */}
-                  <div className="px-5 py-4">
+                  <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
                     <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Profile</p>
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-3 md:grid-cols-3">
-                      {[
-                        { label: "ID", value: selectedUserDetails.id },
-                        { label: "Email", value: selectedUserDetails.email },
-                        {
-                          label: "Username",
-                          value: formatProfileName(
-                            selectedUserDetails.username,
-                            "-",
-                          ),
-                        },
-                        { label: "Role", value: formatRoleLabel(selectedUserDetails.role) },
-                        { label: "Position", value: selectedUserDetails.position },
-                        { label: "Status", value: selectedUserDetails.is_active ? "Active" : "Inactive" },
-                        { label: "Created", value: formatDate(selectedUserDetails.created_at) },
-                        { label: "Last Login", value: formatDate(selectedUserDetails.last_login) },
-                        { label: "Last Active", value: formatDate(selectedUserDetails.last_active_at) },
-                      ].map(({ label, value }) => (
-                        <div key={label}>
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
-                          <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-slate-100 break-all">{value}</p>
-                        </div>
-                      ))}
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+                      <InfoTile label="ID" value={selectedUserDetails.id} />
+                      <InfoTile label="Email" value={selectedUserDetails.email} mono />
+                      <InfoTile
+                        label="Username"
+                        value={formatProfileName(selectedUserDetails.username, "-")}
+                      />
+                      <InfoTile label="Role" value={formatRoleLabel(selectedUserDetails.role)} />
+                      <InfoTile label="Position" value={selectedUserDetails.position} />
+                      <InfoTile
+                        label="Status"
+                        value={selectedUserDetails.is_active ? "Active" : "Inactive"}
+                      />
+                      <InfoTile label="Created" value={formatDate(selectedUserDetails.created_at)} />
+                      <InfoTile label="Last Login" value={formatDate(selectedUserDetails.last_login)} />
+                      <InfoTile
+                        label="Last Active"
+                        value={formatDate(selectedUserDetails.last_active_at)}
+                      />
                     </div>
                   </div>
 
                   {/* Points + Conversions */}
-                  <div className="grid grid-cols-1 divide-y divide-white/30 md:grid-cols-2 md:divide-x md:divide-y-0 dark:divide-white/10">
-                    <div className="px-5 py-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
                       <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Points</p>
-                      <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-                        {[
-                          { label: "Balance", value: selectedUserDetails.points.balance },
-                          { label: "Total Topup", value: selectedUserDetails.points.total_topup },
-                          { label: "Total Spent", value: selectedUserDetails.points.total_spent },
-                          { label: "Total Refunded", value: selectedUserDetails.points.total_refunded },
-                          { label: "Last Activity", value: formatDate(selectedUserDetails.points.last_points_activity_at) },
-                        ].map(({ label, value }) => (
-                          <div key={label}>
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
-                            <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-slate-100">{value}</p>
-                          </div>
-                        ))}
+                      <div className="grid grid-cols-2 gap-3">
+                        <InfoTile label="Balance" value={selectedUserDetails.points.balance} />
+                        <InfoTile label="Total Topup" value={selectedUserDetails.points.total_topup} />
+                        <InfoTile label="Total Spent" value={selectedUserDetails.points.total_spent} />
+                        <InfoTile label="Total Refunded" value={selectedUserDetails.points.total_refunded} />
+                        <div className="col-span-2">
+                          <InfoTile
+                            label="Last Activity"
+                            value={formatDate(selectedUserDetails.points.last_points_activity_at)}
+                          />
+                        </div>
                       </div>
                     </div>
-                    <div className="px-5 py-4">
+                    <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
                       <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Conversions</p>
-                      <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-                        {[
-                          { label: "Total", value: selectedUserDetails.conversions.total },
-                          { label: "Success", value: selectedUserDetails.conversions.success },
-                          { label: "Failed", value: selectedUserDetails.conversions.failed },
-                          { label: "Processing", value: selectedUserDetails.conversions.processing },
-                          { label: "Last Conversion", value: formatDate(selectedUserDetails.conversions.last_conversion_at) },
-                        ].map(({ label, value }) => (
-                          <div key={label}>
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
-                            <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-slate-100">{value}</p>
-                          </div>
-                        ))}
+                      <div className="grid grid-cols-2 gap-3">
+                        <InfoTile label="Total" value={selectedUserDetails.conversions.total} />
+                        <InfoTile label="Success" value={selectedUserDetails.conversions.success} />
+                        <InfoTile label="Failed" value={selectedUserDetails.conversions.failed} />
+                        <InfoTile label="Processing" value={selectedUserDetails.conversions.processing} />
+                        <div className="col-span-2">
+                          <InfoTile
+                            label="Last Conversion"
+                            value={formatDate(selectedUserDetails.conversions.last_conversion_at)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Active APIs */}
-                  <div className="px-5 py-4">
+                  <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
                     <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Active APIs</p>
                     {selectedUserDetails.active_apis.length === 0 ? (
                       <p className="text-sm text-slate-400 dark:text-slate-500">No active APIs.</p>
@@ -1252,12 +1273,12 @@ export default function AdminUsersPage() {
                   </div>
 
                   {/* All API Permissions */}
-                  <div className="px-5 py-4">
+                  <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">All API Permissions</p>
                       <Link
                         href={`/admin/api-permissions?userId=${selectedUserDetails.id}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/40 bg-white/60 px-3 py-1.5 text-[11px] font-bold text-primary shadow-sm backdrop-blur-md transition hover:bg-white/80 dark:border-white/10 dark:bg-white/10"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-bold text-primary shadow-sm transition hover:bg-card-hover"
                       >
                         <span className="material-symbols-outlined text-sm">manage_search</span>
                         Lookup User
@@ -1268,27 +1289,27 @@ export default function AdminUsersPage() {
                         No allowed API permissions.
                       </p>
                     ) : (
-                      <div className="overflow-x-auto">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200/70 dark:border-slate-800">
                         <table className="w-full text-left text-sm">
                           <thead>
-                            <tr className="border-b border-white/30 dark:border-white/10">
-                              <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Action</th>
-                              <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Allowed</th>
-                              <th className="pb-2 pr-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Success Rate</th>
-                              <th className="pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Last Used</th>
+                            <tr className="border-b border-slate-200/70 bg-white/60 dark:border-slate-800 dark:bg-slate-900/40">
+                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Action</th>
+                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Allowed</th>
+                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Success Rate</th>
+                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Last Used</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-white/20 dark:divide-white/5">
+                          <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800">
                             {allowedApiPermissions.map((api) => (
                               <tr key={api.action}>
-                                <td className="py-2.5 pr-4 font-medium text-slate-800 dark:text-slate-100">{api.label}</td>
-                                <td className="py-2.5 pr-4">
+                                <td className="px-3 py-2.5 font-medium text-slate-800 dark:text-slate-100">{api.label}</td>
+                                <td className="px-3 py-2.5">
                                   <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
                                     Yes
                                   </span>
                                 </td>
-                                <td className="py-2.5 pr-4 text-slate-600 dark:text-slate-300">{api.success_rate.toFixed(1)}%</td>
-                                <td className="py-2.5 text-slate-500 dark:text-slate-400">{formatDate(api.last_used_at)}</td>
+                                <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300">{api.success_rate.toFixed(1)}%</td>
+                                <td className="px-3 py-2.5 text-slate-500 dark:text-slate-400">{formatDate(api.last_used_at)}</td>
                               </tr>
                             ))}
                           </tbody>
