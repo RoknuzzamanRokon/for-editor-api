@@ -180,11 +180,30 @@ function getShortName(action: string, fallbackLabel: string) {
   }
 }
 
+/** Groups actions into the fixed category sections, dropping empty ones. */
+function groupByCategory(items: ActionItem[]) {
+  const groups = new Map<ToolCategoryId, ActionItem[]>();
+  for (const item of items) {
+    const category = ACTION_CATEGORY[item.action] ?? "other";
+    if (!groups.has(category)) groups.set(category, []);
+    groups.get(category)!.push(item);
+  }
+  return CATEGORY_SECTIONS.map((section) => ({
+    ...section,
+    items: groups.get(section.id) ?? [],
+  })).filter((section) => section.items.length > 0);
+}
+
 export default function DashboardAppCenterPage() {
   const router = useRouter();
   const pathname = usePathname();
   const basePath = pathname?.startsWith("/demo-user") ? "/demo-user" : "/user";
+  // The demo account previews every tool in the catalog: unlocked ones stay
+  // usable, the rest show up as locked "Other Apps" so visitors can see the
+  // full lineup without a real account being able to run premium-gated tools.
+  const isDemoUser = basePath === "/demo-user";
   const [actions, setActions] = useState<ActionItem[]>([]);
+  const [lockedActions, setLockedActions] = useState<ActionItem[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -199,15 +218,13 @@ export default function DashboardAppCenterPage() {
           throw new Error(body || "Failed to load actions");
         }
         const parsed = JSON.parse(body) as { user_id: number; apis: MyApiEntry[] };
-        const activeOnly = Array.isArray(parsed.apis)
-          ? parsed.apis
-              .filter((item) => item.allowed)
-              .map((item) => ({
-                action: item.action,
-                label: item.label,
-              }))
-          : [];
-        setActions(activeOnly);
+        const apis = Array.isArray(parsed.apis) ? parsed.apis : [];
+        const toActionItem = (item: MyApiEntry) => ({
+          action: item.action,
+          label: item.label,
+        });
+        setActions(apis.filter((item) => item.allowed).map(toActionItem));
+        setLockedActions(apis.filter((item) => !item.allowed).map(toActionItem));
       })
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Failed to load actions");
@@ -232,18 +249,15 @@ export default function DashboardAppCenterPage() {
     });
   }, [actions, router, basePath]);
 
-  const groupedActions = useMemo(() => {
-    const groups = new Map<ToolCategoryId, ActionItem[]>();
-    for (const item of filteredActions) {
-      const category = ACTION_CATEGORY[item.action] ?? "other";
-      if (!groups.has(category)) groups.set(category, []);
-      groups.get(category)!.push(item);
-    }
-    return CATEGORY_SECTIONS.map((section) => ({
-      ...section,
-      items: groups.get(section.id) ?? [],
-    })).filter((section) => section.items.length > 0);
-  }, [filteredActions]);
+  const groupedActions = useMemo(
+    () => groupByCategory(filteredActions),
+    [filteredActions],
+  );
+
+  const groupedLockedActions = useMemo(
+    () => (isDemoUser ? groupByCategory(lockedActions) : []),
+    [isDemoUser, lockedActions],
+  );
 
   return (
       <section className="h-full min-h-full overflow-y-auto  px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
@@ -336,6 +350,82 @@ export default function DashboardAppCenterPage() {
               </div>
             </div>
           )}
+
+          {isDemoUser && groupedLockedActions.length > 0 ? (
+            <div className="app-panel-card mx-auto mt-6 w-full rounded-xl border border-slate-200 p-6 dark:border-slate-800 lg:w-[70%]">
+              <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-amber-500">
+                    workspace_premium
+                  </span>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                      Other Apps
+                    </h2>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                      Preview only in demo mode — unlocked on premium plans
+                    </p>
+                  </div>
+                  <span className="ml-1 rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                    {lockedActions.length}
+                  </span>
+                </div>
+                <Link
+                  href={`${basePath}/billing`}
+                  className="inline-flex items-center gap-2 self-start rounded-xl bg-gradient-to-r from-amber-500 to-primary px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:opacity-90 sm:self-auto"
+                >
+                  <span className="material-symbols-outlined text-base">bolt</span>
+                  Upgrade to Premium
+                </Link>
+              </div>
+
+              <div className="space-y-6">
+                {groupedLockedActions.map((section) => (
+                  <div
+                    key={section.id}
+                    className="app-subcard rounded-xl border border-slate-200 bg-slate-50/50 p-5 dark:border-slate-800 dark:bg-slate-800/20"
+                  >
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-slate-400">
+                        {section.icon}
+                      </span>
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        {section.label}
+                      </h3>
+                      <span className="ml-auto rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                        {section.items.length}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
+                      {section.items.map((item) => (
+                        <div key={item.action} className="flex flex-col items-center gap-1.5">
+                          <div
+                            role="img"
+                            aria-label={`${item.label} — premium feature, not available in demo mode`}
+                            title="Premium feature — upgrade to unlock"
+                            className="relative flex h-24 w-24 cursor-not-allowed items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-100/70 grayscale dark:border-slate-700 dark:bg-slate-900/40"
+                          >
+                            <span className="material-symbols-outlined text-5xl text-slate-400 dark:text-slate-600">
+                              {getIcon(item.action)}
+                            </span>
+                            <span className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-white shadow-sm dark:bg-slate-600">
+                              <span className="material-symbols-outlined text-sm">lock</span>
+                            </span>
+                          </div>
+                          <span className="pt-1 text-xs font-bold text-slate-400 dark:text-slate-500">
+                            {getShortName(item.action, item.label)}
+                          </span>
+                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+                            Premium
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           {/* Viewer Panel Card */}
           <div className="app-panel-card mx-auto w-full lg:w-[70%] rounded-xl border border-slate-200 p-6 dark:border-slate-800 mt-6">
