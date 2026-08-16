@@ -516,13 +516,21 @@ export default function RegisterPage() {
                     </div>
 
                     <label className="flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground">
-                      <input
-                        type="radio"
-                        name="understand"
-                        checked={understood}
-                        onChange={() => setUnderstood(true)}
-                        className="h-4 w-4 border-border text-primary focus:ring-primary/20"
-                      />
+                      <span className="relative inline-flex h-4 w-4 shrink-0">
+                        <input
+                          type="radio"
+                          name="understand"
+                          checked={understood}
+                          onChange={() => setUnderstood(true)}
+                          className="h-4 w-4 border-border text-primary focus:ring-primary/20"
+                        />
+                        {!understood && (
+                          <span className="pointer-events-none absolute -right-1 -top-1 flex h-2.5 w-2.5">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
+                          </span>
+                        )}
+                      </span>
                       <span>I understand the demo account terms and selected app access.</span>
                     </label>
                   </div>
