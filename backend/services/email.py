@@ -128,27 +128,79 @@ def send_verification_email(
 
     # Create email message
     message = MIMEMultipart("alternative")
-    message["Subject"] = "Verify Your Email Address"
+    message["Subject"] = "Your ConvertPro verification code"
     message["From"] = config.from_email
     message["To"] = to_email
 
-    # Email body template
-    body = f"""Hello,
+    # Plain-text fallback for clients that don't render HTML.
+    text_body = f"""Verify your email address
 
-Thank you for registering! Please use the following verification code to complete your registration:
+Thanks for registering with ConvertPro! Use the verification code below to
+complete your registration:
 
-Verification Code: {verification_code}
+    {verification_code}
 
-This code will expire in {expiration_minutes} minutes.
+This code expires in {expiration_minutes} minutes.
 
-If you didn't request this registration, please ignore this email.
-
-Do not share this code with anyone.
+If you didn't request this, you can safely ignore this email — no account
+will be created. Never share this code with anyone, including ConvertPro
+support.
 """
 
-    # Attach plain text body
-    text_part = MIMEText(body, "plain")
-    message.attach(text_part)
+    # HTML version — styles are inlined throughout since most email clients
+    # strip <style> blocks or ignore embedded stylesheets.
+    html_body = f"""\
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify your email address</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f1f5f9; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f1f5f9; padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px; background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 10px rgba(15,23,42,0.08);">
+          <tr>
+            <td style="background-color:#0f172a; padding:28px 32px;">
+              <span style="color:#ffffff; font-size:20px; font-weight:800; letter-spacing:0.02em;">ConvertPro</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <h1 style="margin:0 0 12px; font-size:20px; font-weight:700; color:#0f172a;">Verify your email address</h1>
+              <p style="margin:0 0 24px; font-size:14px; line-height:1.6; color:#475569;">
+                Thanks for registering! Use the verification code below to complete your registration. This code is valid for <strong>{expiration_minutes} minutes</strong>.
+              </p>
+              <div style="margin:0 0 24px; padding:20px; background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; text-align:center;">
+                <span style="display:inline-block; font-family:'Courier New',Courier,monospace; font-size:32px; font-weight:800; letter-spacing:8px; color:#ea580c;">{verification_code}</span>
+              </div>
+              <p style="margin:0 0 8px; font-size:13px; line-height:1.6; color:#64748b;">
+                If you didn't request this, you can safely ignore this email — no account will be created.
+              </p>
+              <p style="margin:0; font-size:13px; line-height:1.6; color:#64748b;">
+                For your security, never share this code with anyone, including ConvertPro support.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px; background-color:#f8fafc; border-top:1px solid #e2e8f0;">
+              <p style="margin:0; font-size:12px; color:#94a3b8;">This is an automated message — please don't reply to this email.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+"""
+
+    # Attach plain text first, HTML last — for multipart/alternative, clients
+    # render the *last* part they support, so HTML must come after plain text.
+    message.attach(MIMEText(text_body, "plain"))
+    message.attach(MIMEText(html_body, "html"))
 
     _deliver_message(config, [to_email], message, "verification email")
 
