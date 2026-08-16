@@ -514,7 +514,7 @@ export default function PdfPageRemover({
     <div className="space-y-6">
       <SectionCard
         title="Upload and Configure"
-        description="Choose a PDF, preview it here in this same section, mark pages to remove, then download the updated file."
+        description="Choose a PDF, mark pages to remove, then download the updated file."
       >
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,0.9fr)]">
           <div className="space-y-4">
@@ -533,15 +533,6 @@ export default function PdfPageRemover({
               />
             </label>
 
-            <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4 dark:border-primary/20 dark:bg-primary/10">
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                Preview comes first
-              </p>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                After you choose a PDF, the preview and remove-page tools will appear right here. Mark the pages you want to remove, then convert.
-              </p>
-            </div>
-
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
               <label className="flex items-start gap-3">
                 <input
@@ -556,7 +547,7 @@ export default function PdfPageRemover({
                     Remove blank pages too
                   </span>
                   <span className="mt-1 block text-sm text-slate-500">
-                    Use this if the PDF contains extra empty pages in addition to the pages you mark manually.
+                    Also strips empty pages found anywhere in the PDF.
                   </span>
                 </span>
               </label>
@@ -631,14 +622,14 @@ export default function PdfPageRemover({
             {message.text}
           </div>
         ) : null}
-        <div className="mt-6 rounded-[18px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950/50">
+        <div className="mt-6 rounded-[18px] border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
                 Preview and Remove Pages
               </h3>
               <p className="mt-1 text-sm text-slate-500">
-                Review the PDF here, use Next for more pages, and click the cross icon to remove the current page.
+                Click the cross icon to remove the current page.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -750,10 +741,7 @@ export default function PdfPageRemover({
                 {pageJumpList.length > 0 ? (
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                      Remove Page Section
-                    </p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Jump to a page or mark it for removal.
+                      Jump to a page
                     </p>
                     <div className="mt-4 flex max-h-56 flex-wrap gap-2 overflow-auto">
                       {pageJumpList.map((pageNumber) => {
@@ -792,7 +780,7 @@ export default function PdfPageRemover({
       {resultPreviewUrl ? (
         <SectionCard
           title="Updated PDF Preview"
-          description="The updated file is ready and has already started downloading. You can still preview it here and download it again if needed."
+          description="Your download has started. Preview or download it again below."
           action={
             <a
               href={resultPreviewUrl}
