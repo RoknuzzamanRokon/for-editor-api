@@ -9,6 +9,7 @@ import { formatProfileName } from '@/lib/profileName'
 import { formatRoleLabel } from '@/lib/roleLabel'
 import { publishAccountSettingsCache, readAccountSettingsCache } from '@/lib/accountSettingsCache'
 import { useVisibleNavItems } from '@/lib/useAllowedPaths'
+import { getBasePathForRole } from '@/lib/roleBasePath'
 
 type SidebarSettingsPayload = {
   identity: {
@@ -46,16 +47,26 @@ function normalizeSidebarSettings(payload: unknown) {
   }
 }
 
-const navItems = [
-  { label: 'Dashboard', href: '/user/dashboard', icon: 'dashboard' },
-  { label: 'App Center', href: '/user/app-center', icon: 'apps' },
-  { label: 'Profile', href: '/user/profile', icon: 'person' },
-  { label: 'Points', href: '/user/points', icon: 'toll' },
-  { label: 'Usage History', href: '/user/usage-history', icon: 'query_stats' },
-  { label: 'Billing', href: '/user/billing', icon: 'credit_card' },
-  { label: 'Notifications', href: '/user/notifications', icon: 'notifications' },
-  { label: 'Settings', href: '/user/settings', icon: 'settings' },
+const NAV_ITEM_DEFS = [
+  { label: 'Dashboard', path: 'dashboard', icon: 'dashboard' },
+  { label: 'App Center', path: 'app-center', icon: 'apps' },
+  { label: 'Profile', path: 'profile', icon: 'person' },
+  { label: 'Points', path: 'points', icon: 'toll' },
+  { label: 'Usage History', path: 'usage-history', icon: 'query_stats' },
+  { label: 'Billing', path: 'billing', icon: 'credit_card' },
+  { label: 'Notifications', path: 'notifications', icon: 'notifications' },
+  { label: 'Settings', path: 'settings', icon: 'settings' },
 ]
+
+/** Same nav for every role sharing this sidebar — just rooted under
+ *  whichever URL space (/user, /demo-user) that role actually lives in. */
+function buildNavItems(basePath: string) {
+  return NAV_ITEM_DEFS.map((item) => ({
+    label: item.label,
+    icon: item.icon,
+    href: `${basePath}/${item.path}`,
+  }))
+}
 
 export default function UserSidebar({
   collapsed = false,
@@ -69,7 +80,6 @@ export default function UserSidebar({
   onCloseMobileMenu: () => void;
 }) {
   const pathname = usePathname()
-  const visibleNavItems = useVisibleNavItems(navItems)
   const [pointsBalance, setPointsBalance] = useState<number | null>(null)
   const [account, setAccount] = useState<{
     username?: string | null;
@@ -78,6 +88,17 @@ export default function UserSidebar({
     avatarKey?: AvatarKey;
   } | null>(null)
   const compactDesktop = collapsed && !mobileOpen
+
+  // Falls back to whatever URL space we're already on (rather than a fixed
+  // role default) so the nav doesn't flash /user links for a demo account
+  // mid-load, then jump to /demo-user once the account settings arrive.
+  const basePath = account?.role
+    ? getBasePathForRole(account.role)
+    : pathname?.startsWith('/demo-user')
+      ? '/demo-user'
+      : '/user'
+  const navItems = buildNavItems(basePath)
+  const visibleNavItems = useVisibleNavItems(navItems)
 
   useEffect(() => {
     const token = window.localStorage.getItem('access_token')
@@ -144,17 +165,18 @@ export default function UserSidebar({
   const displayName = formatProfileName(account?.username, account?.email || 'User')
   const roleLabel = formatRoleLabel(account?.role || 'general_user')
 
+  const displayPoints = pointsBalance !== null ? pointsBalance.toLocaleString() : '--'
+
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-[min(20rem,calc(100vw-1rem))] flex-col overflow-hidden border-r border-white/30 bg-white/50 pt-0 shadow-[0_20px_80px_rgba(15,23,42,0.18)] backdrop-blur-2xl transition-transform duration-300 lg:z-20 lg:h-screen lg:translate-x-0 lg:pt-16 lg:transition-all dark:border-white/10 dark:bg-slate-950/55 ${
+      className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-72 max-w-[calc(100vw-2rem)] flex-col overflow-hidden border-r border-slate-200 bg-white pt-0 transition-transform duration-300 lg:z-20 lg:h-screen lg:translate-x-0 lg:pt-16 lg:transition-all dark:border-slate-800 dark:bg-slate-900 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full"
       } ${
-        collapsed ? "lg:w-20" : "lg:w-72"
+        collapsed ? "lg:w-16" : "lg:w-64"
       }`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.55),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.16),transparent_32%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.09),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.16),transparent_34%)]" />
-      <div className="relative flex flex-col lg:hidden">
-        <div className="flex items-center justify-between border-b border-white/30 px-4 py-4 dark:border-white/10">
+      <div className="flex flex-col lg:hidden">
+        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 dark:border-slate-800">
           <div>
             <p className="text-sm font-bold text-slate-900 dark:text-white">User Navigation</p>
             <p className="text-xs text-slate-500">Menu and account</p>
@@ -162,21 +184,21 @@ export default function UserSidebar({
           <button
             type="button"
             onClick={onCloseMobileMenu}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
             aria-label="Close navigation menu"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
-        <div className="border-b border-white/25 px-4 py-4 dark:border-white/10">
-          <div className="rounded-[28px] border border-white/35 bg-white/45 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.12)] backdrop-blur dark:border-white/10 dark:bg-white/5">
+        <div className="border-b border-slate-200 px-4 py-4 dark:border-slate-800">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
             <div className="flex items-center gap-3">
               <AvatarBadge avatarKey={account?.avatarKey} size="md" />
               <div className="min-w-0">
                 <p className="truncate text-base font-black tracking-tight text-slate-900 dark:text-white">
                   {displayName}
                 </p>
-                <p className="mt-1 inline-flex rounded-full border border-primary/15 bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+                <p className="mt-1 inline-flex rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white">
                   {roleLabel}
                 </p>
               </div>
@@ -187,34 +209,35 @@ export default function UserSidebar({
           </div>
         </div>
       </div>
-      <div className={`relative hidden pt-4 lg:flex ${compactDesktop ? "justify-center px-2" : "justify-end px-4"}`}>
+      <div className={`hidden pt-4 lg:flex ${compactDesktop ? "justify-center px-2" : "justify-end px-4"}`}>
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="mb-2 flex items-center justify-center rounded-xl border border-white/35 bg-white/45 p-2 text-slate-600 transition hover:bg-white/70 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
+          className="mb-2 flex items-center justify-center rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
           title="Toggle sidebar"
         >
-          <span className="material-symbols-outlined">
+          <span className="material-symbols-outlined text-lg">
             {collapsed ? "keyboard_double_arrow_right" : "keyboard_double_arrow_left"}
           </span>
         </button>
       </div>
-      <nav className={`relative flex flex-col gap-2 py-4 ${compactDesktop ? "px-2" : "px-4"}`}>
+
+      <nav className={`flex flex-col gap-1 py-4 ${compactDesktop ? "px-2" : "px-3"}`}>
         {visibleNavItems.map((item) => {
           const isActive =
-            item.href === '/user/dashboard'
-              ? pathname === '/user/dashboard'
+            item.href === `${basePath}/dashboard`
+              ? pathname === `${basePath}/dashboard`
               : pathname.startsWith(item.href.replace(/\/+$/, ''))
           const linkClasses = compactDesktop
-            ? `mx-auto flex h-12 w-12 items-center justify-center rounded-full px-0 py-0 ${
+            ? `mx-auto flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
                 isActive
-                  ? 'border border-primary/20 bg-white/80 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.18)] dark:border-primary/20 dark:bg-white/10'
-                  : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
+                  ? 'bg-slate-100 text-primary dark:bg-slate-800'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white'
               }`
-            : `flex items-center gap-3 rounded-2xl px-3 py-3 font-medium transition-all ${
+            : `relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                 isActive
-                  ? 'border border-primary/20 bg-white/70 text-primary shadow-[0_10px_30px_rgba(59,130,246,0.15)] dark:border-primary/20 dark:bg-white/10'
-                  : 'border border-transparent text-slate-700 hover:border-white/40 hover:bg-white/55 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/5'
+                  ? 'bg-slate-100 text-primary dark:bg-slate-800'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white'
               }`
 
           return (
@@ -225,36 +248,39 @@ export default function UserSidebar({
               onClick={onCloseMobileMenu}
               title={compactDesktop ? item.label : undefined}
             >
-              <span className="material-symbols-outlined shrink-0">{item.icon}</span>
+              {isActive && !compactDesktop ? (
+                <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
+              ) : null}
+              <span className="material-symbols-outlined shrink-0 text-[20px]">{item.icon}</span>
               {!compactDesktop ? <span className="truncate">{item.label}</span> : null}
             </Link>
           )
         })}
       </nav>
-      <div className="relative mt-auto border-t border-white/30 p-4 dark:border-white/10">
-        {compactDesktop ? (
-          <div className="flex justify-center pt-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-white/65 text-center text-[11px] font-black text-primary shadow-[0_12px_28px_rgba(59,130,246,0.18)] backdrop-blur dark:bg-white/10">
-              {pointsBalance ?? '--'}
-            </div>
-          </div>
-        ) : (
-          <div className="rounded-3xl border border-white/35 bg-white/55 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.10)] backdrop-blur dark:border-white/10 dark:bg-white/5">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-                  Current Points
-                </p>
-                <p className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
-                  {pointsBalance ?? '--'}
-                </p>
+
+      <div className="mt-auto border-t border-slate-200 p-3 dark:border-slate-800">
+        <div
+          className={`${
+            compactDesktop
+              ? "mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-[10px] font-bold text-primary dark:bg-slate-800"
+              : "rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
+          }`}
+        >
+          {compactDesktop ? (
+            <span>{displayPoints}</span>
+          ) : (
+            <>
+              <div className="mb-2 flex justify-between text-xs font-bold">
+                <span>AVAILABLE POINT</span>
+                <span>{displayPoints}</span>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-white/70 text-primary shadow-[0_10px_25px_rgba(59,130,246,0.16)] backdrop-blur dark:bg-white/10">
-                <span className="material-symbols-outlined">toll</span>
+              <div className="mb-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+                <div className="h-1.5 w-full rounded-full bg-primary" />
               </div>
-            </div>
-          </div>
-        )}
+              <p className="text-[10px] uppercase text-slate-500">Points available to spend</p>
+            </>
+          )}
+        </div>
       </div>
     </aside>
   )

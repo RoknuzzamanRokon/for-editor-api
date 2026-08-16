@@ -1,16 +1,9 @@
 "use client";
 
 import { startTransition, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-const PREFETCH_ROUTES = [
-  "/user/dashboard",
-  "/user/points",
-  "/user/profile",
-  "/user/app-center",
-  "/user/billing",
-  "/user/settings",
-];
+const PREFETCH_PATHS = ["dashboard", "points", "profile", "app-center", "billing", "settings"];
 
 export default function UserClientNavigation({
   children,
@@ -18,10 +11,12 @@ export default function UserClientNavigation({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const basePath = pathname?.startsWith("/demo-user") ? "/demo-user" : "/user";
 
   useEffect(() => {
-    PREFETCH_ROUTES.forEach((route) => {
-      router.prefetch(route);
+    PREFETCH_PATHS.forEach((path) => {
+      router.prefetch(`${basePath}/${path}`);
     });
 
     const handleClick = (event: MouseEvent) => {
@@ -77,7 +72,7 @@ export default function UserClientNavigation({
     return () => {
       document.removeEventListener("click", handleClick);
     };
-  }, [router]);
+  }, [router, basePath]);
 
   return <>{children}</>;
 }

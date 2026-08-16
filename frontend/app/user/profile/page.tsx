@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { formatRoleLabel } from "@/lib/roleLabel";
 import { API_BASE } from "@/lib/apiBase";
@@ -153,6 +154,8 @@ function StatCard({
 }
 
 export default function DashboardProfilePage() {
+  const pathname = usePathname();
+  const basePath = pathname?.startsWith("/demo-user") ? "/demo-user" : "/user";
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [me, setMe] = useState<MeResponse | null>(null);
@@ -598,7 +601,7 @@ export default function DashboardProfilePage() {
                   {activeApis.map((item) => (
                     <Link
                       key={item.action}
-                      href={`/user/app-center/edit/${toEditSlug(item.action)}`}
+                      href={`${basePath}/app-center/edit/${toEditSlug(item.action)}`}
                       className="group block rounded-2xl border border-border bg-white/40 p-4 [box-shadow:4px_4px_0px_0px_var(--border)] transition duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:bg-white/5 dark:focus-visible:ring-offset-slate-900"
                     >
                       <div className="flex items-start justify-between gap-3">

@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SplashCursor from "@/components/SplashCursor";
 import { API_BASE } from "@/lib/apiBase";
+import { getBasePathForRole } from "@/lib/roleBasePath";
 
 function SparklesIcon({ className = "" }: { className?: string }) {
   return (
@@ -143,9 +144,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const defaultRouteForRole = (role?: string | null) =>
-    role === "general_user" || role === "demo_user"
-      ? "/user/app-center"
-      : "/admin/app-center";
+    `${getBasePathForRole(role)}/app-center`;
 
   useEffect(() => {
     const prevHtmlOverflow = document.documentElement.style.overflow;

@@ -103,5 +103,7 @@ export function isPathAllowed(
 
 /** Where to send someone bounced off a page they may not open. */
 export function fallbackPathForArea(pathname: string) {
-  return pathname.startsWith("/admin") ? "/admin/dashboard" : "/user/dashboard";
+  if (pathname.startsWith("/admin")) return "/admin/dashboard";
+  if (pathname.startsWith("/demo-user")) return "/demo-user/dashboard";
+  return "/user/dashboard";
 }

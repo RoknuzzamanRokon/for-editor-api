@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -139,6 +139,9 @@ const YAMLViewer = dynamic(() => import("@/components/viewers/YAMLViewer"), {
 export default function ViewerPage() {
   const params = useParams();
   const viewer = params.viewer as string;
+  const pathname = usePathname();
+  const basePath = pathname?.startsWith("/demo-user") ? "/demo-user" : "/user";
+  const appCenterHref = `${basePath}/app-center`;
 
   const viewerNames: Record<string, string> = {
     pdf_reader: "PDF Reader",
@@ -178,7 +181,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -204,7 +207,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -230,7 +233,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -256,7 +259,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -282,7 +285,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -308,7 +311,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -334,7 +337,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -360,7 +363,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -386,7 +389,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -412,7 +415,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -438,7 +441,7 @@ export default function ViewerPage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between">
             <Link
-              href="/user/app-center"
+              href={appCenterHref}
               className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
@@ -463,7 +466,7 @@ export default function ViewerPage() {
       <div className="mx-auto w-full max-w-4xl">
         <div className="mb-6">
           <Link
-            href="/user/app-center"
+            href={appCenterHref}
             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary"
           >
             <span className="material-symbols-outlined text-lg">arrow_back</span>

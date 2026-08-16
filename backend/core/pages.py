@@ -200,11 +200,17 @@ class PageNotPermittedError(Exception):
         self.page_key = page_key
 
 
-def _serialize(page_key: str, definition: dict) -> dict:
+def _serialize(page_key: str, definition: dict, role: Optional[RoleEnum] = None) -> dict:
+    path = definition["path"]
+    # demo_user shares the dashboard registry with general_user, but lives
+    # under its own /demo-user URL space so the two are never mixed up.
+    if role == RoleEnum.demo_user and path.startswith("/user/"):
+        path = "/demo-user/" + path[len("/user/"):]
+
     return {
         "page_key": page_key,
         "label": definition["label"],
-        "path": definition["path"],
+        "path": path,
         "area": definition["area"],
         "icon": definition["icon"],
         "locked": bool(definition["locked"]),
@@ -215,7 +221,7 @@ def _serialize(page_key: str, definition: dict) -> dict:
 def list_pages(role: Optional[RoleEnum] = None) -> List[dict]:
     """Every page in the registry, optionally narrowed to one role's areas."""
     return [
-        _serialize(page_key, definition)
+        _serialize(page_key, definition, role)
         for page_key, definition in PAGE_REGISTRY.items()
         if role is None or role in definition["roles"]
     ]

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/apiBase";
 import { authFetch } from "@/lib/authFetch";
 
@@ -182,6 +182,8 @@ function getShortName(action: string, fallbackLabel: string) {
 
 export default function DashboardAppCenterPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const basePath = pathname?.startsWith("/demo-user") ? "/demo-user" : "/user";
   const [actions, setActions] = useState<ActionItem[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -226,9 +228,9 @@ export default function DashboardAppCenterPage() {
 
   useEffect(() => {
     actions.slice(0, 24).forEach((item) => {
-      router.prefetch(`/user/app-center/edit/${toEditSlug(item.action)}`);
+      router.prefetch(`${basePath}/app-center/edit/${toEditSlug(item.action)}`);
     });
-  }, [actions, router]);
+  }, [actions, router, basePath]);
 
   const groupedActions = useMemo(() => {
     const groups = new Map<ToolCategoryId, ActionItem[]>();
@@ -301,7 +303,7 @@ export default function DashboardAppCenterPage() {
                     </div>
                     <div className="grid grid-cols-3 gap-6 lg:grid-cols-5">
                       {section.items.map((item) => {
-                        const editHref = `/user/app-center/edit/${toEditSlug(item.action)}`;
+                        const editHref = `${basePath}/app-center/edit/${toEditSlug(item.action)}`;
 
                         return (
                           <div key={item.action} className="flex flex-col items-center gap-2">
@@ -354,7 +356,7 @@ export default function DashboardAppCenterPage() {
                 { action: 'text_reader', label: 'Text/Code Viewer', icon: 'terminal' },
                 { action: 'yaml_reader', label: 'YAML Viewer', icon: 'list_alt' },
               ].map((item) => {
-                const viewHref = `/user/app-center/view/${item.action}`;
+                const viewHref = `${basePath}/app-center/view/${item.action}`;
                 
                 return (
                   <div key={item.action} className="flex flex-col items-center gap-2">

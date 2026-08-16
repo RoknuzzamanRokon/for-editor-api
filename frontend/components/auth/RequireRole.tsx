@@ -6,6 +6,7 @@ import { API_BASE } from "@/lib/apiBase";
 import RouteLoadingContent from "@/components/ui/RouteLoadingContent";
 import UserShell from "@/components/user/UserShell";
 import AdminShell from "@/components/admin/AdminShell";
+import { getBasePathForRole } from "@/lib/roleBasePath";
 
 type Role = "super_user" | "admin" | "admin_user" | "general_user" | string;
 type RefreshTokenResponse = {
@@ -14,7 +15,7 @@ type RefreshTokenResponse = {
 };
 
 function defaultRouteForRole(role: Role) {
-  return role === "general_user" || role === "demo_user" ? "/user/dashboard" : "/admin/dashboard";
+  return `${getBasePathForRole(role)}/dashboard`;
 }
 
 async function fetchMe(token: string) {
@@ -147,7 +148,7 @@ export default function RequireRole({
   }, [allow, pathname, router]);
 
   if (!ready) {
-    if ((pathname || "").startsWith("/user")) {
+    if ((pathname || "").startsWith("/user") || (pathname || "").startsWith("/demo-user")) {
       return (
         <UserShell>
           <RouteLoadingContent label="Dashboard workspace" titleWidth="w-72" />

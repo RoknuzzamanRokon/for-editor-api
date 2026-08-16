@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import EditableDocxPreview from "@/components/app-center/EditableDocxPreview";
 import ExcelWorkbookPreview from "@/components/app-center/ExcelWorkbookPreview";
 import RemoveBackgroundStudio from "@/components/app-center/RemoveBackgroundStudio";
@@ -394,6 +395,8 @@ function SectionCard({
 }
 
 export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
+  const pathname = usePathname();
+  const basePath = pathname?.startsWith("/demo-user") ? "/demo-user" : "/user";
   const [file, setFile] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
@@ -811,7 +814,7 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
     <div className="w-full max-w-none space-y-8 p-6 md:p-8">
       <div className="flex flex-col gap-4">
         <Link
-          href="/user/app-center"
+          href={`${basePath}/app-center`}
           className="inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
         >
           <span className="material-symbols-outlined text-base">
