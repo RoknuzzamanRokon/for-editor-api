@@ -343,8 +343,11 @@ export default function AdminUsersPage() {
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
   const [resetPasswordError, setResetPasswordError] = useState("");
+  const [resetPasswordSuccess, setResetPasswordSuccess] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const [selectedUserDetails, setSelectedUserDetails] =
     useState<UserDetails | null>(null);
   const [form, setForm] = useState({
@@ -602,6 +605,9 @@ export default function AdminUsersPage() {
     setNewPassword("");
     setConfirmNewPassword("");
     setResetPasswordError("");
+    setResetPasswordSuccess("");
+    setIsNewPasswordVisible(false);
+    setIsConfirmPasswordVisible(false);
     setShowResetPassword(true);
   };
 
@@ -642,9 +648,9 @@ export default function AdminUsersPage() {
         throw new Error(body || "Failed to reset password");
       }
 
-      setShowResetPassword(false);
       setNewPassword("");
       setConfirmNewPassword("");
+      setResetPasswordSuccess(`Password reset for ${selectedUserDetails.email}.`);
       setCreateSuccess(`Password reset for ${selectedUserDetails.email}.`);
     } catch (err: unknown) {
       setResetPasswordError(
@@ -1325,7 +1331,12 @@ export default function AdminUsersPage() {
               </button>
             </div>
 
-            {resetPasswordError ? (
+            {resetPasswordSuccess ? (
+              <div className="relative mt-4 flex items-center gap-2 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 backdrop-blur-md dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300">
+                <span className="material-symbols-outlined text-base">check_circle</span>
+                {resetPasswordSuccess}
+              </div>
+            ) : resetPasswordError ? (
               <div className="relative mt-4 rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 backdrop-blur-md dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
                 {resetPasswordError}
               </div>
@@ -1336,26 +1347,52 @@ export default function AdminUsersPage() {
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   New Password
                 </label>
-                <GlassInput
-                  type="password"
-                  autoComplete="new-password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="At least 8 characters"
-                />
+                <div className="relative">
+                  <GlassInput
+                    type={isNewPasswordVisible ? "text" : "password"}
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="At least 8 characters"
+                    className="pr-11"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsNewPasswordVisible((prev) => !prev)}
+                    aria-label={isNewPasswordVisible ? "Hide password" : "Show password"}
+                    className="absolute inset-y-0 right-1 flex items-center px-2 text-slate-400 transition hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200"
+                  >
+                    <span className="material-symbols-outlined text-lg">
+                      {isNewPasswordVisible ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Confirm New Password
                 </label>
-                <GlassInput
-                  type="password"
-                  autoComplete="new-password"
-                  value={confirmNewPassword}
-                  onChange={(e) => setConfirmNewPassword(e.target.value)}
-                  placeholder="Re-enter the new password"
-                />
+                <div className="relative">
+                  <GlassInput
+                    type={isConfirmPasswordVisible ? "text" : "password"}
+                    autoComplete="new-password"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    placeholder="Re-enter the new password"
+                    className="pr-11"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsConfirmPasswordVisible((prev) => !prev)}
+                    aria-label={isConfirmPasswordVisible ? "Hide password" : "Show password"}
+                    className="absolute inset-y-0 right-1 flex items-center px-2 text-slate-400 transition hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200"
+                  >
+                    <span className="material-symbols-outlined text-lg">
+                      {isConfirmPasswordVisible ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1366,23 +1403,25 @@ export default function AdminUsersPage() {
                 className="rounded-xl border border-white/40 bg-white/60 px-4 py-2.5 text-sm font-bold text-slate-700 backdrop-blur-md disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/10 dark:text-slate-200"
                 type="button"
               >
-                Cancel
+                {resetPasswordSuccess ? "Done" : "Cancel"}
               </button>
-              <button
-                onClick={handleResetPassword}
-                disabled={
-                  resetPasswordLoading ||
-                  !newPassword ||
-                  !confirmNewPassword
-                }
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-base">
-                  lock_reset
-                </span>
-                {resetPasswordLoading ? "Resetting..." : "Reset Password"}
-              </button>
+              {resetPasswordSuccess ? null : (
+                <button
+                  onClick={handleResetPassword}
+                  disabled={
+                    resetPasswordLoading ||
+                    !newPassword ||
+                    !confirmNewPassword
+                  }
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                  type="button"
+                >
+                  <span className="material-symbols-outlined text-base">
+                    lock_reset
+                  </span>
+                  {resetPasswordLoading ? "Resetting..." : "Reset Password"}
+                </button>
+              )}
             </div>
           </div>
         </div>
