@@ -12,9 +12,11 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
+from core.permissions import ALLOWED_ACTIONS
+from core.points import get_user_balance
 from db.models import EmailVerificationSession
 from models.auth import DemoRegisterRequest
-from services.email import send_verification_email
+from services.email import send_registration_confirmation_email, send_verification_email
 
 
 def generate_verification_code() -> str:
@@ -259,13 +261,13 @@ def complete_registration(
         ...     # User account is now created and session is marked as used
     """
     # Import here to avoid circular dependency
-    from services.users import create_demo_self_registered_user
+    from services.users import DEMO_TRIAL_DAYS, create_demo_self_registered_user
     from db.models import User
-    
+
     # Step 1: Deserialize registration_data_json to DemoRegisterRequest
     # The JSON is stored as a dict, so we need to convert it back to the Pydantic model
     registration_data = DemoRegisterRequest(**session.registration_data_json)
-    
+
     # Step 2: Call existing create_demo_self_registered_user
     # This function handles all the user creation logic including:
     # - Checking for existing users
@@ -276,10 +278,28 @@ def complete_registration(
     # - Seeding permissions
     # - Assigning initial demo points
     user = create_demo_self_registered_user(db, registration_data)
-    
+
     # Step 3: Mark session as used to prevent reuse
     session.is_used = True
     db.commit()
-    
-    # Step 4: Return created user
+
+    # Step 4: Send a "your account is ready" summary email. This is a
+    # courtesy notification on top of an already-completed registration, so
+    # a failed send must never undo the account that was just created.
+    try:
+        send_registration_confirmation_email(
+            to_email=user.email,
+            username=user.username or user.email,
+            role_label=user.role.value.replace("_", " ").title(),
+            points_balance=get_user_balance(db, user.id),
+            selected_api_labels=[
+                ALLOWED_ACTIONS.get(action, action) for action in registration_data.selected_actions
+            ],
+            trial_days=DEMO_TRIAL_DAYS,
+            trial_expires_at=user.demo_expires_at,
+        )
+    except Exception:
+        pass
+
+    # Step 5: Return created user
     return user

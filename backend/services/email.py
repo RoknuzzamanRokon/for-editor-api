@@ -8,8 +8,10 @@ configuration from environment variables.
 import os
 import smtplib
 from dataclasses import dataclass
+from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from typing import Optional
 from fastapi import HTTPException
 
 
@@ -203,6 +205,129 @@ support.
     message.attach(MIMEText(html_body, "html"))
 
     _deliver_message(config, [to_email], message, "verification email")
+
+
+def send_registration_confirmation_email(
+    to_email: str,
+    username: str,
+    role_label: str,
+    points_balance: int,
+    selected_api_labels: list[str],
+    trial_days: Optional[int] = None,
+    trial_expires_at: Optional[datetime] = None,
+) -> None:
+    """
+    Send a "registration complete" summary email once an account has
+    actually been created — covers the account's role, trial window (for
+    demo accounts), the APIs it was set up with, and its current point
+    balance, so the new user has all of it in one place.
+
+    This is a courtesy notification, not a required step: call sites should
+    swallow any exception from this rather than let a failed email undo an
+    already-completed registration.
+
+    Raises:
+        HTTPException: If email sending fails
+    """
+    config = get_email_config()
+
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Your ConvertPro account is ready"
+    message["From"] = config.from_email
+    message["To"] = to_email
+
+    trial_line_text = ""
+    trial_row_html = ""
+    if trial_days is not None and trial_expires_at is not None:
+        expires_label = trial_expires_at.strftime("%B %d, %Y")
+        trial_line_text = f"Trial period: {trial_days} days (expires {expires_label})\n"
+        trial_row_html = f"""
+              <tr>
+                <td style="padding:10px 0; font-size:13px; color:#64748b; width:140px;">Trial period</td>
+                <td style="padding:10px 0; font-size:13px; color:#0f172a; font-weight:600;">{trial_days} days &mdash; expires {expires_label}</td>
+              </tr>"""
+
+    apis_text = "\n".join(f"  - {label}" for label in selected_api_labels) or "  (none selected)"
+    apis_html = "".join(
+        f'<span style="display:inline-block; margin:0 6px 6px 0; padding:5px 12px; background-color:#f1f5f9; border:1px solid #e2e8f0; border-radius:999px; font-size:12px; font-weight:600; color:#0f172a;">{label}</span>'
+        for label in selected_api_labels
+    ) or '<span style="font-size:13px; color:#94a3b8;">No APIs selected</span>'
+
+    text_body = f"""Your account is ready
+
+Hi {username},
+
+Your ConvertPro registration is complete. Here's a summary of your account:
+
+Account type: {role_label}
+{trial_line_text}Available points: {points_balance}
+Selected APIs:
+{apis_text}
+
+You can sign in and start converting files right away.
+"""
+
+    html_body = f"""\
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your ConvertPro account is ready</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f1f5f9; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f1f5f9; padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px; background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 10px rgba(15,23,42,0.08);">
+          <tr>
+            <td style="background-color:#0f172a; padding:28px 32px;">
+              <span style="color:#ffffff; font-size:20px; font-weight:800; letter-spacing:0.02em;">ConvertPro</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <h1 style="margin:0 0 12px; font-size:20px; font-weight:700; color:#0f172a;">Your account is ready, {username} 🎉</h1>
+              <p style="margin:0 0 24px; font-size:14px; line-height:1.6; color:#475569;">
+                Thanks for registering with ConvertPro! Your account has been created — here's a summary of what's on it.
+              </p>
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px; padding:4px 20px; background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;">
+                <tr>
+                  <td style="padding:10px 0; font-size:13px; color:#64748b; width:140px;">Account type</td>
+                  <td style="padding:10px 0; font-size:13px; color:#0f172a; font-weight:600;">{role_label}</td>
+                </tr>{trial_row_html}
+                <tr>
+                  <td style="padding:10px 0; font-size:13px; color:#64748b; width:140px; border-top:1px solid #e2e8f0;">Available points</td>
+                  <td style="padding:10px 0; font-size:13px; color:#ea580c; font-weight:800; border-top:1px solid #e2e8f0;">{points_balance} points</td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 8px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#64748b;">Selected APIs</p>
+              <div style="margin:0 0 24px;">{apis_html}</div>
+
+              <p style="margin:0; font-size:13px; line-height:1.6; color:#64748b;">
+                You can sign in now and start converting files right away.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px; background-color:#f8fafc; border-top:1px solid #e2e8f0;">
+              <p style="margin:0; font-size:12px; color:#94a3b8;">This is an automated message — please don't reply to this email.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+"""
+
+    message.attach(MIMEText(text_body, "plain"))
+    message.attach(MIMEText(html_body, "html"))
+
+    _deliver_message(config, [to_email], message, "registration confirmation email")
 
 
 def send_contact_request_email(
