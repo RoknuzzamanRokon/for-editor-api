@@ -201,7 +201,11 @@ function GlassSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`w-full rounded-2xl border border-border bg-transparent px-3 py-2 text-xs text-foreground outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/10 ${props.className ?? ""}`}
+      // `bg-transparent` looks fine on the closed box (the panel behind it shows
+      // through), but the native option list is a separate rendering layer that
+      // "transparent" never reaches — browsers paint it with a default white
+      // background instead. A real, theme-aware color here fixes both.
+      className={`w-full rounded-2xl border border-border bg-card px-3 py-2 text-xs text-foreground outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/10 [&>option]:bg-card [&>option]:text-foreground ${props.className ?? ""}`}
     />
   );
 }
