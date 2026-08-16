@@ -31,9 +31,14 @@ from models.points import (
     TopupPackagesResponse,
     TopupTarget,
 )
+from services.notifications import notify_users
 from services.users import get_user_by_id
 
 router = APIRouter(prefix="/points", tags=["points"])
+
+# A requester may have at most this many of their own topup requests sitting in
+# "pending" at once. Cancelling a pending request frees a slot immediately.
+MAX_PENDING_TOPUP_REQUESTS_PER_USER = 2
 
 
 def _ensure_admin_can_manage_user(current_user: User, target_user: User) -> None:
@@ -142,6 +147,25 @@ def create_topup_request(
             detail="Users can only request topups for their own account",
         )
 
+    # Cap concurrent pending requests per requester. Cancelling one frees a slot
+    # immediately, since cancellation flips status away from "pending" below.
+    pending_count = (
+        db.query(PointsTopupRequestModel)
+        .filter(
+            PointsTopupRequestModel.created_by_user_id == current_user.id,
+            PointsTopupRequestModel.status == "pending",
+        )
+        .count()
+    )
+    if pending_count >= MAX_PENDING_TOPUP_REQUESTS_PER_USER:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"You already have {MAX_PENDING_TOPUP_REQUESTS_PER_USER} pending top-up "
+                "requests. Cancel one before sending another."
+            ),
+        )
+
     # Commercial terms come from the catalogue, never from the client — a request
     # body can pick a package but can't invent its price or its point value.
     terms = resolve_package(payload.package_key, payload.price_cents)
@@ -185,6 +209,23 @@ def create_topup_request(
         created_by_user_id=current_user.id,
     )
     db.add(request)
+
+    # Let the fulfiller know a new request is waiting on them, in the same
+    # transaction as the request itself — same pattern admin.py's reject path uses.
+    notify_users(
+        db,
+        user_ids=[requested_admin.id],
+        title="New top-up request",
+        message=(
+            f"{current_user.username or current_user.email} requested "
+            f"{terms['points']:,} points"
+            + (f" for {target_user.username or target_user.email}" if target_user.id != current_user.id else "")
+            + "."
+        ),
+        category="info",
+        sender_user_id=current_user.id,
+    )
+
     db.commit()
     db.refresh(request)
     return PointsTopupRequestEntry.model_validate(request)

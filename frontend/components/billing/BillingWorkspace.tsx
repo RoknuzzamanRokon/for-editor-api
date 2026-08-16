@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { API_BASE } from "@/lib/apiBase";
 import { formatRoleLabel } from "@/lib/roleLabel";
+// Mirrors MAX_PENDING_TOPUP_REQUESTS_PER_USER in backend/api/v3/endpoints/points.py —
+// the server is the source of truth, this only lets the UI pre-empt the 400.
+const MAX_PENDING_TOPUP_REQUESTS = 2;
 const POINT_ACTIVITY_CHART_WIDTH = 1920;
 const POINT_ACTIVITY_CHART_HEIGHT = 240;
 const POINT_ACTIVITY_CHART_PADDING = { top: 16, right: 18, bottom: 34, left: 18 };
@@ -360,6 +363,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
     () => requests?.items.filter((entry) => entry.status === "pending").length ?? 0,
     [requests],
   );
+  const pendingLimitReached = pendingRequests >= MAX_PENDING_TOPUP_REQUESTS;
 
   // Routing is resolved server-side from who created the account, so this copy
   // explains where the request lands rather than asking for an admin ID.
@@ -641,9 +645,16 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
               <span className={`ml-2 text-sm font-semibold ${MUTED_FG}`}>points</span>
             </p>
             {pendingRequests > 0 ? (
-              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-200/70 bg-amber-50/80 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
+              <p
+                className={`mt-2 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
+                  pendingLimitReached
+                    ? "border-rose-200/70 bg-rose-50/80 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
+                    : "border-amber-200/70 bg-amber-50/80 text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300"
+                }`}
+              >
                 <span className="material-symbols-outlined text-[14px]">schedule</span>
                 {pendingRequests} request{pendingRequests === 1 ? "" : "s"} pending
+                {pendingLimitReached ? " — cancel one to send another" : ""}
               </p>
             ) : null}
           </div>
@@ -651,10 +662,12 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
           <button
             type="button"
             onClick={() => setShowTopupModal(true)}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 active:scale-[0.99]"
+            disabled={pendingLimitReached}
+            title={pendingLimitReached ? "Cancel a pending request before sending another." : undefined}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-base">add</span>
-            New Top-up Request
+            {pendingLimitReached ? "Pending Limit Reached" : "New Top-up Request"}
           </button>
         </div>
 
@@ -943,6 +956,11 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                 {/* min-h-0 lets this flex child shrink below its content height —
                     without it the overflow never engages. */}
                 <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6">
+                {pendingLimitReached && (
+                  <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+                    You already have {MAX_PENDING_TOPUP_REQUESTS} pending requests. Cancel one below before sending another.
+                  </div>
+                )}
                 {requestError && (
                   <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
                     {requestError}
@@ -1120,7 +1138,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                       await handleCreateRequest();
                       if (!requestError) setShowTopupModal(false);
                     }}
-                    disabled={requestLoading || belowMinimum}
+                    disabled={requestLoading || belowMinimum || pendingLimitReached}
                     className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-bold text-white shadow-lg transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {requestLoading ? "Submitting..." : "Submit Request"}
