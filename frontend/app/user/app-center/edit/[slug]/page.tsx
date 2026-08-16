@@ -230,6 +230,24 @@ const PDF_PREVIEW_FRAME_CLASS =
   "h-[88vh] min-h-[546px] w-full rounded-2xl border border-slate-200 bg-white dark:border-slate-800 sm:h-[1120px]";
 const IMAGE_PREVIEW_CLASS = "max-h-[936px] w-full rounded-xl object-contain";
 
+/** Moves one item to a new index, returning a new array (or the same reference
+ *  when the move is a no-op, so React can skip the re-render). */
+function moveItem<T>(list: T[], from: number, to: number): T[] {
+  if (
+    from === to ||
+    from < 0 ||
+    to < 0 ||
+    from >= list.length ||
+    to >= list.length
+  ) {
+    return list;
+  }
+  const next = list.slice();
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+}
+
 function formatTitleFromSlug(slug: string) {
   return slug
     .split("-")
@@ -408,6 +426,12 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [isImageDragActive, setIsImageDragActive] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const imagePreviewCache = useRef<Map<File, string>>(new Map());
+  // Index of the tile currently being dragged, or null when idle.
+  const [imageDragIndex, setImageDragIndex] = useState<number | null>(null);
+  const imageTileRefs = useRef<Array<HTMLDivElement | null>>([]);
+  // Set after a keyboard move so focus follows the tile to its new position.
+  const pendingTileFocus = useRef<number | null>(null);
   const [mergeFiles, setMergeFiles] = useState<File[]>([]);
   const mergeInputRef = useRef<HTMLInputElement | null>(null);
   const [zipFiles, setZipFiles] = useState<File[]>([]);
@@ -460,13 +484,82 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
     };
   }, [preview]);
 
+  // Previews are keyed by the File itself, not by position. Reordering rewrites
+  // the array on every tile crossed during a drag; regenerating object URLs each
+  // time would make every thumbnail blink and leak the old blobs.
   useEffect(() => {
-    const urls = imageFiles.map((imageFile) => URL.createObjectURL(imageFile));
-    setImagePreviewUrls(urls);
-    return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
-    };
+    const cache = imagePreviewCache.current;
+    let changed = false;
+
+    for (const imageFile of imageFiles) {
+      if (!cache.has(imageFile)) {
+        cache.set(imageFile, URL.createObjectURL(imageFile));
+        changed = true;
+      }
+    }
+
+    const stillSelected = new Set(imageFiles);
+    // Array.from rather than iterating the Map directly — this tsconfig targets
+    // below ES2015 downlevel iteration.
+    Array.from(cache.entries()).forEach(([cachedFile, url]) => {
+      if (!stillSelected.has(cachedFile)) {
+        URL.revokeObjectURL(url);
+        cache.delete(cachedFile);
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      setImagePreviewUrls(imageFiles.map((f) => cache.get(f) ?? ""));
+    } else {
+      setImagePreviewUrls((prev) => {
+        const next = imageFiles.map((f) => cache.get(f) ?? "");
+        return prev.length === next.length && prev.every((u, i) => u === next[i])
+          ? prev
+          : next;
+      });
+    }
   }, [imageFiles]);
+
+  // Revoke everything once, on unmount — not per change, or a reorder would
+  // pull the URLs out from under the tiles that are still showing them.
+  useEffect(() => {
+    const cache = imagePreviewCache.current;
+    return () => {
+      cache.forEach((url) => URL.revokeObjectURL(url));
+      cache.clear();
+    };
+  }, []);
+
+  // A keyboard move rebuilds the grid, so re-focus the tile at its new index —
+  // otherwise focus falls back to <body> and the next arrow key does nothing.
+  useEffect(() => {
+    if (pendingTileFocus.current === null) return;
+    imageTileRefs.current[pendingTileFocus.current]?.focus();
+    pendingTileFocus.current = null;
+  }, [imageFiles]);
+
+  /** Which tile is under this point, if any. */
+  const imageTileIndexAtPoint = (clientX: number, clientY: number) => {
+    for (let i = 0; i < imageTileRefs.current.length; i += 1) {
+      const el = imageTileRefs.current[i];
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      if (
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom
+      ) {
+        return i;
+      }
+    }
+    return null;
+  };
+
+  const moveImage = (from: number, to: number) => {
+    setImageFiles((prev) => moveItem(prev, from, to));
+  };
 
   useEffect(() => {
     if (!isImageFormatConvert || !file || !canPreviewImageInBrowser(file.name)) {
@@ -938,7 +1031,7 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
                               {imageFiles.length} photo
-                              {imageFiles.length === 1 ? "" : "s"} selected
+                              {imageFiles.length === 1 ? "" : "s"} · drag to reorder
                             </p>
                             <button
                               type="button"
@@ -950,10 +1043,63 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
                           </div>
 
                           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                            {imageFiles.map((imageFile, index) => (
+                            {imageFiles.map((imageFile, index) => {
+                              const isDragging = imageDragIndex === index;
+                              return (
                               <div
-                                key={`${imageFile.name}-${imageFile.lastModified}-${index}`}
-                                className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50"
+                                key={`${imageFile.name}-${imageFile.lastModified}-${imageFile.size}`}
+                                ref={(el) => {
+                                  imageTileRefs.current[index] = el;
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`${imageFile.name}, page ${index + 1} of ${imageFiles.length}. Drag, or use arrow keys, to reorder.`}
+                                // Pointer events rather than HTML5 drag-and-drop: this grid
+                                // lives inside the file dropzone, and a native drag would
+                                // trigger its onDragOver/onDrop. Pointer events also work
+                                // on touch, which HTML5 drag does not.
+                                onPointerDown={(e) => {
+                                  // Let the remove button keep its own click.
+                                  if ((e.target as HTMLElement).closest("button")) return;
+                                  e.preventDefault();
+                                  e.currentTarget.setPointerCapture(e.pointerId);
+                                  setImageDragIndex(index);
+                                }}
+                                onPointerMove={(e) => {
+                                  if (imageDragIndex === null) return;
+                                  const over = imageTileIndexAtPoint(e.clientX, e.clientY);
+                                  if (over !== null && over !== imageDragIndex) {
+                                    moveImage(imageDragIndex, over);
+                                    setImageDragIndex(over);
+                                  }
+                                }}
+                                onPointerUp={(e) => {
+                                  if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+                                    e.currentTarget.releasePointerCapture(e.pointerId);
+                                  }
+                                  setImageDragIndex(null);
+                                }}
+                                onPointerCancel={() => setImageDragIndex(null)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                                    if (index === 0) return;
+                                    e.preventDefault();
+                                    pendingTileFocus.current = index - 1;
+                                    moveImage(index, index - 1);
+                                  } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                                    if (index === imageFiles.length - 1) return;
+                                    e.preventDefault();
+                                    pendingTileFocus.current = index + 1;
+                                    moveImage(index, index + 1);
+                                  }
+                                }}
+                                // touch-none stops the browser scrolling the page when a
+                                // drag starts on a tile.
+                                className={`group relative aspect-square touch-none overflow-hidden rounded-xl border bg-slate-50 transition-[transform,box-shadow,opacity] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-slate-800/50 ${
+                                  isDragging
+                                    ? "z-10 scale-105 cursor-grabbing border-primary opacity-90 shadow-lg ring-2 ring-primary"
+                                    : "cursor-grab border-slate-200 dark:border-slate-700"
+                                }`}
                               >
                                 {imagePreviewUrls[index] ? (
                                   <Image
@@ -961,7 +1107,8 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
                                     alt={imageFile.name}
                                     fill
                                     unoptimized
-                                    className="object-cover"
+                                    draggable={false}
+                                    className="pointer-events-none select-none object-cover"
                                   />
                                 ) : null}
                                 <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-[11px] font-bold text-white">
@@ -981,11 +1128,15 @@ export default function DashboardAppCenterEditPage({ params }: EditPageProps) {
                                     close
                                   </span>
                                 </button>
-                                <p className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-1.5 py-1 text-[10px] text-white">
+                                <span className="material-symbols-outlined pointer-events-none absolute inset-0 m-auto h-fit w-fit text-3xl text-white opacity-0 drop-shadow transition group-hover:opacity-70">
+                                  drag_indicator
+                                </span>
+                                <p className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-1.5 py-1 text-[10px] text-white">
                                   {imageFile.name}
                                 </p>
                               </div>
-                            ))}
+                              );
+                            })}
 
                             <button
                               type="button"
