@@ -69,8 +69,9 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PDF Converter Pro",
-  description: "Convert PDF files to Excel and Word documents",
+  title: "ConvaterPro",
+  description:
+    "A professional web-based data conversion platform for GIS, surveying, mapping, engineering, and data-processing teams.",
 };
 
 export default function RootLayout({

@@ -73,7 +73,7 @@ const MUTED_FG = "text-slate-500 dark:text-slate-400";
 // renders the same intent for real, and stays reactive to the active theme.
 const PRIMARY_TINT = "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]";
 const ACCENT_RAIL_STOPS =
-  "bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent";
+  "bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]";
 
 const ROLE_OPTIONS = [
   {
@@ -148,7 +148,8 @@ function getRoleMeta(role: string) {
 // "active" and "inactive" look like, instead of every card reading identical.
 const STAT_TONES = {
   neutral: `text-primary ${PRIMARY_TINT}`,
-  positive: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
+  positive:
+    "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
   negative: "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300",
 } as const;
 
@@ -169,7 +170,7 @@ function GlassStatCard({
 }) {
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
+      <div className={`absolute inset-y-4 left-4 w-[1.5px] ${ACCENT_RAIL_STOPS}`} />
 
       <div className={`mb-4 inline-flex rounded-xl p-2 ${STAT_TONES[tone]}`}>
         <span className="material-symbols-outlined">{icon}</span>
@@ -186,7 +187,9 @@ function GlassStatCard({
         </p>
       )}
       {!loading && subtext ? (
-        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{subtext}</p>
+        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+          {subtext}
+        </p>
       ) : null}
     </div>
   );
@@ -206,7 +209,7 @@ function GlassSection({
   return (
     <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
       <div
-        className={`absolute inset-y-5 left-5 w-px sm:inset-y-6 sm:left-6 ${ACCENT_RAIL_STOPS}`}
+        className={`absolute inset-y-4 left-4 w-px sm:inset-y-6 sm:left-6 ${ACCENT_RAIL_STOPS}`}
       />
 
       <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
@@ -261,7 +264,9 @@ function RolePicker({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-slate-900 dark:text-white">User role</label>
+      <label className="text-sm font-medium text-slate-900 dark:text-white">
+        User role
+      </label>
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {ROLE_OPTIONS.map((role) => {
@@ -298,10 +303,14 @@ function RolePicker({
 
               <span
                 className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
-                  selected ? "border-primary bg-primary" : "border-slate-300 dark:border-slate-600"
+                  selected
+                    ? "border-primary bg-primary"
+                    : "border-slate-300 dark:border-slate-600"
                 }`}
               >
-                {selected ? <span className="h-1.5 w-1.5 rounded-full bg-white" /> : null}
+                {selected ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                ) : null}
               </span>
             </button>
           );
@@ -359,7 +368,8 @@ export default function AdminUsersPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState(false);
   const [selectedUserDetails, setSelectedUserDetails] =
     useState<UserDetails | null>(null);
   const [form, setForm] = useState({
@@ -439,7 +449,9 @@ export default function AdminUsersPage() {
   );
 
   const formatSharePct = (count: number) =>
-    users.length === 0 ? "No users yet" : `${Math.round((count / users.length) * 100)}% of total`;
+    users.length === 0
+      ? "No users yet"
+      : `${Math.round((count / users.length) * 100)}% of total`;
 
   const allowedApiPermissions = useMemo(
     () =>
@@ -462,7 +474,12 @@ export default function AdminUsersPage() {
         setShowCreate(false);
         setShowCreatePassword(false);
         setCreateError("");
-        setForm({ email: "", password: "", username: "", role: "general_user" });
+        setForm({
+          email: "",
+          password: "",
+          username: "",
+          role: "general_user",
+        });
       }
     };
 
@@ -588,19 +605,24 @@ export default function AdminUsersPage() {
         throw new Error("No access token found.");
       }
 
-      const res = await fetch(`${API_BASE}/api/v2/users/${selectedUserDetails.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        `${API_BASE}/api/v2/users/${selectedUserDetails.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       const body = await res.text();
       if (!res.ok) {
         throw new Error(body || "Failed to delete user");
       }
 
-      setUsers((prev) => prev.filter((user) => user.id !== selectedUserDetails.id));
+      setUsers((prev) =>
+        prev.filter((user) => user.id !== selectedUserDetails.id),
+      );
       setShowDetails(false);
       setSelectedUserDetails(null);
       setCreateSuccess("User deleted successfully.");
@@ -662,7 +684,9 @@ export default function AdminUsersPage() {
 
       setNewPassword("");
       setConfirmNewPassword("");
-      setResetPasswordSuccess(`Password reset for ${selectedUserDetails.email}.`);
+      setResetPasswordSuccess(
+        `Password reset for ${selectedUserDetails.email}.`,
+      );
       setCreateSuccess(`Password reset for ${selectedUserDetails.email}.`);
     } catch (err: unknown) {
       setResetPasswordError(
@@ -940,7 +964,9 @@ export default function AdminUsersPage() {
             <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
               {createError ? (
                 <div className="mb-4 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
-                  <span className="material-symbols-outlined text-base">error</span>
+                  <span className="material-symbols-outlined text-base">
+                    error
+                  </span>
                   <span>{createError}</span>
                 </div>
               ) : null}
@@ -976,7 +1002,10 @@ export default function AdminUsersPage() {
                       id="new-user-password"
                       value={form.password}
                       onChange={(e) =>
-                        setForm((prev) => ({ ...prev, password: e.target.value }))
+                        setForm((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
                       }
                       placeholder="Minimum 8 characters"
                       type={showCreatePassword ? "text" : "password"}
@@ -986,7 +1015,9 @@ export default function AdminUsersPage() {
                       type="button"
                       onClick={() => setShowCreatePassword((prev) => !prev)}
                       className={`absolute inset-y-0 right-0 flex items-center pr-3 transition hover:text-slate-900 dark:hover:text-white ${MUTED_FG}`}
-                      aria-label={showCreatePassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showCreatePassword ? "Hide password" : "Show password"
+                      }
                     >
                       <span className="material-symbols-outlined text-lg">
                         {showCreatePassword ? "visibility_off" : "visibility"}
@@ -1000,7 +1031,10 @@ export default function AdminUsersPage() {
                     htmlFor="new-user-username"
                     className="text-sm font-medium text-slate-900 dark:text-white"
                   >
-                    Username <span className={`font-normal ${MUTED_FG}`}>(optional)</span>
+                    Username{" "}
+                    <span className={`font-normal ${MUTED_FG}`}>
+                      (optional)
+                    </span>
                   </label>
                   <GlassInput
                     id="new-user-username"
@@ -1018,9 +1052,7 @@ export default function AdminUsersPage() {
 
                 <RolePicker
                   value={form.role}
-                  onChange={(role) =>
-                    setForm((prev) => ({ ...prev, role }))
-                  }
+                  onChange={(role) => setForm((prev) => ({ ...prev, role }))}
                 />
 
                 <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50">
@@ -1036,9 +1068,11 @@ export default function AdminUsersPage() {
                     </p>
                   </div>
                   <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
-                    <span className="material-symbols-outlined text-sm">shield</span>
-                    {ROLE_OPTIONS.find((item) => item.value === form.role)?.label ??
-                      form.role}
+                    <span className="material-symbols-outlined text-sm">
+                      shield
+                    </span>
+                    {ROLE_OPTIONS.find((item) => item.value === form.role)
+                      ?.label ?? form.role}
                   </span>
                 </div>
               </div>
@@ -1076,20 +1110,24 @@ export default function AdminUsersPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-md">
           <div className="relative flex max-h-[96vh] w-full max-w-5xl flex-col overflow-hidden rounded-[13px] border border-border bg-white/30 shadow-[0_24px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:bg-white/[0.03]">
             <div
-              className={`pointer-events-none absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`}
+              className={`pointer-events-none absolute inset-y-4 left-4 w-[1.5px] ${ACCENT_RAIL_STOPS}`}
             />
 
             {/* Header */}
             <div className="relative shrink-0 border-b border-slate-200/70 px-6 py-4 dark:border-white/10">
               <div className="flex items-center justify-between gap-4">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">User Details</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  User Details
+                </h3>
                 <button
                   onClick={() => setShowDetails(false)}
                   className={`rounded-lg p-1.5 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white ${MUTED_FG}`}
                   type="button"
                   aria-label="Close"
                 >
-                  <span className="material-symbols-outlined text-xl">close</span>
+                  <span className="material-symbols-outlined text-xl">
+                    close
+                  </span>
                 </button>
               </div>
 
@@ -1147,7 +1185,9 @@ export default function AdminUsersPage() {
                           className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/15"
                           type="button"
                         >
-                          <span className="material-symbols-outlined text-base">lock_reset</span>
+                          <span className="material-symbols-outlined text-base">
+                            lock_reset
+                          </span>
                           Reset Password
                         </button>
                       ) : null}
@@ -1158,7 +1198,9 @@ export default function AdminUsersPage() {
                           className="inline-flex items-center gap-2 rounded-xl border border-rose-400/20 bg-rose-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-60"
                           type="button"
                         >
-                          <span className="material-symbols-outlined text-base">delete</span>
+                          <span className="material-symbols-outlined text-base">
+                            delete
+                          </span>
                           {deleteLoading ? "Deleting..." : "Delete User"}
                         </button>
                       ) : null}
@@ -1174,7 +1216,10 @@ export default function AdminUsersPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {Array.from({ length: 3 }).map((_, index) => (
-                      <div key={index} className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-800/20">
+                      <div
+                        key={index}
+                        className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-800/20"
+                      >
                         <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                         <div className="mt-3 h-6 w-20 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
                       </div>
@@ -1184,7 +1229,10 @@ export default function AdminUsersPage() {
                     <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                     <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
                       {Array.from({ length: 6 }).map((_, index) => (
-                        <div key={index} className="h-12 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
+                        <div
+                          key={index}
+                          className="h-12 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70"
+                        />
                       ))}
                     </div>
                   </div>
@@ -1195,25 +1243,47 @@ export default function AdminUsersPage() {
                 </div>
               ) : selectedUserDetails ? (
                 <div className="space-y-4">
-
                   {/* Profile */}
                   <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
-                    <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Profile</p>
+                    <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                      Profile
+                    </p>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
                       <InfoTile label="ID" value={selectedUserDetails.id} />
-                      <InfoTile label="Email" value={selectedUserDetails.email} mono />
+                      <InfoTile
+                        label="Email"
+                        value={selectedUserDetails.email}
+                        mono
+                      />
                       <InfoTile
                         label="Username"
-                        value={formatProfileName(selectedUserDetails.username, "-")}
+                        value={formatProfileName(
+                          selectedUserDetails.username,
+                          "-",
+                        )}
                       />
-                      <InfoTile label="Role" value={formatRoleLabel(selectedUserDetails.role)} />
-                      <InfoTile label="Position" value={selectedUserDetails.position} />
+                      <InfoTile
+                        label="Role"
+                        value={formatRoleLabel(selectedUserDetails.role)}
+                      />
+                      <InfoTile
+                        label="Position"
+                        value={selectedUserDetails.position}
+                      />
                       <InfoTile
                         label="Status"
-                        value={selectedUserDetails.is_active ? "Active" : "Inactive"}
+                        value={
+                          selectedUserDetails.is_active ? "Active" : "Inactive"
+                        }
                       />
-                      <InfoTile label="Created" value={formatDate(selectedUserDetails.created_at)} />
-                      <InfoTile label="Last Login" value={formatDate(selectedUserDetails.last_login)} />
+                      <InfoTile
+                        label="Created"
+                        value={formatDate(selectedUserDetails.created_at)}
+                      />
+                      <InfoTile
+                        label="Last Login"
+                        value={formatDate(selectedUserDetails.last_login)}
+                      />
                       <InfoTile
                         label="Last Active"
                         value={formatDate(selectedUserDetails.last_active_at)}
@@ -1224,31 +1294,65 @@ export default function AdminUsersPage() {
                   {/* Points + Conversions */}
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
-                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Points</p>
+                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                        Points
+                      </p>
                       <div className="grid grid-cols-2 gap-3">
-                        <InfoTile label="Balance" value={selectedUserDetails.points.balance} />
-                        <InfoTile label="Total Topup" value={selectedUserDetails.points.total_topup} />
-                        <InfoTile label="Total Spent" value={selectedUserDetails.points.total_spent} />
-                        <InfoTile label="Total Refunded" value={selectedUserDetails.points.total_refunded} />
+                        <InfoTile
+                          label="Balance"
+                          value={selectedUserDetails.points.balance}
+                        />
+                        <InfoTile
+                          label="Total Topup"
+                          value={selectedUserDetails.points.total_topup}
+                        />
+                        <InfoTile
+                          label="Total Spent"
+                          value={selectedUserDetails.points.total_spent}
+                        />
+                        <InfoTile
+                          label="Total Refunded"
+                          value={selectedUserDetails.points.total_refunded}
+                        />
                         <div className="col-span-2">
                           <InfoTile
                             label="Last Activity"
-                            value={formatDate(selectedUserDetails.points.last_points_activity_at)}
+                            value={formatDate(
+                              selectedUserDetails.points
+                                .last_points_activity_at,
+                            )}
                           />
                         </div>
                       </div>
                     </div>
                     <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
-                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Conversions</p>
+                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                        Conversions
+                      </p>
                       <div className="grid grid-cols-2 gap-3">
-                        <InfoTile label="Total" value={selectedUserDetails.conversions.total} />
-                        <InfoTile label="Success" value={selectedUserDetails.conversions.success} />
-                        <InfoTile label="Failed" value={selectedUserDetails.conversions.failed} />
-                        <InfoTile label="Processing" value={selectedUserDetails.conversions.processing} />
+                        <InfoTile
+                          label="Total"
+                          value={selectedUserDetails.conversions.total}
+                        />
+                        <InfoTile
+                          label="Success"
+                          value={selectedUserDetails.conversions.success}
+                        />
+                        <InfoTile
+                          label="Failed"
+                          value={selectedUserDetails.conversions.failed}
+                        />
+                        <InfoTile
+                          label="Processing"
+                          value={selectedUserDetails.conversions.processing}
+                        />
                         <div className="col-span-2">
                           <InfoTile
                             label="Last Conversion"
-                            value={formatDate(selectedUserDetails.conversions.last_conversion_at)}
+                            value={formatDate(
+                              selectedUserDetails.conversions
+                                .last_conversion_at,
+                            )}
                           />
                         </div>
                       </div>
@@ -1257,13 +1361,20 @@ export default function AdminUsersPage() {
 
                   {/* Active APIs */}
                   <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
-                    <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Active APIs</p>
+                    <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                      Active APIs
+                    </p>
                     {selectedUserDetails.active_apis.length === 0 ? (
-                      <p className="text-sm text-slate-400 dark:text-slate-500">No active APIs.</p>
+                      <p className="text-sm text-slate-400 dark:text-slate-500">
+                        No active APIs.
+                      </p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {selectedUserDetails.active_apis.map((api) => (
-                          <span key={api.action} className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+                          <span
+                            key={api.action}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
+                          >
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                             {api.label}
                           </span>
@@ -1275,12 +1386,16 @@ export default function AdminUsersPage() {
                   {/* All API Permissions */}
                   <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/20">
                     <div className="mb-3 flex items-center justify-between gap-3">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">All API Permissions</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                        All API Permissions
+                      </p>
                       <Link
                         href={`/admin/api-permissions?userId=${selectedUserDetails.id}`}
                         className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-bold text-primary shadow-sm transition hover:bg-card-hover"
                       >
-                        <span className="material-symbols-outlined text-sm">manage_search</span>
+                        <span className="material-symbols-outlined text-sm">
+                          manage_search
+                        </span>
                         Lookup User
                       </Link>
                     </div>
@@ -1293,23 +1408,37 @@ export default function AdminUsersPage() {
                         <table className="w-full text-left text-sm">
                           <thead>
                             <tr className="border-b border-slate-200/70 bg-white/60 dark:border-slate-800 dark:bg-slate-900/40">
-                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Action</th>
-                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Allowed</th>
-                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Success Rate</th>
-                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Last Used</th>
+                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                Action
+                              </th>
+                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                Allowed
+                              </th>
+                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                Success Rate
+                              </th>
+                              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                Last Used
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800">
                             {allowedApiPermissions.map((api) => (
                               <tr key={api.action}>
-                                <td className="px-3 py-2.5 font-medium text-slate-800 dark:text-slate-100">{api.label}</td>
+                                <td className="px-3 py-2.5 font-medium text-slate-800 dark:text-slate-100">
+                                  {api.label}
+                                </td>
                                 <td className="px-3 py-2.5">
                                   <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
                                     Yes
                                   </span>
                                 </td>
-                                <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300">{api.success_rate.toFixed(1)}%</td>
-                                <td className="px-3 py-2.5 text-slate-500 dark:text-slate-400">{formatDate(api.last_used_at)}</td>
+                                <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300">
+                                  {api.success_rate.toFixed(1)}%
+                                </td>
+                                <td className="px-3 py-2.5 text-slate-500 dark:text-slate-400">
+                                  {formatDate(api.last_used_at)}
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -1317,7 +1446,6 @@ export default function AdminUsersPage() {
                       </div>
                     )}
                   </div>
-
                 </div>
               ) : null}
             </div>
@@ -1354,7 +1482,9 @@ export default function AdminUsersPage() {
 
             {resetPasswordSuccess ? (
               <div className="relative mt-4 flex items-center gap-2 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 backdrop-blur-md dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300">
-                <span className="material-symbols-outlined text-base">check_circle</span>
+                <span className="material-symbols-outlined text-base">
+                  check_circle
+                </span>
                 {resetPasswordSuccess}
               </div>
             ) : resetPasswordError ? (
@@ -1380,7 +1510,9 @@ export default function AdminUsersPage() {
                   <button
                     type="button"
                     onClick={() => setIsNewPasswordVisible((prev) => !prev)}
-                    aria-label={isNewPasswordVisible ? "Hide password" : "Show password"}
+                    aria-label={
+                      isNewPasswordVisible ? "Hide password" : "Show password"
+                    }
                     className="absolute inset-y-0 right-1 flex items-center px-2 text-slate-400 transition hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200"
                   >
                     <span className="material-symbols-outlined text-lg">
@@ -1406,11 +1538,17 @@ export default function AdminUsersPage() {
                   <button
                     type="button"
                     onClick={() => setIsConfirmPasswordVisible((prev) => !prev)}
-                    aria-label={isConfirmPasswordVisible ? "Hide password" : "Show password"}
+                    aria-label={
+                      isConfirmPasswordVisible
+                        ? "Hide password"
+                        : "Show password"
+                    }
                     className="absolute inset-y-0 right-1 flex items-center px-2 text-slate-400 transition hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200"
                   >
                     <span className="material-symbols-outlined text-lg">
-                      {isConfirmPasswordVisible ? "visibility_off" : "visibility"}
+                      {isConfirmPasswordVisible
+                        ? "visibility_off"
+                        : "visibility"}
                     </span>
                   </button>
                 </div>
@@ -1430,9 +1568,7 @@ export default function AdminUsersPage() {
                 <button
                   onClick={handleResetPassword}
                   disabled={
-                    resetPasswordLoading ||
-                    !newPassword ||
-                    !confirmNewPassword
+                    resetPasswordLoading || !newPassword || !confirmNewPassword
                   }
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                   type="button"

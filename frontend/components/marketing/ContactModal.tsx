@@ -7,10 +7,24 @@ import { API_BASE } from "@/lib/apiBase";
 interface ContactModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Sent to the backend as `plan_name` and used in the default copy. */
   planName: string;
+  /** Overrides the "Contact for <plan> Plan" heading. */
+  title?: string;
+  /** Overrides the intro line under the heading. */
+  description?: string;
+  /** Overrides the confirmation line shown after a successful submit. */
+  successMessage?: string;
 }
 
-export default function ContactModal({ isOpen, onClose, planName }: ContactModalProps) {
+export default function ContactModal({
+  isOpen,
+  onClose,
+  planName,
+  title,
+  description,
+  successMessage,
+}: ContactModalProps) {
   const { theme: t } = useMarketingTheme();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -137,13 +151,14 @@ export default function ContactModal({ isOpen, onClose, planName }: ContactModal
               className="text-2xl font-black"
               style={{ color: t.heading }}
             >
-              Contact for {planName} Plan
+              {title ?? `Contact for ${planName} Plan`}
             </h2>
             <p
               className="mt-3 text-sm leading-relaxed"
               style={{ color: t.text }}
             >
-              Submit your details and our super admin will contact you to discuss {planName} plan access and pricing.
+              {description ??
+                `Submit your details and our super admin will contact you to discuss ${planName} plan access and pricing.`}
             </p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -272,7 +287,8 @@ export default function ContactModal({ isOpen, onClose, planName }: ContactModal
               className="text-sm leading-relaxed mb-6"
               style={{ color: t.text }}
             >
-              Thank you for your interest in the {planName} plan. Our super admin will review your request and contact you shortly.
+              {successMessage ??
+                `Thank you for your interest in the ${planName} plan. Our super admin will review your request and contact you shortly.`}
             </p>
             <button
               type="button"

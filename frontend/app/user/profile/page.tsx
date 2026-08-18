@@ -100,10 +100,7 @@ function buildTrialCountdown(expiresAt?: string | null, nowMs = Date.now()) {
   const expiryMs = new Date(expiresAt).getTime();
   if (Number.isNaN(expiryMs)) return null;
 
-  const remainingSeconds = Math.max(
-    0,
-    Math.floor((expiryMs - nowMs) / 1000),
-  );
+  const remainingSeconds = Math.max(0, Math.floor((expiryMs - nowMs) / 1000));
   const days = Math.floor(remainingSeconds / 86400);
   const hours = Math.floor((remainingSeconds % 86400) / 3600);
   const minutes = Math.floor((remainingSeconds % 3600) / 60);
@@ -133,7 +130,7 @@ function StatCard({
 }) {
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border bg-white/30 p-5 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-medium text-slate-500">{title}</p>
@@ -145,9 +142,34 @@ function StatCard({
           ) : null}
         </div>
 
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-xl bg-primary/10 p-2 text-primary">
           <span className="material-symbols-outlined">{icon}</span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileRow({
+  label,
+  value,
+  mono = false,
+}: {
+  label: string;
+  value: React.ReactNode;
+  mono?: boolean;
+}) {
+  return (
+    <div className="grid gap-1 border-b border-slate-100 py-3 last:border-b-0 dark:border-white/10 sm:grid-cols-[140px_minmax(0,1fr)] sm:items-center sm:gap-3">
+      <p className="text-xs uppercase tracking-wider text-slate-500">
+        {label}
+      </p>
+      <div
+        className={`text-sm font-semibold text-slate-900 dark:text-white ${
+          mono ? "break-all font-mono text-[13px]" : ""
+        }`}
+      >
+        {value}
       </div>
     </div>
   );
@@ -225,8 +247,7 @@ export default function DashboardProfilePage() {
 
   const isDemoUser = me?.role === "demo_user";
   const trialCountdown = useMemo(
-    () =>
-      isDemoUser ? buildTrialCountdown(me?.demo_expires_at, nowMs) : null,
+    () => (isDemoUser ? buildTrialCountdown(me?.demo_expires_at, nowMs) : null),
     [isDemoUser, me?.demo_expires_at, nowMs],
   );
 
@@ -234,7 +255,7 @@ export default function DashboardProfilePage() {
     return (
       <div className="mx-auto max-w-8xl p-4 sm:p-6 lg:p-8">
         <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] sm:p-8 dark:bg-white/[0.03]">
-          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+          <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 animate-pulse rounded-2xl bg-primary/20" />
             <div className="space-y-2">
@@ -244,7 +265,10 @@ export default function DashboardProfilePage() {
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="relative overflow-hidden rounded-2xl border border-border bg-white/30 p-5 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+              <div
+                key={index}
+                className="relative overflow-hidden rounded-2xl border border-border bg-white/30 p-5 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
+              >
                 <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-8 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
               </div>
@@ -410,12 +434,12 @@ export default function DashboardProfilePage() {
         />
       </section>
 
-      <section className="grid grid-cols-1 gap-8 xl:grid-cols-12">
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-12">
         <div className="space-y-6 xl:col-span-4">
           <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-            <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded-xl bg-primary/10 p-2 text-primary">
                 <span className="material-symbols-outlined">person</span>
               </div>
               <div>
@@ -428,47 +452,21 @@ export default function DashboardProfilePage() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-wider text-slate-500">
-                  User ID
-                </p>
-                <p className="mt-1 text-sm font-semibold">{me.id}</p>
-              </div>
-
-              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-wider text-slate-500">
-                  Username
-                </p>
-                <p className="mt-1 text-sm font-semibold">
-                  {formatProfileName(me.username, "-")}
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-wider text-slate-500">
-                  Email
-                </p>
-                <p className="mt-1 break-all text-sm font-semibold">
-                  {me.email}
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-wider text-slate-500">
-                  Joined
-                </p>
-                <p className="mt-1 text-sm font-semibold">
-                  {formatDate(me.created_at)}
-                </p>
-              </div>
+            <div>
+              <ProfileRow label="User ID" value={me.id} />
+              <ProfileRow
+                label="Username"
+                value={formatProfileName(me.username, "-")}
+              />
+              <ProfileRow label="Email" value={me.email} mono />
+              <ProfileRow label="Joined" value={formatDate(me.created_at)} />
             </div>
           </div>
 
           <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-            <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded-xl bg-primary/10 p-2 text-primary">
                 <span className="material-symbols-outlined">schedule</span>
               </div>
               <div>
@@ -481,42 +479,42 @@ export default function DashboardProfilePage() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-wider text-slate-500">
-                  Available Points
-                </p>
-                <p className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-                  {myPoints.available_points}
-                </p>
-              </div>
+            <div>
+              <ProfileRow
+                label="Available Points"
+                value={
+                  <span className="text-base font-black text-slate-900 dark:text-white">
+                    {myPoints.available_points}
+                  </span>
+                }
+              />
+              <ProfileRow
+                label="Point Status"
+                value={
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
+                      myPoints.point_status,
+                    )}`}
+                  >
+                    {myPoints.point_status}
+                  </span>
+                }
+              />
+              <ProfileRow
+                label="Expiry Status"
+                value={
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
+                      myPoints.expiry_status,
+                    )}`}
+                  >
+                    {myPoints.expiry_status.replace(/_/g, " ")}
+                  </span>
+                }
+              />
+            </div>
 
-              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-wider text-slate-500">
-                  Point Status
-                </p>
-                <span
-                  className={`mt-2 inline-flex rounded-full px-3 py-1.5 text-sm font-semibold ${getStatusBadge(
-                    myPoints.point_status,
-                  )}`}
-                >
-                  {myPoints.point_status}
-                </span>
-              </div>
-
-              <div className="rounded-2xl bg-white/40 p-4 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-wider text-slate-500">
-                  Expiry Status
-                </p>
-                <span
-                  className={`mt-2 inline-flex rounded-full px-3 py-1.5 text-sm font-semibold ${getStatusBadge(
-                    myPoints.expiry_status,
-                  )}`}
-                >
-                  {myPoints.expiry_status.replace(/_/g, " ")}
-                </span>
-              </div>
-
+            <div className="mt-4 space-y-3">
               {myPoints.expires_at && (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20">
                   <div className="flex items-start gap-3">
@@ -543,8 +541,7 @@ export default function DashboardProfilePage() {
                           );
                           if (days <= 0) return "Expired";
                           if (days === 1) return "Expires tomorrow";
-                          if (days <= 7)
-                            return `Expires in ${days} days`;
+                          if (days <= 7) return `Expires in ${days} days`;
                           return `${days} days remaining`;
                         })()}
                       </p>
@@ -576,7 +573,7 @@ export default function DashboardProfilePage() {
 
         <div className="space-y-6 xl:col-span-8">
           <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
             <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-white/10">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -606,7 +603,7 @@ export default function DashboardProfilePage() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div
-                          className={`rounded-2xl p-3 ${getApiColor(item.action)}`}
+                          className={`rounded-xl p-2 ${getApiColor(item.action)}`}
                         >
                           <span className="material-symbols-outlined">
                             {getApiIcon(item.action)}
@@ -646,7 +643,7 @@ export default function DashboardProfilePage() {
           </div>
 
           <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
             <div className="flex flex-col gap-3 border-b border-slate-100 p-6 dark:border-white/10 md:flex-row md:items-center md:justify-between">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -674,10 +671,10 @@ export default function DashboardProfilePage() {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
-                      <th className="px-6 py-4">Action</th>
-                      <th className="px-6 py-4">Amount</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4">Date</th>
+                      <th className="px-4 py-3">Action</th>
+                      <th className="px-4 py-3">Amount</th>
+                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3">Date</th>
                     </tr>
                   </thead>
 
@@ -687,7 +684,7 @@ export default function DashboardProfilePage() {
                         key={entry.id}
                         className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <div>
                             <p className="font-semibold text-slate-900 dark:text-white">
                               {entry.action}
@@ -698,11 +695,11 @@ export default function DashboardProfilePage() {
                           </div>
                         </td>
 
-                        <td className="px-6 py-4 font-semibold">
+                        <td className="px-4 py-3 font-semibold">
                           {entry.amount}
                         </td>
 
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <span
                             className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
                               entry.status,
@@ -712,7 +709,7 @@ export default function DashboardProfilePage() {
                           </span>
                         </td>
 
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
+                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                           {formatDate(entry.created_at)}
                         </td>
                       </tr>

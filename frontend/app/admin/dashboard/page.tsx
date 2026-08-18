@@ -110,26 +110,42 @@ function getToneClass(tone?: string | null) {
   return "text-slate-900 dark:text-white";
 }
 
-function buildLinePath(values: number[], width: number, height: number, maxValue: number) {
+function buildLinePath(
+  values: number[],
+  width: number,
+  height: number,
+  maxValue: number,
+) {
   if (values.length === 0) return "";
 
   return values
     .map((value, index) => {
-      const x = values.length === 1 ? width / 2 : (index / (values.length - 1)) * width;
+      const x =
+        values.length === 1 ? width / 2 : (index / (values.length - 1)) * width;
       const y = maxValue === 0 ? height : height - (value / maxValue) * height;
       return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
     })
     .join(" ");
 }
 
-function buildAreaPath(values: number[], width: number, height: number, maxValue: number) {
+function buildAreaPath(
+  values: number[],
+  width: number,
+  height: number,
+  maxValue: number,
+) {
   if (values.length === 0) return "";
 
   const linePath = buildLinePath(values, width, height, maxValue);
   return `${linePath} L ${width} ${height} L 0 ${height} Z`;
 }
 
-function getChartPoints(values: number[], width: number, height: number, maxValue: number): ChartPoint[] {
+function getChartPoints(
+  values: number[],
+  width: number,
+  height: number,
+  maxValue: number,
+): ChartPoint[] {
   if (values.length === 0) return [];
 
   return values.map((value, index) => ({
@@ -185,7 +201,7 @@ function TopPointHoldersChart({
 
   return (
     <div className="relative h-full overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
       <div className="mb-3">
         <h3 className="text-base font-bold">Top Point Holders</h3>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -255,6 +271,16 @@ function TopPointHoldersChart({
   );
 }
 
+// Validated against both card surfaces with scripts/validate_palette.js from the
+// dataviz skill: teal (not pure green) beside rose clears the red/green CVD floor
+// that emerald/rose could not; blue steps up a notch in dark mode to hold contrast
+// on the darker card. Success/Failed stay identical across themes.
+const REQUEST_SERIES_COLORS = {
+  total: { light: "#2563eb", dark: "#3b82f6", swatch: "#2563eb" },
+  success: { light: "#0d9488", dark: "#0d9488", swatch: "#0d9488" },
+  failed: { light: "#e11d48", dark: "#e11d48", swatch: "#e11d48" },
+} as const;
+
 function RequestTrendChart({
   data,
   loading,
@@ -267,6 +293,7 @@ function RequestTrendChart({
     success: true,
     failed: true,
   });
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const width = 680;
   const height = 128;
   const labels = useMemo(
@@ -289,6 +316,8 @@ function RequestTrendChart({
   const successPath = buildLinePath(success, width, height, maxValue);
   const failedPath = buildLinePath(failed, width, height, maxValue);
   const totalPoints = getChartPoints(totals, width, height, maxValue);
+  const successPoints = getChartPoints(success, width, height, maxValue);
+  const failedPoints = getChartPoints(failed, width, height, maxValue);
   const gridValues = [0, 0.25, 0.5, 0.75, 1];
 
   const totalRequests = totals.reduce((sum, value) => sum + value, 0);
@@ -297,7 +326,9 @@ function RequestTrendChart({
     null,
   );
   const successRate = totalRequests
-    ? Math.round((success.reduce((sum, value) => sum + value, 0) / totalRequests) * 1000) / 10
+    ? Math.round(
+        (success.reduce((sum, value) => sum + value, 0) / totalRequests) * 1000,
+      ) / 10
     : 0;
 
   const toggleSeries = (key: "total" | "success" | "failed") => {
@@ -310,25 +341,38 @@ function RequestTrendChart({
     });
   };
 
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (data.length === 0) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    const index = Math.round(ratio * (data.length - 1));
+    setHoverIndex(Math.min(data.length - 1, Math.max(0, index)));
+  };
+  const handlePointerLeave = () => setHoverIndex(null);
+
+  const hoverDay = hoverIndex !== null ? data[hoverIndex] : null;
+  const hoverX = hoverIndex !== null ? totalPoints[hoverIndex]?.x ?? null : null;
+  const hoverPct = hoverX !== null ? Math.min(94, Math.max(6, (hoverX / width) * 100)) : null;
+
   const seriesStats = [
     {
       key: "total" as const,
       label: "Total",
-      color: "#38bdf8",
+      swatch: REQUEST_SERIES_COLORS.total.swatch,
       value: formatNumber(totalRequests),
       active: visibleSeries.total,
     },
     {
       key: "success" as const,
       label: "Success",
-      color: "#34d399",
+      swatch: REQUEST_SERIES_COLORS.success.swatch,
       value: formatNumber(success.reduce((sum, value) => sum + value, 0)),
       active: visibleSeries.success,
     },
     {
       key: "failed" as const,
       label: "Failed",
-      color: "#fb7185",
+      swatch: REQUEST_SERIES_COLORS.failed.swatch,
       value: formatNumber(failed.reduce((sum, value) => sum + value, 0)),
       active: visibleSeries.failed,
     },
@@ -336,9 +380,9 @@ function RequestTrendChart({
 
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03] sm:p-5">
-      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-5 sm:left-5" />
+      <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)] sm:inset-y-4 sm:left-4" />
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="relative flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
             Requests Overview
@@ -350,16 +394,18 @@ function RequestTrendChart({
 
         {!loading ? (
           <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span className="material-symbols-outlined text-[13px]">trending_up</span>
+            <span className="material-symbols-outlined text-[13px]">
+              trending_up
+            </span>
             {successRate}% success
           </span>
         ) : null}
       </div>
 
       {loading ? (
-        <div className="mt-4 h-[168px] w-full animate-pulse rounded-[12px] bg-slate-100 dark:bg-slate-800" />
+        <div className="relative mt-4 h-[168px] w-full animate-pulse rounded-[12px] bg-slate-100 dark:bg-slate-800" />
       ) : (
-        <>
+        <div className="relative">
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {seriesStats.map((item) => (
               <button
@@ -372,9 +418,10 @@ function RequestTrendChart({
                     : "border-transparent opacity-40"
                 }`}
               >
+                {/* A short line-key, not a dot — this series is drawn as a line. */}
                 <span
-                  className="h-2 w-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: item.color }}
+                  className="h-[3px] w-3.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: item.swatch }}
                 />
                 <span className="min-w-0">
                   <span className="block text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -397,19 +444,25 @@ function RequestTrendChart({
                     Peak Day
                   </span>
                   <span className="block truncate text-sm font-bold text-slate-900 dark:text-white">
-                    {formatDayLabel(peakDay.date)} · {formatNumber(peakDay.total)}
+                    {formatDayLabel(peakDay.date)} ·{" "}
+                    {formatNumber(peakDay.total)}
                   </span>
                 </span>
               </div>
             ) : null}
           </div>
 
-          <div className="mt-3 w-full" style={{ aspectRatio: `${width} / ${height + 28}` }}>
+          <div
+            className="relative mt-3 w-full"
+            style={{ aspectRatio: `${width} / ${height + 28}` }}
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
+          >
             <svg
               viewBox={`0 0 ${width} ${height + 28}`}
               className="h-full w-full"
               role="img"
-              aria-label="Admin request trend chart"
+              aria-label={`Admin request trend chart. ${formatNumber(totalRequests)} requests over the last 30 days, ${successRate}% successful. Peak day ${peakDay ? `${formatDayLabel(peakDay.date)} with ${formatNumber(peakDay.total)} requests` : "n/a"}.`}
             >
               <defs>
                 <linearGradient
@@ -419,12 +472,8 @@ function RequestTrendChart({
                   y1="0"
                   y2="1"
                 >
-                  <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.28" />
-                  <stop
-                    offset="100%"
-                    stopColor="#38bdf8"
-                    stopOpacity="0.02"
-                  />
+                  <stop offset="0%" stopColor={REQUEST_SERIES_COLORS.total.light} stopOpacity="0.16" />
+                  <stop offset="100%" stopColor={REQUEST_SERIES_COLORS.total.light} stopOpacity="0" />
                 </linearGradient>
               </defs>
 
@@ -437,13 +486,14 @@ function RequestTrendChart({
                       x2={width}
                       y1={y}
                       y2={y}
-                      stroke="rgba(255,255,255,0.08)"
-                      strokeDasharray="4 6"
+                      stroke="rgba(15,23,42,0.1)"
+                      className="dark:stroke-white/10"
                     />
                     <text
                       x="0"
                       y={Math.max(y - 5, 10)}
-                      fill="rgba(255,255,255,0.5)"
+                      fill="rgba(15,23,42,0.5)"
+                      className="dark:fill-white/50"
                       fontSize="10"
                     >
                       {formatNumber(Math.round(maxValue * ratio))}
@@ -459,41 +509,98 @@ function RequestTrendChart({
                 <path
                   d={totalPath}
                   fill="none"
-                  stroke="#7dd3fc"
-                  strokeWidth="2.5"
+                  stroke={REQUEST_SERIES_COLORS.total.light}
+                  className="dark:stroke-[#3b82f6]"
+                  strokeWidth="2"
                   strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               ) : null}
               {visibleSeries.success ? (
                 <path
                   d={successPath}
                   fill="none"
-                  stroke="#34d399"
-                  strokeWidth="1.75"
+                  stroke={REQUEST_SERIES_COLORS.success.light}
+                  strokeWidth="2"
                   strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               ) : null}
               {visibleSeries.failed ? (
                 <path
                   d={failedPath}
                   fill="none"
-                  stroke="#fb7185"
-                  strokeWidth="1.75"
+                  stroke={REQUEST_SERIES_COLORS.failed.light}
+                  strokeWidth="2"
                   strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               ) : null}
 
-              {visibleSeries.total
-                ? totalPoints.map((point, index) => (
-                    <circle
-                      key={`${point.x}-${index}`}
-                      cx={point.x}
-                      cy={point.y}
-                      r="2.25"
-                      fill="#e0f2fe"
-                    />
-                  ))
-                : null}
+              {/* Crosshair + per-series markers only appear on hover/touch — a clean
+                  resting line, exact values on demand instead of 30 always-on dots. */}
+              {hoverIndex !== null && hoverX !== null ? (
+                <g>
+                  <line
+                    x1={hoverX}
+                    x2={hoverX}
+                    y1="0"
+                    y2={height}
+                    stroke="rgba(15,23,42,0.25)"
+                    className="dark:stroke-white/25"
+                    strokeWidth="1"
+                  />
+                  {visibleSeries.total && totalPoints[hoverIndex] ? (
+                    <g>
+                      <circle
+                        cx={totalPoints[hoverIndex].x}
+                        cy={totalPoints[hoverIndex].y}
+                        r="5"
+                        className="fill-white dark:fill-slate-900"
+                      />
+                      <circle
+                        cx={totalPoints[hoverIndex].x}
+                        cy={totalPoints[hoverIndex].y}
+                        r="4"
+                        fill={REQUEST_SERIES_COLORS.total.light}
+                        className="dark:fill-[#3b82f6]"
+                      />
+                    </g>
+                  ) : null}
+                  {visibleSeries.success && successPoints[hoverIndex] ? (
+                    <g>
+                      <circle
+                        cx={successPoints[hoverIndex].x}
+                        cy={successPoints[hoverIndex].y}
+                        r="5"
+                        className="fill-white dark:fill-slate-900"
+                      />
+                      <circle
+                        cx={successPoints[hoverIndex].x}
+                        cy={successPoints[hoverIndex].y}
+                        r="4"
+                        fill={REQUEST_SERIES_COLORS.success.light}
+                      />
+                    </g>
+                  ) : null}
+                  {visibleSeries.failed && failedPoints[hoverIndex] ? (
+                    <g>
+                      <circle
+                        cx={failedPoints[hoverIndex].x}
+                        cy={failedPoints[hoverIndex].y}
+                        r="5"
+                        className="fill-white dark:fill-slate-900"
+                      />
+                      <circle
+                        cx={failedPoints[hoverIndex].x}
+                        cy={failedPoints[hoverIndex].y}
+                        r="4"
+                        fill={REQUEST_SERIES_COLORS.failed.light}
+                      />
+                    </g>
+                  ) : null}
+                </g>
+              ) : null}
 
               {labels.map((label, index) => {
                 if (!label.show) return null;
@@ -513,7 +620,8 @@ function RequestTrendChart({
                           ? "end"
                           : "middle"
                     }
-                    fill="rgba(255,255,255,0.5)"
+                    fill="rgba(15,23,42,0.5)"
+                    className="dark:fill-white/50"
                     fontSize="10"
                   >
                     {formatDayLabel(label.date)}
@@ -521,8 +629,57 @@ function RequestTrendChart({
                 );
               })}
             </svg>
+
+            {hoverDay && hoverPct !== null ? (
+              <div
+                className="pointer-events-none absolute top-0 z-10 w-max -translate-x-1/2 rounded-[10px] border border-slate-200/80 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-slate-900/95"
+                style={{ left: `${hoverPct}%` }}
+              >
+                <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  {formatDayLabel(hoverDay.date)}
+                </p>
+                <div className="space-y-1">
+                  {visibleSeries.total ? (
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="h-[2px] w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: REQUEST_SERIES_COLORS.total.swatch }}
+                      />
+                      <span className="font-bold tabular-nums text-slate-900 dark:text-white">
+                        {formatNumber(hoverDay.total)}
+                      </span>
+                      <span className="text-slate-500 dark:text-slate-400">Total</span>
+                    </div>
+                  ) : null}
+                  {visibleSeries.success ? (
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="h-[2px] w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: REQUEST_SERIES_COLORS.success.swatch }}
+                      />
+                      <span className="font-bold tabular-nums text-slate-900 dark:text-white">
+                        {formatNumber(hoverDay.success)}
+                      </span>
+                      <span className="text-slate-500 dark:text-slate-400">Success</span>
+                    </div>
+                  ) : null}
+                  {visibleSeries.failed ? (
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="h-[2px] w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: REQUEST_SERIES_COLORS.failed.swatch }}
+                      />
+                      <span className="font-bold tabular-nums text-slate-900 dark:text-white">
+                        {formatNumber(hoverDay.failed)}
+                      </span>
+                      <span className="text-slate-500 dark:text-slate-400">Failed</span>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
@@ -569,7 +726,11 @@ function PointsActivityChart({
   );
   const busiestDay = data.reduce<AdminDashboardPointsTrendDay | null>(
     (peak, item) =>
-      !peak || item.topup + item.spent + item.refunded > peak.topup + peak.spent + peak.refunded ? item : peak,
+      !peak ||
+      item.topup + item.spent + item.refunded >
+        peak.topup + peak.spent + peak.refunded
+        ? item
+        : peak,
     null,
   );
   const toggleSeries = (key: "topup" | "spent" | "refunded") => {
@@ -608,7 +769,7 @@ function PointsActivityChart({
 
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03] sm:p-5">
-      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-5 sm:left-5" />
+      <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
@@ -660,7 +821,10 @@ function PointsActivityChart({
             ))}
           </div>
 
-          <div className="mt-3 w-full" style={{ aspectRatio: `${width} / ${height + 28}` }}>
+          <div
+            className="mt-3 w-full"
+            style={{ aspectRatio: `${width} / ${height + 28}` }}
+          >
             <svg
               viewBox={`0 0 ${width} ${height + 28}`}
               className="h-full w-full"
@@ -759,7 +923,9 @@ function PointsActivityChart({
 }
 
 export default function AdminPage() {
-  const [summary, setSummary] = useState<AdminDashboardSummaryResponse | null>(null);
+  const [summary, setSummary] = useState<AdminDashboardSummaryResponse | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -786,18 +952,32 @@ export default function AdminPage() {
       .then((data) => setSummary(data))
       .catch((err: unknown) => {
         setError(
-          err instanceof Error ? err.message : "Failed to load dashboard summary",
+          err instanceof Error
+            ? err.message
+            : "Failed to load dashboard summary",
         );
       })
       .finally(() => setLoading(false));
   }, []);
 
   const quickStats = useMemo(() => summary?.quick_stats ?? [], [summary]);
-  const recentActivity = useMemo(() => summary?.recent_activity ?? [], [summary]);
+  const recentActivity = useMemo(
+    () => summary?.recent_activity ?? [],
+    [summary],
+  );
   const systemStatus = useMemo(() => summary?.system_status ?? [], [summary]);
-  const requestTrend = useMemo(() => summary?.request_trend_30_days ?? [], [summary]);
-  const pointsActivity = useMemo(() => summary?.points_activity_30_days ?? [], [summary]);
-  const topPointHolders = useMemo(() => summary?.top_point_holders ?? [], [summary]);
+  const requestTrend = useMemo(
+    () => summary?.request_trend_30_days ?? [],
+    [summary],
+  );
+  const pointsActivity = useMemo(
+    () => summary?.points_activity_30_days ?? [],
+    [summary],
+  );
+  const topPointHolders = useMemo(
+    () => summary?.top_point_holders ?? [],
+    [summary],
+  );
   const requestStatusSummary = useMemo(() => {
     const totals = requestTrend.reduce(
       (acc, item) => ({
@@ -811,9 +991,24 @@ export default function AdminPage() {
 
     if (!totals.total) {
       return [
-        { label: "Success Rate", value: 0, helper: "No request data yet", color: "#10b981" },
-        { label: "Failed Share", value: 0, helper: "No failed requests yet", color: "#f43f5e" },
-        { label: "Processing Share", value: 0, helper: "No queued requests yet", color: "#f59e0b" },
+        {
+          label: "Success Rate",
+          value: 0,
+          helper: "No request data yet",
+          color: "#10b981",
+        },
+        {
+          label: "Failed Share",
+          value: 0,
+          helper: "No failed requests yet",
+          color: "#f43f5e",
+        },
+        {
+          label: "Processing Share",
+          value: 0,
+          helper: "No queued requests yet",
+          color: "#f59e0b",
+        },
       ];
     }
 
@@ -840,201 +1035,222 @@ export default function AdminPage() {
   }, [requestTrend]);
 
   return (
-      <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
-        <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary px-6 py-7 text-white shadow-[0_28px_90px_rgba(15,23,42,0.18)] md:px-8 md:py-8 dark:border-slate-800">
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-          <div className="absolute left-0 top-10 h-40 w-px bg-gradient-to-b from-white/0 via-white/20 to-white/0" />
-          <div className="relative">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-              <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-[30px] border border-primary/25 bg-white/55 text-primary shadow-[0_0_50px_rgba(59,130,246,0.18)] backdrop-blur-xl dark:border-cyan-300/10 dark:bg-white/5 dark:shadow-[0_0_56px_rgba(59,130,246,0.20)]">
-                <span className="material-symbols-outlined relative text-5xl">admin_panel_settings</span>
+    <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
+      <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary px-6 py-7 text-white shadow-[0_28px_90px_rgba(15,23,42,0.18)] md:px-8 md:py-8 dark:border-slate-800">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+        <div className="absolute left-0 top-10 h-40 w-px bg-gradient-to-b from-white/0 via-white/20 to-white/0" />
+        <div className="relative">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+            <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-[30px] border border-primary/25 bg-white/55 text-primary shadow-[0_0_50px_rgba(59,130,246,0.18)] backdrop-blur-xl dark:border-cyan-300/10 dark:bg-white/5 dark:shadow-[0_0_56px_rgba(59,130,246,0.20)]">
+              <span className="material-symbols-outlined relative text-5xl">
+                admin_panel_settings
+              </span>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/65 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                <span className="material-symbols-outlined text-sm">
+                  shield
+                </span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Admin Control Center
+                </span>
               </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/65 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
-                  <span className="material-symbols-outlined text-sm">shield</span>
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    Admin Control Center
-                  </span>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-5xl">
-                    Admin Dashboard
-                  </h1>
-                </div>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-5xl">
+                  Admin Dashboard
+                </h1>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {error ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {error}
-          </div>
-        ) : null}
+      {error ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {error}
+        </div>
+      ) : null}
 
-        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {loading
-            ? Array.from({ length: 4 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
-                >
-                  <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-                  <div className="mb-4 h-10 w-10 animate-pulse rounded-xl bg-primary/10" />
-                  <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                  <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                </div>
-              ))
-            : quickStats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
-                >
-                  <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-                  <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
-                    <span className="material-symbols-outlined">{stat.icon}</span>
-                  </div>
-                  <p className="text-sm font-medium text-slate-500">{stat.label}</p>
-                  <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
-                    {formatNumber(stat.value)}
-                  </p>
-                </div>
-              ))}
-        </section>
-
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <div className="relative h-full overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-            <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-            <div className="overflow-hidden rounded-[18px]">
-              <div className="flex flex-col gap-2 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
-                <h2 className="text-lg font-bold">Recent Activity</h2>
-                <button className="text-xs font-bold text-primary hover:underline" type="button">
-                  View all
-                </button>
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {loading
+          ? Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
+              >
+                <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+                <div className="mb-4 h-10 w-10 animate-pulse rounded-xl bg-primary/10" />
+                <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
               </div>
-              <div className="max-h-[420px] overflow-auto">
-                <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
-                      <th className="px-4 py-3">User</th>
-                      <th className="px-4 py-3">Points</th>
-                      <th className="px-4 py-3">Action</th>
-                      <th className="px-4 py-3">Time</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {loading ? (
-                      Array.from({ length: 5 }).map((_, index) => (
-                        <tr key={index}>
-                          <td className="px-4 py-3">
-                            <div className="h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="h-4 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                          </td>
-                        </tr>
-                      ))
-                    ) : recentActivity.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-500">
-                          No recent activity found.
-                        </td>
-                      </tr>
-                    ) : (
-                      recentActivity.map((row) => (
-                        <tr
-                          key={`${row.user_id}-${row.occurred_at}-${row.action}`}
-                          className="hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                        >
-                          <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
-                            {formatProfileName(row.user_username, row.user_email)}
-                          </td>
-                          <td
-                            className={`px-4 py-3 font-bold ${
-                              row.points_change < 0 ? "text-red-600" : "text-emerald-600"
-                            }`}
-                          >
-                            {row.points_change > 0 ? "+" : ""}
-                            {formatNumber(row.points_change)}
-                          </td>
-                          <td className="px-4 py-3">{row.action}</td>
-                          <td className="px-4 py-3 text-slate-500">
-                            {formatRelativeTime(row.occurred_at)}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <TopPointHoldersChart data={topPointHolders} loading={loading} />
-        </section>
-
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <div className="relative h-full overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03] sm:p-5">
-              <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-5 sm:left-5" />
-              <div>
-                <h3 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-                  System Status
-                </h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Last 30 days
+            ))
+          : quickStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
+              >
+                <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+                <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+                  <span className="material-symbols-outlined">{stat.icon}</span>
+                </div>
+                <p className="text-sm font-medium text-slate-500">
+                  {stat.label}
+                </p>
+                <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+                  {formatNumber(stat.value)}
                 </p>
               </div>
-              <div className="mt-2">
-                {loading
-                  ? Array.from({ length: 3 }).map((_, index) => (
-                      <div key={index} className="py-2">
-                        <div className="flex items-center justify-between">
-                          <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                          <div className="h-3 w-8 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-                        </div>
-                        <div className="mt-1.5 h-1.5 w-full animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
-                      </div>
+            ))}
+      </section>
+
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="relative h-full overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+          <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+          <div className="overflow-hidden rounded-[18px]">
+            <div className="flex flex-col gap-2 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
+              <h2 className="text-lg font-bold">Recent Activity</h2>
+              <button
+                className="text-xs font-bold text-primary hover:underline"
+                type="button"
+              >
+                View all
+              </button>
+            </div>
+            <div className="max-h-[420px] overflow-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-800/50">
+                    <th className="px-4 py-3">User</th>
+                    <th className="px-4 py-3">Points</th>
+                    <th className="px-4 py-3">Action</th>
+                    <th className="px-4 py-3">Time</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {loading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <tr key={index}>
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                        </td>
+                      </tr>
                     ))
-                  : requestStatusSummary.map((item) => (
-                      <DonutStat
-                        key={item.label}
-                        label={item.label}
-                        value={item.value}
-                        helper={item.helper}
-                        color={item.color}
-                      />
-                  ))}
-              </div>
-              {!loading && systemStatus.length > 0 ? (
-                <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-slate-200/70 pt-3 dark:border-white/10">
-                  {systemStatus.map((item) => (
-                    <div key={item.label} className="flex items-center justify-between gap-2 text-xs">
-                      <span className="truncate text-slate-500 dark:text-slate-400">{item.label}</span>
-                      <span className={`shrink-0 font-semibold ${getToneClass(item.tone)}`}>
-                        {item.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
+                  ) : recentActivity.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="px-4 py-8 text-center text-sm text-slate-500"
+                      >
+                        No recent activity found.
+                      </td>
+                    </tr>
+                  ) : (
+                    recentActivity.map((row) => (
+                      <tr
+                        key={`${row.user_id}-${row.occurred_at}-${row.action}`}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                      >
+                        <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
+                          {formatProfileName(row.user_username, row.user_email)}
+                        </td>
+                        <td
+                          className={`px-4 py-3 font-bold ${
+                            row.points_change < 0
+                              ? "text-red-600"
+                              : "text-emerald-600"
+                          }`}
+                        >
+                          {row.points_change > 0 ? "+" : ""}
+                          {formatNumber(row.points_change)}
+                        </td>
+                        <td className="px-4 py-3">{row.action}</td>
+                        <td className="px-4 py-3 text-slate-500">
+                          {formatRelativeTime(row.occurred_at)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
+        </div>
 
-          <PointsActivityChart data={pointsActivity} loading={loading} />
-        </section>
+        <TopPointHoldersChart data={topPointHolders} loading={loading} />
+      </section>
 
-        <section className="grid grid-cols-1 gap-6">
-          <RequestTrendChart data={requestTrend} loading={loading} />
-        </section>
-      </div>
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="relative h-full overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03] sm:p-5">
+          <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)] sm:inset-y-4 sm:left-4" />
+          <div>
+            <h3 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+              System Status
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Last 30 days
+            </p>
+          </div>
+          <div className="mt-2">
+            {loading
+              ? Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="py-2">
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-3 w-8 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                    </div>
+                    <div className="mt-1.5 h-1.5 w-full animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+                  </div>
+                ))
+              : requestStatusSummary.map((item) => (
+                  <DonutStat
+                    key={item.label}
+                    label={item.label}
+                    value={item.value}
+                    helper={item.helper}
+                    color={item.color}
+                  />
+                ))}
+          </div>
+          {!loading && systemStatus.length > 0 ? (
+            <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-slate-200/70 pt-3 dark:border-white/10">
+              {systemStatus.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center justify-between gap-2 text-xs"
+                >
+                  <span className="truncate text-slate-500 dark:text-slate-400">
+                    {item.label}
+                  </span>
+                  <span
+                    className={`shrink-0 font-semibold ${getToneClass(item.tone)}`}
+                  >
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <PointsActivityChart data={pointsActivity} loading={loading} />
+      </section>
+
+      <section className="grid grid-cols-1 gap-6">
+        <RequestTrendChart data={requestTrend} loading={loading} />
+      </section>
+    </div>
   );
 }

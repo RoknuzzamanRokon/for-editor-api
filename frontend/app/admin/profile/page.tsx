@@ -479,47 +479,47 @@ export default function AdminProfilePage() {
   const endpointCount = state.apis.length;
 
   return (
-      <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
-        <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary px-6 py-7 text-white shadow-[0_28px_90px_rgba(15,23,42,0.18)] md:px-8 md:py-8 dark:border-slate-800">
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-          <div className="absolute left-0 top-10 h-40 w-px bg-gradient-to-b from-white/0 via-white/20 to-white/0" />
+    <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
+      <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary px-6 py-7 text-white shadow-[0_28px_90px_rgba(15,23,42,0.18)] md:px-8 md:py-8 dark:border-slate-800">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+        <div className="absolute left-0 top-10 h-40 w-px bg-gradient-to-b from-white/0 via-white/20 to-white/0" />
 
-          <div className="relative">
-            <div className="flex  flex-col gap-5 sm:flex-row sm:items-start">
-              <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-[30px] border border-primary/25 bg-white/55 text-primary shadow-[0_0_50px_rgba(59,130,246,0.18)] backdrop-blur-xl dark:border-cyan-300/10 dark:bg-white/5 dark:shadow-[0_0_56px_rgba(59,130,246,0.20)]">
-                <span className="material-symbols-outlined relative text-5xl">
-                  {selectedAvatar}
+        <div className="relative">
+          <div className="flex  flex-col gap-5 sm:flex-row sm:items-start">
+            <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-[30px] border border-primary/25 bg-white/55 text-primary shadow-[0_0_50px_rgba(59,130,246,0.18)] backdrop-blur-xl dark:border-cyan-300/10 dark:bg-white/5 dark:shadow-[0_0_56px_rgba(59,130,246,0.20)]">
+              <span className="material-symbols-outlined relative text-5xl">
+                {selectedAvatar}
+              </span>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/65 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+                <span className="material-symbols-outlined text-sm">
+                  shield
+                </span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  {formatRoleLabel(state.me?.role)}
                 </span>
               </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/65 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-primary backdrop-blur-md dark:border-white/10 dark:bg-white/10">
-                  <span className="material-symbols-outlined text-sm">
-                    shield
-                  </span>
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    {formatRoleLabel(state.me?.role)}
-                  </span>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-5xl">
-                    {displayName}
-                  </h1>
-                  {/* {state.me ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-5xl">
+                  {displayName}
+                </h1>
+                {/* {state.me ? (
                       <StatusBadge active={state.me.is_active} />
                     ) : null} */}
-                </div>
+              </div>
 
-                {/* <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 md:text-base">
+              {/* <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 md:text-base">
                     Command center for your admin identity, access state, and
                     account telemetry with sharper hierarchy and cleaner
                     production-ready structure.
                   </p> */}
 
-                {/* {state.me ? (
+              {/* {state.me ? (
                     <div className="mt-6 flex flex-wrap gap-3">
                       <div className="inline-flex items-center gap-2 rounded-2xl border border-white/45 bg-white/55 px-4 py-2 backdrop-blur-md dark:border-white/10 dark:bg-white/10">
                         <span className="material-symbols-outlined text-primary">
@@ -550,98 +550,105 @@ export default function AdminProfilePage() {
                       </div>
                     </div>
                   ) : null} */}
-              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {!state.loading && !state.error && state.me ? (
+        <section className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+              Role Channel
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">
+                badge
+              </span>
+              <p className="text-lg font-black text-slate-900 dark:text-white">
+                {formatRoleLabel(state.me.role)}
+              </p>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+              My Point
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">
+                toll
+              </span>
+              <p className="text-lg font-black text-slate-900 dark:text-white">
+                {state.points ? String(state.points.available_points) : "N/A"}
+              </p>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+              Access State
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">
+                verified_user
+              </span>
+              <p className="text-lg font-black text-slate-900 dark:text-white">
+                {state.me.is_active ? "Active" : "Inactive"}
+              </p>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05] sm:col-span-2 xl:col-span-1">
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+              Joined Signal
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">
+                calendar_month
+              </span>
+              <p className="text-lg font-black text-slate-900 dark:text-white">
+                {formatDate(state.me.created_at, "Unknown")}
+              </p>
             </div>
           </div>
         </section>
+      ) : null}
 
-        {!state.loading && !state.error && state.me ? (
-          <section className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                Role Channel
-              </p>
-              <div className="mt-3 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">
-                  badge
-                </span>
-                <p className="text-lg font-black text-slate-900 dark:text-white">
-                  {formatRoleLabel(state.me.role)}
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                My Point
-              </p>
-              <div className="mt-3 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">
-                  toll
-                </span>
-                <p className="text-lg font-black text-slate-900 dark:text-white">
-                  {state.points ? String(state.points.available_points) : "N/A"}
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05]">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                Access State
-              </p>
-              <div className="mt-3 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">
-                  verified_user
-                </span>
-                <p className="text-lg font-black text-slate-900 dark:text-white">
-                  {state.me.is_active ? "Active" : "Inactive"}
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-[13px] border border-border bg-white/45 p-4 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.05] sm:col-span-2 xl:col-span-1">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                Joined Signal
-              </p>
-              <div className="mt-3 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">
-                  calendar_month
-                </span>
-                <p className="text-lg font-black text-slate-900 dark:text-white">
-                  {formatDate(state.me.created_at, "Unknown")}
-                </p>
-              </div>
-            </div>
-          </section>
-        ) : null}
-
-        {state.loading ? (
-          <div className="relative overflow-hidden rounded-[28px] border border-border bg-white/40 p-6 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/5">
-            <div className="space-y-4">
-              <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-              <div className="grid gap-4 md:grid-cols-3">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <div key={index} className="h-24 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
-                ))}
-              </div>
+      {state.loading ? (
+        <div className="relative overflow-hidden rounded-[28px] border border-border bg-white/40 p-6 backdrop-blur-xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/5">
+          <div className="space-y-4">
+            <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+            <div className="grid gap-4 md:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-24 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70"
+                />
+              ))}
             </div>
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        {state.error ? (
-          <div className="relative overflow-hidden rounded-[28px] border border-rose-200/70 bg-rose-50/80 p-6 shadow-sm backdrop-blur-xl dark:border-rose-900/40 dark:bg-rose-950/20">
-            <div className="flex items-center gap-3 text-sm text-rose-700 dark:text-rose-300">
-              <span className="material-symbols-outlined">error</span>
-              {state.error}
-            </div>
+      {state.error ? (
+        <div className="relative overflow-hidden rounded-[28px] border border-rose-200/70 bg-rose-50/80 p-6 shadow-sm backdrop-blur-xl dark:border-rose-900/40 dark:bg-rose-950/20">
+          <div className="flex items-center gap-3 text-sm text-rose-700 dark:text-rose-300">
+            <span className="material-symbols-outlined">error</span>
+            {state.error}
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        {!state.loading && !state.error && state.me ? (
+      {!state.loading && !state.error && state.me ? (
         <>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <section className="w-full relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-              <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+            <section className="w-full relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+              <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
               <SectionKicker
                 icon="person"
                 title="Identity Matrix"
@@ -654,7 +661,10 @@ export default function AdminProfilePage() {
                   value={formatProfileName(state.me.username, "Not set")}
                 />
                 <ProfileLine label="Email" value={state.me.email} mono />
-                <ProfileLine label="Role" value={formatRoleLabel(state.me.role)} />
+                <ProfileLine
+                  label="Role"
+                  value={formatRoleLabel(state.me.role)}
+                />
                 <ProfileLine
                   label="Created At"
                   value={formatDate(state.me.created_at)}
@@ -683,10 +693,10 @@ export default function AdminProfilePage() {
                   value="Admin"
                 />
               </div>
-              </section>
-              
+            </section>
+
             <section className="w-full relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-              <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+              <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
               <SectionKicker
                 icon="api"
                 title="Application active status"
@@ -720,48 +730,48 @@ export default function AdminProfilePage() {
                     No active endpoints found for this account.
                   </p>
                 ) : (
-                <div className="max-h-[360px] space-y-3 overflow-y-auto pr-1">
-                  {state.apis.map((api) => (
-                    <div
-                      key={api.action}
-                      className="flex items-center justify-between gap-3 rounded-[10px] border border-border bg-white/40 px-4 py-3 [box-shadow:2px_2px_0px_0px_var(--border)] dark:bg-white/[0.04]"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <span className="material-symbols-outlined text-primary">
-                          {getApiIcon(api.action)}
-                        </span>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
-                            {api.label}
-                          </p>
-                          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                            {api.route || api.action}
-                          </p>
+                  <div className="max-h-[360px] space-y-3 overflow-y-auto pr-1">
+                    {state.apis.map((api) => (
+                      <div
+                        key={api.action}
+                        className="flex items-center justify-between gap-3 rounded-[10px] border border-border bg-white/40 px-4 py-3 [box-shadow:2px_2px_0px_0px_var(--border)] dark:bg-white/[0.04]"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="material-symbols-outlined text-primary">
+                            {getApiIcon(api.action)}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                              {api.label}
+                            </p>
+                            <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                              {api.route || api.action}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-2">
+                          {api.method ? (
+                            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+                              {api.method}
+                            </span>
+                          ) : null}
+                          <Link
+                            href={`/admin/app-center/edit/${api.action.replace(/_/g, "-")}`}
+                            className="rounded-full border border-white/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 transition hover:border-primary/40 hover:text-primary dark:border-white/10 dark:text-slate-200"
+                          >
+                            Open
+                          </Link>
                         </div>
                       </div>
-
-                      <div className="flex shrink-0 items-center gap-2">
-                        {api.method ? (
-                          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
-                            {api.method}
-                          </span>
-                        ) : null}
-                        <Link
-                          href={`/admin/app-center/edit/${api.action.replace(/_/g, "-")}`}
-                          className="rounded-full border border-white/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 transition hover:border-primary/40 hover:text-primary dark:border-white/10 dark:text-slate-200"
-                        >
-                          Open
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </section>
-         </div>  
-         </> 
-        ) : null}
-      </div>
+          </div>
+        </>
+      ) : null}
+    </div>
   );
 }

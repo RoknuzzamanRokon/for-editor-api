@@ -63,7 +63,12 @@ function formatCompactDate(value: string) {
 function getStatusBadge(status: string) {
   const value = status.toLowerCase();
 
-  if (value === "success" || value === "active" || value === "valid" || value === "topup") {
+  if (
+    value === "success" ||
+    value === "active" ||
+    value === "valid" ||
+    value === "topup"
+  ) {
     return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300";
   }
 
@@ -99,7 +104,7 @@ function MetricCard({
 }) {
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
       <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
         <span className="material-symbols-outlined">{icon}</span>
       </div>
@@ -109,7 +114,9 @@ function MetricCard({
       <p className="mt-1 text-3xl font-black tracking-tight text-slate-900 dark:text-white">
         {value}
       </p>
-      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{caption}</p>
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        {caption}
+      </p>
     </div>
   );
 }
@@ -119,7 +126,8 @@ export default function PointsWorkspace() {
   const [error, setError] = useState("");
   const [isMobileChart, setIsMobileChart] = useState(false);
   const [points, setPoints] = useState<MyPointResponse | null>(null);
-  const [activitySummary, setActivitySummary] = useState<PointActivitySummaryResponse | null>(null);
+  const [activitySummary, setActivitySummary] =
+    useState<PointActivitySummaryResponse | null>(null);
 
   useEffect(() => {
     const auth = localStorage.getItem("access_token") ?? "";
@@ -148,12 +156,18 @@ export default function PointsWorkspace() {
 
         const summaryBody = await summaryRes.text();
         if (!summaryRes.ok) {
-          throw new Error(summaryBody || "Failed to load point activity summary");
+          throw new Error(
+            summaryBody || "Failed to load point activity summary",
+          );
         }
-        setActivitySummary(JSON.parse(summaryBody) as PointActivitySummaryResponse);
+        setActivitySummary(
+          JSON.parse(summaryBody) as PointActivitySummaryResponse,
+        );
       })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "Failed to load points data");
+        setError(
+          err instanceof Error ? err.message : "Failed to load points data",
+        );
       })
       .finally(() => setLoading(false));
   }, []);
@@ -172,7 +186,9 @@ export default function PointsWorkspace() {
 
   const visibleSummaryItems = useMemo(() => {
     if (!activitySummary) return [];
-    return isMobileChart ? activitySummary.items.slice(-7) : activitySummary.items;
+    return isMobileChart
+      ? activitySummary.items.slice(-7)
+      : activitySummary.items;
   }, [activitySummary, isMobileChart]);
 
   const activityChart = useMemo<ActivityBar[]>(() => {
@@ -200,7 +216,10 @@ export default function PointsWorkspace() {
     );
   }, [activitySummary]);
 
-  const lastActivityAt = useMemo(() => points?.history[0]?.created_at ?? null, [points]);
+  const lastActivityAt = useMemo(
+    () => points?.history[0]?.created_at ?? null,
+    [points],
+  );
   const chartDays = isMobileChart ? 7 : 30;
 
   if (loading) {
@@ -214,7 +233,10 @@ export default function PointsWorkspace() {
           </div>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+              <div
+                key={index}
+                className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
+              >
                 <div className="h-12 w-12 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-4 h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
@@ -223,7 +245,10 @@ export default function PointsWorkspace() {
           </div>
           <div className="grid gap-6 xl:grid-cols-2">
             {Array.from({ length: 2 }).map((_, index) => (
-              <div key={index} className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+              <div
+                key={index}
+                className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
+              >
                 <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-4 w-52 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
                 <div className="mt-6 h-56 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800/70" />
@@ -245,18 +270,30 @@ export default function PointsWorkspace() {
     );
   }
 
-  const maxSpentAmount = Math.max(...activityChart.map((item) => item.spent), 1);
+  const maxSpentAmount = Math.max(
+    ...activityChart.map((item) => item.spent),
+    1,
+  );
   const activityUsableWidth =
-    ACTIVITY_CHART_WIDTH - ACTIVITY_CHART_PADDING.left - ACTIVITY_CHART_PADDING.right;
+    ACTIVITY_CHART_WIDTH -
+    ACTIVITY_CHART_PADDING.left -
+    ACTIVITY_CHART_PADDING.right;
   const activityUsableHeight =
-    ACTIVITY_CHART_HEIGHT - ACTIVITY_CHART_PADDING.top - ACTIVITY_CHART_PADDING.bottom;
+    ACTIVITY_CHART_HEIGHT -
+    ACTIVITY_CHART_PADDING.top -
+    ACTIVITY_CHART_PADDING.bottom;
   const activityBars = activityChart.map((item, index) => {
     const totalBars = Math.max(activityChart.length, 1);
     const slotWidth = activityUsableWidth / totalBars;
     const barWidth = Math.max(Math.min(slotWidth * 0.8, 26), 10);
-    const x = ACTIVITY_CHART_PADDING.left + slotWidth * index + (slotWidth - barWidth) / 2;
+    const x =
+      ACTIVITY_CHART_PADDING.left +
+      slotWidth * index +
+      (slotWidth - barWidth) / 2;
     const height =
-      item.spent > 0 ? Math.max((item.spent / maxSpentAmount) * activityUsableHeight, 6) : 0;
+      item.spent > 0
+        ? Math.max((item.spent / maxSpentAmount) * activityUsableHeight, 6)
+        : 0;
     const y = ACTIVITY_CHART_HEIGHT - ACTIVITY_CHART_PADDING.bottom - height;
 
     return {
@@ -269,8 +306,7 @@ export default function PointsWorkspace() {
   });
   const activityTicks = Array.from({ length: 4 }, (_, index) => {
     const value = Math.round((maxSpentAmount * (3 - index)) / 3);
-    const y =
-      ACTIVITY_CHART_PADDING.top + (activityUsableHeight * index) / 3;
+    const y = ACTIVITY_CHART_PADDING.top + (activityUsableHeight * index) / 3;
 
     return { value, y };
   });
@@ -298,7 +334,10 @@ export default function PointsWorkspace() {
       trackColor: "rgba(139, 92, 246, 0.16)",
     },
   ];
-  const maxBreakdownValue = Math.max(...statusBreakdown.map((item) => item.value), 1);
+  const maxBreakdownValue = Math.max(
+    ...statusBreakdown.map((item) => item.value),
+    1,
+  );
 
   return (
     <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
@@ -315,27 +354,39 @@ export default function PointsWorkspace() {
               All point activity, balance, and usage signals
             </h1>
             <p className="mt-3 max-w-3xl text-sm text-white/80 md:text-base">
-              Monitor your current balance, track every point movement, and understand how topups,
-              spending, and refunds changed over time.
+              Monitor your current balance, track every point movement, and
+              understand how topups, spending, and refunds changed over time.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">Balance</p>
-              <p className="mt-1 text-sm font-bold">{points.available_points}</p>
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Balance
+              </p>
+              <p className="mt-1 text-sm font-bold">
+                {points.available_points}
+              </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">Status</p>
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Status
+              </p>
               <p className="mt-1 text-sm font-bold">{points.point_status}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">Entries</p>
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Entries
+              </p>
               <p className="mt-1 text-sm font-bold">{points.total}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
-              <p className="text-xs uppercase tracking-wider text-white/70">Last Activity</p>
-              <p className="mt-1 text-sm font-bold">{lastActivityAt ? formatCompactDate(lastActivityAt) : "-"}</p>
+              <p className="text-xs uppercase tracking-wider text-white/70">
+                Last Activity
+              </p>
+              <p className="mt-1 text-sm font-bold">
+                {lastActivityAt ? formatCompactDate(lastActivityAt) : "-"}
+              </p>
             </div>
           </div>
         </div>
@@ -376,7 +427,9 @@ export default function PointsWorkspace() {
                 <span className="material-symbols-outlined">bar_chart</span>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Point Activity</h2>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Point Activity
+                </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {`Spent points over the last ${chartDays} days`}
                 </p>
@@ -452,7 +505,10 @@ export default function PointsWorkspace() {
                           </text>
                           <text
                             x={item.x + item.width / 2}
-                            y={Math.max(item.y - 8, ACTIVITY_CHART_PADDING.top + 12)}
+                            y={Math.max(
+                              item.y - 8,
+                              ACTIVITY_CHART_PADDING.top + 12,
+                            )}
                             textAnchor="middle"
                             fontSize="11"
                             fill="currentColor"
@@ -490,7 +546,9 @@ export default function PointsWorkspace() {
                 <span className="material-symbols-outlined">donut_small</span>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Status Breakdown</h2>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Status Breakdown
+                </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Topup, spent, and refunded totals across the last 30 days
                 </p>
@@ -499,15 +557,27 @@ export default function PointsWorkspace() {
           </div>
           <div className="relative space-y-4 p-6">
             {statusBreakdown.map((item) => {
-              const width = maxBreakdownValue === 0 ? 0 : (item.value / maxBreakdownValue) * 100;
+              const width =
+                maxBreakdownValue === 0
+                  ? 0
+                  : (item.value / maxBreakdownValue) * 100;
               return (
-                <div key={item.key} className="rounded-2xl border border-white/35 bg-white/45 p-4 backdrop-blur dark:border-white/10 dark:bg-white/5">
+                <div
+                  key={item.key}
+                  className="rounded-2xl border border-white/35 bg-white/45 p-4 backdrop-blur dark:border-white/10 dark:bg-white/5"
+                >
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">{item.label}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">30 day total</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        {item.label}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        30 day total
+                      </p>
                     </div>
-                    <p className="text-lg font-black text-slate-900 dark:text-white">{item.value}</p>
+                    <p className="text-lg font-black text-slate-900 dark:text-white">
+                      {item.value}
+                    </p>
                   </div>
                   <div
                     className="mt-3 h-3 overflow-hidden rounded-full"
@@ -531,8 +601,12 @@ export default function PointsWorkspace() {
       <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
         <div className="flex flex-col gap-3 border-b border-slate-100 p-6 dark:border-white/10 md:flex-row md:items-center md:justify-between">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Point Ledger History</h3>
-            <p className="mt-1 text-sm text-slate-500">Total entries: {points.total}</p>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              Point Ledger History
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">
+              Total entries: {points.total}
+            </p>
           </div>
 
           <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -543,7 +617,9 @@ export default function PointsWorkspace() {
 
         <div className="max-h-[560px] overflow-y-auto overflow-x-auto">
           {points.history.length === 0 ? (
-            <div className="p-8 text-sm text-slate-500">No point history found.</div>
+            <div className="p-8 text-sm text-slate-500">
+              No point history found.
+            </div>
           ) : (
             <table className="w-full text-left text-sm">
               <thead>
@@ -563,8 +639,12 @@ export default function PointsWorkspace() {
                   >
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-semibold text-slate-900 dark:text-white">{entry.action}</p>
-                        <p className="mt-0.5 text-xs text-slate-500">Request ID: {entry.request_id}</p>
+                        <p className="font-semibold text-slate-900 dark:text-white">
+                          {entry.action}
+                        </p>
+                        <p className="mt-0.5 text-xs text-slate-500">
+                          Request ID: {entry.request_id}
+                        </p>
                       </div>
                     </td>
                     <td className="px-6 py-4 font-semibold">{entry.amount}</td>

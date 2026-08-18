@@ -9,7 +9,7 @@ function LoadingCard({
 }) {
   return (
     <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-4 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent" />
+      <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
       <div className="overflow-hidden rounded-[18px]">
         <div className="border-b border-slate-100 px-6 py-5 dark:border-slate-800">
           <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />

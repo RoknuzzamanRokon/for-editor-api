@@ -18,7 +18,7 @@ const CARD =
 // tints go through color-mix instead of `bg-primary/10`.
 const PRIMARY_TINT = "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]";
 const ACCENT_RAIL =
-  "absolute inset-y-4 left-4 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent";
+  "absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]";
 
 const PAGE_SIZE = 10;
 

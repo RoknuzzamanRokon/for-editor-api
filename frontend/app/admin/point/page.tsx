@@ -85,15 +85,27 @@ function formatDate(v: string) {
   return new Date(v).toLocaleString();
 }
 
-function StatTile({ label, value, icon }: { label: string; value: string | number; icon: string }) {
+function StatTile({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string | number;
+  icon: string;
+}) {
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
       <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
         <span className="material-symbols-outlined">{icon}</span>
       </div>
-      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="mt-2 text-xl font-black tracking-tight text-slate-900 dark:text-white">{value}</p>
+      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+        {label}
+      </p>
+      <p className="mt-2 text-xl font-black tracking-tight text-slate-900 dark:text-white">
+        {value}
+      </p>
     </div>
   );
 }
@@ -118,44 +130,74 @@ export default function AdminPointPage() {
     const h = { Authorization: `Bearer ${t}` };
 
     Promise.all([
-      fetch(`${API_BASE}/api/v3/admin/points/giving-history?limit=50&offset=0`, { headers: h }),
-      fetch(`${API_BASE}/api/v3/admin/points/topup-requests?limit=50&offset=0`, { headers: h }),
+      fetch(
+        `${API_BASE}/api/v3/admin/points/giving-history?limit=50&offset=0`,
+        { headers: h },
+      ),
+      fetch(
+        `${API_BASE}/api/v3/admin/points/topup-requests?limit=50&offset=0`,
+        { headers: h },
+      ),
       fetch(`${API_BASE}/api/v2/users`, { headers: h }),
-      fetch(`${API_BASE}/api/v3/admin/points/funding-summary?limit=25&offset=0`, { headers: h }),
+      fetch(
+        `${API_BASE}/api/v3/admin/points/funding-summary?limit=25&offset=0`,
+        { headers: h },
+      ),
     ])
       .then(async ([hr, rr, ur, fr]) => {
-        if (hr.ok) setHistory(await hr.json() as GivingHistory);
-        if (rr.ok) setRequests(await rr.json() as TopupRequestList);
-        if (ur.ok) setUsers(await ur.json() as UserItem[]);
-        if (fr.ok) setFunding(await fr.json() as FundingSummary);
+        if (hr.ok) setHistory((await hr.json()) as GivingHistory);
+        if (rr.ok) setRequests((await rr.json()) as TopupRequestList);
+        if (ur.ok) setUsers((await ur.json()) as UserItem[]);
+        if (fr.ok) setFunding((await fr.json()) as FundingSummary);
       })
       .finally(() => setLoading(false));
   }, []);
 
   const totalGiven = history?.items.reduce((s, i) => s + i.amount, 0) ?? 0;
-  const pendingRequests = requests?.items.filter((item) => item.status === "pending").length ?? 0;
+  const pendingRequests =
+    requests?.items.filter((item) => item.status === "pending").length ?? 0;
 
   const refreshData = async () => {
     const h = { Authorization: `Bearer ${token()}` };
     const [hr, rr, fr] = await Promise.all([
-      fetch(`${API_BASE}/api/v3/admin/points/giving-history?limit=50&offset=0`, { headers: h }),
-      fetch(`${API_BASE}/api/v3/admin/points/topup-requests?limit=50&offset=0`, { headers: h }),
-      fetch(`${API_BASE}/api/v3/admin/points/funding-summary?limit=25&offset=0`, { headers: h }),
+      fetch(
+        `${API_BASE}/api/v3/admin/points/giving-history?limit=50&offset=0`,
+        { headers: h },
+      ),
+      fetch(
+        `${API_BASE}/api/v3/admin/points/topup-requests?limit=50&offset=0`,
+        { headers: h },
+      ),
+      fetch(
+        `${API_BASE}/api/v3/admin/points/funding-summary?limit=25&offset=0`,
+        { headers: h },
+      ),
     ]);
-    if (hr.ok) setHistory(await hr.json() as GivingHistory);
-    if (rr.ok) setRequests(await rr.json() as TopupRequestList);
-    if (fr.ok) setFunding(await fr.json() as FundingSummary);
+    if (hr.ok) setHistory((await hr.json()) as GivingHistory);
+    if (rr.ok) setRequests((await rr.json()) as TopupRequestList);
+    if (fr.ok) setFunding((await fr.json()) as FundingSummary);
   };
 
   const handleTopup = async () => {
-    setTopupError(""); setTopupSuccess("");
-    if (!form.user_id || !form.amount) { setTopupError("User and amount are required."); return; }
+    setTopupError("");
+    setTopupSuccess("");
+    if (!form.user_id || !form.amount) {
+      setTopupError("User and amount are required.");
+      return;
+    }
     setTopupLoading(true);
     try {
       const res = await fetch(`${API_BASE}/api/v3/points/topup`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token()}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: Number(form.user_id), amount: Number(form.amount), note: form.note || undefined }),
+        headers: {
+          Authorization: `Bearer ${token()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: Number(form.user_id),
+          amount: Number(form.amount),
+          note: form.note || undefined,
+        }),
       });
       const body = await res.text();
       if (!res.ok) throw new Error(body || "Failed");
@@ -169,354 +211,482 @@ export default function AdminPointPage() {
     }
   };
 
-  const handleRequestAction = async (requestId: number, action: "approve" | "reject") => {
+  const handleRequestAction = async (
+    requestId: number,
+    action: "approve" | "reject",
+  ) => {
     setTopupError("");
     setTopupSuccess("");
     setRequestActionId(requestId);
     try {
-      const res = await fetch(`${API_BASE}/api/v3/admin/points/topup-requests/${requestId}/${action}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token()}` },
-      });
+      const res = await fetch(
+        `${API_BASE}/api/v3/admin/points/topup-requests/${requestId}/${action}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
       const body = await res.text();
       if (!res.ok) throw new Error(body || `Failed to ${action} request`);
       setTopupSuccess(`Request ${action}d successfully.`);
       await refreshData();
     } catch (e) {
-      setTopupError(e instanceof Error ? e.message : `Failed to ${action} request`);
+      setTopupError(
+        e instanceof Error ? e.message : `Failed to ${action} request`,
+      );
     } finally {
       setRequestActionId(null);
     }
   };
 
   return (
-      <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
+    <div className="mx-auto max-w-8xl space-y-8 p-6 md:p-8">
+      {/* Header */}
+      <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
+        
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
 
-        {/* Header */}
-        <section className="app-hero-card relative overflow-hidden rounded-[13px] border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-primary p-8 text-white shadow-xl dark:border-slate-800">
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-12 left-0 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl" />
-          <div className="relative">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
-              <span className="material-symbols-outlined text-sm">toll</span>
-              Points Management
-            </div>
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-white md:text-4xl">Point Distribution</h1>
+        
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
+            <span className="material-symbols-outlined text-sm">toll</span>
+            Points Management
           </div>
-        </section>
+          <h1 className="mt-4 text-3xl font-black tracking-tight text-white md:text-4xl">
+            Point Distribution
+          </h1>
+        </div>
+      </section>
 
-        {/* Stats */}
-        <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <StatTile label="Total Distributed" value={totalGiven.toLocaleString()} icon="account_balance_wallet" />
-          <StatTile label="Transactions" value={history?.total ?? 0} icon="receipt_long" />
-          <StatTile label="Pending Requests" value={pendingRequests} icon="notifications_active" />
-        </section>
+      {/* Stats */}
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <StatTile
+          label="Total Distributed"
+          value={totalGiven.toLocaleString()}
+          icon="account_balance_wallet"
+        />
+        <StatTile
+          label="Transactions"
+          value={history?.total ?? 0}
+          icon="receipt_long"
+        />
+        <StatTile
+          label="Pending Requests"
+          value={pendingRequests}
+          icon="notifications_active"
+        />
+      </section>
 
-        {/* Funding position. Points are pre-funded: an admin can only hand out
+      {/* Funding position. Points are pre-funded: an admin can only hand out
             what a super user has already transferred in, so this sits directly
             above the distribute form that spends it. */}
-        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent" />
+      <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+        <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
 
-          <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="inline-flex rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] p-2 text-primary">
-                  <span className="material-symbols-outlined">account_balance</span>
+        <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] p-2 text-primary">
+                <span className="material-symbols-outlined">
+                  account_balance
+                </span>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  My Point Wallet
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {funding?.can_issue
+                    ? "You issue points into the system and fund admins from this balance."
+                    : "Points you distribute come out of this balance."}
+                </p>
+              </div>
+            </div>
+
+            {funding && funding.pending_request_points > funding.balance ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/70 bg-amber-50/80 px-3 py-1 text-xs font-semibold text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
+                <span className="material-symbols-outlined text-[14px]">
+                  warning
+                </span>
+                Pending requests exceed your balance
+              </span>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="relative p-5 sm:p-6">
+          {loading ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-24 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70"
+                />
+              ))}
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-xl border border-slate-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900/60">
+                  <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span className="material-symbols-outlined text-[15px] text-emerald-600 dark:text-emerald-400">
+                      south_west
+                    </span>
+                    Received from Super
+                  </p>
+                  <p className="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
+                    {(funding?.received_from_super ?? 0).toLocaleString()}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                    {(funding?.received_total ?? 0).toLocaleString()} received
+                    in total
+                  </p>
                 </div>
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">My Point Wallet</h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {funding?.can_issue
-                      ? "You issue points into the system and fund admins from this balance."
-                      : "Points you distribute come out of this balance."}
+
+                <div className="rounded-xl border border-slate-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900/60">
+                  <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span className="material-symbols-outlined text-[15px] text-orange-600 dark:text-orange-400">
+                      north_east
+                    </span>
+                    Transferred Out
+                  </p>
+                  <p className="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
+                    {(funding?.transferred_to_users ?? 0).toLocaleString()}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                    Paid out to users
+                  </p>
+                </div>
+
+                <div className="rounded-xl border-2 border-primary bg-white/70 p-4 dark:bg-slate-900/60">
+                  <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span className="material-symbols-outlined text-[15px] text-primary">
+                      account_balance_wallet
+                    </span>
+                    Remaining Balance
+                  </p>
+                  <p className="mt-1 text-2xl font-black tabular-nums text-primary">
+                    {(funding?.balance ?? 0).toLocaleString()}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                    Available to distribute
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900/60">
+                  <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span className="material-symbols-outlined text-[15px] text-amber-600 dark:text-amber-400">
+                      schedule
+                    </span>
+                    Pending Requests
+                  </p>
+                  <p className="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
+                    {(funding?.pending_request_points ?? 0).toLocaleString()}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                    Points awaiting your approval
                   </p>
                 </div>
               </div>
 
-              {funding && funding.pending_request_points > funding.balance ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/70 bg-amber-50/80 px-3 py-1 text-xs font-semibold text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
-                  <span className="material-symbols-outlined text-[14px]">warning</span>
-                  Pending requests exceed your balance
-                </span>
-              ) : null}
-            </div>
-          </div>
+              {/* Received − transferred = remaining, spelled out so the wallet reconciles on sight. */}
+              <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+                  {(funding?.received_total ?? 0).toLocaleString()}
+                </span>{" "}
+                received −{" "}
+                <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+                  {(funding?.transferred_to_users ?? 0).toLocaleString()}
+                </span>{" "}
+                transferred ={" "}
+                <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+                  {(funding?.balance ?? 0).toLocaleString()}
+                </span>{" "}
+                remaining
+              </p>
 
-          <div className="relative p-5 sm:p-6">
-            {loading ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-24 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
-                ))}
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                  <div className="rounded-xl border border-slate-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <span className="material-symbols-outlined text-[15px] text-emerald-600 dark:text-emerald-400">south_west</span>
-                      Received from Super
-                    </p>
-                    <p className="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
-                      {(funding?.received_from_super ?? 0).toLocaleString()}
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
-                      {(funding?.received_total ?? 0).toLocaleString()} received in total
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <span className="material-symbols-outlined text-[15px] text-orange-600 dark:text-orange-400">north_east</span>
-                      Transferred Out
-                    </p>
-                    <p className="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
-                      {(funding?.transferred_to_users ?? 0).toLocaleString()}
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Paid out to users</p>
-                  </div>
-
-                  <div className="rounded-xl border-2 border-primary bg-white/70 p-4 dark:bg-slate-900/60">
-                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <span className="material-symbols-outlined text-[15px] text-primary">account_balance_wallet</span>
-                      Remaining Balance
-                    </p>
-                    <p className="mt-1 text-2xl font-black tabular-nums text-primary">
-                      {(funding?.balance ?? 0).toLocaleString()}
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Available to distribute</p>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-200 bg-white/70 p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <span className="material-symbols-outlined text-[15px] text-amber-600 dark:text-amber-400">schedule</span>
-                      Pending Requests
-                    </p>
-                    <p className="mt-1 text-2xl font-black tabular-nums text-slate-900 dark:text-white">
-                      {(funding?.pending_request_points ?? 0).toLocaleString()}
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Points awaiting your approval</p>
-                  </div>
-                </div>
-
-                {/* Received − transferred = remaining, spelled out so the wallet reconciles on sight. */}
-                <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-300">
-                    {(funding?.received_total ?? 0).toLocaleString()}
-                  </span>{" "}
-                  received −{" "}
-                  <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-300">
-                    {(funding?.transferred_to_users ?? 0).toLocaleString()}
-                  </span>{" "}
-                  transferred ={" "}
-                  <span className="font-semibold tabular-nums text-slate-700 dark:text-slate-300">
-                    {(funding?.balance ?? 0).toLocaleString()}
-                  </span>{" "}
-                  remaining
-                </p>
-
-                <div className="mt-5 overflow-hidden rounded-[18px] border border-slate-200/70 dark:border-white/10">
-                  <div className="max-h-[320px] overflow-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead className="sticky top-0 z-10 bg-slate-50 backdrop-blur dark:bg-slate-800/80">
-                        <tr>
-                          {["Movement", "Counterparty", "Amount", "When"].map((h) => (
-                            <th key={h} className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              <div className="mt-5 overflow-hidden rounded-[18px] border border-slate-200/70 dark:border-white/10">
+                <div className="max-h-[320px] overflow-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="sticky top-0 z-10 bg-slate-50 backdrop-blur dark:bg-slate-800/80">
+                      <tr>
+                        {["Movement", "Counterparty", "Amount", "When"].map(
+                          (h) => (
+                            <th
+                              key={h}
+                              className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400"
+                            >
                               {h}
                             </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {!funding?.items.length ? (
-                          <tr>
-                            <td colSpan={4} className="px-5 py-12 text-center">
-                              <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">savings</span>
-                              <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-300">No funding movements yet</p>
-                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                {funding?.can_issue
-                                  ? "Issue points to yourself, then fund your admins."
-                                  : "Ask a super admin to fund your wallet before distributing points."}
-                              </p>
-                            </td>
-                          </tr>
-                        ) : (
-                          funding.items.map((move) => {
-                            const inbound = move.direction === "in";
-                            return (
-                              <tr key={`${move.direction}-${move.id}`} className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                                <td className="px-5 py-3">
-                                  <span
-                                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                                      inbound
-                                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                        : "bg-orange-500/10 text-orange-600 dark:text-orange-400"
-                                    }`}
-                                  >
-                                    <span className="material-symbols-outlined text-[14px]">
-                                      {inbound ? "south_west" : "north_east"}
-                                    </span>
-                                    {inbound ? "Received" : "Transferred"}
-                                  </span>
-                                </td>
-                                <td className="px-5 py-3">
-                                  <p className="text-sm font-medium text-slate-900 dark:text-white">
-                                    {formatProfileName(move.counterparty_username, move.counterparty_email ?? "System")}
-                                  </p>
-                                  {move.counterparty_role ? (
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                                      {formatRoleLabel(move.counterparty_role)}
-                                    </p>
-                                  ) : null}
-                                </td>
-                                <td
-                                  className={`whitespace-nowrap px-5 py-3 text-sm font-black tabular-nums ${
-                                    inbound
-                                      ? "text-emerald-600 dark:text-emerald-400"
-                                      : "text-orange-600 dark:text-orange-400"
-                                  }`}
-                                >
-                                  {inbound ? "+" : "−"}
-                                  {move.amount.toLocaleString()}
-                                </td>
-                                <td className="whitespace-nowrap px-5 py-3 text-xs tabular-nums text-slate-500 dark:text-slate-400">
-                                  {formatDate(move.created_at)}
-                                </td>
-                              </tr>
-                            );
-                          })
+                          ),
                         )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </section>
-
-        {/* Distribute form */}
-        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
-          <div className="relative">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
-                <span className="material-symbols-outlined">add_circle</span>
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Distribute Points</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">POST /api/v3/points/topup</p>
-              </div>
-            </div>
-
-            {topupError && (
-              <div className="mb-4 rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">{topupError}</div>
-            )}
-            {topupSuccess && (
-              <div className="mb-4 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300">{topupSuccess}</div>
-            )}
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div>
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">User</label>
-                <select
-                  value={form.user_id}
-                  onChange={(e) => setForm((p) => ({ ...p, user_id: e.target.value }))}
-                  className="w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white"
-                >
-                  <option value="" className="bg-card text-foreground">
-                    Select user...
-                  </option>
-                  {users.map((u) => (
-                    <option key={u.id} value={u.id} className="bg-card text-foreground">
-                      {formatProfileName(u.username, u.email)} (#{u.id})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={form.amount}
-                  onChange={(e) => setForm((p) => ({ ...p, amount: e.target.value }))}
-                  placeholder="e.g. 100"
-                  className="w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white placeholder:text-slate-400"
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Note (optional)</label>
-                <input
-                  type="text"
-                  value={form.note}
-                  onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
-                  placeholder="Reason..."
-                  className="w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white placeholder:text-slate-400"
-                />
-              </div>
-            </div>
-
-            <div className="mt-5">
-              <button
-                type="button"
-                onClick={handleTopup}
-                disabled={topupLoading}
-                className="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <span className="material-symbols-outlined text-base">send</span>
-                {topupLoading ? "Distributing..." : "Distribute Points"}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
-          <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
-            <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
-                <span className="material-symbols-outlined">pending_actions</span>
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Incoming Topup Requests</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">GET /api/v3/admin/points/topup-requests</p>
-              </div>
-            </div>
-          </div>
-          <div className="relative p-5 sm:p-6">
-            {loading ? (
-              <div className="space-y-3">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <div key={index} className="grid grid-cols-2 gap-3 md:grid-cols-7">
-                    {Array.from({ length: 7 }).map((__, cellIndex) => (
-                      <div key={cellIndex} className="h-10 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
-                    ))}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="overflow-hidden rounded-[18px]">
-                <div className="max-h-[480px] overflow-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="sticky top-0 border-b border-slate-200/70 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50">
-                        {["#", "User", "Amount", "Requested By", "Status", "Date", "Action"].map((h) => (
-                          <th key={h} className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{h}</th>
-                        ))}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {!requests?.items.length ? (
-                        <tr><td colSpan={7} className="px-4 py-8 text-slate-400 dark:text-slate-500">No incoming requests.</td></tr>
-                      ) : requests.items.map((entry) => (
-                        <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                          <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.id}</td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                            {formatProfileName(entry.user_username, entry.user_email)}
+                      {!funding?.items.length ? (
+                        <tr>
+                          <td colSpan={4} className="px-5 py-12 text-center">
+                            <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">
+                              savings
+                            </span>
+                            <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                              No funding movements yet
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                              {funding?.can_issue
+                                ? "Issue points to yourself, then fund your admins."
+                                : "Ask a super admin to fund your wallet before distributing points."}
+                            </p>
                           </td>
-                          <td className="px-4 py-3 font-black text-primary">{entry.amount}</td>
+                        </tr>
+                      ) : (
+                        funding.items.map((move) => {
+                          const inbound = move.direction === "in";
+                          return (
+                            <tr
+                              key={`${move.direction}-${move.id}`}
+                              className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                            >
+                              <td className="px-5 py-3">
+                                <span
+                                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                    inbound
+                                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                      : "bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                                  }`}
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">
+                                    {inbound ? "south_west" : "north_east"}
+                                  </span>
+                                  {inbound ? "Received" : "Transferred"}
+                                </span>
+                              </td>
+                              <td className="px-5 py-3">
+                                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                                  {formatProfileName(
+                                    move.counterparty_username,
+                                    move.counterparty_email ?? "System",
+                                  )}
+                                </p>
+                                {move.counterparty_role ? (
+                                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    {formatRoleLabel(move.counterparty_role)}
+                                  </p>
+                                ) : null}
+                              </td>
+                              <td
+                                className={`whitespace-nowrap px-5 py-3 text-sm font-black tabular-nums ${
+                                  inbound
+                                    ? "text-emerald-600 dark:text-emerald-400"
+                                    : "text-orange-600 dark:text-orange-400"
+                                }`}
+                              >
+                                {inbound ? "+" : "−"}
+                                {move.amount.toLocaleString()}
+                              </td>
+                              <td className="whitespace-nowrap px-5 py-3 text-xs tabular-nums text-slate-500 dark:text-slate-400">
+                                {formatDate(move.created_at)}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Distribute form */}
+      <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+        <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
+        <div className="relative">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+              <span className="material-symbols-outlined">add_circle</span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                Distribute Points
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                POST /api/v3/points/topup
+              </p>
+            </div>
+          </div>
+
+          {topupError && (
+            <div className="mb-4 rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
+              {topupError}
+            </div>
+          )}
+          {topupSuccess && (
+            <div className="mb-4 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300">
+              {topupSuccess}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div>
+              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                User
+              </label>
+              <select
+                value={form.user_id}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, user_id: e.target.value }))
+                }
+                className="w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white"
+              >
+                <option value="" className="bg-card text-foreground">
+                  Select user...
+                </option>
+                {users.map((u) => (
+                  <option
+                    key={u.id}
+                    value={u.id}
+                    className="bg-card text-foreground"
+                  >
+                    {formatProfileName(u.username, u.email)} (#{u.id})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Amount
+              </label>
+              <input
+                type="number"
+                min={1}
+                value={form.amount}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, amount: e.target.value }))
+                }
+                placeholder="e.g. 100"
+                className="w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white placeholder:text-slate-400"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Note (optional)
+              </label>
+              <input
+                type="text"
+                value={form.note}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, note: e.target.value }))
+                }
+                placeholder="Reason..."
+                className="w-full rounded-2xl border border-white/40 bg-white/65 px-4 py-3 text-sm text-slate-900 outline-none shadow-sm backdrop-blur-md transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/10 dark:text-white placeholder:text-slate-400"
+              />
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <button
+              type="button"
+              onClick={handleTopup}
+              disabled={topupLoading}
+              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <span className="material-symbols-outlined text-base">send</span>
+              {topupLoading ? "Distributing..." : "Distribute Points"}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+        <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)] sm:inset-y-6 sm:left-6" />
+        <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+              <span className="material-symbols-outlined">pending_actions</span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                Incoming Topup Requests
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                GET /api/v3/admin/points/topup-requests
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="relative p-5 sm:p-6">
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-2 gap-3 md:grid-cols-7"
+                >
+                  {Array.from({ length: 7 }).map((__, cellIndex) => (
+                    <div
+                      key={cellIndex}
+                      className="h-10 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70"
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-[18px]">
+              <div className="max-h-[480px] overflow-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="sticky top-0 border-b border-slate-200/70 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50">
+                      {[
+                        "#",
+                        "User",
+                        "Amount",
+                        "Requested By",
+                        "Status",
+                        "Date",
+                        "Action",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500"
+                        >
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {!requests?.items.length ? (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className="px-4 py-8 text-slate-400 dark:text-slate-500"
+                        >
+                          No incoming requests.
+                        </td>
+                      </tr>
+                    ) : (
+                      requests.items.map((entry) => (
+                        <tr
+                          key={entry.id}
+                          className="hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                        >
+                          <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">
+                            {entry.id}
+                          </td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                            {formatProfileName(
+                              entry.user_username,
+                              entry.user_email,
+                            )}
+                          </td>
+                          <td className="px-4 py-3 font-black text-primary">
+                            {entry.amount}
+                          </td>
                           <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                             {formatProfileName(
                               entry.created_by_username,
@@ -524,23 +694,29 @@ export default function AdminPointPage() {
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${
-                              entry.status === "pending"
-                                ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
-                                : entry.status === "approved"
-                                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                                  : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"
-                            }`}>
+                            <span
+                              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${
+                                entry.status === "pending"
+                                  ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
+                                  : entry.status === "approved"
+                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                                    : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"
+                              }`}
+                            >
                               {entry.status}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{formatDate(entry.created_at)}</td>
+                          <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                            {formatDate(entry.created_at)}
+                          </td>
                           <td className="px-4 py-3">
                             {entry.status === "pending" ? (
                               <div className="flex gap-2">
                                 <button
                                   type="button"
-                                  onClick={() => handleRequestAction(entry.id, "approve")}
+                                  onClick={() =>
+                                    handleRequestAction(entry.id, "approve")
+                                  }
                                   disabled={requestActionId === entry.id}
                                   className="rounded-xl bg-emerald-500 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
                                 >
@@ -548,7 +724,9 @@ export default function AdminPointPage() {
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => handleRequestAction(entry.id, "reject")}
+                                  onClick={() =>
+                                    handleRequestAction(entry.id, "reject")
+                                  }
                                   disabled={requestActionId === entry.id}
                                   className="rounded-xl bg-rose-500 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
                                 >
@@ -565,79 +743,124 @@ export default function AdminPointPage() {
                             )}
                           </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* History */}
-        <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-5 left-5 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
-          <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
-            <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
-                <span className="material-symbols-outlined">history</span>
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Giving History</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">GET /api/v3/admin/points/giving-history</p>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
+          )}
+        </div>
+      </section>
+
+      {/* History */}
+      <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
+        <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)] sm:inset-y-6 sm:left-6" />
+        <div className="relative border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+              <span className="material-symbols-outlined">history</span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                Giving History
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                GET /api/v3/admin/points/giving-history
+              </p>
+            </div>
           </div>
-          <div className="relative p-5 sm:p-6">
-            {loading ? (
-              <div className="space-y-3">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="grid grid-cols-2 gap-3 md:grid-cols-6">
-                    {Array.from({ length: 6 }).map((__, cellIndex) => (
-                      <div key={cellIndex} className="h-10 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
-                    ))}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="overflow-hidden rounded-[18px]">
-                <div className="max-h-[480px] overflow-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="sticky top-0 border-b border-slate-200/70 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50">
-                        {["#", "Recipient", "Amount", "Note", "Given By", "Date"].map((h) => (
-                          <th key={h} className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{h}</th>
-                        ))}
+        </div>
+        <div className="relative p-5 sm:p-6">
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-2 gap-3 md:grid-cols-6"
+                >
+                  {Array.from({ length: 6 }).map((__, cellIndex) => (
+                    <div
+                      key={cellIndex}
+                      className="h-10 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70"
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-[18px]">
+              <div className="max-h-[480px] overflow-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="sticky top-0 border-b border-slate-200/70 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50">
+                      {[
+                        "#",
+                        "Recipient",
+                        "Amount",
+                        "Note",
+                        "Given By",
+                        "Date",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500"
+                        >
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {!history?.items.length ? (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="px-4 py-8 text-slate-400 dark:text-slate-500"
+                        >
+                          No history yet.
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {!history?.items.length ? (
-                        <tr><td colSpan={6} className="px-4 py-8 text-slate-400 dark:text-slate-500">No history yet.</td></tr>
-                      ) : history.items.map((entry) => (
-                        <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                          <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.id}</td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                            {formatProfileName(entry.user_username, entry.user_email)}
+                    ) : (
+                      history.items.map((entry) => (
+                        <tr
+                          key={entry.id}
+                          className="hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                        >
+                          <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">
+                            {entry.id}
                           </td>
-                          <td className="px-4 py-3 font-black text-emerald-600 dark:text-emerald-400">+{entry.amount}</td>
-                          <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{entry.note || "-"}</td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                            {formatProfileName(
+                              entry.user_username,
+                              entry.user_email,
+                            )}
+                          </td>
+                          <td className="px-4 py-3 font-black text-emerald-600 dark:text-emerald-400">
+                            +{entry.amount}
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                            {entry.note || "-"}
+                          </td>
                           <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                             {formatProfileName(
                               entry.created_by_username,
                               entry.created_by_email || "-",
                             )}
                           </td>
-                          <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{formatDate(entry.created_at)}</td>
+                          <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                            {formatDate(entry.created_at)}
+                          </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </div>
-        </section>
-
-      </div>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }

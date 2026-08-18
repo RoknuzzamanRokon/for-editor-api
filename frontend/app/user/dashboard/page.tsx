@@ -145,12 +145,16 @@ function getStatusMeta(status: string) {
 function buildLast30DaysSeries(
   performance: DashboardOverviewResponse["performance_30_days"],
 ): PerformancePoint[] {
-  const performanceMap = new Map(performance.map((item) => [item.date, item.total]));
+  const performanceMap = new Map(
+    performance.map((item) => [item.date, item.total]),
+  );
   const today = new Date();
   const series: Array<{ date: string; total: number; label: string }> = [];
 
   for (let offset = 29; offset >= 0; offset -= 1) {
-    const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const date = new Date(
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
+    );
     date.setUTCDate(date.getUTCDate() - offset);
     const key = date.toISOString().slice(0, 10);
     series.push({
@@ -165,8 +169,11 @@ function buildLast30DaysSeries(
   const usableHeight = CHART_HEIGHT - CHART_PADDING.top - CHART_PADDING.bottom;
 
   return series.map((item, index) => {
-    const x = CHART_PADDING.left + (usableWidth * index) / Math.max(series.length - 1, 1);
-    const y = CHART_PADDING.top + usableHeight - (item.total / maxTotal) * usableHeight;
+    const x =
+      CHART_PADDING.left +
+      (usableWidth * index) / Math.max(series.length - 1, 1);
+    const y =
+      CHART_PADDING.top + usableHeight - (item.total / maxTotal) * usableHeight;
 
     return {
       ...item,
@@ -207,13 +214,17 @@ function buildRecentHistoryStatusSummary(
         trackColor: meta.trackColor,
       };
     })
-    .filter((item) => item.count > 0 || (total === 0 && item.status !== "other"));
+    .filter(
+      (item) => item.count > 0 || (total === 0 && item.status !== "other"),
+    );
 }
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [overview, setOverview] = useState<DashboardOverviewResponse | null>(null);
+  const [overview, setOverview] = useState<DashboardOverviewResponse | null>(
+    null,
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -240,7 +251,11 @@ export default function DashboardPage() {
         setOverview(data);
       })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "Failed to load dashboard overview");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load dashboard overview",
+        );
       })
       .finally(() => setLoading(false));
   }, []);
@@ -255,7 +270,8 @@ export default function DashboardPage() {
     [overview],
   );
   const recentHistoryStatusSummary = useMemo(
-    () => (overview ? buildRecentHistoryStatusSummary(overview.recent_history) : []),
+    () =>
+      overview ? buildRecentHistoryStatusSummary(overview.recent_history) : [],
     [overview],
   );
 
@@ -270,8 +286,11 @@ export default function DashboardPage() {
           </div>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-                <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+              <div
+                key={index}
+                className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]"
+              >
+                <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
                 <div className="mb-4 h-10 w-10 animate-pulse rounded-xl bg-primary/10" />
                 <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="mt-3 h-8 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
@@ -293,7 +312,10 @@ export default function DashboardPage() {
     );
   }
 
-  const totalRequests30Days = performanceSeries.reduce((sum, item) => sum + item.total, 0);
+  const totalRequests30Days = performanceSeries.reduce(
+    (sum, item) => sum + item.total,
+    0,
+  );
   const busiestDay = performanceSeries.reduce((best, current) => {
     if (!best || current.total > best.total) {
       return current;
@@ -321,7 +343,9 @@ export default function DashboardPage() {
   let donutOffset = 0;
   const recentHistoryDonutSegments = recentHistoryStatusSummary.map((item) => {
     const segmentLength =
-      recentHistoryTotal === 0 ? 0 : (item.count / recentHistoryTotal) * donutCircumference;
+      recentHistoryTotal === 0
+        ? 0
+        : (item.count / recentHistoryTotal) * donutCircumference;
     const segment = {
       ...item,
       dashArray: `${segmentLength} ${Math.max(donutCircumference - segmentLength, 0)}`,
@@ -330,7 +354,10 @@ export default function DashboardPage() {
     donutOffset += segmentLength;
     return segment;
   });
-  const maxActiveApiUsage = Math.max(...overview.active_apis.map((api) => api.usage_count), 1);
+  const maxActiveApiUsage = Math.max(
+    ...overview.active_apis.map((api) => api.usage_count),
+    1,
+  );
 
   return (
     <div className="mx-auto max-w-8xl space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
@@ -395,7 +422,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+          <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
           <p className="text-sm font-medium text-slate-500">Monthly Requests</p>
           <p className="mt-1 text-2xl font-bold">
             {overview.summary.monthly_requests.toLocaleString()}
@@ -403,7 +430,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+          <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
           <p className="text-sm font-medium text-slate-500">Remaining Points</p>
           <p className="mt-1 text-2xl font-bold">
             {overview.summary.remaining_points.toLocaleString()}
@@ -411,7 +438,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+          <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
           <p className="text-sm font-medium text-slate-500">Success Rate</p>
           <p className="mt-1 text-2xl font-bold">
             {overview.summary.success_rate.toFixed(1)}%
@@ -419,7 +446,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+          <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
           <p className="text-sm font-medium text-slate-500">Avg. Latency</p>
           <p className="mt-1 text-2xl font-bold">
             {overview.summary.avg_latency_ms == null
@@ -430,7 +457,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-        <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
+        <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)] sm:inset-y-6 sm:left-6" />
         <div className="border-b border-slate-100 p-4 sm:p-6 dark:border-slate-800">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -577,7 +604,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
           <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <h3 className="font-bold">My Active APIs</h3>
@@ -628,7 +655,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-            <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
             <h4 className="mb-3 font-bold">Conversion Summary</h4>
             <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
               <p>
@@ -661,7 +688,7 @@ export default function DashboardPage() {
 
         <div className="lg:col-span-2">
           <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-            <div className="absolute inset-y-4 left-4 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 sm:inset-y-6 sm:left-6" />
+            <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)] sm:inset-y-6 sm:left-6" />
             <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 dark:border-slate-800">
               <h3 className="text-lg font-bold">Recent History</h3>
               <span className="text-xs text-slate-500">

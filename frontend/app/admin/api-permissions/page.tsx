@@ -113,6 +113,9 @@ const ROLE_OPTIONS: RoleOption[] = [
 // UI disables what the API would reject rather than surfacing a 403.
 const ADMIN_ASSIGNABLE_ROLES = new Set(["general_user", "demo_user"]);
 
+const ACCENT_RAIL =
+  "absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]";
+
 function formatDate(value?: string | null) {
   if (!value) return "N/A";
   return new Date(value).toLocaleString();
@@ -137,6 +140,7 @@ function GlassSection({
 }) {
   return (
     <section className="relative overflow-hidden rounded-[13px] border border-border bg-transparent backdrop-blur-sm [box-shadow:4px_4px_0px_0px_var(--border)]">
+      <div className={ACCENT_RAIL} />
       <div className="relative border-b border-border px-5 py-4">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -169,7 +173,8 @@ function GlassStatCard({
   subtext?: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-border bg-transparent p-4 transition duration-300 hover:-translate-y-1 [box-shadow:4px_4px_0px_0px_var(--border)]">
+    <div className="relative overflow-hidden rounded-[13px] border border-border bg-transparent p-6 transition duration-300 hover:-translate-y-1 [box-shadow:4px_4px_0px_0px_var(--border)]">
+      <div className={ACCENT_RAIL} />
       <div className="relative">
         <div className="mb-3 inline-flex rounded-2xl border border-border bg-transparent p-2 text-primary">
           <span className="material-symbols-outlined text-sm">{icon}</span>
@@ -667,7 +672,7 @@ export default function AdminApiPermissionsPage() {
         </section>
 
         {error ? (
-          <div className="relative overflow-hidden rounded-[28px] border border-rose-200/70 bg-rose-50/80 p-4 shadow-sm backdrop-blur-xl dark:border-rose-900/40 dark:bg-rose-950/20">
+          <div className="relative overflow-hidden rounded-[13px] border border-rose-200/70 bg-rose-50/80 p-4 shadow-sm backdrop-blur-xl dark:border-rose-900/40 dark:bg-rose-950/20">
             <div className="flex items-center gap-3 text-sm text-rose-700 dark:text-rose-300">
               <span className="material-symbols-outlined">error</span>
               {error}
@@ -676,7 +681,7 @@ export default function AdminApiPermissionsPage() {
         ) : null}
 
         {success ? (
-          <div className="relative overflow-hidden rounded-[28px] border border-emerald-200/70 bg-emerald-50/80 p-4 shadow-sm backdrop-blur-xl dark:border-emerald-900/40 dark:bg-emerald-950/20">
+          <div className="relative overflow-hidden rounded-[13px] border border-emerald-200/70 bg-emerald-50/80 p-4 shadow-sm backdrop-blur-xl dark:border-emerald-900/40 dark:bg-emerald-950/20">
             <div className="flex items-center gap-3 text-sm text-emerald-700 dark:text-emerald-300">
               <span className="material-symbols-outlined">check_circle</span>
               {success}

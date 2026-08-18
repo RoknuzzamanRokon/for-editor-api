@@ -1,197 +1,733 @@
 'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 
-import panelPhoto from '@/static/panel_photo.png'
+import ContactModal from '@/components/marketing/ContactModal'
+import ProductShowcase from '@/components/marketing/ProductShowcase'
 import { useMarketingTheme } from '@/config/marketingTheme'
+import {
+  AUDIENCES,
+  CAPABILITIES,
+  COMMERCIAL_POINTS,
+  CONVERSION_GROUPS,
+  FAQS,
+  HERO_ANSWERS,
+  HOW_IT_WORKS,
+  IMAGE_OUTPUT_FORMATS,
+  PREVIEW_FORMATS,
+  PROBLEM_POINTS,
+  SECONDARY_AUDIENCES,
+  SOLUTION_POINTS,
+  TOTAL_CONVERSIONS,
+  WHY_ROWS,
+} from '@/config/marketingContent'
+import panelPhoto from '@/static/panel_photo.png'
 
-const SUPPORTED_CONVERSIONS = [
-  { icon: 'description', title: 'PDF to Word', desc: 'Editable DOCX output' },
-  { icon: 'table_chart', title: 'PDF to Excel', desc: 'Extract tables to XLSX' },
-  { icon: 'picture_as_pdf', title: 'Word to PDF', desc: 'DOCX to shareable PDF' },
-  { icon: 'grid_on', title: 'Excel to PDF', desc: 'Spreadsheets to PDF' },
-  { icon: 'image', title: 'Image to PDF', desc: 'Combine photos into a PDF' },
-  { icon: 'auto_fix_high', title: 'Remove Background', desc: 'Cut backgrounds from photos' },
-  { icon: 'delete_sweep', title: 'Remove Pages', desc: 'Drop unwanted PDF pages' },
-  { icon: 'merge', title: 'Merge PDF', desc: 'Combine PDFs into one file' },
-  { icon: 'call_split', title: 'Split PDF', desc: 'One PDF into separate files' },
-  { icon: 'rotate_right', title: 'Rotate PDF', desc: 'Rotate every page' },
-  { icon: 'lock', title: 'Protect PDF', desc: 'Add a password' },
-  { icon: 'lock_open', title: 'Unlock PDF', desc: 'Remove a password' },
-  { icon: 'branding_watermark', title: 'Watermark PDF', desc: 'Stamp text on every page' },
-  { icon: 'format_list_numbered', title: 'Page Numbers', desc: 'Number every page' },
-  { icon: 'text_snippet', title: 'PDF to Text', desc: 'Extract plain text' },
-  { icon: 'note_add', title: 'Text to PDF', desc: 'Turn text into a PDF' },
-  { icon: 'slideshow', title: 'PowerPoint to PDF', desc: 'PPTX to shareable PDF' },
-  { icon: 'co_present', title: 'PDF to PowerPoint', desc: 'PDF pages into slides' },
-  { icon: 'photo_library', title: 'PDF to Image', desc: 'Export pages as PNGs' },
-  { icon: 'sync_alt', title: 'Image Converter', desc: 'PNG, JPG, WEBP, HEIC & more' },
-  { icon: 'compress', title: 'Compress PDF', desc: 'Shrink PDF file size' },
-  { icon: 'reorder', title: 'Reorganize Pages', desc: 'Reorder or drop pages' },
-] as const
+/** Enquiry presets, all routed through the existing /api/v1/contact endpoint. */
+const ENQUIRIES = {
+  license: {
+    planName: 'Commercial License',
+    title: 'Get a commercial license',
+    description:
+      'Tell us about your team and the conversions your workflow depends on. We will come back to you with license and deployment options.',
+    successMessage:
+      'Thanks — we have your commercial license enquiry. We will review it and get in touch shortly.',
+  },
+  demo: {
+    planName: 'Guided Demo',
+    title: 'Request a guided demo',
+    description:
+      'Leave your details and we will walk you through ConvaterPro against your own workflow, on a call at a time that suits you.',
+    successMessage:
+      'Thanks — your demo request is in. We will be in touch to arrange a time.',
+  },
+  talk: {
+    planName: 'Sales Enquiry',
+    title: 'Talk to us',
+    description:
+      'Questions about deployment, access control, or the formats you need? Send your details and we will reply directly.',
+    successMessage: 'Thanks for reaching out. We will reply to you shortly.',
+  },
+} as const
 
-const STATS = [
-  { value: '22+', label: 'Conversion Tools' },
-  { value: '4', label: 'Role Tiers' },
-  { value: '100%', label: 'Refunded on Failure' },
-  { value: '24/7', label: 'Self-Serve Access' },
-] as const
-
-const HOW_IT_WORKS = [
-  { step: '01', icon: 'person_add', title: 'Create an account', desc: 'Sign up in seconds. Start on the free Demo tier or pick a paid plan to unlock every tool.' },
-  { step: '02', icon: 'key', title: 'Get your API key', desc: 'Grab a bearer token from your dashboard, or skip the API entirely and convert files right from the UI.' },
-  { step: '03', icon: 'bolt', title: 'Start converting', desc: 'Call any of the 22 endpoints with an idempotency key, or drop files straight into the App Center.' },
-] as const
-
-const PRICING_TEASER = [
-  { name: 'Demo', price: '$0', sub: 'Test the API for free', featured: false },
-  { name: 'General', price: '$19', sub: 'For individual developers', featured: false },
-  { name: 'Admin', price: '$99', sub: 'High-volume, priority access', featured: true },
-  { name: 'Enterprise', price: 'Custom', sub: 'Dedicated support & SLAs', featured: false },
-] as const
-
-const FAQS = [
-  {
-    q: 'Do you store my uploaded files?',
-    a: 'Uploaded files are processed and the result is stored privately for you to download. You can delete any conversion — and its stored file — from your history at any time.',
-  },
-  {
-    q: 'What happens if a conversion fails?',
-    a: "You're never charged for a failed conversion. If processing fails after your points were reserved, they're automatically refunded to your balance.",
-  },
-  {
-    q: 'How do I avoid being charged twice on a retry?',
-    a: 'Send an Idempotency-Key header with your request. Retrying the same request with the same key returns the original result instead of running (or billing) it again.',
-  },
-  {
-    q: 'Which file formats are supported?',
-    a: '22+ conversions across PDF, Word, Excel, PowerPoint, and image formats — including HEIC, PNG, JPG, and WEBP. See the full list above.',
-  },
-  {
-    q: 'Can I manage access for a team?',
-    a: 'Yes. Demo, General, Admin, and Super User roles are available, and admins can grant or revoke access to individual conversion tools per user.',
-  },
-  {
-    q: 'Need something custom?',
-    a: "Enterprise plans include custom integrations, a dedicated manager, and priority support. Reach out from the Pricing page and we'll get back to you.",
-  },
-] as const
+type EnquiryKey = keyof typeof ENQUIRIES
 
 export default function Page() {
   const { theme: t } = useMarketingTheme()
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0)
+  const [enquiry, setEnquiry] = useState<EnquiryKey | null>(null)
+  const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const [activeGroup, setActiveGroup] = useState(CONVERSION_GROUPS[0].id)
 
-  const mainBackground = 'rgba(9,17,31,0.72)'
-  const heroBackground = 'rgba(11,17,32,0.82)'
-  const primaryCardBackground = 'rgba(9,17,31,0.74)'
-  const secondaryCardBackground = 'rgba(17,24,39,0.74)'
-  const ctaBackground = 'linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(4,7,15,0.95) 100%)'
+  const pageBg = 'rgba(9,17,31,0.72)'
+  const heroBg = 'rgba(11,17,32,0.86)'
+  const cardBg = 'rgba(9,17,31,0.78)'
+  const raisedBg = 'rgba(17,24,39,0.72)'
+  const insetBg = 'rgba(2,6,23,0.6)'
+
+  /** Faint blueprint grid — the one decorative flourish, kept behind content. */
+  const gridOverlay = {
+    backgroundImage: `linear-gradient(${t.divider} 1px, transparent 1px), linear-gradient(90deg, ${t.divider} 1px, transparent 1px)`,
+    backgroundSize: '64px 64px',
+  }
+
+  const primaryButton = {
+    background: t.buttonBg,
+    color: t.buttonText,
+    boxShadow: t.actionShadow,
+  }
+
+  const outlineButton = {
+    background: t.buttonOutlineBg,
+    color: t.buttonOutlineText,
+    borderColor: t.buttonOutlineBorder,
+  }
+
+  const selectedGroup =
+    CONVERSION_GROUPS.find((group) => group.id === activeGroup) ?? CONVERSION_GROUPS[0]
+
+  const Eyebrow = ({ children }: { children: React.ReactNode }) => (
+    <p
+      className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.24em] sm:text-sm"
+      style={{ color: t.primary }}
+    >
+      <span aria-hidden="true" className="h-px w-8" style={{ background: t.primary }} />
+      {children}
+    </p>
+  )
 
   return (
-    <main
-      className="transparent"
-      style={{ background: mainBackground, borderColor: t.border, boxShadow: t.panelShadow }}
-    >
-
-      {/* ── Hero ── */}
+    <main style={{ background: pageBg, boxShadow: t.panelShadow }}>
+      {/* ═══════════════ 1. Hero ═══════════════ */}
       <section
-        className="relative mb-16 w-full overflow-hidden border-b px-4 pb-10 pt-6 backdrop-blur-sm sm:px-6 sm:pb-14 sm:pt-10 lg:mb-24 lg:px-8 lg:pb-20 lg:pt-16"
-        style={{ background: heroBackground, borderColor: t.border }}
+        className="relative overflow-hidden border-b px-4 pb-14 pt-10 sm:px-6 sm:pb-20 sm:pt-14 lg:px-8 lg:pb-24 lg:pt-20"
+        style={{ background: heroBg, borderColor: t.border }}
+        aria-labelledby="hero-heading"
       >
-        <div className="relative mx-auto grid max-w-[1440px] items-center gap-5 lg:grid-cols-[0.82fr_1.18fr] lg:gap-18 lg:px-12">
+        <div className="pointer-events-none absolute inset-0 opacity-40" style={gridOverlay} aria-hidden="true" />
+        <div
+          className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full opacity-30 blur-[140px]"
+          style={{ background: t.primary }}
+          aria-hidden="true"
+        />
+
+        <div className="relative mx-auto grid max-w-[1440px] items-start gap-10 lg:grid-cols-2 lg:gap-14 lg:px-12">
           <div>
-            <h1 className="mt-2 max-w-5xl text-4xl font-black tracking-tight sm:mt-0 sm:text-6xl lg:text-[6.8rem] lg:leading-[1.02]" style={{ color: t.heading }}>
-              Powerful file conversion API for <span style={{ color: t.primary }}>modern applications</span>
+            <Eyebrow>Professional data conversion platform</Eyebrow>
+
+            <h1
+              id="hero-heading"
+              className="mt-5 text-4xl font-black leading-[1.06] tracking-tight sm:text-6xl lg:text-[3.75rem]"
+              style={{ color: t.heading }}
+            >
+              Convert Your Data.
+              <br />
+              <span style={{ color: t.primary }}>Simplify Your Workflow.</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 sm:mt-8 sm:text-xl sm:leading-9 lg:text-2xl lg:leading-10" style={{ color: t.text }}>
-              Secure, fast, role-based infrastructure for document conversion, permissions, billing controls, and operational visibility.
+
+            <p
+              className="mt-6 max-w-2xl text-lg leading-8 sm:text-xl sm:leading-9 lg:text-2xl lg:leading-10"
+              style={{ color: t.text }}
+            >
+              A professional web-based conversion platform built for GIS, surveying, mapping,
+              engineering, and data-processing teams.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:gap-4">
-              <a href="/register" className="group relative rounded-2xl px-6 py-3.5 text-center text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] sm:px-8 sm:py-4 sm:text-lg"
-                style={{
-                  background: t.buttonBg,
-                  color: t.buttonText,
-                  boxShadow: t.actionShadow,
-                }}>
-                <span className="relative z-10">Try Free</span>
-              </a>
-              <a href="/docs" className="rounded-2xl border px-6 py-3.5 text-center text-base font-bold backdrop-blur-sm transition-all hover:opacity-90 sm:px-8 sm:py-4 sm:text-lg"
-                style={{ background: t.buttonOutlineBg, color: t.buttonOutlineText, borderColor: t.buttonOutlineBorder }}>
-                View Documentation
-              </a>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <Link
+                href="/register"
+                className="rounded-2xl px-6 py-3.5 text-center text-base font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] sm:px-8 sm:py-4 sm:text-lg"
+                style={primaryButton}
+              >
+                Try ConvaterPro
+              </Link>
+              <button
+                type="button"
+                onClick={() => setEnquiry('license')}
+                className="rounded-2xl border px-6 py-3.5 text-center text-base font-bold transition-opacity hover:opacity-90 sm:px-8 sm:py-4 sm:text-lg"
+                style={outlineButton}
+              >
+                Get a Commercial License
+              </button>
             </div>
+
+            <p className="mt-4 text-sm sm:text-base" style={{ color: t.textMuted }}>
+              Free 8-day demo account, no card required · {TOTAL_CONVERSIONS} conversion tools ·{' '}
+            </p>
           </div>
-          <div className="w-full lg:-mr-28">
+
+          {/* Hero product visual — a real screenshot of the running dashboard */}
+          <div className="relative w-full">
             <div
-              className="overflow-hidden rounded-3xl border shadow-2xl shadow-black transition-transform hover:scale-[1.01] lg:rounded-[2rem]"
+              className="overflow-hidden rounded-3xl border"
+              style={{ borderColor: t.border, background: cardBg, boxShadow: t.elevatedCardShadow }}
+            >
+              <div
+                className="flex items-center gap-3 border-b px-4 py-3"
+                style={{ borderColor: t.divider, background: raisedBg }}
+              >
+                <div className="flex shrink-0 gap-1.5" aria-hidden="true">
+                  <span className="h-3 w-3 rounded-full" style={{ background: t.error }} />
+                  <span className="h-3 w-3 rounded-full" style={{ background: t.warning }} />
+                  <span className="h-3 w-3 rounded-full" style={{ background: t.success }} />
+                </div>
+                <span className="truncate font-mono text-xs sm:text-sm" style={{ color: t.textMuted }}>
+                  convaterpro.app/admin/dashboard
+                </span>
+              </div>
+              <Image
+                alt="The ConvaterPro dashboard: points issued, active users, API request volume, recent conversion activity, and system status including success and failure share."
+                src={panelPhoto}
+                width={1440}
+                height={810}
+                sizes="(max-width: 1023px) 100vw, 52vw"
+                priority
+                className="h-auto w-full object-contain"
+                style={{ background: '#050b14' }}
+              />
+            </div>
+
+            <p className="mt-3 text-center text-sm sm:text-base" style={{ color: t.textMuted }}>
+              The running platform — not a concept mockup.
+            </p>
+          </div>
+        </div>
+
+        {/* The three questions the first screen has to answer */}
+        <dl className="relative mx-auto mt-10 grid max-w-[1440px] gap-3 sm:grid-cols-3 sm:gap-4 lg:mt-14 lg:px-12">
+          {HERO_ANSWERS.map((answer) => (
+            <div
+              key={answer.label}
+              className="rounded-2xl border p-5"
+              style={{ background: cardBg, borderColor: t.border }}
+            >
+              <dt className="flex items-center gap-2">
+                <span
+                  className="material-symbols-outlined text-lg"
+                  style={{ color: t.primary }}
+                  aria-hidden="true"
+                >
+                  {answer.icon}
+                </span>
+                <span
+                  className="text-xs font-bold uppercase tracking-[0.16em] sm:text-sm"
+                  style={{ color: t.primary }}
+                >
+                  {answer.label}
+                </span>
+              </dt>
+              <dd className="mt-2 text-sm leading-6 sm:text-base sm:leading-7" style={{ color: t.text }}>
+                {answer.text}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-20">
+        {/* ═══════════════ 2. Problem → Solution ═══════════════ */}
+        <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="problem-heading">
+          <div className="max-w-3xl">
+            <Eyebrow>The problem</Eyebrow>
+            <h2
+              id="problem-heading"
+              className="mt-5 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+              style={{ color: t.heading }}
+            >
+              Stop wasting time on repetitive conversion tasks.
+            </h2>
+            <p className="mt-5 text-base leading-7 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9" style={{ color: t.text }}>
+              Professional teams convert, transform, and repackage data constantly before it is
+              usable in the next step. That work is unglamorous, easy to get wrong, and it adds up
+              across a project.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-2 lg:gap-8">
+            {/* Problem column */}
+            <div
+              className="rounded-3xl border p-6 sm:p-8"
+              style={{ background: cardBg, borderColor: t.border, boxShadow: t.softCardShadow }}
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+                  style={{ background: `${t.error}1a`, color: t.error }}
+                >
+                  <span className="material-symbols-outlined text-2xl" aria-hidden="true">
+                    warning
+                  </span>
+                </span>
+                <h3 className="text-xl font-bold sm:text-2xl" style={{ color: t.heading }}>
+                  How it usually goes
+                </h3>
+              </div>
+              <ul className="mt-6 space-y-5">
+                {PROBLEM_POINTS.map((point) => (
+                  <li key={point.title} className="flex gap-3">
+                    <span
+                      className="material-symbols-outlined mt-0.5 shrink-0 text-xl"
+                      style={{ color: t.textMuted }}
+                      aria-hidden="true"
+                    >
+                      {point.icon}
+                    </span>
+                    <div>
+                      <p className="text-base font-bold sm:text-lg" style={{ color: t.heading }}>
+                        {point.title}
+                      </p>
+                      <p className="mt-1 text-sm leading-6 sm:text-base sm:leading-7" style={{ color: t.textMuted }}>
+                        {point.text}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Solution column */}
+            <div
+              className="rounded-3xl border p-6 sm:p-8"
               style={{
-                borderColor: t.border,
-                background: primaryCardBackground,
+                background: raisedBg,
+                borderColor: `${t.primary}55`,
                 boxShadow: t.elevatedCardShadow,
               }}
             >
-              <div className="flex h-10 items-center gap-2 border-b px-5" style={{ borderColor: t.divider, background: secondaryCardBackground }}>
-                <span className="h-3 w-3 rounded-full bg-red-400" />
-                <span className="h-3 w-3 rounded-full bg-amber-400" />
-                <span className="h-3 w-3 rounded-full bg-emerald-400" />
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+                  style={{ background: `${t.primary}1f`, color: t.primary }}
+                >
+                  <span className="material-symbols-outlined text-2xl" aria-hidden="true">
+                    check_circle
+                  </span>
+                </span>
+                <h3 className="text-xl font-bold sm:text-2xl" style={{ color: t.heading }}>
+                  How it goes with ConvaterPro
+                </h3>
               </div>
-              <div className="bg-[#050b14] p-2 sm:p-3 lg:p-4">
-                <Image
-                  alt="Dashboard Mockup"
-                  className="h-auto w-full object-contain"
-                  src={panelPhoto}
-                  width={1440}
-                  height={810}
-                  priority
-                />
-              </div>
+              <ul className="mt-6 space-y-5">
+                {SOLUTION_POINTS.map((point) => (
+                  <li key={point.title} className="flex gap-3">
+                    <span
+                      className="material-symbols-outlined mt-0.5 shrink-0 text-xl"
+                      style={{ color: t.primary }}
+                      aria-hidden="true"
+                    >
+                      {point.icon}
+                    </span>
+                    <div>
+                      <p className="text-base font-bold sm:text-lg" style={{ color: t.heading }}>
+                        {point.title}
+                      </p>
+                      <p className="mt-1 text-sm leading-6 sm:text-base sm:leading-7" style={{ color: t.text }}>
+                        {point.text}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-        </div>
-      </section>
-
-      <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 sm:py-12 lg:px-20">
-
-        {/* ── Stats strip ── */}
-        <section className="mb-16 grid grid-cols-2 gap-6 sm:grid-cols-4 lg:mb-24">
-          {STATS.map(({ value, label }) => (
-            <div
-              key={label}
-              className="rounded-2xl border p-5 text-center sm:p-6"
-              style={{ background: primaryCardBackground, borderColor: t.border }}
-            >
-              <p className="text-3xl font-black tracking-tight sm:text-4xl" style={{ color: t.primary }}>{value}</p>
-              <p className="mt-2 text-sm font-semibold sm:text-base" style={{ color: t.text }}>{label}</p>
-            </div>
-          ))}
         </section>
 
-        {/* ── Conversions grid ── */}
-        <section className="mb-16 lg:mb-24" id="features">
-          <div className="mb-14 text-center">
-            <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl" style={{ color: t.heading }}>Supported conversions</h2>
-            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 sm:text-xl sm:leading-9" style={{ color: t.text }}>
-              Production-ready endpoints for common document and image workflows.
+        {/* ═══════════════ 3. Who is it for ═══════════════ */}
+        <section className="border-t py-16 sm:py-20 lg:py-24" style={{ borderColor: t.divider }} aria-labelledby="audience-heading">
+          <div className="max-w-3xl">
+            <Eyebrow>Who it is for</Eyebrow>
+            <h2
+              id="audience-heading"
+              className="mt-5 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+              style={{ color: t.heading }}
+            >
+              Built around technical data workflows.
+            </h2>
+            <p className="mt-5 text-base leading-7 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9" style={{ color: t.text }}>
+              ConvaterPro handles the document, tabular, imagery, and packaging work that surrounds
+              geospatial and engineering projects — the parts that eat hours and rarely get tooling.
             </p>
           </div>
-          <div className="marquee-row relative overflow-hidden">
-            <div className="marquee-track flex w-max gap-5">
-              {[...SUPPORTED_CONVERSIONS, ...SUPPORTED_CONVERSIONS].map(({ icon, title, desc }, index) => (
-                <div
-                  key={`${title}-${index}`}
-                  className="flex w-72 flex-shrink-0 items-center gap-4 rounded-2xl border p-5 transition-all hover:-translate-y-1"
-                  style={{ background: primaryCardBackground, borderColor: t.border }}
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:gap-8">
+            {AUDIENCES.map((audience) => (
+              <article
+                key={audience.title}
+                className="rounded-3xl border p-6 transition-transform hover:-translate-y-1 sm:p-8"
+                style={{ background: cardBg, borderColor: t.border, boxShadow: t.softCardShadow }}
+              >
+                <span
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl"
+                  style={{ background: `${t.primary}1a`, color: t.primary }}
                 >
-                  <div
-                    className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
-                    style={{ background: `${t.primary}18`, color: t.primary }}
+                  <span className="material-symbols-outlined text-3xl" aria-hidden="true">
+                    {audience.icon}
+                  </span>
+                </span>
+                <h3 className="mt-6 text-xl font-bold sm:text-2xl" style={{ color: t.heading }}>
+                  {audience.title}
+                </h3>
+                <p className="mt-3 text-sm leading-7 sm:text-base sm:leading-8" style={{ color: t.text }}>
+                  {audience.text}
+                </p>
+                <ul className="mt-5 flex flex-wrap gap-2">
+                  {audience.tools.map((tool) => (
+                    <li
+                      key={tool}
+                      className="rounded-full border px-3 py-1 text-xs font-semibold sm:text-sm"
+                      style={{ borderColor: t.divider, background: insetBg, color: t.textMuted }}
+                    >
+                      {tool}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-3 lg:gap-6">
+            {SECONDARY_AUDIENCES.map((audience) => (
+              <div
+                key={audience.title}
+                className="flex gap-3 rounded-2xl border p-5"
+                style={{ background: insetBg, borderColor: t.divider }}
+              >
+                <span
+                  className="material-symbols-outlined shrink-0 text-2xl"
+                  style={{ color: t.primary }}
+                  aria-hidden="true"
+                >
+                  {audience.icon}
+                </span>
+                <div>
+                  <h3 className="text-base font-bold sm:text-lg" style={{ color: t.heading }}>
+                    {audience.title}
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 sm:text-base" style={{ color: t.textMuted }}>
+                    {audience.text}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════════════ 4. How it works ═══════════════ */}
+        <section className="border-t py-16 sm:py-20 lg:py-24" style={{ borderColor: t.divider }} aria-labelledby="how-heading">
+          <div className="max-w-3xl">
+            <Eyebrow>How it works</Eyebrow>
+            <h2
+              id="how-heading"
+              className="mt-5 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+              style={{ color: t.heading }}
+            >
+              Four steps, every time.
+            </h2>
+            <p className="mt-5 text-base leading-7 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9" style={{ color: t.text }}>
+              The same flow for all {TOTAL_CONVERSIONS} tools, so there is nothing new to learn when
+              a project needs a different conversion.
+            </p>
+          </div>
+
+          <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            {HOW_IT_WORKS.map((step) => (
+              <li
+                key={step.step}
+                className="relative rounded-3xl border p-6 sm:p-7"
+                style={{ background: cardBg, borderColor: t.border, boxShadow: t.softCardShadow }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm font-black tracking-[0.2em] sm:text-base" style={{ color: t.primary }}>
+                    {step.step}
+                  </span>
+                  <span
+                    className="material-symbols-outlined text-2xl sm:text-3xl"
+                    style={{ color: t.primary }}
+                    aria-hidden="true"
                   >
-                    <span className="material-symbols-outlined text-2xl">{icon}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-base font-bold" style={{ color: t.heading }}>{title}</p>
-                    <p className="truncate text-sm" style={{ color: t.text }}>{desc}</p>
+                    {step.icon}
+                  </span>
+                </div>
+                <h3 className="mt-5 text-lg font-bold sm:text-xl" style={{ color: t.heading }}>
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 sm:text-base sm:leading-7" style={{ color: t.text }}>
+                  {step.text}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* ═══════════════ 5. Capabilities ═══════════════ */}
+        <section
+          id="features"
+          className="border-t py-16 sm:py-20 lg:py-24"
+          style={{ borderColor: t.divider }}
+          aria-labelledby="capabilities-heading"
+        >
+          <div className="max-w-3xl">
+            <Eyebrow>Capabilities</Eyebrow>
+            <h2
+              id="capabilities-heading"
+              className="mt-5 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+              style={{ color: t.heading }}
+            >
+              What you get on the platform.
+            </h2>
+            <p className="mt-5 text-base leading-7 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9" style={{ color: t.text }}>
+              Everything listed here is shipped and running today.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+            {CAPABILITIES.map((capability) => (
+              <article
+                key={capability.title}
+                className="rounded-3xl border p-6 transition-transform hover:-translate-y-1 sm:p-7"
+                style={{ background: cardBg, borderColor: t.border, boxShadow: t.softCardShadow }}
+              >
+                <span
+                  className="flex h-12 w-12 items-center justify-center rounded-xl"
+                  style={{ background: `${t.primary}1a`, color: t.primary }}
+                >
+                  <span className="material-symbols-outlined text-2xl" aria-hidden="true">
+                    {capability.icon}
+                  </span>
+                </span>
+                <h3 className="mt-5 text-lg font-bold sm:text-xl" style={{ color: t.heading }}>
+                  {capability.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 sm:text-base sm:leading-7" style={{ color: t.text }}>
+                  {capability.text}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          {/* Full conversion catalogue */}
+          <div
+            className="mt-12 overflow-hidden rounded-3xl border"
+            style={{ background: cardBg, borderColor: t.border, boxShadow: t.softCardShadow }}
+          >
+            <div className="border-b p-6 sm:p-8" style={{ borderColor: t.divider }}>
+              <h3 className="text-xl font-bold sm:text-2xl lg:text-3xl" style={{ color: t.heading }}>
+                All {TOTAL_CONVERSIONS} conversions
+              </h3>
+              <p className="mt-3 max-w-3xl text-sm leading-7 sm:text-base sm:leading-8" style={{ color: t.text }}>
+                Documents, tabular data, PDFs, imagery, and archives. Pick a category to see exactly
+                what is supported — this is the complete list, not a selection.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-2 sm:gap-3" role="tablist" aria-label="Conversion categories">
+                {CONVERSION_GROUPS.map((group) => {
+                  const isActive = group.id === selectedGroup.id
+                  return (
+                    <button
+                      key={group.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls={`group-panel-${group.id}`}
+                      id={`group-tab-${group.id}`}
+                      onClick={() => setActiveGroup(group.id)}
+                      className="flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-bold transition-all sm:px-4 sm:text-sm"
+                      style={{
+                        background: isActive ? `${t.primary}1c` : insetBg,
+                        borderColor: isActive ? t.primary : t.divider,
+                        color: isActive ? t.primary : t.text,
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-base sm:text-lg" aria-hidden="true">
+                        {group.icon}
+                      </span>
+                      {group.label}
+                      <span
+                        className="rounded-full px-1.5 py-0.5 text-[0.65rem] font-black sm:text-xs"
+                        style={{
+                          background: isActive ? t.primary : t.divider,
+                          color: isActive ? t.buttonText : t.textMuted,
+                        }}
+                      >
+                        {group.items.length}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {CONVERSION_GROUPS.map((group) => (
+              <div
+                key={group.id}
+                role="tabpanel"
+                id={`group-panel-${group.id}`}
+                aria-labelledby={`group-tab-${group.id}`}
+                hidden={group.id !== selectedGroup.id}
+                className="p-6 sm:p-8"
+              >
+                <p className="max-w-3xl text-sm leading-7 sm:text-base sm:leading-8" style={{ color: t.textMuted }}>
+                  {group.blurb}
+                </p>
+                <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+                  {group.items.map((item) => (
+                    <li
+                      key={item.action}
+                      className="flex items-center gap-3 rounded-2xl border p-4"
+                      style={{ background: insetBg, borderColor: t.divider }}
+                    >
+                      <span
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                        style={{ background: `${t.primary}16`, color: t.primary }}
+                      >
+                        <span className="material-symbols-outlined text-xl" aria-hidden="true">
+                          {item.icon}
+                        </span>
+                      </span>
+                      <span className="min-w-0 text-sm font-semibold sm:text-base" style={{ color: t.heading }}>
+                        {item.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                {group.id === 'images' ? (
+                  <p className="mt-5 text-sm sm:text-base" style={{ color: t.textMuted }}>
+                    Image output formats: {IMAGE_OUTPUT_FORMATS.join(' · ')}
+                  </p>
+                ) : null}
+              </div>
+            ))}
+
+            <div
+              className="flex flex-col gap-3 border-t p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
+              style={{ borderColor: t.divider, background: insetBg }}
+            >
+              <p className="text-sm leading-7 sm:text-base" style={{ color: t.textMuted }}>
+                Preview built in for {PREVIEW_FORMATS.length} file types:{' '}
+                <span style={{ color: t.text }}>{PREVIEW_FORMATS.join(', ')}</span>.
+              </p>
+              <button
+                type="button"
+                onClick={() => setEnquiry('talk')}
+                className="shrink-0 rounded-2xl border px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-90 sm:text-base"
+                style={outlineButton}
+              >
+                Need a format we don&apos;t list?
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════ 6. Product demonstration ═══════════════ */}
+        <section className="border-t py-16 sm:py-20 lg:py-24" style={{ borderColor: t.divider }} aria-labelledby="demo-heading">
+          <div className="max-w-3xl">
+            <Eyebrow>See the product</Eyebrow>
+            <h2
+              id="demo-heading"
+              className="mt-5 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+              style={{ color: t.heading }}
+            >
+              This is the actual software.
+            </h2>
+            <p className="mt-5 text-base leading-7 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9" style={{ color: t.text }}>
+              Three of the screens your team will use every day — the tool catalogue, a conversion in
+              progress, and the usage view that shows what the account has been doing.
+            </p>
+          </div>
+
+          <div className="mt-12">
+            <ProductShowcase />
+          </div>
+        </section>
+
+        {/* ═══════════════ 7. Commercial offering ═══════════════ */}
+        <section
+          className="relative overflow-hidden rounded-[2rem] border px-6 py-14 sm:px-10 sm:py-16 lg:px-14 lg:py-20"
+          style={{
+            background: 'linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(4,7,15,0.96) 100%)',
+            borderColor: `${t.primary}44`,
+            boxShadow: t.elevatedCardShadow,
+          }}
+          aria-labelledby="commercial-heading"
+        >
+          <div className="pointer-events-none absolute inset-0 opacity-25" style={gridOverlay} aria-hidden="true" />
+
+          <div className="relative grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
+            <div>
+              <Eyebrow>For organizations</Eyebrow>
+              <h2
+                id="commercial-heading"
+                className="mt-5 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+                style={{ color: t.heading }}
+              >
+                Need ConvaterPro for your organization?
+              </h2>
+              <p className="mt-5 text-base leading-7 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9" style={{ color: t.text }}>
+                ConvaterPro is not only a public utility. It is built to run as a team platform, with
+                accounts you administer, permissions you set per person, and the option to deploy it
+                on your own infrastructure.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+                <button
+                  type="button"
+                  onClick={() => setEnquiry('license')}
+                  className="rounded-2xl px-6 py-3.5 text-center text-base font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] sm:text-lg"
+                  style={primaryButton}
+                >
+                  Get a Commercial License
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEnquiry('demo')}
+                  className="rounded-2xl border px-6 py-3.5 text-center text-base font-bold transition-opacity hover:opacity-90 sm:text-lg"
+                  style={outlineButton}
+                >
+                  Request a Demo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEnquiry('talk')}
+                  className="rounded-2xl px-6 py-3.5 text-center text-base font-bold underline decoration-2 underline-offset-4 transition-opacity hover:opacity-80 sm:text-lg"
+                  style={{ color: t.link }}
+                >
+                  Talk to Us
+                </button>
+              </div>
+
+              <p className="mt-5 text-sm sm:text-base" style={{ color: t.textMuted }}>
+                Already know what you need?{' '}
+                <Link href="/pricing" className="font-bold underline decoration-2 underline-offset-4" style={{ color: t.primary }}>
+                  See the current plans
+                </Link>
+                .
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:gap-5">
+              {COMMERCIAL_POINTS.map((point) => (
+                <div
+                  key={point.title}
+                  className="flex gap-4 rounded-2xl border p-5"
+                  style={{ background: 'rgba(9,17,31,0.72)', borderColor: t.border }}
+                >
+                  <span
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+                    style={{ background: t.primary, color: t.buttonText }}
+                  >
+                    <span className="material-symbols-outlined text-2xl" aria-hidden="true">
+                      {point.icon}
+                    </span>
+                  </span>
+                  <div>
+                    <h3 className="text-base font-bold sm:text-lg" style={{ color: t.heading }}>
+                      {point.title}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-6 sm:text-base sm:leading-7" style={{ color: t.textMuted }}>
+                      {point.text}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -199,263 +735,227 @@ export default function Page() {
           </div>
         </section>
 
-        {/* ── 3-col info cards ── */}
-        <section className="mb-16 grid gap-6 lg:mb-24 lg:gap-8 lg:grid-cols-3">
-          {[
-            { label: 'Security',   title: 'JWT and role-based access',    desc: 'Protect write actions with bearer tokens, enforce role checks, and expose only the conversion actions each user is allowed to run.' },
-            { label: 'Billing',    title: 'Points and usage controls',    desc: 'Track point balances, top up users, inspect ledgers, and prevent duplicate charges with idempotency keys on conversion requests.' },
-            { label: 'Operations', title: 'Dashboard and admin insight',  desc: 'Monitor recent history, conversion success, user activity, point-giving history, and per-user API permissions from one platform.' },
-          ].map(({ label, title, desc }) => (
-            <div
-              key={title}
-              className="group rounded-3xl border p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm sm:p-8"
-              style={{
-                background: primaryCardBackground,
-                borderColor: t.border,
-                boxShadow: t.softCardShadow,
-              }}
+        {/* ═══════════════ 8. Why ConvaterPro ═══════════════ */}
+        <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="why-heading">
+          <div className="max-w-3xl">
+            <Eyebrow>Why ConvaterPro</Eyebrow>
+            <h2
+              id="why-heading"
+              className="mt-5 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+              style={{ color: t.heading }}
             >
-              <p className="text-xs font-bold uppercase tracking-[0.24em]" style={{ color: t.primary }}>{label}</p>
-              <h3 className="mt-4 text-2xl font-bold" style={{ color: t.heading }}>{title}</h3>
-              <p className="mt-4 text-base leading-7" style={{ color: t.text }}>{desc}</p>
-            </div>
-          ))}
-        </section>
-
-        {/* ── How it works ── */}
-        <section className="mb-16 lg:mb-24">
-          <div className="mb-14 text-center">
-            <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl" style={{ color: t.heading }}>How it works</h2>
-            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 sm:text-xl sm:leading-9" style={{ color: t.text }}>
-              From sign-up to your first converted file in minutes.
+              What changes when conversion is a platform.
+            </h2>
+            <p className="mt-5 text-base leading-7 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9" style={{ color: t.text }}>
+              Compared with the usual mix of desktop utilities, one-off web converters, and manual
+              steps.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
-            {HOW_IT_WORKS.map(({ step, icon, title, desc }) => (
-              <div
-                key={step}
-                className="relative rounded-3xl border p-6 shadow-sm backdrop-blur-sm sm:p-8"
-                style={{ background: primaryCardBackground, borderColor: t.border, boxShadow: t.softCardShadow }}
-              >
-                <span className="text-sm font-black tracking-widest" style={{ color: t.primary }}>{step}</span>
-                <div className="mt-4 flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: `${t.primary}18`, color: t.primary }}>
-                  <span className="material-symbols-outlined text-3xl">{icon}</span>
-                </div>
-                <h3 className="mt-6 text-xl font-bold" style={{ color: t.heading }}>{title}</h3>
-                <p className="mt-3 text-base leading-7" style={{ color: t.text }}>{desc}</p>
-              </div>
-            ))}
+
+          <p className="mt-8 flex items-center gap-2 text-sm sm:hidden" style={{ color: t.textMuted }}>
+            <span className="material-symbols-outlined text-lg" aria-hidden="true">
+              swipe_left
+            </span>
+            Scroll the table sideways to compare.
+          </p>
+
+          <div
+            className="mt-4 overflow-hidden rounded-3xl border sm:mt-12"
+            style={{ background: cardBg, borderColor: t.border, boxShadow: t.softCardShadow }}
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[34rem] border-collapse text-left">
+                <caption className="sr-only">
+                  Comparison of a typical conversion setup against ConvaterPro
+                </caption>
+                <thead>
+                  <tr style={{ background: raisedBg }}>
+                    <th
+                      scope="col"
+                      className="p-4 text-xs font-bold uppercase tracking-[0.16em] sm:p-5 sm:text-sm"
+                      style={{ color: t.textMuted }}
+                    >
+                      &nbsp;
+                    </th>
+                    <th
+                      scope="col"
+                      className="p-4 text-xs font-bold uppercase tracking-[0.16em] sm:p-5 sm:text-sm"
+                      style={{ color: t.textMuted }}
+                    >
+                      Typical setup
+                    </th>
+                    <th
+                      scope="col"
+                      className="p-4 text-xs font-bold uppercase tracking-[0.16em] sm:p-5 sm:text-sm"
+                      style={{ color: t.primary }}
+                    >
+                      ConvaterPro
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {WHY_ROWS.map((row, index) => (
+                    <tr
+                      key={row.point}
+                      style={{
+                        borderTop: `1px solid ${t.divider}`,
+                        background: index % 2 ? insetBg : 'transparent',
+                      }}
+                    >
+                      <th
+                        scope="row"
+                        className="p-4 align-top text-sm font-bold sm:p-5 sm:text-base"
+                        style={{ color: t.heading }}
+                      >
+                        {row.point}
+                      </th>
+                      <td className="p-4 align-top text-sm leading-6 sm:p-5 sm:text-base" style={{ color: t.textMuted }}>
+                        {row.typical}
+                      </td>
+                      <td className="p-4 align-top text-sm leading-6 sm:p-5 sm:text-base" style={{ color: t.text }}>
+                        <span className="flex gap-2">
+                          <span
+                            className="material-symbols-outlined shrink-0 text-lg"
+                            style={{ color: t.success }}
+                            aria-hidden="true"
+                          >
+                            check
+                          </span>
+                          {row.convater}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
-        {/* ── Dark CTA band ── */}
-        <section className="mb-16 overflow-hidden rounded-[2rem] py-12 shadow-2xl sm:py-16 lg:mb-24 lg:py-20"
-          style={{
-            background: ctaBackground,
-            color: t.heading,
-            boxShadow: t.elevatedCardShadow,
-          }}>
-          <div className="grid items-center gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_0.95fr] lg:gap-14 lg:px-14">
+        {/* ═══════════════ FAQ ═══════════════ */}
+        <section className="border-t py-16 sm:py-20 lg:py-24" style={{ borderColor: t.divider }} aria-labelledby="faq-heading">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
             <div>
-              <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl" style={{ color: t.heading }}>
-                Built for product, platform, and internal tools teams.
+              <Eyebrow>Questions</Eyebrow>
+              <h2
+                id="faq-heading"
+                className="mt-5 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+                style={{ color: t.heading }}
+              >
+                Straight answers.
               </h2>
-              <div className="mt-10 space-y-8">
-                {[
-                  { icon: 'key',        title: 'Auth and user management',    desc: 'Sign in, refresh access, create users, update roles, and manage access without building separate admin plumbing.' },
-                  { icon: 'sync',       title: 'Safe conversion retries',     desc: 'Use idempotency keys on v3 conversion requests to protect billing and avoid repeated background work.' },
-                  { icon: 'monitoring', title: 'Live operational visibility',  desc: 'Recent history, success rates, balances, and activity views make the API easier to run at team scale.' },
-                ].map(({ icon, title, desc }) => (
-                  <div key={title} className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                      style={{ background: t.primary, color: t.buttonText }}>
-                      <span className="material-symbols-outlined">{icon}</span>
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-bold" style={{ color: t.heading }}>{title}</h4>
-                      <p className="mt-2 text-lg" style={{ color: t.textMuted }}>{desc}</p>
+              <p className="mt-5 text-base leading-7 sm:text-lg sm:leading-8" style={{ color: t.text }}>
+                Including the ones we get asked before a purchase.{' '}
+                <button
+                  type="button"
+                  onClick={() => setEnquiry('talk')}
+                  className="font-bold underline decoration-2 underline-offset-4"
+                  style={{ color: t.primary }}
+                >
+                  Ask us anything else
+                </button>
+                .
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {FAQS.map((faq, index) => {
+                const isOpen = openFaq === index
+                return (
+                  <div
+                    key={faq.q}
+                    className="overflow-hidden rounded-2xl border"
+                    style={{ background: cardBg, borderColor: isOpen ? `${t.primary}55` : t.border }}
+                  >
+                    <h3>
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaq(isOpen ? null : index)}
+                        aria-expanded={isOpen}
+                        aria-controls={`faq-answer-${index}`}
+                        className="flex w-full items-center justify-between gap-4 p-5 text-left sm:p-6"
+                      >
+                        <span className="text-base font-bold sm:text-lg" style={{ color: t.heading }}>
+                          {faq.q}
+                        </span>
+                        <span
+                          className="material-symbols-outlined shrink-0 transition-transform"
+                          style={{ color: t.primary, transform: isOpen ? 'rotate(180deg)' : undefined }}
+                          aria-hidden="true"
+                        >
+                          expand_more
+                        </span>
+                      </button>
+                    </h3>
+                    <div id={`faq-answer-${index}`} hidden={!isOpen}>
+                      <p className="px-5 pb-5 text-sm leading-7 sm:px-6 sm:pb-6 sm:text-base sm:leading-8" style={{ color: t.text }}>
+                        {faq.a}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
+                )
+              })}
             </div>
-            <div
-              className="rounded-3xl border p-6 transition-transform hover:scale-[1.01]"
-              style={{
-                background: secondaryCardBackground,
-                borderColor: t.border,
-                boxShadow: t.elevatedCardShadow,
-              }}
+          </div>
+        </section>
+
+        {/* ═══════════════ 9. Final CTA ═══════════════ */}
+        <section
+          className="relative mb-16 overflow-hidden rounded-[2rem] border px-6 py-14 text-center sm:px-10 sm:py-16 lg:py-20"
+          style={{
+            background: 'linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(4,7,15,0.96) 100%)',
+            borderColor: t.border,
+            boxShadow: t.elevatedCardShadow,
+          }}
+          aria-labelledby="final-cta-heading"
+        >
+          <div className="pointer-events-none absolute inset-0 opacity-25" style={gridOverlay} aria-hidden="true" />
+          <div className="relative">
+            <h2
+              id="final-cta-heading"
+              className="mx-auto max-w-3xl text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+              style={{ color: t.heading }}
             >
-              <div className="mb-4 flex items-center justify-between border-b pb-4" style={{ borderColor: t.divider }}>
-                <span className="font-mono text-sm font-bold" style={{ color: t.primary }}>POST /api/v3/conversions/pdf-to-word</span>
-                <div className="flex gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
-                </div>
-              </div>
-              <pre className="overflow-x-auto whitespace-pre-wrap break-words text-sm leading-6 sm:text-base sm:leading-7" style={{ color: t.textMuted }}>
-                <code>{`curl -X POST http://127.0.0.1:8000/api/v3/conversions/pdf-to-word \\
-  -H "Authorization: Bearer <token>" \\
-  -H "Idempotency-Key: 550e8400-..." \\
-  -F "file=@document.pdf"
-
-{
-  "conversion_id": 214,
-  "status": "success",
-  "download_url": "/api/v3/conversions/214/download",
-  "points_charged": 3,
-  "remaining_balance": 97
-}`}</code>
-              </pre>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Why choose ── */}
-        <section className="mb-16 lg:mb-24">
-          <h2 className="mb-12 text-center text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl" style={{ color: t.heading }}>
-            Why teams choose ConvertPro
-          </h2>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { icon: 'speed',         title: 'Fast delivery',    desc: 'Versioned endpoints and predictable request shapes reduce integration time.' },
-              { icon: 'group',         title: 'Team-ready roles', desc: 'Support demo, general, admin, and super user workflows in one system.' },
-              { icon: 'paid',          title: 'Usage clarity',    desc: 'Balances, ledgers, and top-ups make cost control understandable for every account.' },
-              { icon: 'manage_search', title: 'Admin visibility', desc: 'Inspect users, permissions, and conversion performance without leaving the platform.' },
-            ].map(({ icon, title, desc }) => (
-              <div
-                key={title}
-                className="group rounded-3xl border p-8 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm"
-                style={{
-                  background: primaryCardBackground,
-                  borderColor: t.border,
-                  boxShadow: t.softCardShadow,
-                }}
+              Ready to simplify your data workflow?
+            </h2>
+            <p
+              className="mx-auto mt-5 max-w-2xl text-base leading-7 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9"
+              style={{ color: t.text }}
+            >
+              Start using ConvaterPro today, or talk to us about deploying it for your organization.
+            </p>
+            <div className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center sm:gap-4">
+              <Link
+                href="/register"
+                className="rounded-2xl px-6 py-3.5 text-center text-base font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] sm:px-8 sm:py-4 sm:text-lg"
+                style={primaryButton}
               >
-                <span className="material-symbols-outlined text-4xl transition-transform group-hover:scale-110" style={{ color: t.primary }}>{icon}</span>
-                <h3 className="mt-5 text-xl font-bold" style={{ color: t.heading }}>{title}</h3>
-                <p className="mt-3 text-base leading-7" style={{ color: t.text }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Pricing teaser ── */}
-        <section className="mb-16 lg:mb-24">
-          <div className="mb-14 text-center">
-            <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl" style={{ color: t.heading }}>Simple, transparent pricing</h2>
-            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 sm:text-xl sm:leading-9" style={{ color: t.text }}>
-              Start free, upgrade when you need more. No surprise charges — failed conversions are always refunded.
+                Try ConvaterPro
+              </Link>
+              <button
+                type="button"
+                onClick={() => setEnquiry('license')}
+                className="rounded-2xl border px-6 py-3.5 text-center text-base font-bold transition-opacity hover:opacity-90 sm:px-8 sm:py-4 sm:text-lg"
+                style={outlineButton}
+              >
+                Get Commercial License
+              </button>
+            </div>
+            <p className="mt-5 text-sm sm:text-base" style={{ color: t.textMuted }}>
+              Prefer to read first? <Link href="/docs" className="underline decoration-2 underline-offset-4" style={{ color: t.link }}>Browse the API documentation</Link>.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PRICING_TEASER.map(({ name, price, sub, featured }) => (
-              <Link
-                key={name}
-                href="/pricing"
-                className="group relative flex flex-col rounded-2xl border p-6 text-center transition-all hover:-translate-y-1 sm:p-8"
-                style={{
-                  background: featured ? secondaryCardBackground : primaryCardBackground,
-                  borderColor: featured ? t.primary : t.border,
-                  boxShadow: featured ? t.elevatedCardShadow : t.softCardShadow,
-                }}
-              >
-                {featured && (
-                  <span
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider"
-                    style={{ background: t.primary, color: t.buttonText }}
-                  >
-                    Most Popular
-                  </span>
-                )}
-                <h3 className="text-lg font-bold" style={{ color: t.heading }}>{name}</h3>
-                <p className="mt-3 text-3xl font-black" style={{ color: t.heading }}>{price}</p>
-                <p className="mt-2 text-sm" style={{ color: t.textMuted }}>{sub}</p>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <Link
-              href="/pricing"
-              className="inline-flex rounded-2xl px-6 py-3.5 text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
-              style={{ background: t.buttonBg, color: t.buttonText, boxShadow: t.actionShadow }}
-            >
-              View full pricing &amp; features
-            </Link>
-          </div>
         </section>
-
-        {/* ── FAQ ── */}
-        <section className="mb-16 lg:mb-24">
-          <div className="mb-14 text-center">
-            <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl" style={{ color: t.heading }}>Frequently asked questions</h2>
-          </div>
-          <div className="mx-auto max-w-3xl space-y-4">
-            {FAQS.map(({ q, a }, index) => {
-              const isOpen = openFaqIndex === index
-              return (
-                <div
-                  key={q}
-                  className="overflow-hidden rounded-2xl border"
-                  style={{ background: primaryCardBackground, borderColor: t.border }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                    className="flex w-full items-center justify-between gap-4 p-5 text-left sm:p-6"
-                    aria-expanded={isOpen}
-                  >
-                    <span className="text-base font-bold sm:text-lg" style={{ color: t.heading }}>{q}</span>
-                    <span
-                      className="material-symbols-outlined shrink-0 transition-transform"
-                      style={{ color: t.primary, transform: isOpen ? 'rotate(180deg)' : 'none' }}
-                    >
-                      expand_more
-                    </span>
-                  </button>
-                  {isOpen && (
-                    <p className="px-5 pb-5 text-base leading-7 sm:px-6 sm:pb-6" style={{ color: t.text }}>
-                      {a}
-                    </p>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </section>
-
-        {/* ── Final CTA ── */}
-        <section
-          className="mb-8 overflow-hidden rounded-[2rem] border px-6 py-14 text-center shadow-2xl sm:px-10 sm:py-16 lg:py-20"
-          style={{ background: ctaBackground, borderColor: t.border, boxShadow: t.elevatedCardShadow }}
-        >
-          <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl" style={{ color: t.heading }}>
-            Ready to start converting?
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-lg leading-8 sm:text-xl" style={{ color: t.text }}>
-            Create a free account and make your first conversion in minutes.
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
-            <a
-              href="/register"
-              className="rounded-2xl px-6 py-3.5 text-center text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] sm:px-8 sm:py-4 sm:text-lg"
-              style={{ background: t.buttonBg, color: t.buttonText, boxShadow: t.actionShadow }}
-            >
-              Try Free
-            </a>
-            <Link
-              href="/pricing"
-              className="rounded-2xl border px-6 py-3.5 text-center text-base font-bold transition-all hover:opacity-90 sm:px-8 sm:py-4 sm:text-lg"
-              style={{ background: t.buttonOutlineBg, color: t.buttonOutlineText, borderColor: t.buttonOutlineBorder }}
-            >
-              Talk to Sales
-            </Link>
-          </div>
-        </section>
-
       </div>
+
+      <ContactModal
+        isOpen={enquiry !== null}
+        onClose={() => setEnquiry(null)}
+        planName={enquiry ? ENQUIRIES[enquiry].planName : ''}
+        title={enquiry ? ENQUIRIES[enquiry].title : undefined}
+        description={enquiry ? ENQUIRIES[enquiry].description : undefined}
+        successMessage={enquiry ? ENQUIRIES[enquiry].successMessage : undefined}
+      />
     </main>
   )
 }

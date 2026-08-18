@@ -2,7 +2,11 @@
 
 import type { FormEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AVATAR_PRESETS, AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
+import {
+  AVATAR_PRESETS,
+  AvatarBadge,
+  type AvatarKey,
+} from "@/lib/accountAvatar";
 import { FONT_LIST, type FontFamily } from "@/lib/fonts";
 import { API_BASE } from "@/lib/apiBase";
 import { capitalizeProfileName, formatProfileName } from "@/lib/profileName";
@@ -72,9 +76,7 @@ function SectionCard({
             <h2 className="text-xl font-bold tracking-tight text-foreground">
               {title}
             </h2>
-            <p className="mt-1 text-sm text-foreground/60">
-              {description}
-            </p>
+            <p className="mt-1 text-sm text-foreground/60">{description}</p>
           </div>
           {action && <div className="shrink-0">{action}</div>}
         </div>
@@ -252,7 +254,7 @@ function ActionLauncherCard({
           : "border-border bg-transparent [box-shadow:4px_4px_0px_0px_var(--border)] hover:bg-card/40",
       )}
     >
-      <div className="absolute inset-y-6 left-6 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0" />
+      <div className="absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]" />
       {active && (
         <>
           <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -261,20 +263,39 @@ function ActionLauncherCard({
       )}
       <div className="flex items-start justify-between gap-4 pl-4">
         <div>
-          <div className={cn(
-            "mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border shadow-lg",
-            active ? "border-white/20 bg-white/15 text-white" : "border-border bg-card text-foreground"
-          )}>
+          <div
+            className={cn(
+              "mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border shadow-lg",
+              active
+                ? "border-white/20 bg-white/15 text-white"
+                : "border-border bg-card text-foreground",
+            )}
+          >
             <span className="material-symbols-outlined">{icon}</span>
           </div>
-          <h3 className={cn("text-base font-bold", active ? "text-white" : "text-foreground")}>
+          <h3
+            className={cn(
+              "text-base font-bold",
+              active ? "text-white" : "text-foreground",
+            )}
+          >
             {title}
           </h3>
-          <p className={cn("mt-1 text-sm", active ? "text-white/70" : "text-foreground/60")}>
+          <p
+            className={cn(
+              "mt-1 text-sm",
+              active ? "text-white/70" : "text-foreground/60",
+            )}
+          >
             {description}
           </p>
         </div>
-        <span className={cn("material-symbols-outlined text-lg", active ? "text-white/60" : "text-foreground/40")}>
+        <span
+          className={cn(
+            "material-symbols-outlined text-lg",
+            active ? "text-white/60" : "text-foreground/40",
+          )}
+        >
           chevron_right
         </span>
       </div>
@@ -288,7 +309,9 @@ export default function AccountSettingsPanel({
   area: "admin" | "dashboard";
 }) {
   const { setFontFamily, setFontSize } = useTheme();
-  const [openPanel, setOpenPanel] = useState<"profile" | "password" | "avatar" | "font" | "fontsize" | null>(null);
+  const [openPanel, setOpenPanel] = useState<
+    "profile" | "password" | "avatar" | "font" | "fontsize" | null
+  >(null);
   const [settings, setSettings] = useState<AccountSettingsResponse | null>(
     null,
   );
@@ -299,7 +322,9 @@ export default function AccountSettingsPanel({
   const [passwordNotice, setPasswordNotice] = useState("");
   const [username, setUsername] = useState("");
   const [selectedFont, setSelectedFont] = useState<FontFamily>("dm_sans");
-  const [selectedFontSize, setSelectedFontSize] = useState<"small" | "medium" | "large" | "xlarge">("medium");
+  const [selectedFontSize, setSelectedFontSize] = useState<
+    "small" | "medium" | "large" | "xlarge"
+  >("medium");
   const [savingFontSize, setSavingFontSize] = useState(false);
   const [fontSizeNotice, setFontSizeNotice] = useState("");
   const [avatarKey, setAvatarKey] = useState<AvatarKey>("avatar_1");
@@ -324,28 +349,31 @@ export default function AccountSettingsPanel({
       ? "Manage your admin account, password, and privacy preferences."
       : "Manage your account profile, password, and privacy preferences.";
 
-  const syncLocalState = useCallback((payload: AccountSettingsResponse) => {
-    setSettings(payload);
-    setUsername(capitalizeProfileName(payload.identity.username));
-    setSelectedFont(payload.preferences.font_family);
-    setSelectedFontSize((payload.preferences as any).font_size ?? "medium");
-    setAvatarKey(payload.preferences.avatar_key);
-    setSecurityAlertsEnabled(payload.preferences.security_alerts_enabled);
-    setLoginNotificationsEnabled(
-      payload.preferences.login_notifications_enabled,
-    );
-    setProfilePrivate(payload.preferences.profile_private);
-    
-    // Update font in context
-    setFontFamily(payload.preferences.font_family);
-    setFontSize((payload.preferences as any).font_size ?? "medium");
-    
-    window.dispatchEvent(
-      new CustomEvent("accountsettingschange", {
-        detail: payload,
-      }),
-    );
-  }, [setFontFamily]);
+  const syncLocalState = useCallback(
+    (payload: AccountSettingsResponse) => {
+      setSettings(payload);
+      setUsername(capitalizeProfileName(payload.identity.username));
+      setSelectedFont(payload.preferences.font_family);
+      setSelectedFontSize((payload.preferences as any).font_size ?? "medium");
+      setAvatarKey(payload.preferences.avatar_key);
+      setSecurityAlertsEnabled(payload.preferences.security_alerts_enabled);
+      setLoginNotificationsEnabled(
+        payload.preferences.login_notifications_enabled,
+      );
+      setProfilePrivate(payload.preferences.profile_private);
+
+      // Update font in context
+      setFontFamily(payload.preferences.font_family);
+      setFontSize((payload.preferences as any).font_size ?? "medium");
+
+      window.dispatchEvent(
+        new CustomEvent("accountsettingschange", {
+          detail: payload,
+        }),
+      );
+    },
+    [setFontFamily],
+  );
 
   const getToken = useCallback(() => {
     const token = window.localStorage.getItem("access_token");
@@ -392,9 +420,13 @@ export default function AccountSettingsPanel({
     loginNotificationsEnabled !==
       (settings?.preferences.login_notifications_enabled ?? true) ||
     profilePrivate !== (settings?.preferences.profile_private ?? false);
-  const avatarDirty = avatarKey !== (settings?.preferences.avatar_key ?? "avatar_1");
-  const fontDirty = selectedFont !== (settings?.preferences.font_family ?? "dm_sans");
-  const fontSizeDirty = selectedFontSize !== ((settings?.preferences as any)?.font_size ?? "medium");
+  const avatarDirty =
+    avatarKey !== (settings?.preferences.avatar_key ?? "avatar_1");
+  const fontDirty =
+    selectedFont !== (settings?.preferences.font_family ?? "dm_sans");
+  const fontSizeDirty =
+    selectedFontSize !==
+    ((settings?.preferences as any)?.font_size ?? "medium");
   const openPanelAnimationClass =
     openPanel === "profile"
       ? "settings-panel-enter-left"
@@ -557,14 +589,17 @@ export default function AccountSettingsPanel({
     setError("");
     try {
       const token = getToken();
-      const response = await fetch(`${API_BASE}/api/v2/auth/settings/preferences`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE}/api/v2/auth/settings/preferences`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ font_size: selectedFontSize }),
         },
-        body: JSON.stringify({ font_size: selectedFontSize }),
-      });
+      );
       const body = await response.text();
       if (!response.ok) throw new Error(body || "Failed to update font size");
       const parsed = JSON.parse(body) as AccountSettingsResponse;
@@ -573,7 +608,9 @@ export default function AccountSettingsPanel({
       setTimeout(() => setFontSizeNotice(""), 3000);
       setOpenPanel(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update font size");
+      setError(
+        err instanceof Error ? err.message : "Failed to update font size",
+      );
     } finally {
       setSavingFontSize(false);
     }
@@ -663,15 +700,15 @@ export default function AccountSettingsPanel({
         <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur">
-              <span className="material-symbols-outlined text-base">settings</span>
+              <span className="material-symbols-outlined text-base">
+                settings
+              </span>
               Personal Settings
             </p>
             <h1 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
               {title}
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-white/80">
-              {subtitle}
-            </p>
+            <p className="mt-2 max-w-2xl text-sm text-white/80">{subtitle}</p>
           </div>
           {settings && (
             <div className="grid gap-3 sm:grid-cols-2">
@@ -750,7 +787,9 @@ export default function AccountSettingsPanel({
           icon="format_size"
           active={openPanel === "fontsize"}
           onClick={() =>
-            setOpenPanel((current) => (current === "fontsize" ? null : "fontsize"))
+            setOpenPanel((current) =>
+              current === "fontsize" ? null : "fontsize",
+            )
           }
         />
       </div>
@@ -763,7 +802,10 @@ export default function AccountSettingsPanel({
             : "max-h-0 opacity-0 -translate-y-2",
         )}
       >
-        <div className={cn("pt-2", openPanelAnimationClass)} key={openPanel ?? "closed"}>
+        <div
+          className={cn("pt-2", openPanelAnimationClass)}
+          key={openPanel ?? "closed"}
+        >
           {openPanel === "avatar" ? (
             <SectionCard
               title="Avatar Add"
@@ -826,11 +868,14 @@ export default function AccountSettingsPanel({
               <form className="space-y-5" onSubmit={updateFont}>
                 <div className="flex items-center gap-4 rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-800/30">
                   <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <span className="material-symbols-outlined text-3xl">font_download</span>
+                    <span className="material-symbols-outlined text-3xl">
+                      font_download
+                    </span>
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                      Selected Font: {FONT_LIST.find(f => f.key === selectedFont)?.label}
+                      Selected Font:{" "}
+                      {FONT_LIST.find((f) => f.key === selectedFont)?.label}
                     </p>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                       Changes apply to all text across the website immediately.
@@ -864,7 +909,9 @@ export default function AccountSettingsPanel({
                           </p>
                         </div>
                         {selectedFont === font.key && (
-                          <span className="material-symbols-outlined text-primary">check_circle</span>
+                          <span className="material-symbols-outlined text-primary">
+                            check_circle
+                          </span>
                         )}
                       </div>
                     </button>
@@ -894,11 +941,15 @@ export default function AccountSettingsPanel({
               <form className="space-y-5" onSubmit={updateFontSize}>
                 <div className="flex items-center gap-4 rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-800/30">
                   <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <span className="material-symbols-outlined text-3xl">format_size</span>
+                    <span className="material-symbols-outlined text-3xl">
+                      format_size
+                    </span>
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                      Selected Size: {selectedFontSize.charAt(0).toUpperCase() + selectedFontSize.slice(1)}
+                      Selected Size:{" "}
+                      {selectedFontSize.charAt(0).toUpperCase() +
+                        selectedFontSize.slice(1)}
                     </p>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                       Changes apply to all text across the website immediately.
@@ -906,44 +957,75 @@ export default function AccountSettingsPanel({
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {(["small", "medium", "large", "xlarge"] as const).map((size) => {
-                    const labels: Record<string, { label: string; preview: string; desc: string }> = {
-                      small:  { label: "Small",   preview: "Aa", desc: "13px — Compact" },
-                      medium: { label: "Medium",  preview: "Aa", desc: "15px — Default" },
-                      large:  { label: "Large",   preview: "Aa", desc: "17px — Comfortable" },
-                      xlarge: { label: "X-Large", preview: "Aa", desc: "19px — Accessible" },
-                    };
-                    const previewSize: Record<string, string> = {
-                      small: "text-sm", medium: "text-base", large: "text-lg", xlarge: "text-xl",
-                    };
-                    const info = labels[size];
-                    return (
-                      <button
-                        key={size}
-                        type="button"
-                        onClick={() => setSelectedFontSize(size)}
-                        className={cn(
-                          "rounded-xl border p-4 text-center transition-all",
-                          selectedFontSize === size
-                            ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
-                            : "border-slate-200/80 bg-slate-50/50 hover:border-primary/30 hover:bg-primary/5 dark:border-slate-800/80 dark:bg-slate-800/30",
-                        )}
-                      >
-                        <p className={cn("font-bold text-slate-900 dark:text-white", previewSize[size])}>
-                          {info.preview}
-                        </p>
-                        <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-white">
-                          {info.label}
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                          {info.desc}
-                        </p>
-                        {selectedFontSize === size && (
-                          <span className="material-symbols-outlined mt-2 block text-base text-primary">check_circle</span>
-                        )}
-                      </button>
-                    );
-                  })}
+                  {(["small", "medium", "large", "xlarge"] as const).map(
+                    (size) => {
+                      const labels: Record<
+                        string,
+                        { label: string; preview: string; desc: string }
+                      > = {
+                        small: {
+                          label: "Small",
+                          preview: "Aa",
+                          desc: "13px — Compact",
+                        },
+                        medium: {
+                          label: "Medium",
+                          preview: "Aa",
+                          desc: "15px — Default",
+                        },
+                        large: {
+                          label: "Large",
+                          preview: "Aa",
+                          desc: "17px — Comfortable",
+                        },
+                        xlarge: {
+                          label: "X-Large",
+                          preview: "Aa",
+                          desc: "19px — Accessible",
+                        },
+                      };
+                      const previewSize: Record<string, string> = {
+                        small: "text-sm",
+                        medium: "text-base",
+                        large: "text-lg",
+                        xlarge: "text-xl",
+                      };
+                      const info = labels[size];
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => setSelectedFontSize(size)}
+                          className={cn(
+                            "rounded-xl border p-4 text-center transition-all",
+                            selectedFontSize === size
+                              ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
+                              : "border-slate-200/80 bg-slate-50/50 hover:border-primary/30 hover:bg-primary/5 dark:border-slate-800/80 dark:bg-slate-800/30",
+                          )}
+                        >
+                          <p
+                            className={cn(
+                              "font-bold text-slate-900 dark:text-white",
+                              previewSize[size],
+                            )}
+                          >
+                            {info.preview}
+                          </p>
+                          <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-white">
+                            {info.label}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            {info.desc}
+                          </p>
+                          {selectedFontSize === size && (
+                            <span className="material-symbols-outlined mt-2 block text-base text-primary">
+                              check_circle
+                            </span>
+                          )}
+                        </button>
+                      );
+                    },
+                  )}
                 </div>
                 {fontSizeNotice && (
                   <p className="animate-in slide-in-from-top-1 fade-in text-sm text-emerald-600 dark:text-emerald-400">

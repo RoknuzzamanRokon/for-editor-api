@@ -13,6 +13,8 @@ const CARD =
 
 // `bg-primary/12` compiles to nothing in this Tailwind config, so tint via color-mix.
 const PRIMARY_TINT = "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]";
+const ACCENT_RAIL =
+  "absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]";
 
 function StatTile({
   label,
@@ -25,6 +27,7 @@ function StatTile({
 }) {
   return (
     <div className={`${CARD} p-6`}>
+      <div className={ACCENT_RAIL} />
       <div className={`mb-4 inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
         <span className="material-symbols-outlined">{icon}</span>
       </div>
@@ -118,6 +121,7 @@ export default function UserNotificationsPage() {
       </section>
 
       <section className={CARD}>
+        <div className={ACCENT_RAIL} />
         <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">

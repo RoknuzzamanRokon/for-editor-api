@@ -33,6 +33,8 @@ const CARD =
 // The theme tokens can't take Tailwind opacity modifiers in this config
 // (`bg-primary/10` compiles to nothing), so tints go through color-mix instead.
 const PRIMARY_TINT = "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]";
+const ACCENT_RAIL =
+  "absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]";
 
 const token = () =>
   typeof window === "undefined" ? "" : localStorage.getItem("access_token") ?? "";
@@ -48,6 +50,7 @@ function StatTile({
 }) {
   return (
     <div className={`${CARD} p-6`}>
+      <div className={ACCENT_RAIL} />
       <div className={`mb-4 inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
         <span className="material-symbols-outlined">{icon}</span>
       </div>
@@ -257,7 +260,8 @@ export default function AdminNotificationsPage() {
 
       {/* Compose */}
       <section className={`${CARD} p-6`}>
-        <div className="mb-5 flex items-center gap-3">
+        <div className={ACCENT_RAIL} />
+        <div className="relative mb-5 flex items-center gap-3">
           <div className={`inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
             <span className="material-symbols-outlined">edit_notifications</span>
           </div>
@@ -272,19 +276,19 @@ export default function AdminNotificationsPage() {
         </div>
 
         {sendError ? (
-          <div className="mb-4 flex items-start gap-2 rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
+          <div className="relative mb-4 flex items-start gap-2 rounded-2xl border border-rose-200/70 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
             <span className="material-symbols-outlined text-base">error</span>
             <span>{sendError}</span>
           </div>
         ) : null}
         {sendSuccess ? (
-          <div className="mb-4 flex items-start gap-2 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300">
+          <div className="relative mb-4 flex items-start gap-2 rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300">
             <span className="material-symbols-outlined text-base">check_circle</span>
             <span>{sendSuccess}</span>
           </div>
         ) : null}
 
-        <div className="space-y-4">
+        <div className="relative space-y-4">
           <div>
             <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Title
@@ -539,6 +543,7 @@ export default function AdminNotificationsPage() {
 
       {/* History */}
       <section className={CARD}>
+        <div className={ACCENT_RAIL} />
         <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 px-5 py-4 dark:border-white/10 sm:px-6 sm:py-5">
           <div className="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800/60">
             {(["sent", "inbox"] as const).map((key) => (

@@ -41,7 +41,7 @@ const CARD =
 // which compiles to no CSS at all (opacity modifiers don't work on the
 // var()-based theme colors) — color-mix renders the same intent for real.
 const ACCENT_RAIL =
-  "absolute inset-y-4 left-4 w-px bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent sm:inset-y-5 sm:left-5";
+  "absolute inset-y-4 left-4 w-[1.5px] bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)] sm:inset-y-4 sm:left-4";
 
 const GRID_RATIOS = [0, 0.25, 0.5, 0.75, 1];
 

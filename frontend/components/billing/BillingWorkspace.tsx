@@ -16,7 +16,7 @@ const POINT_ACTIVITY_CHART_PADDING = { top: 16, right: 18, bottom: 34, left: 18 
 // CSS at all. color-mix expresses the same intent and stays theme-reactive.
 const PRIMARY_TINT = "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]";
 const ACCENT_RAIL_STOPS =
-  "bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--primary)_50%,transparent)] to-transparent";
+  "bg-[linear-gradient(to_bottom,transparent,color-mix(in_srgb,var(--primary)_50%,transparent),transparent)]";
 const FOCUS_RING =
   "focus:border-primary focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_35%,transparent)]";
 // Fixed neutral muted tone — the theme's own foreground can't take an opacity
@@ -220,7 +220,7 @@ function MetricCard({
 }) {
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 p-6 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-      <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
+      <div className={`absolute inset-y-4 left-4 w-[1.5px] ${ACCENT_RAIL_STOPS}`} />
       <div className={`mb-4 inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
         <span className="material-symbols-outlined">{icon}</span>
       </div>
@@ -620,7 +620,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-        <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
+        <div className={`absolute inset-y-4 left-4 w-[1.5px] ${ACCENT_RAIL_STOPS}`} />
         <div className="relative flex h-full flex-col justify-center gap-5 p-6">
           <div className="flex items-center gap-3">
             <div className={`inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
@@ -674,7 +674,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
       </section>
 
       <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
+          <div className={`absolute inset-y-4 left-4 w-[1.5px] ${ACCENT_RAIL_STOPS}`} />
           <div className="relative border-b border-slate-200/70 px-6 py-5 dark:border-white/10">
             <div className="flex items-center gap-3">
               <div className={`inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
@@ -795,7 +795,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
       </div>
 
       <section className="relative overflow-hidden rounded-[13px] border border-border bg-white/30 backdrop-blur-2xl [box-shadow:4px_4px_0px_0px_var(--border)] dark:bg-white/[0.03]">
-          <div className={`absolute inset-y-6 left-6 w-px ${ACCENT_RAIL_STOPS}`} />
+          <div className={`absolute inset-y-4 left-4 w-[1.5px] ${ACCENT_RAIL_STOPS}`} />
           <div className="relative border-b border-slate-200/70 px-6 py-5 dark:border-white/10">
             <div className="flex items-center gap-3">
               <div className={`inline-flex rounded-xl p-2 text-primary ${PRIMARY_TINT}`}>
@@ -1059,7 +1059,7 @@ export default function BillingWorkspace({ audience }: { audience: "dashboard" |
                         Amount in USD
                       </span>
                       <div className="relative">
-                        <span className={`pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm ${MODAL_MUTED}`}>
+                        <span className={`pointer-events-none absolute inset-y-4 left-4 flex items-center text-sm ${MODAL_MUTED}`}>
                           $
                         </span>
                         <input
