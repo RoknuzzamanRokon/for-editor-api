@@ -89,7 +89,7 @@ export default function ExcelViewer() {
             <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
               Select an Excel file (.xlsx or .xls) to view
             </p>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-slate-900 transition-all hover:bg-primary/90">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-white transition-all hover:bg-primary/90">
               <span className="material-symbols-outlined">folder_open</span>
               Choose File
               <input
@@ -139,7 +139,7 @@ export default function ExcelViewer() {
                   onClick={() => setActiveSheet(index)}
                   className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     activeSheet === index
-                      ? "bg-primary text-slate-900"
+                      ? "bg-primary text-white"
                       : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >

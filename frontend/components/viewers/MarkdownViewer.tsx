@@ -58,7 +58,7 @@ export default function MarkdownViewer() {
             <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
               Select a .md file to view
             </p>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-slate-900 transition-all hover:bg-primary/90">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-white transition-all hover:bg-primary/90">
               <span className="material-symbols-outlined">folder_open</span>
               Choose File
               <input
