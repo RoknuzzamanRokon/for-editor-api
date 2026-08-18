@@ -5,6 +5,7 @@ This module provides functionality for generating verification codes,
 managing verification sessions, and validating email verification codes.
 """
 
+import logging
 import secrets
 import string
 from datetime import datetime, timedelta
@@ -17,6 +18,8 @@ from core.points import get_user_balance
 from db.models import EmailVerificationSession
 from models.auth import DemoRegisterRequest
 from services.email import send_registration_confirmation_email, send_verification_email
+
+logger = logging.getLogger(__name__)
 
 
 def generate_verification_code() -> str:
@@ -299,7 +302,11 @@ def complete_registration(
             trial_expires_at=user.demo_expires_at,
         )
     except Exception:
-        pass
+        # Swallowed on purpose (see docstring) — logged so a bad SMTP config
+        # or credential shows up in the server log instead of vanishing.
+        logger.exception(
+            "Failed to send registration confirmation email to %s", user.email
+        )
 
     # Step 5: Return created user
     return user

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
@@ -20,7 +21,10 @@ from db.models import (
     UserPreference,
 )
 from models.auth import DemoRegisterRequest, UserCreate
+from services.email import send_registration_confirmation_email
 from services.notifications import purge_user_notifications
+
+logger = logging.getLogger(__name__)
 
 DEMO_SELF_REGISTER_POINTS = 33
 DEMO_TRIAL_DAYS = 8
@@ -157,6 +161,26 @@ def create_user(
         db.commit()
 
     db.refresh(user)
+
+    # Courtesy notification on top of an already-completed registration — a
+    # failed send must never undo the account that was just created, same
+    # rule verification.complete_registration follows for self-registration.
+    try:
+        send_registration_confirmation_email(
+            to_email=user.email,
+            username=user.username or user.email,
+            role_label=user.role.value.replace("_", " ").title(),
+            points_balance=starting_balance if starting_balance > 0 else 0,
+            selected_api_labels=[],
+        )
+    except Exception:
+        # Swallowed on purpose — a failed courtesy email must never undo an
+        # already-completed account creation. Logged so a bad SMTP config or
+        # credential shows up in the server log instead of vanishing.
+        logger.exception(
+            "Failed to send registration confirmation email to %s", user.email
+        )
+
     return user
 
 
