@@ -7,7 +7,12 @@ import { API_BASE } from "@/lib/apiBase";
 
 function SparklesIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Zm6 12 1 2.5L21.5 18 19 19l-1 2.5L17 19l-2.5-1 2.5-.5 1-2.5ZM6 14l1.2 3L10 18.2 7.2 19 6 22l-1.2-3L2 18.2 4.8 17 6 14Z"
         fill="currentColor"
@@ -18,30 +23,64 @@ function SparklesIcon({ className = "" }: { className?: string }) {
 
 function MailIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M4 6.75h16a1.25 1.25 0 0 1 1.25 1.25v8A2.75 2.75 0 0 1 18.5 18.75h-13A2.75 2.75 0 0 1 2.75 16V8A1.25 1.25 0 0 1 4 6.75Z"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinejoin="round"
       />
-      <path d="m4 8 8 5 8-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="m4 8 8 5 8-5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
 function LockIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="4.75" y="10.75" width="14.5" height="9.5" rx="2.25" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M8.5 10.75V8.5a3.5 3.5 0 1 1 7 0v2.25" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <rect
+        x="4.75"
+        y="10.75"
+        width="14.5"
+        height="9.5"
+        rx="2.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M8.5 10.75V8.5a3.5 3.5 0 1 1 7 0v2.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 function EyeIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M2.75 12s3.25-5.25 9.25-5.25S21.25 12 21.25 12 18 17.25 12 17.25 2.75 12 2.75 12Z"
         stroke="currentColor"
@@ -49,14 +88,25 @@ function EyeIcon({ className = "" }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="12" cy="12" r="2.75" stroke="currentColor" strokeWidth="1.8" />
+      <circle
+        cx="12"
+        cy="12"
+        r="2.75"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
     </svg>
   );
 }
 
 function EyeOffIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M10.6 6.9A10.1 10.1 0 0 1 12 6.75C18 6.75 21.25 12 21.25 12a17.2 17.2 0 0 1-2.53 3.17"
         stroke="currentColor"
@@ -71,7 +121,12 @@ function EyeOffIcon({ className = "" }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M3.75 3.75 20.25 20.25" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M3.75 3.75 20.25 20.25"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -143,7 +198,9 @@ export default function RegisterPage() {
       setSuccess("Verification code sent to your email");
       setShowVerificationModal(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to send verification code");
+      setError(
+        err instanceof Error ? err.message : "Failed to send verification code",
+      );
     } finally {
       setLoading(false);
     }
@@ -155,7 +212,7 @@ export default function RegisterPage() {
       setError("Enter the 5-character verification code");
       return;
     }
-    
+
     // Mark email as verified and close modal
     setEmailVerified(true);
     setShowVerificationModal(false);
@@ -200,13 +257,16 @@ export default function RegisterPage() {
     setError("");
     setResendLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/v2/auth/resend-verification`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE}/api/v2/auth/resend-verification`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
         },
-        body: JSON.stringify({ email }),
-      });
+      );
 
       if (!response.ok) {
         let errorMessage = "Failed to resend code";
@@ -248,18 +308,21 @@ export default function RegisterPage() {
 
     try {
       // First, update the registration data with actual username, password, and selected actions
-      const updateResponse = await fetch(`${API_BASE}/api/v2/auth/update-registration-data`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const updateResponse = await fetch(
+        `${API_BASE}/api/v2/auth/update-registration-data`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            username,
+            password,
+            selected_actions: selectedActions,
+          }),
         },
-        body: JSON.stringify({
-          email,
-          username,
-          password,
-          selected_actions: selectedActions,
-        }),
-      });
+      );
 
       if (!updateResponse.ok) {
         let errorMessage = "Failed to update registration data";
@@ -274,16 +337,19 @@ export default function RegisterPage() {
       }
 
       // Now complete registration with verified email
-      const verifyResponse = await fetch(`${API_BASE}/api/v2/auth/verify-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const verifyResponse = await fetch(
+        `${API_BASE}/api/v2/auth/verify-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            code: verificationCode.toUpperCase(),
+          }),
         },
-        body: JSON.stringify({
-          email,
-          code: verificationCode.toUpperCase(),
-        }),
-      });
+      );
 
       if (!verifyResponse.ok) {
         let errorMessage = "Verification failed";
@@ -298,7 +364,7 @@ export default function RegisterPage() {
       }
 
       const tokens = await verifyResponse.json();
-      
+
       setSuccess("Account created successfully! Redirecting to login...");
       sessionStorage.setItem(
         "register_prefill",
@@ -347,12 +413,17 @@ export default function RegisterPage() {
       <div className="login-ui h-full w-full">
         <nav className="fixed left-0 right-0 top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-card/70 px-6 backdrop-blur-md dark:bg-[rgba(11,17,32,0.82)]">
           <a href="/" className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-2xl text-primary">sync_alt</span>
+            <span className="material-symbols-outlined text-2xl text-primary">
+              sync_alt
+            </span>
             <span className="text-lg font-extrabold tracking-tight text-foreground">
-              ConvertPro <span className="text-primary">API</span>
+              ConvaterPro<span className="text-primary">API</span>
             </span>
           </a>
-          <a href="/" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">
+          <a
+            href="/"
+            className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90"
+          >
             Home
           </a>
         </nav>
@@ -368,24 +439,48 @@ export default function RegisterPage() {
                   <SparklesIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold tracking-tight text-foreground">Converter Tools</h2>
-                  <p className="text-xs text-foreground/60">Professional Suite</p>
+                  <h2 className="text-xl font-bold tracking-tight text-foreground">
+                    Converter Tools
+                  </h2>
+                  <p className="text-xs text-foreground/60">
+                    Professional Suite
+                  </p>
                 </div>
               </div>
 
-              <h1 className="text-2xl font-semibold text-foreground">Create account</h1>
+              <h1 className="text-2xl font-semibold text-foreground">
+                Create account
+              </h1>
               <div className="mt-2 flex items-center gap-2 text-xs text-foreground/60">
-                <span className={`rounded-full px-2 py-1 ${step === 1 ? "ring-2 ring-inset ring-primary text-primary" : step > 1 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>1</span>
-                <span className={`rounded-full px-2 py-1 ${step === 2 ? "ring-2 ring-inset ring-primary text-primary" : step > 2 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>2</span>
-                <span className={`rounded-full px-2 py-1 ${step === 3 ? "ring-2 ring-inset ring-primary text-primary" : step > 3 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>3</span>
-                <span className={`rounded-full px-2 py-1 ${step === 4 ? "ring-2 ring-inset ring-primary text-primary" : step > 4 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}>4</span>
+                <span
+                  className={`rounded-full px-2 py-1 ${step === 1 ? "ring-2 ring-inset ring-primary text-primary" : step > 1 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}
+                >
+                  1
+                </span>
+                <span
+                  className={`rounded-full px-2 py-1 ${step === 2 ? "ring-2 ring-inset ring-primary text-primary" : step > 2 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}
+                >
+                  2
+                </span>
+                <span
+                  className={`rounded-full px-2 py-1 ${step === 3 ? "ring-2 ring-inset ring-primary text-primary" : step > 3 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}
+                >
+                  3
+                </span>
+                <span
+                  className={`rounded-full px-2 py-1 ${step === 4 ? "ring-2 ring-inset ring-primary text-primary" : step > 4 ? "bg-primary text-white" : "bg-background text-foreground/60"}`}
+                >
+                  4
+                </span>
               </div>
 
               <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
                 {step === 1 && (
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground">Email address</label>
+                      <label className="text-sm font-medium text-foreground">
+                        Email address
+                      </label>
                       <div className="relative">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                           <MailIcon className="h-4 w-4 text-foreground/60" />
@@ -407,14 +502,18 @@ export default function RegisterPage() {
                         <span>Email verified</span>
                       </div>
                     )}
-                    <p className="text-xs text-foreground/60">We&apos;ll send a verification code to your email</p>
+                    <p className="text-xs text-foreground/60">
+                      We&apos;ll send a verification code to your email
+                    </p>
                   </div>
                 )}
 
                 {step === 2 && (
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground">Username</label>
+                      <label className="text-sm font-medium text-foreground">
+                        Username
+                      </label>
                       <input
                         className="block w-full rounded-xl border border-border bg-background py-2.5 px-3 text-sm text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
                         type="text"
@@ -426,7 +525,9 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground">Password</label>
+                      <label className="text-sm font-medium text-foreground">
+                        Password
+                      </label>
                       <div className="relative">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                           <LockIcon className="h-4 w-4 text-foreground/60" />
@@ -445,13 +546,19 @@ export default function RegisterPage() {
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground/60 transition-colors hover:text-foreground"
                         >
-                          {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                          {showPassword ? (
+                            <EyeOffIcon className="h-4 w-4" />
+                          ) : (
+                            <EyeIcon className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground">Confirm password</label>
+                      <label className="text-sm font-medium text-foreground">
+                        Confirm password
+                      </label>
                       <div className="relative">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                           <LockIcon className="h-4 w-4 text-foreground/60" />
@@ -467,10 +574,16 @@ export default function RegisterPage() {
                         />
                         <button
                           type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                           className="absolute inset-y-0 right-0 flex items-center pr-3 text-foreground/60 transition-colors hover:text-foreground"
                         >
-                          {showConfirmPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                          {showConfirmPassword ? (
+                            <EyeOffIcon className="h-4 w-4" />
+                          ) : (
+                            <EyeIcon className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -480,8 +593,12 @@ export default function RegisterPage() {
                 {step === 3 && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-3">
-                      <label className="text-sm font-medium text-foreground">Choose up to 3 APIs</label>
-                      <span className="text-xs text-foreground/60">{selectedActions.length}/3 selected</span>
+                      <label className="text-sm font-medium text-foreground">
+                        Choose up to 3 APIs
+                      </label>
+                      <span className="text-xs text-foreground/60">
+                        {selectedActions.length}/3 selected
+                      </span>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       {apiOptions.map((option) => {
@@ -492,7 +609,9 @@ export default function RegisterPage() {
                             type="button"
                             onClick={() => toggleAction(option.action)}
                             className={`rounded-xl border px-3 py-2 text-left text-xs font-medium transition-all ${
-                              active ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-foreground/75 hover:border-primary/50"
+                              active
+                                ? "border-primary bg-primary/10 text-primary"
+                                : "border-border bg-background text-foreground/75 hover:border-primary/50"
                             }`}
                           >
                             {option.label}
@@ -506,7 +625,9 @@ export default function RegisterPage() {
                 {step === 4 && (
                   <div className="space-y-4">
                     <div className="rounded-2xl border border-border bg-background/80 p-4">
-                      <p className="text-sm font-semibold text-foreground">Terms and conditions</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        Terms and conditions
+                      </p>
                       <div className="mt-3 space-y-2 text-sm text-foreground/70">
                         <p>Account type: Demo user</p>
                         <p>Trial access: 8 days active account period</p>
@@ -531,7 +652,10 @@ export default function RegisterPage() {
                           </span>
                         )}
                       </span>
-                      <span>I understand the demo account terms and selected app access.</span>
+                      <span>
+                        I understand the demo account terms and selected app
+                        access.
+                      </span>
                     </label>
                   </div>
                 )}
@@ -575,7 +699,11 @@ export default function RegisterPage() {
                       disabled={loading || emailVerified}
                       className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90 disabled:opacity-70"
                     >
-                      {loading ? "Sending code..." : emailVerified ? "Email verified" : "Send verification code"}
+                      {loading
+                        ? "Sending code..."
+                        : emailVerified
+                          ? "Email verified"
+                          : "Send verification code"}
                     </button>
                   )}
 
@@ -607,7 +735,10 @@ export default function RegisterPage() {
                     >
                       {loading ? (
                         <span className="flex items-center justify-center gap-2">
-                          <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                          <svg
+                            className="h-4 w-4 animate-spin"
+                            viewBox="0 0 24 24"
+                          >
                             <circle
                               className="opacity-25"
                               cx="12"
@@ -660,21 +791,29 @@ export default function RegisterPage() {
                   <MailIcon className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground">Verify your email</h3>
-                  <p className="text-xs text-foreground/60">Code sent to {email}</p>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Verify your email
+                  </h3>
+                  <p className="text-xs text-foreground/60">
+                    Code sent to {email}
+                  </p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Verification Code</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Verification Code
+                  </label>
                   <input
                     className="block w-full rounded-xl border border-border bg-background py-3 px-3 text-center text-xl font-mono tracking-widest text-foreground placeholder:text-foreground/50 transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
                     type="text"
                     placeholder="XXXXX"
                     maxLength={5}
                     value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setVerificationCode(e.target.value.toUpperCase())
+                    }
                     autoFocus
                   />
                 </div>

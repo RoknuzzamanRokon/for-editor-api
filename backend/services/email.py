@@ -18,6 +18,7 @@ from fastapi import HTTPException
 @dataclass
 class EmailConfig:
     """Email configuration loaded from environment variables."""
+
     smtp_server: str
     smtp_port: int
     username: str
@@ -28,10 +29,10 @@ class EmailConfig:
 def get_email_config() -> EmailConfig:
     """
     Load email configuration from environment variables.
-    
+
     Returns:
         EmailConfig: Configuration object with SMTP settings
-        
+
     Raises:
         HTTPException: If required environment variables are missing
     """
@@ -39,7 +40,7 @@ def get_email_config() -> EmailConfig:
     smtp_port = os.getenv("SMTP_PORT")
     username = os.getenv("EMAIL_USERNAME")
     password = os.getenv("EMAIL_PASSWORD")
-    
+
     # Validate all required variables are present
     if not all([smtp_server, smtp_port, username, password]):
         missing = []
@@ -53,27 +54,32 @@ def get_email_config() -> EmailConfig:
             missing.append("EMAIL_PASSWORD")
         raise HTTPException(
             status_code=500,
-            detail=f"Email configuration incomplete. Missing: {', '.join(missing)}"
+            detail=f"Email configuration incomplete. Missing: {', '.join(missing)}",
         )
-    
+
     try:
         port = int(smtp_port)
     except ValueError:
         raise HTTPException(
             status_code=500,
-            detail=f"Invalid SMTP_PORT value: {smtp_port}. Must be an integer."
+            detail=f"Invalid SMTP_PORT value: {smtp_port}. Must be an integer.",
         )
-    
+
     return EmailConfig(
         smtp_server=smtp_server,
         smtp_port=port,
         username=username,
         password=password,
-        from_email=username  # Use username as from_email by default
+        from_email=username,  # Use username as from_email by default
     )
 
 
-def _deliver_message(config: EmailConfig, to_addrs: list[str], message: MIMEMultipart, failure_context: str) -> None:
+def _deliver_message(
+    config: EmailConfig,
+    to_addrs: list[str],
+    message: MIMEMultipart,
+    failure_context: str,
+) -> None:
     """
     Send a prepared MIME message over SMTP, using SSL for port 465 and
     STARTTLS otherwise. Shared by every send_* function in this module so
@@ -96,24 +102,21 @@ def _deliver_message(config: EmailConfig, to_addrs: list[str], message: MIMEMult
     except smtplib.SMTPAuthenticationError:
         raise HTTPException(
             status_code=500,
-            detail="Email authentication failed. Please check email credentials."
+            detail="Email authentication failed. Please check email credentials.",
         )
     except smtplib.SMTPException as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to send {failure_context}: {str(e)}"
+            status_code=500, detail=f"Failed to send {failure_context}: {str(e)}"
         )
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Unexpected error sending {failure_context}: {str(e)}"
+            detail=f"Unexpected error sending {failure_context}: {str(e)}",
         )
 
 
 def send_verification_email(
-    to_email: str,
-    verification_code: str,
-    expiration_minutes: int = 10
+    to_email: str, verification_code: str, expiration_minutes: int = 10
 ) -> None:
     """
     Send verification email with code.
@@ -130,7 +133,7 @@ def send_verification_email(
 
     # Create email message
     message = MIMEMultipart("alternative")
-    message["Subject"] = "Your ConvertPro verification code"
+    message["Subject"] = "Your ConvaterProverification code"
     message["From"] = config.from_email
     message["To"] = to_email
 
@@ -182,7 +185,7 @@ support.
                 If you didn't request this, you can safely ignore this email — no account will be created.
               </p>
               <p style="margin:0; font-size:13px; line-height:1.6; color:#64748b;">
-                For your security, never share this code with anyone, including ConvertPro support.
+                For your security, never share this code with anyone, including ConvaterProsupport.
               </p>
             </td>
           </tr>
@@ -232,7 +235,7 @@ def send_registration_confirmation_email(
     config = get_email_config()
 
     message = MIMEMultipart("alternative")
-    message["Subject"] = "Your ConvertPro account is ready"
+    message["Subject"] = "Your ConvaterProaccount is ready"
     message["From"] = config.from_email
     message["To"] = to_email
 
@@ -247,17 +250,23 @@ def send_registration_confirmation_email(
                 <td style="padding:10px 0; font-size:13px; color:#0f172a; font-weight:600;">{trial_days} days &mdash; expires {expires_label}</td>
               </tr>"""
 
-    apis_text = "\n".join(f"  - {label}" for label in selected_api_labels) or "  (none selected)"
-    apis_html = "".join(
-        f'<span style="display:inline-block; margin:0 6px 6px 0; padding:5px 12px; background-color:#f1f5f9; border:1px solid #e2e8f0; border-radius:999px; font-size:12px; font-weight:600; color:#0f172a;">{label}</span>'
-        for label in selected_api_labels
-    ) or '<span style="font-size:13px; color:#94a3b8;">No APIs selected</span>'
+    apis_text = (
+        "\n".join(f"  - {label}" for label in selected_api_labels)
+        or "  (none selected)"
+    )
+    apis_html = (
+        "".join(
+            f'<span style="display:inline-block; margin:0 6px 6px 0; padding:5px 12px; background-color:#f1f5f9; border:1px solid #e2e8f0; border-radius:999px; font-size:12px; font-weight:600; color:#0f172a;">{label}</span>'
+            for label in selected_api_labels
+        )
+        or '<span style="font-size:13px; color:#94a3b8;">No APIs selected</span>'
+    )
 
     text_body = f"""Your account is ready
 
 Hi {username},
 
-Your ConvertPro registration is complete. Here's a summary of your account:
+Your ConvaterProregistration is complete. Here's a summary of your account:
 
 Account type: {role_label}
 {trial_line_text}Available points: {points_balance}
@@ -273,7 +282,7 @@ You can sign in and start converting files right away.
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your ConvertPro account is ready</title>
+<title>Your ConvaterProaccount is ready</title>
 </head>
 <body style="margin:0; padding:0; background-color:#f1f5f9; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f1f5f9; padding:32px 16px;">
@@ -355,7 +364,7 @@ def send_contact_request_email(
     if not recipient:
         raise HTTPException(
             status_code=500,
-            detail="Contact form recipient is not configured. Set BOSS_EMAIL in the environment."
+            detail="Contact form recipient is not configured. Set BOSS_EMAIL in the environment.",
         )
 
     cc_email = os.getenv("CC_EMAIL")

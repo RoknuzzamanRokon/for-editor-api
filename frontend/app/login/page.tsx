@@ -255,7 +255,7 @@ function LoginForm() {
               sync_alt
             </span>
             <span className="text-lg font-extrabold tracking-tight text-foreground">
-              ConvertPro <span className="text-primary">API</span>
+              ConvaterPro<span className="text-primary">API</span>
             </span>
           </a>
           <a

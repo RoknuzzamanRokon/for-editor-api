@@ -9,7 +9,7 @@ export default function Footer() {
                 sync_alt
               </span>
               <span className="text-xl font-extrabold tracking-tight text-slate-900">
-                ConvertPro <span className="text-primary">API</span>
+                ConvaterPro<span className="text-primary">API</span>
               </span>
             </div>
             <p className="mb-6 max-w-xs text-slate-500">
