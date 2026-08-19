@@ -8,6 +8,7 @@ import { AvatarBadge, type AvatarKey } from "@/lib/accountAvatar";
 import { API_BASE } from "@/lib/apiBase";
 import { formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
+import { logout } from "@/lib/authFetch";
 import {
   clearAccountSettingsCache,
   publishAccountSettingsCache,
@@ -117,10 +118,8 @@ export default function AdminHeader({
     };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user_role");
+  const handleLogout = async () => {
+    await logout();
     clearAccountSettingsCache();
     startTransition(() => {
       router.push("/");

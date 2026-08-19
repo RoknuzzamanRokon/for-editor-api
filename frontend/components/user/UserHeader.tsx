@@ -9,6 +9,7 @@ import { API_BASE } from "@/lib/apiBase";
 import { formatProfileName } from "@/lib/profileName";
 import { formatRoleLabel } from "@/lib/roleLabel";
 import { getBasePathForRole } from "@/lib/roleBasePath";
+import { logout } from "@/lib/authFetch";
 import {
   clearAccountSettingsCache,
   publishAccountSettingsCache,
@@ -123,10 +124,8 @@ export default function UserHeader({
     };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user_role");
+  const handleLogout = async () => {
+    await logout();
     clearAccountSettingsCache();
     startTransition(() => {
       router.push("/");

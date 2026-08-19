@@ -38,6 +38,27 @@ export function clearStoredSession() {
   storage.removeItem("user_role");
 }
 
+// Sessions are long-lived by design and only end when the user explicitly
+// logs out, so logout has to reach the backend (bumping token_version) —
+// merely clearing local storage would leave the token itself still valid.
+export async function logout(apiBase = API_BASE) {
+  const accessToken = getStoredAccessToken();
+
+  if (accessToken) {
+    try {
+      await fetch(`${apiBase}/api/v2/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    } catch {
+      // Best-effort: still clear the local session even if the request fails,
+      // so the user isn't stuck logged in on this device.
+    }
+  }
+
+  clearStoredSession();
+}
+
 export async function refreshStoredAccessToken(apiBase = API_BASE) {
   const refreshToken = getStoredRefreshToken();
   if (!refreshToken) {
