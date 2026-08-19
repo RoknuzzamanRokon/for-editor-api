@@ -140,7 +140,7 @@ def send_verification_email(
     # Plain-text fallback for clients that don't render HTML.
     text_body = f"""Verify your email address
 
-Thanks for registering with ConvertPro! Use the verification code below to
+Thanks for registering with ConvaterPro! Use the verification code below to
 complete your registration:
 
     {verification_code}
@@ -148,7 +148,7 @@ complete your registration:
 This code expires in {expiration_minutes} minutes.
 
 If you didn't request this, you can safely ignore this email — no account
-will be created. Never share this code with anyone, including ConvertPro
+will be created. Never share this code with anyone, including ConvaterPro
 support.
 """
 
@@ -169,7 +169,7 @@ support.
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px; background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 10px rgba(15,23,42,0.08);">
           <tr>
             <td style="background-color:#0f172a; padding:28px 32px;">
-              <span style="color:#ffffff; font-size:20px; font-weight:800; letter-spacing:0.02em;">ConvertPro</span>
+              <span style="color:#ffffff; font-size:20px; font-weight:800; letter-spacing:0.02em;">ConvaterPro</span>
             </td>
           </tr>
           <tr>
@@ -291,14 +291,14 @@ You can sign in and start converting files right away.
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px; background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 10px rgba(15,23,42,0.08);">
           <tr>
             <td style="background-color:#0f172a; padding:28px 32px;">
-              <span style="color:#ffffff; font-size:20px; font-weight:800; letter-spacing:0.02em;">ConvertPro</span>
+              <span style="color:#ffffff; font-size:20px; font-weight:800; letter-spacing:0.02em;">ConvaterPro</span>
             </td>
           </tr>
           <tr>
             <td style="padding:32px;">
               <h1 style="margin:0 0 12px; font-size:20px; font-weight:700; color:#0f172a;">Your account is ready, {username} 🎉</h1>
               <p style="margin:0 0 24px; font-size:14px; line-height:1.6; color:#475569;">
-                Thanks for registering with ConvertPro! Your account has been created — here's a summary of what's on it.
+                Thanks for registering with ConvaterPro! Your account has been created — here's a summary of what's on it.
               </p>
 
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px; padding:4px 20px; background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;">
