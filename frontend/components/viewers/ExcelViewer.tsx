@@ -359,7 +359,7 @@ export default function ExcelViewer() {
             ) : currentSheet && bodyRows.length > 0 ? (
               <div className="flex h-full items-center justify-center">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  No rows match "{searchQuery}"
+                  No rows match &quot;{searchQuery}&quot;
                 </p>
               </div>
             ) : (

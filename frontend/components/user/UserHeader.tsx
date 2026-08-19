@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { startTransition, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -134,14 +134,15 @@ export default function UserHeader({
   };
 
   const roleValue = (user?.role || sessionRole || "").toLowerCase();
-  const planLabel = roleValue.includes("admin") || roleValue.includes("super") ? "Admin" : "User";
+  const planLabel =
+    roleValue.includes("admin") || roleValue.includes("super")
+      ? "Admin"
+      : "User";
   const displayName = formatProfileName(user?.username, user?.email || "User");
   const basePath = getBasePathForRole(user?.role || sessionRole);
 
   return (
-    <header
-      className="fixed left-0 right-0 top-0 z-30 flex h-16 w-full max-w-none items-center justify-between border-b border-slate-200 bg-white/80 px-3 backdrop-blur-md sm:px-6 lg:px-8 dark:border-slate-800 dark:bg-slate-900/80"
-    >
+    <header className="fixed left-0 right-0 top-0 z-30 flex h-16 w-full max-w-none items-center justify-between border-b border-slate-200 bg-white/80 px-3 backdrop-blur-md sm:px-6 lg:px-8 dark:border-slate-800 dark:bg-slate-900/80">
       <div className="flex min-w-0 items-center gap-2 sm:gap-4">
         <button
           type="button"
@@ -156,7 +157,9 @@ export default function UserHeader({
             <span className="material-symbols-outlined">sync_alt</span>
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-base font-bold leading-tight sm:text-lg">ConvertPro</h1>
+            <h1 className="truncate text-base font-bold leading-tight sm:text-lg">
+              ConvaterPro
+            </h1>
             <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
               Premium SaaS Tool
             </p>
@@ -177,7 +180,9 @@ export default function UserHeader({
         <div className="flex items-center gap-2 border-l border-slate-200 pl-2 sm:gap-3 sm:pl-4 dark:border-slate-800">
           <div className="hidden text-right sm:block">
             <p className="text-sm font-bold leading-none">{displayName}</p>
-            <p className="mt-1 text-[10px] font-medium uppercase text-slate-500">{formatRoleLabel(user?.role || "general_user")}</p>
+            <p className="mt-1 text-[10px] font-medium uppercase text-slate-500">
+              {formatRoleLabel(user?.role || "general_user")}
+            </p>
           </div>
           <div className="relative" ref={menuRef}>
             <button
@@ -194,11 +199,17 @@ export default function UserHeader({
                   <div className="flex items-center gap-3">
                     <AvatarBadge avatarKey={user?.avatarKey} />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold">{displayName}</p>
-                      <p className="truncate text-xs text-slate-500">{user?.email}</p>
+                      <p className="truncate text-sm font-bold">
+                        {displayName}
+                      </p>
+                      <p className="truncate text-xs text-slate-500">
+                        {user?.email}
+                      </p>
                     </div>
                   </div>
-                  <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-slate-400">{formatRoleLabel(user?.role || "general_user")}</p>
+                  <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                    {formatRoleLabel(user?.role || "general_user")}
+                  </p>
                 </div>
                 <div className="p-2">
                   <button
@@ -210,14 +221,18 @@ export default function UserHeader({
                     }}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
                   >
-                    <span className="material-symbols-outlined text-lg">settings</span>
+                    <span className="material-symbols-outlined text-lg">
+                      settings
+                    </span>
                     <span>Settings</span>
                   </button>
                   <button
                     onClick={handleLogout}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
                   >
-                    <span className="material-symbols-outlined text-lg">logout</span>
+                    <span className="material-symbols-outlined text-lg">
+                      logout
+                    </span>
                     <span>Logout</span>
                   </button>
                 </div>
@@ -227,5 +242,5 @@ export default function UserHeader({
         </div>
       </div>
     </header>
-  )
+  );
 }
