@@ -174,6 +174,15 @@ PAGE_REGISTRY: Dict[str, dict] = {
         "locked": False,
         "description": "Send and review notifications",
     },
+    "admin_marketing": {
+        "label": "Marketing",
+        "path": "/admin/marketing",
+        "area": "admin",
+        "icon": "campaign",
+        "roles": ADMIN_ROLES,
+        "locked": False,
+        "description": "Outreach to prospective clients and their replies",
+    },
     "admin_api_permissions": {
         "label": "API Permissions",
         "path": "/admin/api-permissions",

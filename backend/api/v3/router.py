@@ -5,6 +5,7 @@ from api.v3.endpoints.admin import router as admin_router
 from api.v3.endpoints.converters import router as converters_router
 from api.v3.endpoints.dashboard import router as dashboard_router
 from api.v3.endpoints.deploy import router as deploy_router
+from api.v3.endpoints.marketing import router as marketing_router
 from api.v3.endpoints.notifications import router as notifications_router
 from api.v3.endpoints.pages import router as pages_router
 from api.v3.endpoints.permissions import router as permissions_router
@@ -20,3 +21,4 @@ router.include_router(dashboard_router)
 router.include_router(admin_router)
 router.include_router(deploy_router)
 router.include_router(notifications_router)
+router.include_router(marketing_router)

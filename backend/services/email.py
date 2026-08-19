@@ -339,6 +339,47 @@ You can sign in and start converting files right away.
     _deliver_message(config, [to_email], message, "registration confirmation email")
 
 
+def send_raw_email(
+    to_email: str,
+    subject: str,
+    html_body: str,
+    text_body: str,
+    reply_to: Optional[str] = None,
+    list_unsubscribe_url: Optional[str] = None,
+) -> None:
+    """Sends a caller-built HTML+text message as-is — no template of its own.
+    Used by callers (marketing campaigns) that build their own branded HTML
+    via `services.email_templates` rather than one of the `send_*` functions
+    above, which each own their full template.
+
+    `list_unsubscribe_url`, when given, sets the List-Unsubscribe /
+    List-Unsubscribe-Post headers (RFC 8058) — this is what actually drives
+    Gmail/Outlook's own native "Unsubscribe" affordance next to the sender
+    name, and its presence is one of the concrete signals Gmail's bulk-sender
+    guidelines check for. It's independent of any unsubscribe link rendered
+    in the body.
+
+    Raises:
+        HTTPException: If email sending fails
+    """
+    config = get_email_config()
+
+    message = MIMEMultipart("alternative")
+    message["Subject"] = subject
+    message["From"] = config.from_email
+    message["To"] = to_email
+    if reply_to:
+        message["Reply-To"] = reply_to
+    if list_unsubscribe_url:
+        message["List-Unsubscribe"] = f"<{list_unsubscribe_url}>"
+        message["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+
+    message.attach(MIMEText(text_body, "plain"))
+    message.attach(MIMEText(html_body, "html"))
+
+    _deliver_message(config, [to_email], message, "email")
+
+
 def send_contact_request_email(
     name: str,
     email: str,

@@ -10,6 +10,7 @@ from sqlalchemy import (
     Index,
     Integer,
     String,
+    Text,
     UniqueConstraint,
     func,
 )
@@ -262,6 +263,87 @@ class NotificationRecipient(Base):
 
     notification = relationship("Notification", back_populates="recipients")
     user = relationship("User", foreign_keys=[user_id])
+
+
+class MarketingContact(Base):
+    """An external lead/prospect — never a row in `users`. Built up either by an
+    admin adding one directly, or automatically the first time a campaign is
+    sent to an email address that isn't already on file."""
+
+    __tablename__ = "marketing_contacts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    company_name = Column(String(255), nullable=True)
+    contact_name = Column(String(255), nullable=True)
+    # new | contacted | responded | won | lost | unsubscribed — moves forward
+    # automatically as campaigns are sent and replies are logged; never
+    # regressed by that automation, only by an admin's explicit edit.
+    status = Column(String(32), nullable=False, default="new", server_default="new", index=True)
+    notes = Column(String(2000), nullable=True)
+    created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+    creator = relationship("User", foreign_keys=[created_by_user_id])
+    responses = relationship(
+        "MarketingResponse", back_populates="contact", cascade="all, delete-orphan"
+    )
+
+
+class MarketingCampaign(Base):
+    """One compose-and-send action — may target one contact (a threaded reply)
+    or many (a cold-outreach blast). Recipients are fanned out into
+    marketing_responses rows at send time, mirroring the Notification pattern."""
+
+    __tablename__ = "marketing_campaigns"
+
+    id = Column(Integer, primary_key=True, index=True)
+    sender_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    subject = Column(String(200), nullable=False)
+    body_html = Column(Text, nullable=False)
+    # outreach | followup | announcement — cosmetic grouping only, mirrors
+    # Notification.category.
+    category = Column(String(32), nullable=False, default="outreach", server_default="outreach")
+    recipient_count = Column(Integer, nullable=False, default=0, server_default="0")
+    created_at = Column(DateTime, nullable=False, server_default=func.now(), index=True)
+
+    sender = relationship("User", foreign_keys=[sender_user_id])
+    responses = relationship(
+        "MarketingResponse", back_populates="campaign", cascade="all, delete-orphan"
+    )
+
+
+class MarketingResponse(Base):
+    """The unified per-contact timeline: one row per outbound send (fanned out
+    from a campaign, carrying its own delivery status) and one row per
+    manually-logged inbound reply. A contact's thread is just this table
+    filtered by contact_id and ordered by created_at."""
+
+    __tablename__ = "marketing_responses"
+    __table_args__ = (
+        Index("ix_marketing_responses_contact_thread", "contact_id", "created_at"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    contact_id = Column(Integer, ForeignKey("marketing_contacts.id"), nullable=False, index=True)
+    # NULL for a manually-logged inbound reply that isn't tied to one specific
+    # outbound send.
+    campaign_id = Column(Integer, ForeignKey("marketing_campaigns.id"), nullable=True, index=True)
+    direction = Column(String(16), nullable=False, index=True)  # outbound | inbound
+    subject = Column(String(200), nullable=True)
+    body = Column(Text, nullable=False)
+    # queued | sent | failed — only meaningful for direction="outbound"; NULL
+    # for a logged inbound reply.
+    status = Column(String(32), nullable=True, index=True)
+    error_message = Column(String(500), nullable=True)
+    sent_at = Column(DateTime, nullable=True)
+    logged_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    contact = relationship("MarketingContact", back_populates="responses")
+    campaign = relationship("MarketingCampaign", back_populates="responses")
+    logged_by = relationship("User", foreign_keys=[logged_by_user_id])
 
 
 class EmailVerificationSession(Base):

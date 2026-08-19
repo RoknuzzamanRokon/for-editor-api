@@ -84,3 +84,28 @@ def safe_decode_token(token: str) -> Dict[str, Any]:
         return decode_token(token)
     except JWTError as exc:
         raise TokenError("Invalid token") from exc
+
+
+def create_unsubscribe_token(contact_id: int) -> str:
+    """A long-lived, unauthenticated link a marketing-email recipient can click
+    to opt out. No expiry — an unsubscribe link that goes stale would force
+    someone back into inbound mail just to ask to stop receiving it."""
+    to_encode: Dict[str, Any] = {"sub": f"marketing_unsubscribe:{contact_id}", "type": "marketing_unsubscribe"}
+    return jwt.encode(to_encode, settings.secret_key, algorithm=settings.jwt_algorithm)
+
+
+def decode_unsubscribe_token(token: str) -> int:
+    """Returns the contact_id encoded in an unsubscribe token, or raises TokenError."""
+    try:
+        payload = decode_token(token)
+    except JWTError as exc:
+        raise TokenError("Invalid token") from exc
+
+    subject = payload.get("sub", "")
+    if payload.get("type") != "marketing_unsubscribe" or not subject.startswith("marketing_unsubscribe:"):
+        raise TokenError("Invalid token")
+
+    try:
+        return int(subject.split(":", 1)[1])
+    except ValueError as exc:
+        raise TokenError("Invalid token") from exc

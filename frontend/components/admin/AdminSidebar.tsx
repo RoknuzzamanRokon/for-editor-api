@@ -65,6 +65,7 @@ const navItems: NavItem[] = [
   { label: "Points", href: "/admin/point", icon: "toll" },
   { label: "Usage History", href: "/admin/usage-history", icon: "query_stats" },
   { label: "Notifications", href: "/admin/notifications", icon: "notifications" },
+  { label: "Marketing", href: "/admin/marketing", icon: "campaign" },
   { label: "API Permissions", href: "/admin/api-permissions", icon: "vpn_key" },
   { label: "Settings", href: "/admin/settings", icon: "settings" },
 ];
