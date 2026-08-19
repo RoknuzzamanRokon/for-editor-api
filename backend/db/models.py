@@ -39,6 +39,7 @@ class User(Base):
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     demo_expires_at = Column(DateTime, nullable=True)
     last_login = Column(DateTime, nullable=True)  # Track last login time
+    token_version = Column(Integer, nullable=False, default=0, server_default="0")
 
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
     points = relationship("UserPoints", back_populates="user", uselist=False, cascade="all, delete-orphan")

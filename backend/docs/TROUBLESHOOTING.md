@@ -50,7 +50,7 @@ Common issues and solutions for the PDF Converter API v2.
 
 ---
 
-### Issue: Token Expired
+### Issue: Invalid Token
 
 **Symptoms:**
 ```json
@@ -58,6 +58,17 @@ Common issues and solutions for the PDF Converter API v2.
   "detail": "Invalid token"
 }
 ```
+
+Access/refresh tokens are long-lived by design and are not meant to expire on
+their own — the only thing that invalidates a token is the user logging out
+(`POST /api/v2/auth/logout`), which bumps that user's `token_version` and
+invalidates every token issued before it. If you see this error without the
+user having logged out, the likely causes are:
+
+- The token belongs to an older `token_version` (the user logged out on
+  another device/tab, or an admin forced a logout).
+- The token is malformed, was signed with a different `SECRET_KEY`, or is
+  simply not a valid JWT.
 
 **Solutions:**
 
@@ -73,6 +84,12 @@ Common issues and solutions for the PDF Converter API v2.
    curl -X POST "http://localhost:8000/api/v2/auth/login" \
      -H "Content-Type: application/json" \
      -d '{"email":"user@example.com","password":"password"}'
+   ```
+
+3. **Log out explicitly to invalidate a session everywhere:**
+   ```bash
+   curl -X POST "http://localhost:8000/api/v2/auth/logout" \
+     -H "Authorization: Bearer $ACCESS_TOKEN"
    ```
 
 ---

@@ -39,23 +39,30 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
-def create_access_token(subject: str, expires_delta: timedelta | None = None) -> str:
+def create_access_token(subject: str, ver: int = 0, expires_delta: timedelta | None = None) -> str:
+    # Sessions are meant to last until the user explicitly logs out (which bumps
+    # `ver` via token_version), not to expire on a timer — so `exp` is set far
+    # out rather than left off, to stay compatible with strict JWT validators.
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=settings.access_token_expire_minutes))
     to_encode: Dict[str, Any] = {
         "sub": subject,
         "type": "access",
+        "ver": ver,
         "exp": expire,
         "iat": datetime.utcnow(),
     }
     return jwt.encode(to_encode, settings.secret_key, algorithm=settings.jwt_algorithm)
 
 
-def create_refresh_token(subject: str, jti: str | None = None, expires_delta: timedelta | None = None) -> str:
+def create_refresh_token(
+    subject: str, ver: int = 0, jti: str | None = None, expires_delta: timedelta | None = None
+) -> str:
     expire = datetime.utcnow() + (expires_delta or timedelta(days=settings.refresh_token_expire_days))
     token_jti = jti or str(uuid4())
     to_encode: Dict[str, Any] = {
         "sub": subject,
         "type": "refresh",
+        "ver": ver,
         "jti": token_jti,
         "exp": expire,
         "iat": datetime.utcnow(),
@@ -64,10 +71,10 @@ def create_refresh_token(subject: str, jti: str | None = None, expires_delta: ti
 
 
 def create_refresh_token_with_jti(
-    subject: str, expires_delta: timedelta | None = None
+    subject: str, ver: int = 0, expires_delta: timedelta | None = None
 ) -> tuple[str, str]:
     token_jti = str(uuid4())
-    token = create_refresh_token(subject=subject, jti=token_jti, expires_delta=expires_delta)
+    token = create_refresh_token(subject=subject, ver=ver, jti=token_jti, expires_delta=expires_delta)
     return token, token_jti
 
 

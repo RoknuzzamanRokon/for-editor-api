@@ -26,6 +26,7 @@ def authenticate_user(db: Session, email: str, password: str) -> User:
                 User.is_active,
                 User.role,
                 User.demo_expires_at,
+                User.token_version,
             )
         )
         .filter(User.email == email)
@@ -42,11 +43,23 @@ def create_token_pair(db: Session, user: User) -> tuple[str, str]:
     user.last_login = datetime.utcnow()
     db.commit()
 
-    access_token = create_access_token(subject=str(user.id))
-    refresh_token, token_jti = create_refresh_token_with_jti(subject=str(user.id))
+    access_token = create_access_token(subject=str(user.id), ver=user.token_version)
+    refresh_token, token_jti = create_refresh_token_with_jti(subject=str(user.id), ver=user.token_version)
     _ = (db, token_jti)  # Keep signature compatibility; refresh token is stateless for faster login.
 
     return access_token, refresh_token
+
+
+def logout_user(db: Session, user: User) -> None:
+    """Invalidate every access/refresh token issued to this user so far.
+
+    Tokens carry the user's `token_version` in their `ver` claim and are
+    otherwise long-lived (they're not meant to expire on their own). Bumping
+    the counter makes every previously issued token fail its `ver` check on
+    the very next request, which is the only way sessions are meant to end.
+    """
+    user.token_version += 1
+    db.commit()
 
 
 def refresh_access_token(db: Session, refresh_token: str) -> str:
@@ -78,5 +91,7 @@ def refresh_access_token(db: Session, refresh_token: str) -> str:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user")
     if is_demo_expired(user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo account expired")
+    if payload.get("ver", 0) != user.token_version:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token revoked")
 
-    return create_access_token(subject=str(user.id))
+    return create_access_token(subject=str(user.id), ver=user.token_version)

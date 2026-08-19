@@ -13,6 +13,7 @@ from models.auth import (
     DemoRegisterRequest,
     EmailVerificationRequest,
     LoginRequest,
+    LogoutResponse,
     MeResponse,
     ResendVerificationRequest,
     TokenPair,
@@ -303,6 +304,20 @@ def resend_verification(payload: ResendVerificationRequest, db: Session = Depend
 def refresh(payload: TokenRefreshRequest, db: Session = Depends(get_db)) -> AccessTokenResponse:
     access_token = auth_service.refresh_access_token(db, payload.refresh_token)
     return AccessTokenResponse(access_token=access_token)
+
+
+@router.post("/logout", response_model=LogoutResponse)
+def logout(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> LogoutResponse:
+    """Invalidate every token issued to this user so far.
+
+    Sessions are otherwise long-lived by design (they don't expire on their
+    own) — logout is the only thing meant to end one.
+    """
+    auth_service.logout_user(db, current_user)
+    return LogoutResponse(message="Logged out successfully")
 
 
 @router.get("/me", response_model=MeResponse)

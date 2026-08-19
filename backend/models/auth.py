@@ -36,6 +36,10 @@ class TokenRefreshRequest(BaseModel):
     refresh_token: str
 
 
+class LogoutResponse(BaseModel):
+    message: str
+
+
 class DemoRegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)

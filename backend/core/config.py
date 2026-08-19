@@ -35,8 +35,11 @@ class Settings:
     database_url: str
 
 
-_def_access_minutes = 30
-_def_refresh_days = 7
+# Sessions are meant to stay valid until the user explicitly logs out, not to
+# expire on a timer — actual invalidation happens via token_version (bumped on
+# logout), so these defaults are set effectively "forever" rather than short-lived.
+_def_access_minutes = 60 * 24 * 365 * 10  # 10 years
+_def_refresh_days = 365 * 10  # 10 years
 
 
 _load_env_file()
