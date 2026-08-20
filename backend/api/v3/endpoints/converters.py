@@ -749,6 +749,12 @@ def download_conversion(
     conversion = _query_owned_conversion(db, current_user, conversion_id)
     require_owner(conversion.owner_user_id, current_user)
 
+    if conversion.status == "expired":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This file has expired. Generated files are only kept for 30 minutes.",
+        )
+
     if conversion.status != "success" or not conversion.output_filename:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
 

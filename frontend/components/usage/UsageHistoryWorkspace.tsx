@@ -58,9 +58,17 @@ function StatusPill({ status }: { status: string }) {
       ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
       : status === "failed"
         ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-        : "bg-amber-500/10 text-amber-600 dark:text-amber-400";
+        : status === "expired"
+          ? "bg-slate-500/10 text-slate-500 dark:text-slate-400"
+          : "bg-amber-500/10 text-amber-600 dark:text-amber-400";
   const icon =
-    status === "success" ? "check_circle" : status === "failed" ? "error" : "pending";
+    status === "success"
+      ? "check_circle"
+      : status === "failed"
+        ? "error"
+        : status === "expired"
+          ? "history_toggle_off"
+          : "pending";
 
   return (
     <span

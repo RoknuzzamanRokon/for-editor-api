@@ -183,7 +183,7 @@ export const SOLUTION_POINTS = [
   {
     icon: 'receipt_long',
     title: 'Every job is logged',
-    text: 'Each conversion is stored with its file name, status, cost, and timestamp, and stays downloadable from history.',
+    text: 'Each conversion is stored with its file name, status, cost, and timestamp, and stays downloadable from history for 30 minutes after it completes.',
   },
 ] as const
 
@@ -384,6 +384,6 @@ export const FAQS = [
   },
   {
     q: 'What happens to the files we upload?',
-    a: 'A converted file is stored privately against your account so you can download it again from history. Deleting the conversion from your history removes the stored file with it.',
+    a: 'A converted file is stored privately against your account and stays downloadable from history for 30 minutes after conversion, then it is automatically deleted from our servers. The record — file name, status, cost, and timestamp — stays in your history; only the file itself is removed.',
   },
 ] as const

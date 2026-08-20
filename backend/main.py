@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +10,7 @@ from api.v3.router import router as api_v3_router
 from core.points import InsufficientPointsError
 from core.permissions import ConversionNotPermittedError
 from db.session import SessionLocal, init_db
+from services.file_cleanup import run_cleanup_loop
 from services.users import ensure_default_super_user
 
 app = FastAPI()
@@ -37,6 +40,9 @@ def on_startup() -> None:
         ensure_default_super_user(db)
     finally:
         db.close()
+
+    # Reference kept on app.state so the task isn't garbage-collected mid-run.
+    app.state.cleanup_task = asyncio.create_task(run_cleanup_loop())
 
 
 @app.exception_handler(InsufficientPointsError)
