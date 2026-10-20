@@ -7,9 +7,12 @@ import ReactCrop, { type PercentCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import {
   OUTPUT_MAX_SIDE,
+  applyScanFilter,
+  applyToneAdjustments,
   aspectForPreset,
   canvasToFile,
   centeredCropForAspect,
+  clonePixels,
   loadImage,
   normalizeCrop,
   normalizeRotation,
@@ -24,11 +27,16 @@ import {
   type Size,
 } from "./imageProcessing";
 import {
+  ADJUSTMENT_MAX,
+  ADJUSTMENT_MIN,
   DEFAULT_EDITS,
+  clampAdjustment,
   editsEqual,
+  hasToneEdits,
   isDefaultEdits,
   type CropPreset,
   type ImageEdits,
+  type ImageFilter,
   type ImageItem,
 } from "./types";
 
@@ -50,6 +58,22 @@ const CROP_PRESETS: { value: CropPreset; label: string }[] = [
   { value: "square", label: "1:1" },
   { value: "original", label: "Original" },
 ];
+
+const FILTERS: { value: ImageFilter; label: string; icon: string }[] = [
+  { value: "none", label: "Original", icon: "image" },
+  { value: "scan", label: "Scan", icon: "document_scanner" },
+  { value: "grayscale", label: "Grayscale", icon: "filter_b_and_w" },
+  { value: "bw", label: "Black & White", icon: "contrast" },
+];
+const FILTER_LABELS = Object.fromEntries(FILTERS.map((f) => [f.value, f.label])) as Record<
+  ImageFilter,
+  string
+>;
+
+const signed = (value: number) => (value > 0 ? `+${value}` : String(value));
+
+const sameTone = (a: ImageEdits, b: ImageEdits) =>
+  a.filter === b.filter && a.brightness === b.brightness && a.contrast === b.contrast;
 
 /** Debounce for preview re-renders while a slider is being dragged. */
 const PREVIEW_DEBOUNCE_MS = 60;
@@ -113,12 +137,15 @@ export default function ImageEditorModal({
   const [applying, setApplying] = useState<{ current: number; total: number } | null>(null);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const [confirmApplyAll, setConfirmApplyAll] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const sourcesRef = useRef<Map<string, Promise<LoadedImage>>>(new Map());
   const baseCacheRef = useRef<{ key: string; pixels: PixelBuffer } | null>(null);
+  const filteredCacheRef = useRef<{ key: string; pixels: PixelBuffer } | null>(null);
   const applyingRef = useRef(false);
   const mountedRef = useRef(true);
 
@@ -230,8 +257,10 @@ export default function ImageEditorModal({
     };
   }, [current, getSource, index, items]);
 
-  // Live preview. The full rotated image is rendered once per rotation at
-  // preview size; filter/tone changes reuse it.
+  // Live preview, in three cached layers so a slider drag only redoes the
+  // cheap last step: the rotated image at preview size (per rotation) → the
+  // filter (per filter) → brightness/contrast (every change, debounced).
+  // Never full resolution: the final render happens once, on Done.
   useEffect(() => {
     if (!loaded) return;
     const handle = window.setTimeout(() => {
@@ -241,8 +270,23 @@ export default function ImageEditorModal({
         const baseKey = previewKey;
         if (baseCacheRef.current?.key !== baseKey) {
           baseCacheRef.current = { key: baseKey, pixels: renderPreviewBase(loaded, draft.rotation) };
+          filteredCacheRef.current = null;
         }
-        const pixels = baseCacheRef.current.pixels;
+        const filteredKey = `${baseKey}:${draft.filter}`;
+        if (filteredCacheRef.current?.key !== filteredKey) {
+          filteredCacheRef.current = {
+            key: filteredKey,
+            pixels:
+              draft.filter === "none"
+                ? baseCacheRef.current.pixels
+                : applyScanFilter(clonePixels(baseCacheRef.current.pixels), draft.filter),
+          };
+        }
+        const filtered = filteredCacheRef.current.pixels;
+        const pixels =
+          draft.brightness === 0 && draft.contrast === 0
+            ? filtered
+            : applyToneAdjustments(clonePixels(filtered), draft.brightness, draft.contrast);
         paintPixels(canvas, pixels);
         setPreview({ key: baseKey, size: { width: pixels.width, height: pixels.height } });
         setPreviewError(null);
@@ -251,7 +295,7 @@ export default function ImageEditorModal({
       }
     }, PREVIEW_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [loaded, previewKey, draft.rotation]);
+  }, [loaded, previewKey, draft.rotation, draft.filter, draft.brightness, draft.contrast]);
 
   const updateDraft = useCallback(
     (update: (edits: ImageEdits) => ImageEdits) => {
@@ -266,6 +310,8 @@ export default function ImageEditorModal({
       setIndex(next);
       setPreset("free");
       setConfirmDiscard(false);
+      setConfirmApplyAll(false);
+      setNotice(null);
     },
     [busy, index, items.length],
   );
@@ -291,7 +337,48 @@ export default function ImageEditorModal({
 
   const reset = () => {
     setPreset("free");
+    setNotice(null);
     updateDraft(() => DEFAULT_EDITS);
+  };
+
+  const setTone = (patch: Partial<Pick<ImageEdits, "filter" | "brightness" | "contrast">>) => {
+    setConfirmApplyAll(false);
+    setNotice(null);
+    updateDraft((edits) => ({ ...edits, ...patch }));
+  };
+
+  // "Apply to all" copies the filter, brightness and contrast — never crop or
+  // rotation, which are specific to each photo.
+  const applyAllTargets = items.filter(
+    (item) => item.id !== current.id && !sameTone(drafts[item.id] ?? item.edits, draft),
+  );
+  const applyAllConflicts = applyAllTargets.filter((item) =>
+    hasToneEdits(drafts[item.id] ?? item.edits),
+  );
+  const toneSummary = `${FILTER_LABELS[draft.filter]} · Brightness ${signed(draft.brightness)} · Contrast ${signed(draft.contrast)}`;
+
+  const applyToneToAll = () => {
+    const { filter, brightness, contrast } = draft;
+    const targets = applyAllTargets.map((item) => item.id);
+    setDrafts((prev) => {
+      const next = { ...prev };
+      targets.forEach((id) => {
+        next[id] = { ...(prev[id] ?? DEFAULT_EDITS), filter, brightness, contrast };
+      });
+      return next;
+    });
+    setConfirmApplyAll(false);
+    setNotice(
+      `Applied ${toneSummary} to ${targets.length} more image${targets.length === 1 ? "" : "s"}. Crop and rotation unchanged.`,
+    );
+  };
+
+  const requestApplyToAll = () => {
+    if (applyAllConflicts.length > 0) {
+      setConfirmApplyAll(true);
+    } else {
+      applyToneToAll();
+    }
   };
 
   const requestCancel = useCallback(() => {
@@ -625,6 +712,7 @@ export default function ImageEditorModal({
                     type="button"
                     onClick={() => choosePreset(value)}
                     disabled={!previewReady}
+                    aria-label={`${label} crop`}
                     aria-pressed={preset === value}
                     className={`${TOOL_BUTTON} px-2 ${preset === value ? TOOL_BUTTON_ACTIVE : ""}`}
                   >
@@ -646,6 +734,119 @@ export default function ImageEditorModal({
                 </button>
               </div>
             </ToolSection>
+
+            <ToolSection title="Filter">
+              <div className="grid grid-cols-2 gap-2" role="group" aria-label="Filter">
+                {FILTERS.map(({ value, label, icon }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setTone({ filter: value })}
+                    aria-label={`${label} filter`}
+                    aria-pressed={draft.filter === value}
+                    className={`${TOOL_BUTTON} px-2 ${draft.filter === value ? TOOL_BUTTON_ACTIVE : ""}`}
+                  >
+                    <Icon name={icon} />
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {draft.filter === "scan" ? (
+                <p className="text-xs text-slate-500">
+                  Evens out shadows and makes the paper white. Best for documents.
+                </p>
+              ) : null}
+            </ToolSection>
+
+            <ToolSection title="Adjust">
+              {(
+                [
+                  ["brightness", "Brightness"],
+                  ["contrast", "Contrast"],
+                ] as const
+              ).map(([key, label]) => (
+                <div key={key} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <label htmlFor={`image-editor-${key}`} className="font-semibold">
+                      {label}
+                    </label>
+                    <span className="tabular-nums text-slate-500">{signed(draft[key])}</span>
+                  </div>
+                  <input
+                    id={`image-editor-${key}`}
+                    type="range"
+                    min={ADJUSTMENT_MIN}
+                    max={ADJUSTMENT_MAX}
+                    step={1}
+                    value={draft[key]}
+                    onChange={(e) => setTone({ [key]: clampAdjustment(Number(e.target.value)) })}
+                    onDoubleClick={() => setTone({ [key]: 0 })}
+                    className="w-full accent-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  />
+                </div>
+              ))}
+            </ToolSection>
+
+            {items.length > 1 ? (
+              <ToolSection title="All images">
+                {confirmApplyAll ? (
+                  <div
+                    role="alertdialog"
+                    aria-label="Replace other images' filter settings?"
+                    className="space-y-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+                  >
+                    <p>
+                      {applyAllConflicts.length} other image
+                      {applyAllConflicts.length === 1 ? " has its" : "s have their"} own filter
+                      settings. Replace {applyAllConflicts.length === 1 ? "it" : "them"} with{" "}
+                      <strong>{toneSummary}</strong>?
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmApplyAll(false)}
+                        className={`${TOOL_BUTTON} flex-1`}
+                        autoFocus
+                      >
+                        Keep theirs
+                      </button>
+                      <button
+                        type="button"
+                        onClick={applyToneToAll}
+                        className="flex-1 rounded-xl bg-primary px-3 py-2 text-sm font-bold text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      >
+                        Replace
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={requestApplyToAll}
+                      disabled={applyAllTargets.length === 0}
+                      aria-describedby="image-editor-apply-all-hint"
+                      className={`${TOOL_BUTTON} w-full`}
+                    >
+                      <Icon name="done_all" />
+                      Apply filter to all images
+                    </button>
+                    <p id="image-editor-apply-all-hint" className="text-xs text-slate-500">
+                      {applyAllTargets.length === 0
+                        ? "All images already use these filter settings."
+                        : `Copies ${toneSummary} to ${applyAllTargets.length} other image${
+                            applyAllTargets.length === 1 ? "" : "s"
+                          }. Crop and rotation stay as they are.`}
+                    </p>
+                  </>
+                )}
+                {notice ? (
+                  <p role="status" className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    {notice}
+                  </p>
+                ) : null}
+              </ToolSection>
+            ) : null}
 
             <button
               type="button"

@@ -35,7 +35,7 @@ const savedEdits = (onDone: ReturnType<typeof renderEditor>["onDone"], index: nu
 
 /** Preset buttons unlock once the preview has rendered. */
 async function waitForPreview() {
-  await waitFor(() => expect(button("1:1")).toHaveProperty("disabled", false));
+  await waitFor(() => expect(button("1:1 crop")).toHaveProperty("disabled", false));
 }
 
 beforeEach(() => {
@@ -110,8 +110,8 @@ describe("ImageEditorModal — crop, rotate and reset", () => {
     await waitForPreview();
     // Mock image is 400×200.
 
-    fireEvent.click(button("1:1"));
-    expect(button("1:1").getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(button("1:1 crop"));
+    expect(button("1:1 crop").getAttribute("aria-pressed")).toBe("true");
     fireEvent.click(button("Right"));
     fireEvent.click(button("Done"));
 
@@ -126,11 +126,11 @@ describe("ImageEditorModal — crop, rotate and reset", () => {
     const { onDone } = renderEditor(makeItems("a.jpg", "b.jpg"));
     await waitForPreview();
 
-    fireEvent.click(button("A4"));
+    fireEvent.click(button("A4 crop"));
     fireEvent.click(button("Next image"));
     await waitForPreview();
-    fireEvent.click(button("Free"));
-    fireEvent.click(button("Original"));
+    fireEvent.click(button("Free crop"));
+    fireEvent.click(button("Original crop"));
     fireEvent.click(button("Done"));
 
     await waitFor(() => expect(onDone).toHaveBeenCalled());
@@ -278,5 +278,116 @@ describe("ImageEditorModal — Done and Cancel", () => {
     expect(document.body.style.overflow).toBe("hidden");
     unmount();
     expect(document.body.style.overflow).toBe("");
+  });
+});
+
+describe("ImageEditorModal — filters and adjustments", () => {
+  const slider = (name: string) => screen.getByRole("slider", { name }) as HTMLInputElement;
+
+  it("switches filters and keeps sliders within -100..100", async () => {
+    const { onDone } = renderEditor(makeItems("a.jpg"));
+    expect(button("Original filter").getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(button("Scan filter"));
+    expect(button("Scan filter").getAttribute("aria-pressed")).toBe("true");
+    expect(button("Original filter").getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(button("Black & White filter"));
+    fireEvent.click(button("Grayscale filter"));
+
+    expect(slider("Brightness").min).toBe("-100");
+    expect(slider("Brightness").max).toBe("100");
+    fireEvent.change(slider("Brightness"), { target: { value: "-35" } });
+    fireEvent.change(slider("Contrast"), { target: { value: "100" } });
+    expect(screen.getByText("-35")).toBeTruthy();
+    expect(screen.getByText("+100")).toBeTruthy();
+
+    fireEvent.click(button("Done"));
+    await waitFor(() => expect(onDone).toHaveBeenCalled());
+    expect(savedEdits(onDone, 0)).toMatchObject({ filter: "grayscale", brightness: -35, contrast: 100 });
+  });
+
+  it("doesn't change image when arrow keys are used on a slider", () => {
+    renderEditor(makeItems("a.jpg", "b.jpg"));
+    fireEvent.keyDown(slider("Contrast"), { key: "ArrowRight" });
+    expect(heading()).toBe("Image 1 / 2");
+  });
+
+  it("previews from cached layers: no re-render of the base for filter or slider changes", async () => {
+    const renderPreviewBase = vi.mocked(imageProcessing.renderPreviewBase);
+    const paintPixels = vi.mocked(imageProcessing.paintPixels);
+    renderPreviewBase.mockClear();
+    renderEditor(makeItems("a.jpg"));
+    await waitForPreview();
+    expect(renderPreviewBase).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(button("Scan filter"));
+    fireEvent.change(slider("Brightness"), { target: { value: "10" } });
+    fireEvent.change(slider("Brightness"), { target: { value: "20" } });
+    const paintsBefore = paintPixels.mock.calls.length;
+    await waitFor(() => expect(paintPixels.mock.calls.length).toBeGreaterThan(paintsBefore));
+    expect(renderPreviewBase).toHaveBeenCalledTimes(1);
+    expect(renderEdited).not.toHaveBeenCalled();
+
+    fireEvent.click(button("Right"));
+    await waitFor(() => expect(renderPreviewBase).toHaveBeenCalledTimes(2));
+    expect(renderPreviewBase.mock.calls[1][1]).toBe(90);
+  });
+
+  it("Reset clears the filter and adjustments too", async () => {
+    const { onDone } = renderEditor([
+      {
+        ...makeItems("a.jpg")[0],
+        edits: { ...DEFAULT_EDITS, filter: "bw", brightness: 30, contrast: -20 },
+      },
+    ]);
+    fireEvent.click(button("Reset this image"));
+    expect(button("Original filter").getAttribute("aria-pressed")).toBe("true");
+    expect(slider("Brightness").value).toBe("0");
+    fireEvent.click(button("Done"));
+    await waitFor(() => expect(onDone).toHaveBeenCalled());
+    expect(savedEdits(onDone, 0)).toEqual(DEFAULT_EDITS);
+  });
+
+  it("applies filter settings to every image, keeping each one's crop and rotation", async () => {
+    const items = makeItems("a.jpg", "b.jpg", "c.jpg");
+    items[2] = { ...items[2], edits: { ...DEFAULT_EDITS, rotation: 270, crop: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 } } };
+    const { onDone } = renderEditor(items);
+
+    fireEvent.click(button("Scan filter"));
+    fireEvent.change(slider("Contrast"), { target: { value: "15" } });
+    expect(screen.getByText(/Copies Scan · Brightness 0 · Contrast \+15 to 2 other images/)).toBeTruthy();
+    fireEvent.click(button(/Apply filter to all images/));
+    expect(screen.getByRole("status").textContent).toContain("Crop and rotation unchanged");
+    expect(button(/Apply filter to all images/)).toHaveProperty("disabled", true);
+
+    fireEvent.click(button("Done"));
+    await waitFor(() => expect(onDone).toHaveBeenCalled());
+    for (const index of [0, 1, 2]) {
+      expect(savedEdits(onDone, index)).toMatchObject({ filter: "scan", contrast: 15, brightness: 0 });
+    }
+    expect(savedEdits(onDone, 2).rotation).toBe(270);
+    expect(savedEdits(onDone, 2).crop).toEqual({ x: 0.1, y: 0.1, w: 0.5, h: 0.5 });
+    expect(savedEdits(onDone, 1).crop).toBeNull();
+  });
+
+  it("asks before overwriting another image's own filter settings", () => {
+    const items = makeItems("a.jpg", "b.jpg");
+    items[1] = { ...items[1], edits: { ...DEFAULT_EDITS, filter: "bw" } };
+    renderEditor(items);
+
+    fireEvent.click(button("Scan filter"));
+    fireEvent.click(button(/Apply filter to all images/));
+    const prompt = screen.getByRole("alertdialog", { name: /Replace other images' filter settings/ });
+    expect(prompt.textContent).toContain("1 other image has its own filter settings");
+
+    fireEvent.click(within(prompt).getByRole("button", { name: "Keep theirs" }));
+    fireEvent.click(button("Next image"));
+    expect(button("Black & White filter").getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(button("Previous image"));
+    fireEvent.click(button(/Apply filter to all images/));
+    fireEvent.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Replace" }));
+    fireEvent.click(button("Next image"));
+    expect(button("Scan filter").getAttribute("aria-pressed")).toBe("true");
   });
 });
