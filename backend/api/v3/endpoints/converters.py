@@ -55,6 +55,7 @@ from services.csv_to_excel_converter import CSVToExcelConverterService
 from services.excel_to_csv_converter import ExcelToCSVConverterService
 from services.html_to_pdf_converter import HTMLToPDFConverterService
 from services.pdf_to_html_converter import PDFToHTMLConverterService
+from services.compress_json import CompressJSONService, MODES as COMPRESS_JSON_MODES, output_extension as compress_json_extension
 
 router = APIRouter(prefix="/conversions", tags=["conversions"])
 
@@ -141,6 +142,9 @@ html_to_pdf_service = HTMLToPDFConverterService()
 
 pdf_to_html_file_manager = FileManagerService(storage_dir="static/pdfToHtml")
 pdf_to_html_service = PDFToHTMLConverterService()
+
+compress_json_file_manager = FileManagerService(storage_dir="static/compressJson")
+compress_json_service = CompressJSONService()
 
 
 def _build_meta(request: Request, file: UploadFile, size: Optional[int]) -> Dict[str, Any]:
@@ -306,6 +310,8 @@ def _media_type_for_suffix(suffix: str) -> str:
         ".txt": "text/plain",
         ".csv": "text/csv",
         ".html": "text/html",
+        ".json": "application/json",
+        ".gz": "application/gzip",
     }
     return mapping.get(suffix.lower(), "application/octet-stream")
 
@@ -710,6 +716,16 @@ def get_pdf_to_html_history(
     return _get_action_history("pdf_to_html", db, current_user, limit, user_id)
 
 
+@router.get("/compress-json/files/history", response_model=ConversionHistoryResponse)
+def get_compress_json_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=200),
+    user_id: Optional[int] = Query(None),
+) -> ConversionHistoryResponse:
+    return _get_action_history("compress_json", db, current_user, limit, user_id)
+
+
 @router.get("/{conversion_id}", response_model=ConversionStatusResponse)
 def get_conversion_status(
     conversion_id: int,
@@ -763,7 +779,9 @@ def download_conversion(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
 
     original_stem = Path(conversion.input_filename).stem or "converted"
-    download_name = f"{original_stem}{file_path.suffix}"
+    # Stored outputs are named "<uuid hex><extension>", so the joined suffixes
+    # are exactly the extension — including two-part ones like ".json.gz".
+    download_name = f"{original_stem}{''.join(file_path.suffixes)}"
 
     return FileResponse(
         path=str(file_path),
@@ -3232,3 +3250,96 @@ async def upload_pdf_for_html(
     finally:
         if temp_pdf_path and os.path.exists(temp_pdf_path):
             os.unlink(temp_pdf_path)
+
+
+@router.post("/compress-json", response_model=ConversionCreateResponse)
+async def upload_json_for_compress(
+    request: Request,
+    response: Response,
+    file: UploadFile = File(...),
+    mode: str = Form("minify"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    action = "compress_json"
+    charge_result = None
+    conversion: Optional[Conversion] = None
+    temp_json_path: Optional[str] = None
+
+    try:
+        mode = (mode or "minify").strip().lower()
+        if mode not in COMPRESS_JSON_MODES:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid mode. Use one of: {', '.join(COMPRESS_JSON_MODES)}",
+            )
+
+        is_valid, error_message = await compress_json_file_manager.validate_json_file(file)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=error_message)
+
+        content = await file.read()
+        await file.seek(0)
+        early_response, charge_result = _enforce_access(
+            db, current_user, action, request, file, response, len(content)
+        )
+        if early_response:
+            return early_response
+
+        _, output_path = _new_private_output(compress_json_file_manager, compress_json_extension(mode))
+        conversion = _create_conversion_row(
+            db, current_user, action, file.filename or "upload.json", charge_result.request_id,
+        )
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_json:
+            temp_json.write(content)
+            temp_json_path = temp_json.name
+
+        success, error_msg = compress_json_service.compress_json(temp_json_path, output_path, mode)
+        if not success:
+            refund_points(db, current_user.id, action, charge_result.request_id)
+            conversion.status = "failed"
+            conversion.error_message = error_msg or "Compression failed"
+            conversion.points_charged = 0
+            db.commit()
+
+            result = ConversionCreateResponse(
+                conversion_id=conversion.id,
+                status="failed",
+                download_url=None,
+                points_charged=0,
+                remaining_balance=get_user_balance(db, current_user.id),
+            )
+            record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+            return result
+
+        points_charged = POINTS_COST_PER_REQUEST
+        conversion.status = "success"
+        conversion.output_filename = output_path
+        conversion.error_message = None
+        conversion.points_charged = points_charged
+        db.commit()
+
+        result = ConversionCreateResponse(
+            conversion_id=conversion.id,
+            status="success",
+            download_url=f"/api/v3/conversions/{conversion.id}/download",
+            points_charged=points_charged,
+            remaining_balance=get_user_balance(db, current_user.id),
+        )
+        record_conversion_result(db, current_user.id, action, charge_result.request_id, result.model_dump())
+        return result
+    except (HTTPException, ConversionNotPermittedError, InsufficientPointsError):
+        raise
+    except Exception as exc:
+        if charge_result and charge_result.charged:
+            refund_points(db, current_user.id, action, charge_result.request_id)
+        if conversion:
+            conversion.status = "failed"
+            conversion.error_message = str(exc)
+            conversion.points_charged = 0
+            db.commit()
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(exc)}")
+    finally:
+        if temp_json_path and os.path.exists(temp_json_path):
+            os.unlink(temp_json_path)

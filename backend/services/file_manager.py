@@ -9,6 +9,7 @@ from typing import List, Dict, Optional
 from fastapi import UploadFile
 
 from models.schemas import FileMetadata, MAX_FILE_SIZE_BYTES
+from services.compress_json import parse_json_text
 
 
 class FileManagerService:
@@ -322,6 +323,32 @@ class FileManagerService:
 
         if not self.validate_file_size(len(content)):
             return False, "File size exceeds 50MB limit"
+
+        return True, None
+
+    async def validate_json_file(self, file: UploadFile) -> tuple[bool, Optional[str]]:
+        """
+        Validate uploaded JSON file (type, size, encoding and syntax)
+
+        Supported types: .json
+        """
+        if not file.filename or not file.filename.lower().endswith('.json'):
+            return False, "Only JSON files are accepted"
+
+        content = await file.read()
+        await file.seek(0)
+
+        if not content:
+            return False, "File is empty"
+
+        if not self.validate_file_size(len(content)):
+            return False, "File size exceeds 50MB limit"
+
+        # Checked here, before any points are charged, so a broken file is a
+        # plain 400 rather than a failed (and refunded) conversion.
+        _, _, error = parse_json_text(content)
+        if error:
+            return False, error
 
         return True, None
 

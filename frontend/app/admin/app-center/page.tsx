@@ -111,6 +111,8 @@ function getIcon(action: string) {
       return 'html';
     case 'pdf_to_html':
       return 'code';
+    case 'compress_json':
+      return 'data_object';
     default:
       return 'apps';
   }
@@ -175,6 +177,8 @@ function getShortName(action: string, fallbackLabel: string) {
       return 'HTML→PDF';
     case 'pdf_to_html':
       return 'PDF→HTML';
+    case 'compress_json':
+      return 'Compress JSON';
     default:
       return fallbackLabel;
   }

@@ -37,6 +37,7 @@ ALLOWED_ACTIONS: Dict[str, str] = {
     "excel_to_csv": "Excel to CSV",
     "html_to_pdf": "HTML to PDF",
     "pdf_to_html": "PDF to HTML",
+    "compress_json": "Compress JSON",
 }
 
 

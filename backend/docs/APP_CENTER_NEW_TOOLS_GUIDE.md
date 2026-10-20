@@ -64,6 +64,38 @@ which are silently dropped rather than extracted. See
   the Preview Viewer in both `edit/[slug]/page.tsx` files, right alongside
   the existing PDF/image/DOCX/XLSX preview branches.
 
+## Compress JSON
+
+| App | Action key | Endpoint | What it does |
+|---|---|---|---|
+| Compress JSON | `compress_json` | `POST /api/v3/conversions/compress-json` (form fields `file`, `mode`) | Shrinks a `.json` file. History: `GET /api/v3/conversions/compress-json/files/history`. |
+
+Lives in **Other Tools**, costs 3 points like every Editor Panel app, and needs
+the `compress_json` permission granted per user (super users always have it).
+
+| `mode` | Output | Data changed? |
+|---|---|---|
+| `minify` (default) | `<name>.min.json` | No. Only whitespace outside strings is removed; nothing is parsed and re-written, so number literals, escapes, key order and even duplicate keys stay exactly as they were. |
+| `clean` | `<name>.min.json` | Yes. Also drops object members whose value is `null`, `""`, `[]` or `{}` (after cleaning their children) and rounds floats to 4 decimals. Array elements are never removed, because their positions can matter. |
+| `gzip` | `<name>.json.gz` | No, but the file must be decompressed before use. |
+
+Typical results for a pretty-printed 80 KB file: `minify` ≈ 44–54 KB,
+`clean` ≈ 32–40 KB, `gzip` ≈ 8–10 KB. Plain JSON can't be squeezed much below
+what `clean` gives without losing data, so `gzip` is the option for hitting a
+small size limit.
+
+Broken JSON (bad syntax, `NaN`/`Infinity`, non-UTF-8) is rejected with a 400
+naming the line and column, *before* any points are charged. The App Center
+page shows the size before → after, and previews `.json` results as text.
+
+- Service: `backend/services/compress_json.py`; validator:
+  `FileManagerService.validate_json_file` in `backend/services/file_manager.py`
+- Download names keep two-part extensions (`.min.json`, `.json.gz`): the
+  download route now joins all suffixes of the stored `<uuid><ext>` file.
+- Tests: `backend/tests/test_compress_json.py` (service, validator, and the
+  endpoint on in-memory SQLite) and
+  `frontend/components/app-center/__tests__/compressJsonPage.test.tsx`.
+
 ## New Viewer Panel viewers
 
 All four are pure client-side components — no backend involved, same as

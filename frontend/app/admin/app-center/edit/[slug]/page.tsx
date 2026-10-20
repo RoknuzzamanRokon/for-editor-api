@@ -44,6 +44,7 @@ const ACTION_TO_ROUTE: Record<string, string> = {
   excel_to_csv: "/api/v3/conversions/excel-to-csv",
   html_to_pdf: "/api/v3/conversions/html-to-pdf",
   pdf_to_html: "/api/v3/conversions/pdf-to-html",
+  compress_json: "/api/v3/conversions/compress-json",
 };
 
 const ACTION_TO_HISTORY_ROUTE: Record<string, string> = {
@@ -75,6 +76,7 @@ const ACTION_TO_HISTORY_ROUTE: Record<string, string> = {
   excel_to_csv: "/api/v3/conversions/excel-to-csv/files/history",
   html_to_pdf: "/api/v3/conversions/html-to-pdf/files/history",
   pdf_to_html: "/api/v3/conversions/pdf-to-html/files/history",
+  compress_json: "/api/v3/conversions/compress-json/files/history",
 };
 
 type ExtraFieldConfig = {
@@ -124,7 +126,43 @@ const ACTION_EXTRA_FIELD: Record<string, ExtraFieldConfig | undefined> = {
       { value: "ico", label: "ICO" },
     ],
   },
+  compress_json: {
+    name: "mode",
+    label: "Compression",
+    type: "select",
+    required: true,
+    options: [
+      { value: "minify", label: "Minify — same data, valid JSON" },
+      { value: "clean", label: "Clean & minify — drops empty fields, rounds decimals" },
+      { value: "gzip", label: "Gzip — smallest file (.json.gz)" },
+    ],
+    helperText:
+      "Minify only removes spaces and line breaks. Clean & minify also drops null and empty values and rounds decimals to 4 places, so the data changes. Gzip is smallest, but the .json.gz must be unzipped before use.",
+  },
 };
+
+/** File types the generic picker offers, per action (unset = any file). */
+const ACTION_ACCEPT: Record<string, string> = {
+  compress_json: ".json,application/json",
+};
+
+/** Tools whose point is a smaller file: the summary shows the size before → after. */
+const SIZE_REDUCTION_ACTIONS = new Set(["compress_json"]);
+
+/** Most characters shown in the inline JSON preview; the rest is cut off. */
+const TEXT_PREVIEW_LIMIT = 200_000;
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function describeSizeChange(before: number, after: number) {
+  if (before <= 0 || after === before) return "same size";
+  const percent = Math.round((Math.abs(before - after) / before) * 100);
+  return after < before ? `${percent}% smaller` : `${percent}% larger`;
+}
 
 const IMAGE_CONVERT_PREVIEWABLE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"];
 const canPreviewImageInBrowser = (filename: string) =>
@@ -179,6 +217,7 @@ type PreviewFile = {
   url: string;
   mimeType: string;
   filename: string;
+  size: number;
 };
 
 const DOCX_MIME_TYPES = [
@@ -210,6 +249,9 @@ const extractFilenameFromContentDisposition = (value: string | null) => {
 const isDocxFile = (mimeType: string, filename: string) =>
   DOCX_MIME_TYPES.some((type) => mimeType.includes(type)) ||
   filename.toLowerCase().endsWith(".docx");
+
+const isJsonFile = (mimeType: string, filename: string) =>
+  mimeType.includes("json") || filename.toLowerCase().endsWith(".json");
 
 const isSpreadsheetFile = (mimeType: string, filename: string) =>
   SPREADSHEET_MIME_TYPES.some((type) => mimeType.includes(type)) ||
@@ -417,6 +459,8 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const [docxPreviewBlob, setDocxPreviewBlob] = useState<Blob | null>(null);
   const [spreadsheetPreviewBlob, setSpreadsheetPreviewBlob] = useState<Blob | null>(null);
   const [docxHtml, setDocxHtml] = useState<string | null>(null);
+  const [textPreview, setTextPreview] = useState<{ text: string; truncated: boolean } | null>(null);
+  const [sizeChange, setSizeChange] = useState<{ before: number; after: number } | null>(null);
   const [pdfPage, setPdfPage] = useState(1);
   const [pdfTotalPages, setPdfTotalPages] = useState(1);
   const [conversionProgress, setConversionProgress] = useState(0);
@@ -433,6 +477,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const isPdfOrganize = action === "pdf_organize";
   const isImageFormatConvert = action === "image_format_convert";
   const isZipFiles = action === "zip_files";
+  const showsSizeChange = SIZE_REDUCTION_ACTIONS.has(action);
   const convertRoute = useMemo(() => ACTION_TO_ROUTE[action] || "", [action]);
   const historyRoute = useMemo(
     () => ACTION_TO_HISTORY_ROUTE[action] || "/api/v3/conversions/history",
@@ -506,6 +551,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
     setDocxPreviewBlob(null);
     setSpreadsheetPreviewBlob(null);
     setDocxHtml(null);
+    setTextPreview(null);
     setPdfPage(1);
     setPdfTotalPages(1);
   };
@@ -534,6 +580,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       url: objectUrl,
       mimeType: blob.type || "application/octet-stream",
       filename: resolvedFilename,
+      size: blob.size,
     };
 
     replacePreview(nextPreview);
@@ -550,6 +597,12 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
       }
     } else if (isSpreadsheetFile(nextPreview.mimeType, nextPreview.filename)) {
       setSpreadsheetPreviewBlob(blob);
+    } else if (isJsonFile(nextPreview.mimeType, nextPreview.filename)) {
+      const text = await blob.text();
+      setTextPreview({
+        text: text.length > TEXT_PREVIEW_LIMIT ? text.slice(0, TEXT_PREVIEW_LIMIT) : text,
+        truncated: text.length > TEXT_PREVIEW_LIMIT,
+      });
     } else if (nextPreview.mimeType.includes("pdf")) {
       try {
         const { PDFDocument } = await import("pdf-lib");
@@ -560,6 +613,8 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
         setPdfTotalPages(1);
       }
     }
+
+    return nextPreview;
   };
 
   const pollConversionStatus = async (
@@ -602,6 +657,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const handleConvert = async () => {
     setError("");
     setResult(null);
+    setSizeChange(null);
     replacePreview(null);
     setShowPreviewViewer(false);
     setConversionStage("idle");
@@ -701,10 +757,13 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
 
       setConversionStage("preview");
       setConversionProgress((current) => Math.max(current, 86));
-      await fetchPreviewFile(
+      const converted = await fetchPreviewFile(
         readyResult.download_url,
         `conversion-${readyResult.conversion_id}`,
       );
+      if (showsSizeChange && file) {
+        setSizeChange({ before: file.size, after: converted.size });
+      }
       setResult({
         conversion_id: readyResult.conversion_id,
         status: "completed",
@@ -1284,6 +1343,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                             onChange={(e) =>
                               setFile(e.target.files?.[0] ?? null)
                             }
+                            accept={ACTION_ACCEPT[action]}
                             className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:font-semibold file:text-primary dark:border-slate-700 dark:bg-slate-900"
                           />
                         </div>
@@ -1414,6 +1474,20 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                             </p>
                           </div>
                         </div>
+
+                        {sizeChange ? (
+                          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                            <p className="text-xs uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                              File size
+                            </p>
+                            <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                              {formatBytes(sizeChange.before)} → {formatBytes(sizeChange.after)}{" "}
+                              <span className="font-semibold text-emerald-700 dark:text-emerald-300">
+                                ({describeSizeChange(sizeChange.before, sizeChange.after)})
+                              </span>
+                            </p>
+                          </div>
+                        ) : null}
 
                         {preview ? (
                           <button
@@ -1708,6 +1782,17 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
               filename={preview.filename}
               downloadUrl={preview.url}
             />
+          ) : textPreview ? (
+            <div className="space-y-2">
+              {textPreview.truncated ? (
+                <p className="text-xs text-slate-500">
+                  Showing the first {TEXT_PREVIEW_LIMIT.toLocaleString()} characters. Download the file to see all of it.
+                </p>
+              ) : null}
+              <pre className="max-h-[70vh] overflow-auto whitespace-pre-wrap break-all rounded-2xl border border-slate-200 bg-slate-50 p-4 font-mono text-xs text-slate-800 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+                {textPreview.text}
+              </pre>
+            </div>
           ) : preview.mimeType.includes("html") || preview.filename.toLowerCase().endsWith(".html") ? (
             <iframe
               src={preview.url}

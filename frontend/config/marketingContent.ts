@@ -27,7 +27,7 @@ export type ConversionGroup = {
   items: ConversionEntry[]
 }
 
-/** All 28 shipped conversions, grouped the way buyers shop for them. */
+/** All 29 shipped conversions, grouped the way buyers shop for them. */
 export const CONVERSION_GROUPS: ConversionGroup[] = [
   {
     id: 'tabular',
@@ -39,6 +39,7 @@ export const CONVERSION_GROUPS: ConversionGroup[] = [
       { action: 'excel_to_pdf', label: 'Excel to PDF', icon: 'grid_on' },
       { action: 'csv_to_excel', label: 'CSV to Excel', icon: 'grid_on' },
       { action: 'excel_to_csv', label: 'Excel to CSV', icon: 'csv' },
+      { action: 'compress_json', label: 'Compress JSON', icon: 'data_object' },
     ],
   },
   {
