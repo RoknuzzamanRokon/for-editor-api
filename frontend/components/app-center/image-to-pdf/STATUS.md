@@ -53,3 +53,24 @@ See the bottom of this file — updated after each phase.
   `appendImagesToFormData` (field `files`, display order).
 - Tests: `ImageToPdfBuilder.test.tsx`, `appCenterPages.test.tsx` — 11 passing.
 - tsc clean; lint unchanged from baseline.
+
+### Phases 2–3 — editor, navigation, rotate, reset, crop ✅
+
+- `ImageEditorModal` (portaled to `<body>`; the Request Builder card has a
+  backdrop-filter that would otherwise trap `position: fixed`): Cancel/Done,
+  "Image n / N", Prev/Next, ←/→ keys (ignored in inputs and the crop box),
+  thumbnail strip, crop presets (Free, A4, 1:1, Original), rotate left/right,
+  Reset, discard confirmation, focus trap, scroll lock, `beforeunload` guard.
+- Done renders changed images one at a time (`Applying edits… n/N`) and saves
+  only if all succeed; a failure keeps every draft and saves nothing. Reset to
+  defaults restores the original file without re-encoding.
+- Tiles: tap (≤6 px movement) or Enter opens the editor; dragging still
+  reorders; an Edit button and an "Edited" badge were added; Convert is
+  disabled while the editor is open. Focus returns to the tile on close.
+- `react-image-crop@11.1.2` for the crop box (peer `react >=16.13.1`; no deps).
+- Tests: 39 passing (geometry incl. a brute-force rotation/crop check, editor,
+  builder ↔ editor, pages). tsc clean; lint unchanged from baseline.
+- Real-browser check (headless Chrome via a scratch harness, not committed):
+  all four rotations, rotation + crop, EXIF-tagged JPEG, transparency → white,
+  JPEG encode, corrupt-file error, and the full tap → crop → rotate → Done flow
+  on desktop/light and mobile/sunset.

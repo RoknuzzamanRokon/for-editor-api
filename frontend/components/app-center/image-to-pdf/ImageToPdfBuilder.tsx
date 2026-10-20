@@ -3,9 +3,13 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import { createImageItem, type ImageItem } from "./types";
+import ImageEditorModal from "./ImageEditorModal";
+import { createImageItem, isDefaultEdits, type ImageItem } from "./types";
 
 const IMAGE_UPLOAD_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
+
+/** How far (px) a pointer may wander before a press on a tile counts as a drag, not a tap. */
+const TAP_SLOP = 6;
 
 export const isAcceptedImageFile = (file: File) =>
   file.type.startsWith("image/") ||
@@ -56,6 +60,48 @@ export default function ImageToPdfBuilder({
   const tileRefs = useRef<Array<HTMLDivElement | null>>([]);
   // Set after a keyboard move so focus follows the tile to its new position.
   const pendingTileFocus = useRef<number | null>(null);
+  // Where the current press started, and whether it has moved far enough to be a drag.
+  const pressRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  // The editor works on a snapshot of the list taken when it opens.
+  const [editorSession, setEditorSession] = useState<{
+    items: ImageItem[];
+    index: number;
+  } | null>(null);
+
+  // Tile to focus once the editor closes.
+  const returnFocusTo = useRef<string | null>(null);
+
+  const openEditor = (index: number) => {
+    if (submitting || items.length === 0) return;
+    setEditorSession({ items, index });
+  };
+
+  const closeEditor = () => {
+    if (editorSession) returnFocusTo.current = editorSession.items[editorSession.index]?.id ?? null;
+    setEditorSession(null);
+  };
+
+  const saveEditorSession = (edited: ImageItem[]) => {
+    const byId = new Map(edited.map((item) => [item.id, item]));
+    onItemsChange((prev) => prev.map((item) => byId.get(item.id) ?? item));
+    closeEditor();
+  };
+
+  // A tap doesn't focus the tile (pointerdown is default-prevented), so the
+  // dialog can't hand focus back on its own — return it to the tile it opened from.
+  useEffect(() => {
+    if (editorSession || !returnFocusTo.current) return;
+    const id = returnFocusTo.current;
+    returnFocusTo.current = null;
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    const index = items.findIndex((item) => item.id === id);
+    tileRefs.current[index]?.focus();
+  }, [editorSession, items]);
+
+  const thumbnailUrls = Object.fromEntries(
+    items.map((item, i) => [item.id, previewUrls[i] ?? ""]),
+  );
 
   const addFiles = (files: File[]) => {
     const accepted = files.filter(isAcceptedImageFile);
@@ -184,7 +230,7 @@ export default function ImageToPdfBuilder({
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
                 {items.length} photo
-                {items.length === 1 ? "" : "s"} · drag to reorder
+                {items.length === 1 ? "" : "s"} · tap to edit, drag to reorder
               </p>
               <button
                 type="button"
@@ -199,6 +245,7 @@ export default function ImageToPdfBuilder({
               {items.map((item, index) => {
                 const isDragging = dragIndex === index;
                 const name = item.original.name;
+                const isEdited = !isDefaultEdits(item.edits);
                 return (
                   <div
                     key={item.id}
@@ -207,20 +254,27 @@ export default function ImageToPdfBuilder({
                     }}
                     role="button"
                     tabIndex={0}
-                    aria-label={`${name}, page ${index + 1} of ${items.length}. Drag, or use arrow keys, to reorder.`}
+                    aria-label={`${name}, page ${index + 1} of ${items.length}${isEdited ? ", edited" : ""}. Press Enter to edit. Drag, or use arrow keys, to reorder.`}
                     // Pointer events rather than HTML5 drag-and-drop: this grid
                     // lives inside the file dropzone, and a native drag would
                     // trigger its onDragOver/onDrop. Pointer events also work
                     // on touch, which HTML5 drag does not.
                     onPointerDown={(e) => {
-                      // Let the remove button keep its own click.
+                      // Let the remove and edit buttons keep their own clicks.
                       if ((e.target as HTMLElement).closest("button")) return;
                       e.preventDefault();
                       e.currentTarget.setPointerCapture(e.pointerId);
+                      pressRef.current = { x: e.clientX, y: e.clientY, moved: false };
                       setDragIndex(index);
                     }}
                     onPointerMove={(e) => {
                       if (dragIndex === null) return;
+                      const press = pressRef.current;
+                      if (press && !press.moved) {
+                        // Below the slop it's still a tap — don't reorder yet.
+                        if (Math.hypot(e.clientX - press.x, e.clientY - press.y) < TAP_SLOP) return;
+                        press.moved = true;
+                      }
                       const over = tileIndexAtPoint(e.clientX, e.clientY);
                       if (over !== null && over !== dragIndex) {
                         moveImage(dragIndex, over);
@@ -231,11 +285,22 @@ export default function ImageToPdfBuilder({
                       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
                         e.currentTarget.releasePointerCapture(e.pointerId);
                       }
+                      const wasTap =
+                        dragIndex === index && pressRef.current !== null && !pressRef.current.moved;
+                      pressRef.current = null;
+                      setDragIndex(null);
+                      if (wasTap) openEditor(index);
+                    }}
+                    onPointerCancel={() => {
+                      pressRef.current = null;
                       setDragIndex(null);
                     }}
-                    onPointerCancel={() => setDragIndex(null)}
                     onKeyDown={(e) => {
-                      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                      if (e.target !== e.currentTarget) return;
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        openEditor(index);
+                      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
                         if (index === 0) return;
                         e.preventDefault();
                         pendingTileFocus.current = index - 1;
@@ -268,6 +333,11 @@ export default function ImageToPdfBuilder({
                     <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-[11px] font-bold text-white">
                       {index + 1}
                     </span>
+                    {isEdited ? (
+                      <span className="absolute left-8 top-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
+                        Edited
+                      </span>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() =>
@@ -283,9 +353,20 @@ export default function ImageToPdfBuilder({
                     <span aria-hidden="true" className="material-symbols-outlined pointer-events-none absolute inset-0 m-auto h-fit w-fit text-3xl text-white opacity-0 drop-shadow transition group-hover:opacity-70">
                       drag_indicator
                     </span>
-                    <p className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-1.5 py-1 text-[10px] text-white">
+                    <p className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent py-1 pl-1.5 pr-9 text-[10px] text-white">
                       {name}
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => openEditor(index)}
+                      disabled={submitting}
+                      className="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-40"
+                      aria-label={`Edit ${name}`}
+                    >
+                      <span aria-hidden="true" className="material-symbols-outlined text-base">
+                        tune
+                      </span>
+                    </button>
                   </div>
                 );
               })}
@@ -319,9 +400,20 @@ export default function ImageToPdfBuilder({
         />
       </div>
 
+      {editorSession ? (
+        <ImageEditorModal
+          items={editorSession.items}
+          initialIndex={editorSession.index}
+          thumbnailUrls={thumbnailUrls}
+          onCancel={closeEditor}
+          onDone={saveEditorSession}
+        />
+      ) : null}
+
       <button
         onClick={onConvert}
-        disabled={items.length === 0 || submitting}
+        // Not while the editor is open: its edits aren't saved until Done finishes.
+        disabled={items.length === 0 || submitting || editorSession !== null}
         type="button"
         className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200 sm:w-auto
         ${
