@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 class ImageToPDFConverterService:
@@ -13,8 +13,11 @@ class ImageToPDFConverterService:
 
     @staticmethod
     def _load_as_rgb(image_path: str) -> Image.Image:
-        with Image.open(image_path) as img:
-            img.load()
+        with Image.open(image_path) as source:
+            source.load()
+            # Phone cameras store pixels sideways and record the real orientation
+            # in EXIF; Pillow ignores that tag, so rotate the pixels to match.
+            img = ImageOps.exif_transpose(source)
             if img.mode in ("RGBA", "LA", "P"):
                 rgba = img.convert("RGBA")
                 background = Image.new("RGB", rgba.size, (255, 255, 255))
@@ -88,17 +91,10 @@ class ImageToPDFConverterService:
             output_dir = Path(output_path).parent
             output_dir.mkdir(parents=True, exist_ok=True)
 
-            with Image.open(image_path) as img:
-                # PDF requires RGB or grayscale-like modes; flatten transparency to white.
-                if img.mode in ("RGBA", "LA", "P"):
-                    rgba = img.convert("RGBA")
-                    background = Image.new("RGB", rgba.size, (255, 255, 255))
-                    background.paste(rgba, mask=rgba.split()[-1])
-                    rgb_image = background
-                else:
-                    rgb_image = img.convert("RGB")
-
-                rgb_image.save(output_path, "PDF", resolution=100.0)
+            # PDF requires RGB; this also flattens transparency to white and
+            # applies the EXIF orientation.
+            rgb_image = self._load_as_rgb(image_path)
+            rgb_image.save(output_path, "PDF", resolution=100.0)
 
             if not os.path.exists(output_path):
                 return False, "Failed to generate PDF output"
