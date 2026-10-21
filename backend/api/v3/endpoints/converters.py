@@ -1,3 +1,4 @@
+import asyncio
 import os
 import tempfile
 import uuid
@@ -46,7 +47,7 @@ from services.text_to_pdf_converter import TextToPDFConverterService
 from services.pptx_to_pdf_converter import PPTXToPDFConverterService
 from services.pdf_to_image_converter import PDFToImageConverterService
 from services.image_format_converter import ImageFormatConverterService, SUPPORTED_FORMATS as IMAGE_FORMAT_TARGETS
-from services.compress_pdf import CompressPDFService
+from services.compress_pdf import CompressPDFService, parse_target_kb
 from services.pdf_organize import PDFOrganizeService
 from services.pdf_to_pptx_converter import PDFToPPTXConverterService
 from services.zip_files import ZipFilesService
@@ -2469,6 +2470,7 @@ async def upload_pdf_for_compress(
     request: Request,
     response: Response,
     file: UploadFile = File(...),
+    target_kb: Optional[str] = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -2480,6 +2482,10 @@ async def upload_pdf_for_compress(
     try:
         is_valid, error_message = await compress_pdf_file_manager.validate_pdf_file(file)
         if not is_valid:
+            raise HTTPException(status_code=400, detail=error_message)
+        # Empty or missing target = the recommended compression.
+        target, error_message = parse_target_kb(target_kb)
+        if error_message:
             raise HTTPException(status_code=400, detail=error_message)
 
         content = await file.read()
@@ -2499,7 +2505,12 @@ async def upload_pdf_for_compress(
             temp_pdf.write(content)
             temp_pdf_path = temp_pdf.name
 
-        success, error_msg = compress_pdf_service.compress_pdf(temp_pdf_path, output_path)
+        # A target size can take several passes over the PDF; run them off the
+        # event loop so other requests aren't stalled meanwhile.
+        success, error_msg = await asyncio.to_thread(
+            compress_pdf_service.compress_pdf,
+            temp_pdf_path, output_path, target * 1024 if target else None,
+        )
         if not success:
             refund_points(db, current_user.id, action, charge_result.request_id)
             conversion.status = "failed"

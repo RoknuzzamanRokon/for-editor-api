@@ -96,6 +96,41 @@ page shows the size before → after, and previews `.json` results as text.
   endpoint on in-memory SQLite) and
   `frontend/components/app-center/__tests__/compressJsonPage.test.tsx`.
 
+## Compress PDF: target size
+
+`POST /api/v3/conversions/compress-pdf` takes an optional form field
+`target_kb` (a whole number, 10 to 51200). Without it, or with it empty, the
+tool does what it always did ("Recommended"). With it, the result is made to
+fit in that many KB:
+
+1. A lossless re-save (unused objects dropped, streams recompressed). If that
+   fits, images are not touched.
+2. Otherwise images are re-encoded with stronger and stronger settings
+   (`TARGET_LEVELS` in `backend/services/compress_pdf.py`: from "keep
+   resolution, JPEG 75" down to "50 DPI, JPEG 25"). A binary search finds the
+   gentlest level that fits, so only 3–4 passes run.
+3. If even the last level doesn't fit, the smallest version is returned. The
+   App Center page compares the result with the target and says it couldn't
+   be reached.
+
+Text and vector graphics are never turned into images, so they stay sharp and
+selectable — but it also means a PDF that is mostly text may not reach a small
+target. Black-and-white (fax-style) images are left alone. A PDF that needs a
+password to open is refused; one with only an owner password keeps its
+encryption and restrictions. A bad `target_kb` is a 400 before any points are
+charged.
+
+On the page, the target is picked in a flyout (`TargetSizeFlyout`): presets
+from 50 KB to 2 MB, or a custom size in KB or MB. Presets the file already fits
+under are disabled.
+
+- Service: `backend/services/compress_pdf.py` (`parse_target_kb`,
+  `CompressPDFService._compress_to_target`), using PyMuPDF.
+- Flyout: `frontend/components/app-center/TargetSizeFlyout.tsx`, wired in as
+  extra field type `"size"` in both `edit/[slug]/page.tsx` files.
+- Tests: `backend/tests/test_compress_pdf.py` and
+  `frontend/components/app-center/__tests__/compressPdfPage.test.tsx`.
+
 ## New Viewer Panel viewers
 
 All four are pure client-side components — no backend involved, same as

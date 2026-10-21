@@ -6,6 +6,7 @@ import Link from "next/link";
 import EditableDocxPreview from "@/components/app-center/EditableDocxPreview";
 import ExcelWorkbookPreview from "@/components/app-center/ExcelWorkbookPreview";
 import RemoveBackgroundStudio from "@/components/app-center/RemoveBackgroundStudio";
+import TargetSizeFlyout, { formatTargetSize } from "@/components/app-center/TargetSizeFlyout";
 import ImageToPdfBuilder, {
   appendImagesToFormData,
 } from "@/components/app-center/image-to-pdf/ImageToPdfBuilder";
@@ -82,7 +83,7 @@ const ACTION_TO_HISTORY_ROUTE: Record<string, string> = {
 type ExtraFieldConfig = {
   name: string;
   label: string;
-  type: "text" | "password" | "select";
+  type: "text" | "password" | "select" | "size";
   placeholder?: string;
   required?: boolean;
   helperText?: string;
@@ -126,6 +127,13 @@ const ACTION_EXTRA_FIELD: Record<string, ExtraFieldConfig | undefined> = {
       { value: "ico", label: "ICO" },
     ],
   },
+  compress_pdf: {
+    name: "target_kb",
+    label: "Target Size",
+    type: "size",
+    helperText:
+      "Recommended keeps images sharp. With a target size, image quality is lowered until the PDF fits; text stays sharp and selectable.",
+  },
   compress_json: {
     name: "mode",
     label: "Compression",
@@ -144,10 +152,11 @@ const ACTION_EXTRA_FIELD: Record<string, ExtraFieldConfig | undefined> = {
 /** File types the generic picker offers, per action (unset = any file). */
 const ACTION_ACCEPT: Record<string, string> = {
   compress_json: ".json,application/json",
+  compress_pdf: ".pdf,application/pdf",
 };
 
 /** Tools whose point is a smaller file: the summary shows the size before → after. */
-const SIZE_REDUCTION_ACTIONS = new Set(["compress_json"]);
+const SIZE_REDUCTION_ACTIONS = new Set(["compress_json", "compress_pdf"]);
 
 /** Most characters shown in the inline JSON preview; the rest is cut off. */
 const TEXT_PREVIEW_LIMIT = 200_000;
@@ -460,7 +469,7 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
   const [spreadsheetPreviewBlob, setSpreadsheetPreviewBlob] = useState<Blob | null>(null);
   const [docxHtml, setDocxHtml] = useState<string | null>(null);
   const [textPreview, setTextPreview] = useState<{ text: string; truncated: boolean } | null>(null);
-  const [sizeChange, setSizeChange] = useState<{ before: number; after: number } | null>(null);
+  const [sizeChange, setSizeChange] = useState<{ before: number; after: number; targetKb?: number } | null>(null);
   const [pdfPage, setPdfPage] = useState(1);
   const [pdfTotalPages, setPdfTotalPages] = useState(1);
   const [conversionProgress, setConversionProgress] = useState(0);
@@ -762,7 +771,11 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
         `conversion-${readyResult.conversion_id}`,
       );
       if (showsSizeChange && file) {
-        setSizeChange({ before: file.size, after: converted.size });
+        setSizeChange({
+          before: file.size,
+          after: converted.size,
+          targetKb: extraField?.type === "size" && extraFieldValue ? Number(extraFieldValue) : undefined,
+        });
       }
       setResult({
         conversion_id: readyResult.conversion_id,
@@ -1365,6 +1378,12 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                                   </option>
                                 ))}
                               </select>
+                            ) : extraField.type === "size" ? (
+                              <TargetSizeFlyout
+                                value={extraFieldValue}
+                                onChange={setExtraFieldValue}
+                                fileSize={file?.size}
+                              />
                             ) : (
                               <input
                                 type={extraField.type}
@@ -1486,6 +1505,19 @@ export default function AdminAppCenterEditPage({ params }: EditPageProps) {
                                 ({describeSizeChange(sizeChange.before, sizeChange.after)})
                               </span>
                             </p>
+                            {sizeChange.targetKb ? (
+                              <p
+                                className={`mt-1 text-xs ${
+                                  sizeChange.after <= sizeChange.targetKb * 1024
+                                    ? "text-emerald-700 dark:text-emerald-300"
+                                    : "text-amber-700 dark:text-amber-300"
+                                }`}
+                              >
+                                {sizeChange.after <= sizeChange.targetKb * 1024
+                                  ? `Under your ${formatTargetSize(sizeChange.targetKb)} target.`
+                                  : `Couldn't get under ${formatTargetSize(sizeChange.targetKb)}. This is the smallest it can go while the pages stay readable.`}
+                              </p>
+                            ) : null}
                           </div>
                         ) : null}
 
